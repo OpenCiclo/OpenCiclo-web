@@ -1,10 +1,8 @@
 // Copyright © 2026 Emma Flora Harbison & Luis Rey Sánchez
 // SPDX-License-Identifier: Apache-2.0
 
-import { eq } from "drizzle-orm";
-
-import { authChallenges } from "@/lib/db/schema";
 import { getDb } from "@/lib/db";
+import { issueChallenge } from "@/lib/server/auth-challenges";
 import { jsonError } from "@/lib/server/env";
 
 export async function POST(request: Request) {
@@ -13,10 +11,6 @@ export async function POST(request: Request) {
   if (!pubkeyHash || !/^[0-9a-f]{64}$/.test(pubkeyHash)) {
     return jsonError("Invalid public key hash", 400);
   }
-  const nonce = crypto.randomUUID().replaceAll("-", "") + crypto.randomUUID().replaceAll("-", "");
-  const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
-  const db = getDb();
-  await db.delete(authChallenges).where(eq(authChallenges.pubkeyHash, pubkeyHash));
-  await db.insert(authChallenges).values({ pubkeyHash, nonce, expiresAt });
+  const { nonce, expiresAt } = await issueChallenge(getDb(), pubkeyHash);
   return Response.json({ nonce, expiresAt: expiresAt.toISOString() });
 }

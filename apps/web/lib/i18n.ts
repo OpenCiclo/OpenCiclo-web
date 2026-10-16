@@ -209,6 +209,10 @@ const es = {
   wordMismatch: "Esa palabra no coincide.",
   privacyTitle: "Privacidad",
   welcomeCta: "Empieza en el navegador. Las fechas se cifran antes de salir del dispositivo.",
+  restoreFailedTitle: "No pudimos abrir tu diario",
+  restoreFailedBody:
+    "Puede ser la conexión o el servidor. Tu acceso sigue guardado en este dispositivo y tus datos no se han tocado.",
+  restoreRetry: "Reintentar",
   installTitle: "Añádela a la pantalla de inicio",
   installDismiss: "Ahora no",
   installAction: "Instalar",
@@ -733,6 +737,10 @@ const en = {
   wordMismatch: "That word does not match.",
   privacyTitle: "Privacy",
   welcomeCta: "Start in the browser. Dates are encrypted before they leave the device.",
+  restoreFailedTitle: "We couldn't open your diary",
+  restoreFailedBody:
+    "It may be your connection or our server. Your sign-in is still saved on this device and your data was not touched.",
+  restoreRetry: "Try again",
   installTitle: "Add it to your home screen",
   installDismiss: "Not now",
   installAction: "Install",
