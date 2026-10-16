@@ -3,11 +3,10 @@
 import { useState } from "react";
 import Link from "next/link";
 
-import { useCiclo } from "@/lib/client/ciclo-context";
+import { useCiclo, useTodayIso } from "@/lib/client/ciclo-context";
 import { initialChartWindow, untruncatedDaily } from "@/lib/cycle/initial-chart";
 import { cycleOverview } from "@/lib/cycle/phases";
 import { initialProbabilityLabel, periodTimingChip } from "@/lib/cycle/period-timing";
-import { todayIsoUtc } from "@/lib/diary";
 import { daysBetween } from "@/lib/forecast/math";
 import type { DailyProbability } from "@/lib/forecast/types";
 import { Badge } from "@/components/ui/badge";
@@ -52,7 +51,7 @@ function Stat({ label, value }: { label: string; value: string }) {
 export function ForecastCard() {
   const { diary, t, locale } = useCiclo();
   const [showMoreInfo, setShowMoreInfo] = useState(false);
-  const today = todayIsoUtc();
+  const today = useTodayIso();
   const overview = cycleOverview(diary, today);
   if (!overview.forecastingEnabled) return null;
   if (diary.periodStarts.length === 0 || !overview.forecast) {
