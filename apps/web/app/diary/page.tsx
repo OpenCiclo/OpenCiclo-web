@@ -10,10 +10,9 @@ import { ArrowLeft, Search } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
 import { NoteViewer } from "@/components/journal/note-viewer";
 import { Input } from "@/components/ui/input";
-import { useCiclo } from "@/lib/client/ciclo-context";
+import { useCiclo, useTodayIso } from "@/lib/client/ciclo-context";
 import { cycleOverview, phaseLabel } from "@/lib/cycle/phases";
 import { formatIsoUtc } from "@/lib/format-date";
-import { todayIsoUtc } from "@/lib/diary";
 import { filterJournalEntries, listJournalEntries, type JournalEntry } from "@/lib/journal/entries";
 
 export default function DiaryHistoryPage() {
@@ -21,7 +20,7 @@ export default function DiaryHistoryPage() {
   const [query, setQuery] = useState("");
   const [activeEntry, setActiveEntry] = useState<JournalEntry | null>(null);
   const [closing, setClosing] = useState(false);
-  const today = todayIsoUtc();
+  const today = useTodayIso();
   const overview = useMemo(() => cycleOverview(diary, today), [diary, today]);
   const entries = useMemo(
     () => listJournalEntries(diary, overview.nextPeriodDate),

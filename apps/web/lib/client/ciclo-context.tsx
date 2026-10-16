@@ -29,6 +29,7 @@ import {
   LOCALE_KEY,
   LUNAR_PHASES_ENABLED_KEY,
   LUNAR_PHASES_VISIBLE_KEY,
+  TIME_ZONE_KEY,
   VISUAL_SEASONS_KEY,
   WEEK_STARTS_ON_KEY,
   clearStoredMnemonic,
@@ -44,6 +45,13 @@ import { syncPoolIfDue } from "@/lib/pool-sync";
 import { DIARY_SCHEMA_VERSION, emptyDiary, parseDiary, type Diary } from "@/lib/diary";
 import { messages, type Locale } from "@/lib/i18n";
 import { COLOR_SCHEME_KEY, parseColorScheme, type ColorScheme } from "@/lib/client/color-scheme";
+import {
+  TIME_ZONE_AUTO,
+  parseTimeZoneSetting,
+  resolveTimeZone,
+  todayIsoIn,
+  type TimeZoneSetting,
+} from "@/lib/time-zone";
 
 type UnlockOptions = { create?: boolean; persist?: boolean };
 type PersistOptions = { persist?: boolean };
@@ -57,6 +65,7 @@ type CicloContextValue = {
   lunarPhasesEnabled: boolean;
   lunarPhasesVisible: boolean;
   weekStartsOn: 0 | 1;
+  timeZone: TimeZoneSetting;
   colorScheme: ColorScheme;
   t: (typeof messages)["es"];
   error: string | null;
@@ -65,6 +74,7 @@ type CicloContextValue = {
   setLunarPhasesEnabled: (enabled: boolean) => void;
   setLunarPhasesVisible: (visible: boolean) => void;
   setWeekStartsOn: (weekStartsOn: 0 | 1) => void;
+  setTimeZone: (timeZone: TimeZoneSetting) => void;
   setColorScheme: (scheme: ColorScheme) => void;
   startOnboarding: () => Wallet;
   unlock: (mnemonic: string, options?: UnlockOptions) => Promise<void>;
@@ -124,6 +134,7 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
   const [lunarPhasesEnabled, setLunarPhasesEnabledState] = useState(true);
   const [lunarPhasesVisible, setLunarPhasesVisibleState] = useState(false);
   const [weekStartsOn, setWeekStartsOnState] = useState<0 | 1>(1);
+  const [timeZone, setTimeZoneState] = useState<TimeZoneSetting>(TIME_ZONE_AUTO);
   const [colorScheme, setColorSchemeState] = useState<ColorScheme>("system");
   const [error, setError] = useState<string | null>(null);
   const [pendingSignup, setPendingSignup] = useState<PendingEmailSignup | null>(null);
@@ -166,6 +177,7 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
           parseLunarPhasesVisible(localStorage.getItem(LUNAR_PHASES_VISIBLE_KEY)),
         );
         setWeekStartsOnState(parseWeekStartsOn(localStorage.getItem(WEEK_STARTS_ON_KEY)));
+        setTimeZoneState(parseTimeZoneSetting(localStorage.getItem(TIME_ZONE_KEY)));
         setColorSchemeState(parseColorScheme(localStorage.getItem(COLOR_SCHEME_KEY)));
         if (!unlockState.mnemonic) {
           setDiary(emptyDiary(storedLocale));
@@ -233,6 +245,7 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
       lunarPhasesEnabled,
       lunarPhasesVisible,
       weekStartsOn,
+      timeZone,
       colorScheme,
       t,
       error,
@@ -260,6 +273,11 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
       setWeekStartsOn: (next) => {
         localStorage.setItem(WEEK_STARTS_ON_KEY, String(next));
         setWeekStartsOnState(next);
+      },
+      setTimeZone: (next) => {
+        const parsed = parseTimeZoneSetting(next);
+        localStorage.setItem(TIME_ZONE_KEY, parsed);
+        setTimeZoneState(parsed);
       },
       setColorScheme: (scheme) => {
         localStorage.setItem(COLOR_SCHEME_KEY, scheme);
@@ -374,6 +392,7 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
       lunarPhasesEnabled,
       lunarPhasesVisible,
       weekStartsOn,
+      timeZone,
       colorScheme,
       pendingSignup,
       persistDiary,
@@ -392,6 +411,12 @@ export function useCiclo() {
   const ctx = useContext(CicloContext);
   if (!ctx) throw new Error("useCiclo must be used within CicloProvider");
   return ctx;
+}
+
+/** Today's YYYY-MM-DD in the zone chosen in Settings (device zone by default). */
+export function useTodayIso(): string {
+  const { timeZone } = useCiclo();
+  return todayIsoIn(resolveTimeZone(timeZone));
 }
 
 export {

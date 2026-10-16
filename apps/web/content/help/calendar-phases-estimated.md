@@ -46,6 +46,14 @@ If that day arrives and you have not logged a new period start, the home card st
 
 The Patterns tab still shows the forecast with past days removed. That chart answers “what is still ahead?” The calendar does not.
 
+## Which day is “today”
+
+Ciclo uses the time zone of your phone or computer to decide which day is today. The calendar moves to the next day at midnight on your clock.
+
+To use a different zone, go to **Settings** → **Time zone** (Spanish UI: **Zona horaria**). **Automatic** follows the device. The choice is saved on that device only.
+
+Before October 2026, Ciclo used UTC (Coordinated Universal Time, the world reference clock). West of UTC, the calendar could switch to tomorrow in the evening. In Mexico City that was 18:00.
+
 ## Not the same as the period forecast
 
 The forecast engine predicts the **next period start**. Phase labels reuse those dates as a calendar story. They are not a clinical ovulation model.
