@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 
 import { decryptAesGcm, encryptAesGcm } from "@/lib/crypto/aes";
 import { bytesToUtf8, utf8ToBytes } from "@/lib/crypto/bytes";
@@ -12,6 +12,7 @@ import {
   loginWithWallet,
   logoutSession,
   putVault,
+  type VaultBlob,
 } from "@/lib/client/api";
 import {
   InvalidConfirmError,
@@ -43,6 +44,7 @@ import {
 } from "@/lib/client/storage-migrate";
 import { syncPoolIfDue } from "@/lib/pool-sync";
 import { DIARY_SCHEMA_VERSION, emptyDiary, parseDiary, type Diary } from "@/lib/diary";
+import { mergeDiaryEdits } from "@/lib/diary-merge";
 import { messages, type Locale } from "@/lib/i18n";
 import { COLOR_SCHEME_KEY, parseColorScheme, type ColorScheme } from "@/lib/client/color-scheme";
 import {
@@ -129,6 +131,19 @@ function persistFlag(options?: PersistOptions): boolean {
   return options?.persist !== false;
 }
 
+// A save that keeps hitting 409 means another device is saving nonstop. Give up
+// and surface an error rather than loop.
+const MAX_SAVE_ATTEMPTS = 3;
+
+async function sealDiary(aesKey: Uint8Array, diary: Diary): Promise<VaultBlob> {
+  const sealed = await encryptAesGcm(aesKey, utf8ToBytes(JSON.stringify(diary)));
+  return { ciphertext: sealed.ciphertext, nonce: sealed.nonce, schemaVersion: diary.schemaVersion };
+}
+
+async function openVault(aesKey: Uint8Array, blob: VaultBlob): Promise<Diary> {
+  return parseDiary(bytesToUtf8(await decryptAesGcm(aesKey, blob.ciphertext, blob.nonce)));
+}
+
 export function CicloProvider({ children }: { children: React.ReactNode }) {
   const [ready, setReady] = useState(false);
   const [wallet, setWallet] = useState<Wallet | null>(null);
@@ -149,28 +164,64 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
   // Loads and decrypts the vault before touching state. The wallet is set only
   // once the real diary is in memory: an unlocked wallet next to an empty diary
   // would let the next save upload that empty diary over the real one.
+  // What the server holds as of this device's last load or save. Every save is
+  // made on top of this version, and it is the base for merging another
+  // device's edits (see lib/diary-merge.ts).
+  const syncedRef = useRef<{ diary: Diary; version: number } | null>(null);
+  // The diary on screen. Callers build `next` from it, so a queued save can
+  // re-apply just that edit on top of saves that finished in the meantime.
+  const shownDiaryRef = useRef<Diary>(diary);
+  useEffect(() => {
+    shownDiaryRef.current = diary;
+  }, [diary]);
+  // One save at a time on this device.
+  const saveQueueRef = useRef<Promise<unknown>>(Promise.resolve());
+
+  // Saves `local` on top of the synced version. If another device saved first
+  // (409), merges its edits in and tries again. Returns what was stored.
+  const saveMerged = useCallback(async (aesKey: Uint8Array, local: Diary): Promise<Diary> => {
+    let synced = syncedRef.current;
+    if (!synced) throw new Error("Locked");
+    let candidate = local;
+    for (let attempt = 0; attempt < MAX_SAVE_ATTEMPTS; attempt += 1) {
+      const result = await putVault(await sealDiary(aesKey, candidate), synced.version);
+      if (result.ok) {
+        syncedRef.current = { diary: candidate, version: result.version };
+        return candidate;
+      }
+      const remote = result.current.ciphertext
+        ? await openVault(aesKey, result.current)
+        : emptyDiary(candidate.locale);
+      candidate = mergeDiaryEdits(synced.diary, candidate, remote);
+      synced = { diary: remote, version: result.current.version };
+      syncedRef.current = synced;
+    }
+    throw new Error("Could not save: the diary keeps changing on another device");
+  }, []);
+
+  // Loads and decrypts the vault before touching state. The wallet is set only
+  // once the real diary is in memory: an unlocked wallet next to an empty diary
+  // would let the next save upload that empty diary over the real one.
   const hydrate = useCallback(
     async (nextWallet: Wallet, fallbackLocale: Locale, isCancelled: () => boolean = () => false) => {
       const vault = await fetchVault();
-      const loaded = vault?.ciphertext
-        ? parseDiary(bytesToUtf8(await decryptAesGcm(nextWallet.aesKey, vault.ciphertext, vault.nonce)))
-        : emptyDiary(fallbackLocale);
+      const loaded = vault.blob ? await openVault(nextWallet.aesKey, vault.blob) : emptyDiary(fallbackLocale);
       if (isCancelled()) return;
+      syncedRef.current = { diary: loaded, version: vault.version };
       setDiary(loaded);
       setWallet(nextWallet);
       setRestoreFailed(false);
       if (!loaded.poolOptIn) return;
       try {
-        const synced = await syncPoolIfDue(loaded);
-        if (isCancelled() || synced.poolLastSyncedAt === loaded.poolLastSyncedAt) return;
-        setDiary(synced);
-        const sealed = await encryptAesGcm(nextWallet.aesKey, utf8ToBytes(JSON.stringify(synced)));
-        await putVault(sealed.ciphertext, sealed.nonce, synced.schemaVersion);
+        const withPool = await syncPoolIfDue(loaded);
+        if (isCancelled() || withPool.poolLastSyncedAt === loaded.poolLastSyncedAt) return;
+        const saved = await saveMerged(nextWallet.aesKey, withPool);
+        if (!isCancelled()) setDiary(saved);
       } catch {
         // The pool is optional; the next save retries it.
       }
     },
-    [],
+    [saveMerged],
   );
 
   // Signs in again with the phrase kept on this device. Only an unusable phrase
@@ -234,18 +285,25 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
   }, [restoreStoredSession]);
 
   const persistDiary = useCallback(
-    async (next: Diary) => {
-      if (!wallet) throw new Error("Locked");
-      let normalized = parseDiary(next);
-      if (normalized.poolOptIn) {
-        normalized = await syncPoolIfDue(normalized);
-      }
-      const sealed = await encryptAesGcm(wallet.aesKey, utf8ToBytes(JSON.stringify(normalized)));
-      await putVault(sealed.ciphertext, sealed.nonce, normalized.schemaVersion);
-      setDiary(normalized);
-      localStorage.setItem(LOCALE_KEY, normalized.locale);
+    (next: Diary) => {
+      // The caller's edit is the change from what was on screen to `next`.
+      const shown = shownDiaryRef.current;
+      const run = async () => {
+        if (!wallet || !syncedRef.current) throw new Error("Locked");
+        // Re-apply that edit on top of anything saved since the caller rendered.
+        let local = mergeDiaryEdits(shown, parseDiary(next), syncedRef.current.diary);
+        if (local.poolOptIn) {
+          local = await syncPoolIfDue(local);
+        }
+        const saved = await saveMerged(wallet.aesKey, local);
+        setDiary(saved);
+        localStorage.setItem(LOCALE_KEY, saved.locale);
+      };
+      const queued = saveQueueRef.current.then(run, run);
+      saveQueueRef.current = queued.catch(() => undefined);
+      return queued;
     },
-    [wallet],
+    [wallet, saveMerged],
   );
 
   const unlock = useCallback(
@@ -415,12 +473,14 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
         await deleteAccount();
         clearStoredMnemonic();
         clearLocalKits();
+        syncedRef.current = null;
         setWallet(null);
         setDiary(emptyDiary(locale));
       },
       signOut: async () => {
         await logoutSession();
         clearStoredMnemonic();
+        syncedRef.current = null;
         setWallet(null);
       },
     }),
