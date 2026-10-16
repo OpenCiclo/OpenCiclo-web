@@ -6,7 +6,11 @@ from collections.abc import Sequence
 import numpy as np
 import pandas as pd
 
-from openciclo.forecasting.distribution import central_interval, pmf_lookup, probability_within_window
+from openciclo.forecasting.distribution import (
+    central_interval,
+    pmf_lookup,
+    probability_within_window,
+)
 from openciclo.schemas.forecast import Forecast
 
 
