@@ -32,6 +32,35 @@ def test_long_cycle_is_kept_not_deleted() -> None:
     assert not any(issue.severity is IssueSeverity.ERROR for issue in issues)
 
 
+def _codes_for_cycle(length_days: int) -> set[str]:
+    start = date(2026, 6, 1)
+    later = date.fromordinal(start.toordinal() + length_days)
+    return {
+        issue.code for issue in validate_history([PeriodStart(date=start), PeriodStart(date=later)])
+    }
+
+
+def test_usual_band_matches_the_24_to_38_day_adult_range() -> None:
+    # Same range the Learn articles give for "worth getting checked".
+    assert "unusual_short_cycle" in _codes_for_cycle(23)
+    assert "unusual_short_cycle" not in _codes_for_cycle(24)
+    assert not {"unusual_short_cycle", "unusual_long_cycle"} & _codes_for_cycle(28)
+    assert "unusual_long_cycle" not in _codes_for_cycle(38)
+    assert "unusual_long_cycle" in _codes_for_cycle(39)
+
+
+def test_unusual_cycles_are_notes_that_keep_the_data() -> None:
+    for length in (23, 39):
+        issues = validate_history(
+            [
+                PeriodStart(date=date(2026, 6, 1)),
+                PeriodStart(date=date.fromordinal(date(2026, 6, 1).toordinal() + length)),
+            ]
+        )
+        unusual = [issue for issue in issues if issue.code.startswith("unusual_")]
+        assert unusual and all(issue.severity is IssueSeverity.NOTE for issue in unusual)
+
+
 def test_unknown_status_is_not_a_negative_observation() -> None:
     issues = validate_history(
         [

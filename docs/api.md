@@ -53,7 +53,7 @@ Serialize with Pydantic: `forecast.model_dump(mode="json")`.
 | Function | Module | Use |
 | --- | --- | --- |
 | `cycles_from_starts` | `openciclo.data.cycles` | Build `Cycle` rows and lengths |
-| `validate_history` | `openciclo.data.validation` | Errors vs unusual-but-valid flags |
+| `validate_history` | `openciclo.data.validation` | Errors vs unusual-but-valid flags. Cycles outside 24–38 days get a `NOTE` (`unusual_short_cycle` / `unusual_long_cycle`); under 10 or over 60 days get a `WARNING`. Data is always kept, and the forecast is unchanged |
 | `generate_synthetic_cohort` | `openciclo.data.synthetic` | Non-production cohort |
 | `fit_population_prior` | `openciclo.models.population` | Train-split prior |
 | `walk_forward_cohort` | `openciclo.evaluation.walkforward` | Leak-safe backtest |
