@@ -6,8 +6,9 @@
 export const ENGINE_VERSION = "0.2.1";
 export const MIN_CYCLE_LENGTH = 1;
 export const MAX_CYCLE_LENGTH = 90;
-export const UNUSUAL_SHORT_DAYS = 21;
-export const UNUSUAL_LONG_DAYS = 45;
+// 24–38 days: the adult range in Learn (OWH / FIGO). Notes only, never the forecast.
+export const UNUSUAL_SHORT_DAYS = 24;
+export const UNUSUAL_LONG_DAYS = 38;
 export const SUSPICIOUS_SHORT_DAYS = 10;
 export const SUSPICIOUS_LONG_DAYS = 60;
 export const INCOMPLETE_HISTORY_DAYS = 40;
