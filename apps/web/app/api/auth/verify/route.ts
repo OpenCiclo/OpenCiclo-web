@@ -1,12 +1,10 @@
 // Copyright © 2026 Emma Flora Harbison & Luis Rey Sánchez
 // SPDX-License-Identifier: Apache-2.0
 
-import { eq } from "drizzle-orm";
-
 import { verifyChallenge } from "@/lib/crypto/wallet";
-import { accounts } from "@/lib/db/schema";
 import { getDb } from "@/lib/db";
 import { consumeChallenge } from "@/lib/server/auth-challenges";
+import { createAccountIfMissing } from "@/lib/server/create-account";
 import { jsonError } from "@/lib/server/env";
 import { setSessionCookie } from "@/lib/server/session";
 import { recordAccountOpen } from "@/lib/server/account-activity";
@@ -46,22 +44,13 @@ export async function POST(request: Request) {
     return jsonError("Challenge expired", 401);
   }
 
-  const existing = await db
-    .select()
-    .from(accounts)
-    .where(eq(accounts.pubkeyHash, pubkeyHash))
-    .limit(1);
-  let created = false;
-  if (!existing[0]) {
-    await db.insert(accounts).values({
-      pubkeyHash,
-      pubkey,
-      ciphertext: body.ciphertext ?? "",
-      nonce: body.nonceVault ?? "",
-      schemaVersion: body.schemaVersion ?? 1,
-    });
-    created = true;
-  }
+  const created = await createAccountIfMissing(db, {
+    pubkeyHash,
+    pubkey,
+    ciphertext: body.ciphertext ?? "",
+    nonce: body.nonceVault ?? "",
+    schemaVersion: body.schemaVersion ?? 1,
+  });
   await setSessionCookie(pubkeyHash, body.persist !== false);
   await recordAccountOpen(pubkeyHash);
   return Response.json({ ok: true, created });
