@@ -153,10 +153,11 @@ export const INTIMATE_HEALTH_ARTICLES: LearnArticle[] = [
   {
     slug: "bacterial-vaginosis",
     category: "intimate-health",
-    reviewedAt: "2026-10-04",
+    reviewedAt: "2026-10-16",
     sources: [
       { label: "NHS — Bacterial vaginosis", href: "https://www.nhs.uk/conditions/bacterial-vaginosis/" },
       { label: "CDC — About bacterial vaginosis (BV)", href: "https://www.cdc.gov/bacterial-vaginosis/about/index.html" },
+      { label: "ACOG — Concurrent partner treatment for recurrent bacterial vaginosis (2025)", href: "https://www.acog.org/news/news-releases/2025/10/acog-recommends-concurrent-sexual-partner-treatment-recurrent-bacterial-vaginosis-first-time" },
       { label: "NHS — Vaginal discharge", href: "https://www.nhs.uk/conditions/vaginal-discharge/" },
     ],
     related: ["vaginal-discharge", "yeast-infection", "intimate-hygiene"],
@@ -178,7 +179,7 @@ export const INTIMATE_HEALTH_ARTICLES: LearnArticle[] = [
         },
         {
           heading: "Tratamiento y por qué importa",
-          body: "La vaginosis bacteriana se trata con antibióticos. Pueden ser pastillas, o un gel o una crema. Si tu pareja tiene vagina, puede que también necesite tratamiento. Tratarla es importante porque se asocia a una mayor probabilidad de contraer el VIH y otras ITS. Durante el embarazo hay una pequeña probabilidad de que la vaginosis bacteriana cause problemas como un parto antes de tiempo (prematuro) o un aborto espontáneo (pérdida del embarazo).",
+          body: "La vaginosis bacteriana se trata con antibióticos. Pueden ser pastillas, o un gel o una crema. Si tu pareja tiene vagina, puede que también necesite tratamiento. Si la vaginosis bacteriana vuelve una y otra vez y tu pareja tiene pene, pregunta a un médico si también debería recibir tratamiento. Tratarla es importante porque se asocia a una mayor probabilidad de contraer el VIH y otras ITS. Durante el embarazo hay una pequeña probabilidad de que la vaginosis bacteriana cause problemas como un parto antes de tiempo (prematuro) o un aborto espontáneo (pérdida del embarazo).",
         },
         {
           heading: "Cómo evitar que vuelva",
@@ -209,7 +210,7 @@ export const INTIMATE_HEALTH_ARTICLES: LearnArticle[] = [
         },
         {
           heading: "Treatment and why it matters",
-          body: "BV is treated with antibiotics. These can be tablets, or a gel or cream. If your partner has a vagina, they may need treatment too. Treating BV matters because it is linked to a higher chance of getting HIV and other STIs. During pregnancy there is a small chance that BV can lead to problems such as an early (premature) birth or miscarriage.",
+          body: "BV is treated with antibiotics. These can be tablets, or a gel or cream. If your partner has a vagina, they may need treatment too. If BV keeps coming back and your partner has a penis, ask a doctor whether they should be treated as well. Treating BV matters because it is linked to a higher chance of getting HIV and other STIs. During pregnancy there is a small chance that BV can lead to problems such as an early (premature) birth or miscarriage.",
         },
         {
           heading: "Stopping it coming back",

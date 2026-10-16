@@ -7,12 +7,13 @@ export const MENOPAUSE_ARTICLES: LearnArticle[] = [
   {
     slug: "perimenopause",
     category: "menopause",
-    reviewedAt: "2026-10-04",
+    reviewedAt: "2026-10-16",
     sources: [
       { label: "Office on Women's Health — Menopause basics", href: "https://www.womenshealth.gov/menopause/menopause-basics" },
       { label: "NHS — Early or premature menopause", href: "https://www.nhs.uk/conditions/early-menopause/" },
       { label: "NHS — What are menopause and perimenopause", href: "https://www.nhs.uk/conditions/menopause-and-perimenopause/what-are-menopause-and-perimenopause/" },
       { label: "NHS — About hormone replacement therapy (HRT)", href: "https://www.nhs.uk/medicines/hormone-replacement-therapy-hrt/about-hormone-replacement-therapy-hrt/" },
+      { label: "Devon Sexual Health (NHS) — Contraception aged over 40", href: "https://www.devonsexualhealth.nhs.uk/contraception/contraception-aged-over-40/" },
     ],
     related: ["menopause-symptoms", "early-menopause", "heavy-periods"],
     es: {
@@ -37,7 +38,7 @@ export const MENOPAUSE_ARTICLES: LearnArticle[] = [
         },
         {
           heading: "Todavía es posible el embarazo",
-          body: "Aunque tus periodos sean irregulares o no te vengan durante unos meses, durante la perimenopausia todavía es posible un embarazo. Si no quieres un embarazo, sigue usando anticoncepción hasta que lleves 2 años sin periodos si tienes menos de 50 años, o 1 año si tienes 50 o más. La terapia hormonal (THS) no evita el embarazo. La anticoncepción hormonal puede ocultar tus periodos naturales, así que un médico o una enfermera puede decirte qué método te conviene en esta etapa de la vida y cuándo es seguro dejarlo.",
+          body: "Aunque tus periodos sean irregulares o no te vengan durante unos meses, durante la perimenopausia todavía es posible un embarazo. Si no quieres un embarazo, sigue usando anticoncepción hasta que lleves 2 años sin periodos si tienes menos de 50 años, o 1 año si tienes 50 o más. En general, puedes dejarla a los 55 años, porque un embarazo después de esa edad es muy poco frecuente. La terapia hormonal (THS) no evita el embarazo. La anticoncepción hormonal puede ocultar tus periodos naturales, así que un médico o una enfermera puede decirte qué método te conviene en esta etapa de la vida y cuándo es seguro dejarlo.",
         },
         {
           heading: "Cuándo consultar a un médico o una enfermera",
@@ -68,7 +69,7 @@ export const MENOPAUSE_ARTICLES: LearnArticle[] = [
         },
         {
           heading: "You can still get pregnant",
-          body: "Even if your periods are irregular or you skip a few months, you can still get pregnant during perimenopause. If you do not want to get pregnant, keep using contraception until you have had no periods for 2 years if you are under 50, or for 1 year if you are 50 or over. HRT does not prevent pregnancy. Hormonal contraception can hide your natural periods, so a doctor or nurse can tell you which method suits you at this stage of life and when it is safe to stop.",
+          body: "Even if your periods are irregular or you skip a few months, you can still get pregnant during perimenopause. If you do not want to get pregnant, keep using contraception until you have had no periods for 2 years if you are under 50, or for 1 year if you are 50 or over. In general, you can stop at 55, as pregnancy after that is very rare. HRT does not prevent pregnancy. Hormonal contraception can hide your natural periods, so a doctor or nurse can tell you which method suits you at this stage of life and when it is safe to stop.",
         },
         {
           heading: "When to see a doctor or nurse",
