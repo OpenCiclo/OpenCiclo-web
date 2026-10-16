@@ -7,6 +7,7 @@ import { researchContributions } from "@/lib/db/schema";
 import { getDb } from "@/lib/db";
 import { jsonError } from "@/lib/server/env";
 import { hashPoolContributorKey } from "@/lib/server/pool-key";
+import { upsertPoolContribution } from "@/lib/server/research-pool";
 
 function parseCycleLengths(raw: unknown): number[] | null {
   if (!Array.isArray(raw)) return null;
@@ -37,14 +38,7 @@ export async function POST(request: Request) {
     return jsonError("Send between 1 and 200 cycle lengths (integers 1–90)", 400);
   }
 
-  const db = getDb();
-  await db
-    .insert(researchContributions)
-    .values({ contributorKeyHash, cycleLengths })
-    .onConflictDoUpdate({
-      target: researchContributions.contributorKeyHash,
-      set: { cycleLengths, updatedAt: new Date() },
-    });
+  await upsertPoolContribution(getDb(), contributorKeyHash, cycleLengths);
 
   return Response.json({ ok: true });
 }
