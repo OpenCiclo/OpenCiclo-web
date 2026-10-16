@@ -158,7 +158,9 @@ export function LearnIndex({ articles }: { articles: LearnArticle[] }) {
         ))}
       </div>
       {activeArticle && activeCopy ? (
-        <div className="fixed inset-0 z-50 flex items-end justify-center px-4 pb-[env(safe-area-inset-bottom)] sm:items-center sm:p-6">
+        // Phones: the card fills the screen with the same 1rem margin on every
+        // side (plus the status bar / gesture bar insets). Larger screens: centered.
+        <div className="fixed inset-0 z-50 flex justify-center p-4 pt-[max(1rem,env(safe-area-inset-top))] pb-[max(1rem,env(safe-area-inset-bottom))] sm:items-center sm:p-6">
           <button
             type="button"
             aria-label={t.close}
@@ -178,8 +180,8 @@ export function LearnIndex({ articles }: { articles: LearnArticle[] }) {
             }}
             className={
               closing
-                ? "animate-learn-card-out relative z-10 flex max-h-[88vh] w-full max-w-md flex-col overflow-hidden rounded-3xl bg-card shadow-2xl"
-                : "animate-learn-card-in relative z-10 flex max-h-[88vh] w-full max-w-md flex-col overflow-hidden rounded-3xl bg-card shadow-2xl"
+                ? "animate-learn-card-out relative z-10 flex h-full w-full max-w-md flex-col overflow-hidden rounded-3xl bg-card shadow-2xl sm:h-auto sm:max-h-[88vh]"
+                : "animate-learn-card-in relative z-10 flex h-full w-full max-w-md flex-col overflow-hidden rounded-3xl bg-card shadow-2xl sm:h-auto sm:max-h-[88vh]"
             }
           >
             <div className="shrink-0 border-b border-border px-5 py-4">
