@@ -7,8 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "vitest run",
-    "db:migrate": "dotenv -e .env.local -- drizzle-kit push"
+    "test": "vitest run"
   },
   "dependencies": {
     "@noble/ed25519": "^3.1.0",
@@ -36,7 +35,6 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "dotenv-cli": "^11.0.0",
-    "drizzle-kit": "^0.31.10",
     "eslint": "^9",
     "eslint-config-next": "16.3.0",
     "tailwindcss": "^4",
