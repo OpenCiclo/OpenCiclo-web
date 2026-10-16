@@ -14,6 +14,7 @@ import { AppShell } from "@/components/app-shell";
 import { InstallPrompt } from "@/components/install-prompt";
 import { PhraseQrCode } from "@/components/phrase-qr-code";
 import { SavePhraseForm } from "@/components/save-phrase-form";
+import { TimeZoneSelect } from "@/components/time-zone-select";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input, PasswordInput } from "@/components/ui/input";
@@ -185,6 +186,7 @@ export default function SettingsPage() {
             </Button>
           </div>
         </div>
+        <TimeZoneSelect />
         <div>
           <p className="text-sm font-semibold text-card-foreground">{t.colorScheme}</p>
           <div className="mt-2 grid grid-cols-3 gap-2">

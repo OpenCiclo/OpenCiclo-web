@@ -15,6 +15,7 @@ export const VISUAL_SEASONS_KEY = "ciclo.visualSeasons";
 export const LUNAR_PHASES_ENABLED_KEY = "ciclo.lunarPhasesEnabled";
 export const LUNAR_PHASES_VISIBLE_KEY = "ciclo.lunarPhasesVisible";
 export const WEEK_STARTS_ON_KEY = "ciclo.weekStartsOn";
+export const TIME_ZONE_KEY = "ciclo.timeZone";
 
 function hasBrowserStorage() {
   return typeof localStorage !== "undefined" && typeof sessionStorage !== "undefined";
