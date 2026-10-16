@@ -145,7 +145,7 @@ export const PREGNANCY_ARTICLES: LearnArticle[] = [
       { label: "MedlinePlus — Prenatal care", href: "https://medlineplus.gov/prenatalcare.html" },
       { label: "Office on Women's Health — Prenatal care and tests", href: "https://www.womenshealth.gov/pregnancy/youre-pregnant-now-what/prenatal-care-and-tests" },
       { label: "CDC — Urgent maternal warning signs", href: "https://www.cdc.gov/hearher/maternal-warning-signs/index.html" },
-      { label: "NHS — Vitamins, supplements and nutrition in pregnancy", href: "https://www.nhs.uk/pregnancy/keeping-well/vitamins-supplements-and-nutrition/" },
+      { label: "NHS — Vitamins and supplements in pregnancy", href: "https://www.nhs.uk/pregnancy/keeping-well/pregnancy-vitamins-and-supplements/" },
       { label: "NHS — Foods to avoid in pregnancy", href: "https://www.nhs.uk/pregnancy/keeping-well/foods-to-avoid/" },
     ],
     related: ["preconception-health", "periods-after-birth", "postpartum-depression"],

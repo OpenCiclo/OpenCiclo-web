@@ -7,12 +7,14 @@ export const SEXUAL_HEALTH_ARTICLES: LearnArticle[] = [
   {
     slug: "stis",
     category: "sexual-health",
-    reviewedAt: "2026-10-04",
+    reviewedAt: "2026-10-16",
     sources: [
       { label: "WHO — Sexually transmitted infections (STIs)", href: "https://www.who.int/news-room/fact-sheets/detail/sexually-transmitted-infections-(stis)" },
       { label: "NHS — Sexually transmitted infections (STIs)", href: "https://www.nhs.uk/conditions/sexually-transmitted-infections/" },
       { label: "CDC — About sexually transmitted infections (STIs)", href: "https://www.cdc.gov/sti/about/index.html" },
       { label: "NHS — HIV prevention", href: "https://www.nhs.uk/conditions/hiv-and-aids/prevention/" },
+      { label: "CDC — HIV testing (window periods)", href: "https://www.cdc.gov/hiv/testing/index.html" },
+      { label: "Hampshire and Isle of Wight Healthcare NHS — Testing for STIs", href: "https://letstalkaboutit.nhs.uk/test" },
     ],
     related: ["safer-sex", "hpv", "pid"],
     es: {
@@ -33,7 +35,7 @@ export const SEXUAL_HEALTH_ARTICLES: LearnArticle[] = [
         },
         {
           heading: "Hacerse pruebas",
-          body: "Hacerte pruebas es la única forma de saberlo con seguridad. Hazte pruebas si tienes síntomas, una pareja nueva o una pareja con síntomas. Las pruebas de ITS son una parte rutinaria de la atención sanitaria. En muchos lugares puedes ir a un servicio de salud sexual sin que te derive un médico, y algunos servicios ofrecen kits para hacerte la prueba en casa. Las pruebas suelen consistir en una muestra de orina, una muestra con hisopo o un análisis de sangre. Algunas ITS pueden tardar hasta 7 semanas después del sexo en aparecer en una prueba.",
+          body: "Hacerte pruebas es la única forma de saberlo con seguridad. Hazte pruebas si tienes síntomas, una pareja nueva o una pareja con síntomas. Las pruebas de ITS son una parte rutinaria de la atención sanitaria. En muchos lugares puedes ir a un servicio de salud sexual sin que te derive un médico, y algunos servicios ofrecen kits para hacerte la prueba en casa. Las pruebas suelen consistir en una muestra de orina, una muestra con hisopo o un análisis de sangre. Algunas ITS pueden tardar hasta 3 meses después del sexo en aparecer en una prueba, así que puede que tengas que repetirla más adelante.",
         },
         {
           heading: "Tratamiento y aviso a tus parejas",
@@ -64,7 +66,7 @@ export const SEXUAL_HEALTH_ARTICLES: LearnArticle[] = [
         },
         {
           heading: "Getting tested",
-          body: "Testing is the only way to know for sure. Get tested if you have symptoms, a new partner, or a partner with symptoms. STI testing is a routine part of health care. In many places you can go to a sexual health clinic without a referral, and some clinics offer home testing kits. Tests usually involve a pee sample, a swab or a blood test. Some STIs can take up to 7 weeks after sex to show up on a test.",
+          body: "Testing is the only way to know for sure. Get tested if you have symptoms, a new partner, or a partner with symptoms. STI testing is a routine part of health care. In many places you can go to a sexual health clinic without a referral, and some clinics offer home testing kits. Tests usually involve a pee sample, a swab or a blood test. Some STIs can take up to 3 months after sex to show up on a test, so you may need to test again later.",
         },
         {
           heading: "Treatment and telling partners",
@@ -81,12 +83,14 @@ export const SEXUAL_HEALTH_ARTICLES: LearnArticle[] = [
   {
     slug: "safer-sex",
     category: "sexual-health",
-    reviewedAt: "2026-10-04",
+    reviewedAt: "2026-10-16",
     sources: [
       { label: "Planned Parenthood — Safer sex", href: "https://www.plannedparenthood.org/learn/stds-hiv-safer-sex/safer-sex" },
       { label: "WHO — Sexually transmitted infections (STIs)", href: "https://www.who.int/news-room/fact-sheets/detail/sexually-transmitted-infections-(stis)" },
       { label: "NHS — Sexually transmitted infections (STIs)", href: "https://www.nhs.uk/conditions/sexually-transmitted-infections/" },
       { label: "NHS — HIV prevention", href: "https://www.nhs.uk/conditions/hiv-and-aids/prevention/" },
+      { label: "CDC — HIV testing (window periods)", href: "https://www.cdc.gov/hiv/testing/index.html" },
+      { label: "Hampshire and Isle of Wight Healthcare NHS — Testing for STIs", href: "https://letstalkaboutit.nhs.uk/test" },
       { label: "NHS — Emergency contraception", href: "https://www.nhs.uk/contraception/emergency-contraception/" },
     ],
     related: ["condoms", "stis", "choosing-contraception"],
@@ -116,7 +120,7 @@ export const SEXUAL_HEALTH_ARTICLES: LearnArticle[] = [
         },
         {
           heading: "Si algo sale mal",
-          body: "Si es posible un embarazo, puedes elegir usar condón junto con otro método anticonceptivo. Un médico, una enfermera o un servicio de salud sexual pueden ayudarte a elegir. Si un condón se rompe o se sale, o has tenido sexo sin protección, actúa rápido. La anticoncepción de emergencia funciona mejor cuanto antes la uses y debe usarse en un plazo de 3 a 5 días. Si hay riesgo de VIH, pregunta en un servicio de salud sexual o en urgencias por la PEP (profilaxis posexposición), un medicamento que hay que empezar en un plazo de 72 horas. Pregunta también por las pruebas de ITS. Algunas ITS tardan hasta 7 semanas en aparecer en una prueba, así que pueden recomendarte repetirla más adelante.",
+          body: "Si es posible un embarazo, puedes elegir usar condón junto con otro método anticonceptivo. Un médico, una enfermera o un servicio de salud sexual pueden ayudarte a elegir. Si un condón se rompe o se sale, o has tenido sexo sin protección, actúa rápido. La anticoncepción de emergencia funciona mejor cuanto antes la uses y debe usarse en un plazo de 3 a 5 días. Si hay riesgo de VIH, pregunta en un servicio de salud sexual o en urgencias por la PEP (profilaxis posexposición), un medicamento que hay que empezar en un plazo de 72 horas. Pregunta también por las pruebas de ITS. Algunas ITS tardan hasta 3 meses en aparecer en una prueba, así que pueden recomendarte repetirla más adelante.",
         },
       ],
       notice: "Esto es información general. Para recibir consejo sobre pruebas o anticoncepción adaptado a ti, habla con un médico, una enfermera o un servicio de salud sexual.",
@@ -147,7 +151,7 @@ export const SEXUAL_HEALTH_ARTICLES: LearnArticle[] = [
         },
         {
           heading: "If something goes wrong",
-          body: "If pregnancy is possible, you may choose to use condoms together with another kind of contraception. A doctor, nurse or sexual health clinic can help you choose. If a condom splits or slips off, or you had sex without protection, act quickly. Emergency contraception works best the sooner you use it and must be used within 3 to 5 days. If HIV is a risk, ask a sexual health clinic or emergency department about PEP, a medicine that must be started within 72 hours. Ask about STI testing too. Some STIs take up to 7 weeks to show on a test, so they may suggest testing again later.",
+          body: "If pregnancy is possible, you may choose to use condoms together with another kind of contraception. A doctor, nurse or sexual health clinic can help you choose. If a condom splits or slips off, or you had sex without protection, act quickly. Emergency contraception works best the sooner you use it and must be used within 3 to 5 days. If HIV is a risk, ask a sexual health clinic or emergency department about PEP, a medicine that must be started within 72 hours. Ask about STI testing too. Some STIs take up to 3 months to show on a test, so they may suggest testing again later.",
         },
       ],
       notice: "This is general information. For advice on testing or contraception that suits you, talk to a doctor, nurse or sexual health clinic.",

@@ -7,7 +7,7 @@ export const CYCLE_ARTICLES: LearnArticle[] = [
   {
     slug: "how-the-cycle-works",
     category: "cycle",
-    reviewedAt: "2026-10-04",
+    reviewedAt: "2026-10-16",
     sources: [
       { label: "Office on Women's Health — Your menstrual cycle", href: "https://www.womenshealth.gov/menstrual-cycle/your-menstrual-cycle" },
       { label: "NHS — Periods", href: "https://www.nhs.uk/conditions/periods/" },
@@ -25,7 +25,7 @@ export const CYCLE_ARTICLES: LearnArticle[] = [
         },
         {
           heading: "Cuánto dura un ciclo",
-          body: "El día 1 del ciclo es el primer día de sangrado del periodo. El ciclo dura hasta el día anterior al inicio del siguiente periodo. La mayoría de los ciclos en personas adultas duran entre unos 21 y 38 días. La media es de unos 28 días, pero pocas personas tienen exactamente 28 cada vez, y la duración puede cambiar de un mes a otro. El periodo en sí suele durar de 2 a 7 días, a menudo unos 5.",
+          body: "El día 1 del ciclo es el primer día de sangrado del periodo. El ciclo dura hasta el día anterior al inicio del siguiente periodo. La mayoría de los ciclos en personas adultas duran entre unos 24 y 38 días. La media es de unos 28 días, pero pocas personas tienen exactamente 28 cada vez, y la duración puede cambiar de un mes a otro. El periodo en sí suele durar de 2 a 7 días, a menudo unos 5.",
         },
         {
           heading: "Primera mitad: un óvulo madura",
@@ -56,7 +56,7 @@ export const CYCLE_ARTICLES: LearnArticle[] = [
         },
         {
           heading: "How long a cycle lasts",
-          body: "Day 1 of a cycle is the first day of period bleeding. The cycle runs until the day before your next period starts. Most adult cycles last somewhere between about 21 and 38 days. The average is around 28 days, but few people have exactly 28 every time, and the length can change from month to month. The period itself usually lasts 2 to 7 days, often about 5.",
+          body: "Day 1 of a cycle is the first day of period bleeding. The cycle runs until the day before your next period starts. Most adult cycles last somewhere between about 24 and 38 days. The average is around 28 days, but few people have exactly 28 every time, and the length can change from month to month. The period itself usually lasts 2 to 7 days, often about 5.",
         },
         {
           heading: "First half: an egg ripens",
@@ -155,7 +155,7 @@ export const CYCLE_ARTICLES: LearnArticle[] = [
   {
     slug: "cycle-hormones",
     category: "cycle",
-    reviewedAt: "2026-10-04",
+    reviewedAt: "2026-10-16",
     sources: [
       { label: "OpenStax — Anatomy and Physiology 2e, 27.2 Anatomy and physiology of the ovarian reproductive system", href: "https://openstax.org/books/anatomy-and-physiology-2e/pages/27-2-anatomy-and-physiology-of-the-ovarian-reproductive-system" },
       { label: "MedlinePlus — Follicle-stimulating hormone (FSH) levels test", href: "https://medlineplus.gov/lab-tests/follicle-stimulating-hormone-fsh-levels-test/" },
@@ -189,7 +189,7 @@ export const CYCLE_ARTICLES: LearnArticle[] = [
         },
         {
           heading: "Cuando los niveles bajan, empieza un periodo",
-          body: "Si no hay embarazo, el cuerpo lúteo deja de producir progesterona al cabo de unos 10 a 12 días. El estrógeno y la progesterona caen a niveles muy bajos, y esto le indica al cuerpo que desprenda la capa interna del útero en forma de periodo. Sin progesterona, el cerebro puede volver a producir más FSH, y un nuevo grupo de folículos empieza a crecer. Como estas hormonas cambian a lo largo del mes, puede que un médico te pida un análisis de sangre en un momento concreto del ciclo.",
+          body: "Si no hay embarazo, el cuerpo lúteo deja de producir progesterona hacia el final de la fase lútea, que suele durar unos 10 a 16 días. El estrógeno y la progesterona caen a niveles muy bajos, y esto le indica al cuerpo que desprenda la capa interna del útero en forma de periodo. Sin progesterona, el cerebro puede volver a producir más FSH, y un nuevo grupo de folículos empieza a crecer. Como estas hormonas cambian a lo largo del mes, puede que un médico te pida un análisis de sangre en un momento concreto del ciclo.",
         },
       ],
       notice: "Esta es información general. Los niveles de hormonas varían entre personas y a lo largo del mes; un médico o una enfermera puede explicarte qué significan para ti los resultados de cualquier análisis.",
@@ -220,7 +220,7 @@ export const CYCLE_ARTICLES: LearnArticle[] = [
         },
         {
           heading: "When levels fall, a period starts",
-          body: "If there is no pregnancy, the corpus luteum stops making progesterone after about 10 to 12 days. Oestrogen and progesterone both drop to very low levels, and this tells the body to shed the womb lining as a period. With progesterone gone, the brain can make more FSH again, and a new group of follicles starts to grow. Because these hormones change through the month, a doctor may ask for a blood test at a certain point in your cycle.",
+          body: "If there is no pregnancy, the corpus luteum stops making progesterone towards the end of the luteal phase, which usually lasts about 10 to 16 days. Oestrogen and progesterone both drop to very low levels, and this tells the body to shed the womb lining as a period. With progesterone gone, the brain can make more FSH again, and a new group of follicles starts to grow. Because these hormones change through the month, a doctor may ask for a blood test at a certain point in your cycle.",
         },
       ],
       notice: "This is general information. Hormone levels differ between people and across the month; a doctor or nurse can explain what any test results mean for you.",
@@ -304,7 +304,7 @@ export const CYCLE_ARTICLES: LearnArticle[] = [
   {
     slug: "cervical-mucus",
     category: "cycle",
-    reviewedAt: "2026-10-04",
+    reviewedAt: "2026-10-16",
     sources: [
       { label: "Planned Parenthood — What is the cervical mucus method?", href: "https://www.plannedparenthood.org/learn/birth-control/fertility-awareness/whats-cervical-mucus-method-fams" },
       { label: "NHS — Vaginal discharge", href: "https://www.nhs.uk/conditions/vaginal-discharge/" },
@@ -335,7 +335,7 @@ export const CYCLE_ARTICLES: LearnArticle[] = [
         },
         {
           heading: "Lo que el moco puede y no puede decirte",
-          body: "El moco transparente, resbaladizo y de tipo clara de huevo es una señal de que probablemente estás cerca de la ovulación, en tus días más fértiles. Pero es una señal, no una prueba de que hayas ovulado. Ciclo te permite registrar estos cinco tipos, pero las fases y la ventana fértil que muestra son estimaciones, y no es un método anticonceptivo ni una prueba de fertilidad. Usar el moco para evitar un embarazo exige revisiones diarias cuidadosas, y aprender suele llevar de 3 a 6 ciclos. Con un uso típico, los métodos basados en el conocimiento de la fertilidad solo tienen una eficacia de alrededor del 76%, y no protegen frente a las ITS. Un médico, una enfermera o un servicio de salud sexual pueden aconsejarte.",
+          body: "El moco transparente, resbaladizo y de tipo clara de huevo es una señal de que probablemente estás cerca de la ovulación, en tus días más fértiles. Pero es una señal, no una prueba de que hayas ovulado. Ciclo te permite registrar estos cinco tipos, pero las fases y la ventana fértil que muestra son estimaciones, y no es un método anticonceptivo ni una prueba de fertilidad. Usar el moco para evitar un embarazo exige revisiones diarias cuidadosas, y aprender bien puede llevar de 2 a 3 ciclos. Con un uso típico, los métodos basados en el conocimiento de la fertilidad solo tienen una eficacia de alrededor del 76%, y no protegen frente a las ITS. Un médico, una enfermera o un servicio de salud sexual pueden aconsejarte.",
         },
         {
           heading: "Cuándo consultar con un médico o una enfermera",
@@ -366,7 +366,7 @@ export const CYCLE_ARTICLES: LearnArticle[] = [
         },
         {
           heading: "What mucus can and cannot tell you",
-          body: "Clear, slippery, egg-white mucus is a sign that you are probably near ovulation, in your most fertile days. But it is a sign, not proof that you have ovulated. Ciclo lets you log these five types, but the phases and fertile window it shows are estimates, and it is not contraception or a fertility test. Using mucus to avoid pregnancy takes careful daily checks, and it usually takes 3 to 6 cycles to learn. With typical use, fertility awareness methods are only about 76% effective, and they do not protect against STIs. A doctor, nurse or sexual-health clinic can advise you.",
+          body: "Clear, slippery, egg-white mucus is a sign that you are probably near ovulation, in your most fertile days. But it is a sign, not proof that you have ovulated. Ciclo lets you log these five types, but the phases and fertile window it shows are estimates, and it is not contraception or a fertility test. Using mucus to avoid pregnancy takes careful daily checks, and it can take 2 to 3 cycles to learn properly. With typical use, fertility awareness methods are only about 76% effective, and they do not protect against STIs. A doctor, nurse or sexual-health clinic can advise you.",
         },
         {
           heading: "When to see a doctor or nurse",
@@ -379,7 +379,7 @@ export const CYCLE_ARTICLES: LearnArticle[] = [
   {
     slug: "normal-cycle-length",
     category: "cycle",
-    reviewedAt: "2026-10-04",
+    reviewedAt: "2026-10-16",
     sources: [
       { label: "Office on Women's Health — Your menstrual cycle", href: "https://www.womenshealth.gov/menstrual-cycle/your-menstrual-cycle" },
       { label: "NHS — Periods", href: "https://www.nhs.uk/conditions/periods/" },
@@ -389,11 +389,11 @@ export const CYCLE_ARTICLES: LearnArticle[] = [
     related: ["irregular-periods", "tracking-your-cycle", "heavy-periods"],
     es: {
       title: "Qué se considera un ciclo normal",
-      summary: "La mayoría de los ciclos en personas adultas duran entre unos 21 y 38 días, y los periodos duran de 2 a 7 días. Es normal que cambien algo de un mes a otro. Esto es lo que puedes esperar y cuándo conviene hacerte una revisión.",
+      summary: "La mayoría de los ciclos en personas adultas duran entre unos 24 y 38 días, y los periodos duran de 2 a 7 días. Es normal que cambien algo de un mes a otro. Esto es lo que puedes esperar y cuándo conviene hacerte una revisión.",
       sections: [
         {
           heading: "Rangos normales en personas adultas",
-          body: "La duración del ciclo se cuenta desde el primer día de un periodo hasta el día anterior al inicio del siguiente. Los organismos de salud dan rangos normales algo distintos. La Oficina para la Salud de la Mujer de EE. UU. habla de 24 a 38 días, y el NHS, el servicio público de salud del Reino Unido, de 21 a 35 días. Si se juntan, la mayoría de los ciclos en personas adultas duran entre unos 21 y 38 días. La media es de unos 28 días, pero pocas personas tienen exactamente 28 días cada vez.",
+          body: "La duración del ciclo se cuenta desde el primer día de un periodo hasta el día anterior al inicio del siguiente. Los organismos de salud dan rangos normales algo distintos. La Oficina para la Salud de la Mujer de EE. UU. habla de 24 a 38 días, y el NHS, el servicio público de salud del Reino Unido, de 21 a 35 días. Muchos médicos usan el rango de 24 a 38 días, así que, si tus ciclos suelen ser más cortos o más largos, vale la pena que te revisen. La media es de unos 28 días, pero pocas personas tienen exactamente 28 días cada vez.",
         },
         {
           heading: "Algo de variación es normal",
@@ -405,7 +405,7 @@ export const CYCLE_ARTICLES: LearnArticle[] = [
         },
         {
           heading: "Cómo cambian los ciclos con la edad",
-          body: "Durante unos años después de que empiecen los periodos, son frecuentes los ciclos de más de 38 días. Suelen volverse más regulares en unos 3 años. Si después de ese tiempo siguen siendo largos o irregulares, consulta con un médico o una enfermera. Entre los 20 y los 39 años, los ciclos suelen ser regulares. Entre los 40 y los 49, cuando el cuerpo empieza a acercarse a la menopausia (perimenopausia), los ciclos pueden volver a ser irregulares. Los periodos terminan con la menopausia, normalmente entre mediados de los 40 y mediados de los 50 años.",
+          body: "Durante unos años después de que empiecen los periodos, son frecuentes los ciclos de más de 38 días. Suelen volverse más regulares en 2 o 3 años. Si 2 años después del primer periodo siguen siendo largos o irregulares, consulta con un médico o una enfermera. Entre los 20 y los 39 años, los ciclos suelen ser regulares. Entre los 40 y los 49, cuando el cuerpo empieza a acercarse a la menopausia (perimenopausia), los ciclos pueden volver a ser irregulares. Los periodos terminan con la menopausia, normalmente entre mediados de los 40 y mediados de los 50 años.",
         },
         {
           heading: "Qué puede cambiar tu ciclo",
@@ -420,11 +420,11 @@ export const CYCLE_ARTICLES: LearnArticle[] = [
     },
     en: {
       title: "What counts as a normal cycle",
-      summary: "Most adult cycles last between about 21 and 38 days, and periods last 2 to 7 days. Some change from month to month is normal. Here is what to expect and when to get checked.",
+      summary: "Most adult cycles last between about 24 and 38 days, and periods last 2 to 7 days. Some change from month to month is normal. Here is what to expect and when to get checked.",
       sections: [
         {
           heading: "Normal ranges for adults",
-          body: "Your cycle length is counted from the first day of one period up to the day before the next one starts. Health bodies give slightly different normal ranges. The US Office on Women's Health says 24 to 38 days, and the NHS says 21 to 35 days. Put together, most adult cycles last somewhere between about 21 and 38 days. The average is around 28 days, but few people have exactly 28 days every time.",
+          body: "Your cycle length is counted from the first day of one period up to the day before the next one starts. Health bodies give slightly different normal ranges. The US Office on Women's Health says 24 to 38 days, and the NHS says 21 to 35 days. Many doctors use 24 to 38 days, so if your cycles are regularly shorter or longer than that, it is worth getting checked. The average is around 28 days, but few people have exactly 28 days every time.",
         },
         {
           heading: "Some change is normal",
@@ -436,7 +436,7 @@ export const CYCLE_ARTICLES: LearnArticle[] = [
         },
         {
           heading: "How cycles change with age",
-          body: "For a few years after periods start, cycles longer than 38 days are common. They usually become more regular within about 3 years. If they are still long or irregular after that, see a doctor or nurse. In your 20s and 30s, cycles tend to be regular. In your 40s, as the body starts moving towards menopause (perimenopause), cycles may become irregular again. Periods stop at menopause, usually in the mid-40s to mid-50s.",
+          body: "For a few years after periods start, cycles longer than 38 days are common. They usually become more regular within 2 to 3 years. If they are still long or irregular 2 years after your first period, see a doctor or nurse. In your 20s and 30s, cycles tend to be regular. In your 40s, as the body starts moving towards menopause (perimenopause), cycles may become irregular again. Periods stop at menopause, usually in the mid-40s to mid-50s.",
         },
         {
           heading: "What can change your cycle",
