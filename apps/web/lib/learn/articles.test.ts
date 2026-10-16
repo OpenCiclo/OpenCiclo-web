@@ -102,8 +102,9 @@ describe("learn categories", () => {
 });
 
 describe("learn copy helpers", () => {
-  const englishOnly = LEARN_ARTICLES.find((article) => !article.es)!;
   const bilingual = LEARN_ARTICLES.find((article) => article.es)!;
+  // Every shipped article is translated now; English-only still happens for new ones.
+  const englishOnly = { ...bilingual, es: undefined };
 
   it("falls back to English when Spanish is missing", () => {
     expect(hasArticleCopy(englishOnly, "es")).toBe(false);

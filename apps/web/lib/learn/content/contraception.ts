@@ -15,6 +15,37 @@ export const CONTRACEPTION_ARTICLES: LearnArticle[] = [
       { label: "CDC — Contraception and birth control methods", href: "https://www.cdc.gov/contraception/about/index.html" },
     ],
     related: ["iud", "the-pill", "condoms"],
+    es: {
+      title: "Elegir un método anticonceptivo",
+      summary: "Hay muchas formas de prevenir un embarazo. Esta guía compara lo bien que funciona cada método, cómo se usa y qué tener en cuenta al elegir.",
+      sections: [
+        {
+          heading: "Qué tener en cuenta",
+          body: "No hay un único método que sea el mejor para todo el mundo. Al comparar opciones, piensa en lo bien que previene el embarazo cada uno, cómo se usa, sus posibles efectos secundarios y riesgos, y cómo puede cambiar tus periodos. Tu salud también cuenta. Por ejemplo, los métodos que contienen la hormona estrógeno pueden no ser seguros si fumas y tienes 35 años o más. Un médico, una enfermera o un servicio de salud sexual pueden ayudarte a encontrar un método que encaje con tu vida y con tu salud.",
+        },
+        {
+          heading: "Uso perfecto y uso típico",
+          body: "La eficacia suele darse con dos cifras. El uso perfecto es usar un método correctamente todas y cada una de las veces. El uso típico es lo bien que funciona un método en la vida diaria. Los errores pasan, como una píldora tomada tarde o un condón (preservativo) que se sale. En los métodos que tienes que recordar, la cifra de uso típico es más baja. En el implante y los DIU, que siguen funcionando durante años una vez colocados, las dos cifras son iguales.",
+        },
+        {
+          heading: "Métodos que duran años",
+          body: "El implante, el DIU hormonal y el DIU de cobre tienen una eficacia de más del 99%, tanto con uso perfecto como con uso típico. Eso significa que menos de 1 de cada 100 personas que los usan se queda embarazada en un año. El implante es una varilla pequeña que se coloca bajo la piel del brazo. Un DIU (dispositivo intrauterino) es un dispositivo pequeño en forma de T que se coloca en el útero (matriz). Cada uno dura varios años. Cuando se retira el implante o un DIU de cobre, tu fertilidad vuelve enseguida.",
+        },
+        {
+          heading: "Píldora, parche, anillo e inyección",
+          body: "Estos métodos hormonales tienen una eficacia de más del 99% con uso perfecto. Con uso típico, la inyección anticonceptiva tiene una eficacia de alrededor del 94%, y la píldora, el parche anticonceptivo y el anillo vaginal, de alrededor del 91%. Dicho de otro modo, unas 9 de cada 100 personas que usan la píldora, el parche o el anillo durante un año se quedan embarazadas. La píldora se toma a diario, el parche se cambia cada semana y una inyección dura de 8 a 13 semanas. Después de la inyección, la fertilidad puede tardar hasta un año en volver.",
+        },
+        {
+          heading: "Condones y otros métodos",
+          body: "Los condones externos (masculinos) tienen una eficacia del 98% con uso perfecto y de alrededor del 82% con uso típico. Los condones internos (femeninos), del 95% y de alrededor del 79%. Los condones son el único método que también reduce el riesgo de infecciones de transmisión sexual (ITS), incluido el VIH, así que vale la pena usarlos junto con otro método si te preocupan las ITS. La planificación familiar natural tiene una eficacia de alrededor del 91 al 99% con uso perfecto, pero solo de alrededor del 76% con uso típico. Las apps de seguimiento del periodo, incluida Ciclo, no son un método anticonceptivo.",
+        },
+        {
+          heading: "Si algo falla",
+          body: "Si tienes relaciones sexuales sin anticonceptivo, o tu método falla, la anticoncepción de emergencia puede ayudar a prevenir un embarazo. Hay que usarla en un plazo de 3 a 5 días, según el tipo, y funciona mejor cuanto antes se use. Un DIU de cobre colocado como anticoncepción de emergencia es la opción más eficaz. Elijas lo que elijas, un médico, una enfermera o un farmacéutico o farmacéutica pueden aconsejarte, y puedes cambiar a otro método si uno no te va bien.",
+        },
+      ],
+      notice: "Esta es información general. Un médico, una enfermera o un servicio de salud sexual pueden ayudarte a elegir el método más seguro y adecuado para ti.",
+    },
     en: {
       title: "Choosing contraception",
       summary: "There are many ways to prevent pregnancy. This guide compares how well each method works, how you use it, and what to weigh up when you choose.",
@@ -59,6 +90,37 @@ export const CONTRACEPTION_ARTICLES: LearnArticle[] = [
       { label: "NHS — Blood clots", href: "https://www.nhs.uk/conditions/blood-clots/" },
     ],
     related: ["periods-on-birth-control", "emergency-contraception", "delaying-a-period"],
+    es: {
+      title: "La píldora",
+      summary: "La píldora tiene dos tipos principales: la combinada y la de solo progestágeno. Aquí verás cómo funciona cada una, cuánto protege, sus efectos secundarios habituales y quién puede necesitar otro método.",
+      sections: [
+        {
+          heading: "Dos tipos principales",
+          body: "La píldora combinada contiene dos hormonas, estrógeno y progestágeno. La píldora de solo progestágeno, a veces llamada minipíldora, contiene solo progestágeno, una hormona que actúa como la progesterona del propio cuerpo. Los dos tipos funcionan sobre todo impidiendo que los ovarios liberen un óvulo cada mes. La píldora de solo progestágeno se toma todos los días, sin descanso entre envases. Con la píldora combinada, lo habitual es tomar 1 píldora con hormonas al día durante 3 semanas, y muchos envases tienen después una semana sin hormonas. Cada tipo, y cada marca, tiene sus propias instrucciones, así que lee el prospecto (el folleto que viene en la caja).",
+        },
+        {
+          heading: "Cuánto protege",
+          body: "Si la tomas correctamente todos los días, cualquiera de los dos tipos de píldora tiene una eficacia de más del 99%. En la vida real, a veces se olvidan píldoras o se toman tarde, y con uso típico la eficacia es de alrededor del 91%. Eso significa que unas 9 de cada 100 personas que usan la píldora durante un año se quedan embarazadas. Los vómitos o la diarrea también pueden afectar a su eficacia, y el prospecto explica qué hacer. La píldora no protege contra las infecciones de transmisión sexual (ITS).",
+        },
+        {
+          heading: "Píldoras olvidadas o tomadas tarde",
+          body: "Qué hacer depende de tu píldora, así que revisa el prospecto o pregunta a un farmacéutico o farmacéutica. Como guía general, si olvidas una píldora combinada, tómala en cuanto te acuerdes, aunque eso suponga tomar 2 píldoras en un mismo día. Si olvidas 2 o más seguidas, toma la última que olvidaste, sigue con el envase y usa condón (preservativo) hasta que hayas tomado 7 píldoras seguidas. Una píldora de solo progestágeno cuenta como olvidada cuando llevas más de 3, 12 o 24 horas de retraso, según el tipo. Si tuviste relaciones sexuales después de olvidar una píldora, pregunta por la anticoncepción de emergencia.",
+        },
+        {
+          heading: "Efectos secundarios habituales",
+          body: "En los primeros meses es frecuente tener sangrado entre periodos (sangrado intermenstrual) y otros cambios en el sangrado. Algunas personas tienen dolor de cabeza, cambios de ánimo o pechos sensibles, o sienten náuseas o mareo. La píldora de solo progestágeno puede causar manchado o sangrado entre periodos. No hay pruebas de que la píldora combinada haga subir de peso ni cambie el deseo sexual. Si los efectos secundarios te siguen molestando después de 3 meses, habla con un farmacéutico o farmacéutica o con un médico.",
+        },
+        {
+          heading: "Riesgos poco frecuentes pero graves",
+          body: "La píldora combinada conlleva un pequeño riesgo de coágulo de sangre en la pierna o en el pulmón. Es poco frecuente y afecta a hasta 1 de cada 1000 personas que usan anticoncepción hormonal combinada. Muy rara vez, un coágulo puede causar un infarto o un accidente cerebrovascular (ictus). Pide ayuda urgente si una pierna se vuelve dolorosa o se hincha, a menudo en la pantorrilla o el muslo, o si la piel de esa zona se ve roja o más oscura. Llama al número de emergencias de tu país (por ejemplo, 911 en México o 112 en España) si además te falta el aire o tienes dolor en el pecho. La píldora puede aumentar ligeramente el riesgo de cáncer de mama y de cuello uterino, y reduce el riesgo de cáncer de útero, de ovario y colorrectal.",
+        },
+        {
+          heading: "Quién puede necesitar otro método",
+          body: "La píldora combinada no es segura para todo el mundo. Puede que no puedas tomarla si fumas y tienes 35 años o más, o si tienes obesidad. Lo mismo ocurre si has tenido un coágulo de sangre, un accidente cerebrovascular, una enfermedad del corazón o la presión arterial alta. La migraña con aura (señales de aviso antes del dolor de cabeza), el cáncer de mama, algunos problemas de hígado y de vesícula biliar, las complicaciones de la diabetes o tener un familiar cercano que tuvo un coágulo de sangre antes de los 45 años también pueden descartarla. Si das el pecho, espera hasta 6 semanas después del parto. Habla con un médico, una enfermera o un farmacéutico o farmacéutica si te pasa algo de esto. Registrar cada píldora en Ciclo te deja un historial que consultar si dudas de si te tomaste una.",
+        },
+      ],
+      notice: "Esta es información general. Sigue el prospecto de tu píldora y pregunta a un farmacéutico o farmacéutica, a un médico o a una enfermera si olvidas una píldora o no sabes qué hacer.",
+    },
     en: {
       title: "The pill",
       summary: "The pill comes in two main types: combined and progestogen-only. Here is how each works, how well it protects, common side effects and who may need a different method.",
@@ -102,6 +164,37 @@ export const CONTRACEPTION_ARTICLES: LearnArticle[] = [
       { label: "NHS — How well contraception works at preventing pregnancy", href: "https://www.nhs.uk/contraception/choosing-contraception/how-well-it-works-at-preventing-pregnancy/" },
     ],
     related: ["periods-on-birth-control", "emergency-contraception", "implant"],
+    es: {
+      title: "DIU (hormonal y de cobre)",
+      summary: "Un DIU es un dispositivo pequeño en forma de T que se coloca en el útero y previene el embarazo durante años. El DIU de cobre y el hormonal funcionan de forma distinta y cambian los periodos de forma distinta.",
+      sections: [
+        {
+          heading: "Qué es un DIU",
+          body: "Un dispositivo intrauterino (DIU) es una pequeña pieza de plástico en forma de T que un médico o una enfermera coloca dentro del útero (matriz). Hay dos tipos principales. El DIU de cobre no contiene hormonas. Libera cobre en el útero, lo que impide que los espermatozoides lleguen a un óvulo. El DIU hormonal, también llamado SIU (sistema intrauterino), libera la hormona progestágeno. Funciona de más de una manera. Sobre todo mantiene a los espermatozoides lejos del óvulo, y en algunas personas también impide que se libere un óvulo o hace que el útero tenga menos probabilidades de aceptarlo.",
+        },
+        {
+          heading: "Su eficacia",
+          body: "Los dos tipos tienen una eficacia de más del 99%. Como no hay nada que recordar una vez colocado, el uso típico es igual que el uso perfecto: menos de 1 de cada 100 personas que usan un DIU se queda embarazada en un año. Un DIU de cobre funciona desde el momento en que se coloca y dura 5 o 10 años, según el tipo. Un DIU hormonal también dura varios años, según el tipo. Un DIU de cobre también se puede usar como anticoncepción de emergencia. Ninguno de los dos protege contra las infecciones de transmisión sexual (ITS).",
+        },
+        {
+          heading: "Efectos en tus periodos",
+          body: "Los dos tipos suelen cambiar el sangrado de formas distintas. Con un DIU de cobre, los periodos pueden volverse más abundantes, más largos o más dolorosos, y puedes sangrar entre periodos. Esto puede mejorar después de unos meses. Un DIU hormonal suele hacer que el sangrado sea más leve o irregular, y en algunas personas los periodos desaparecen. Registrar tu sangrado en Ciclo puede ayudarte a ver si un nuevo patrón se está estabilizando.",
+        },
+        {
+          heading: "Colocación y retirada",
+          body: "Un médico o una enfermera coloca el DIU en una consulta. Puedes tener un dolor parecido al del periodo durante unos días después. Cuando quieras dejar de usarlo, o cuando haya que cambiarlo, un médico o una enfermera puede retirarlo. Al retirar un DIU de cobre, tu fertilidad vuelve enseguida a como era antes.",
+        },
+        {
+          heading: "Posibles riesgos",
+          body: "Entre los posibles riesgos de un DIU de cobre están una infección pélvica, normalmente en las 3 semanas siguientes a la colocación, y que el DIU se mueva o se salga, normalmente en los 3 primeros meses. Otros posibles riesgos son una lesión en el útero y, en el caso poco frecuente de que el DIU falle, un embarazo fuera del útero (embarazo ectópico). También hay una pequeña probabilidad de tener candidiasis vaginal que vuelve una y otra vez.",
+        },
+        {
+          heading: "Cuándo pedir ayuda",
+          body: "Ponte en contacto urgente con un médico o una enfermera si tienes dolor en la parte baja del abdomen que no mejora con analgésicos, o un dolor de abdomen repentino que empeora o no desaparece. Pide ayuda rápido también si tienes fiebre, un flujo vaginal anormal o con mal olor, un sangrado muy abundante, o si no notas los hilos del DIU o los notas distintos. Busca atención de urgencia si tienes un dolor intenso, sobre todo en un lado, y crees que podrías estar embarazada.",
+        },
+      ],
+      notice: "Esta es información general. Un médico o una enfermera pueden ayudarte a decidir si un DIU es adecuado para ti y qué tipo te conviene más.",
+    },
     en: {
       title: "IUDs (hormonal and copper)",
       summary: "An IUD, or coil, is a small T-shaped device placed in the womb that prevents pregnancy for years. Copper and hormonal IUDs work differently and affect periods differently.",
@@ -145,6 +238,33 @@ export const CONTRACEPTION_ARTICLES: LearnArticle[] = [
       { label: "Mayo Clinic — Delaying your period with hormonal birth control", href: "https://www.mayoclinic.org/tests-procedures/combination-birth-control-pills/in-depth/womens-health/art-20044044" },
     ],
     related: ["periods-on-birth-control", "choosing-contraception", "iud"],
+    es: {
+      title: "El implante",
+      summary: "El implante es una varilla pequeña que se coloca bajo la piel del brazo. Libera una hormona que previene el embarazo durante años, sin nada que recordar a diario.",
+      sections: [
+        {
+          heading: "Qué es el implante",
+          body: "El implante anticonceptivo es una varilla pequeña de plástico, de unos 4 cm de largo, más o menos como un fósforo o una cerilla. Un médico o una enfermera lo coloca bajo la piel del brazo. Libera poco a poco progestágeno, una hormona que actúa como la progesterona del propio cuerpo. Esto impide que los ovarios liberen un óvulo cada mes, así que no hay óvulo al que puedan llegar los espermatozoides. El implante no contiene estrógeno.",
+        },
+        {
+          heading: "Su eficacia",
+          body: "El implante tiene una eficacia de más del 99%, siempre que se cambie a tiempo. Como no hay nada que recordar, el resultado es el mismo con uso perfecto y con uso típico: menos de 1 de cada 100 personas que lo usan se queda embarazada en un año. Eso lo convierte en uno de los métodos más eficaces que existen. Cuánto dura depende de las recomendaciones de cada lugar. El NHS (el sistema público de salud del Reino Unido) dice 5 años, y la Oficina para la Salud de la Mujer de Estados Unidos (Office on Women's Health) dice hasta 3 años. El centro donde te lo colocaron te dirá cuándo cambiarlo.",
+        },
+        {
+          heading: "Cambios en tu sangrado",
+          body: "El sangrado irregular es un efecto secundario conocido del implante. Tus sangrados pueden llegar en momentos distintos, o ser diferentes de lo que acostumbras. Otros posibles efectos secundarios son dolor de cabeza, pechos sensibles y aumento de peso. Si los cambios te molestan, un médico o una enfermera pueden repasar contigo tus opciones. Registrar tu sangrado en Ciclo puede ayudarte a ver el patrón y a describirlo con claridad en una consulta.",
+        },
+        {
+          heading: "La retirada y tu fertilidad",
+          body: "Un médico o una enfermera puede retirar el implante cuando quieras dejar de usarlo o cuando haya que cambiarlo. Una vez retirado, tu probabilidad de embarazo vuelve enseguida a la que tenías antes de que te lo colocaran. El implante no protege contra las infecciones de transmisión sexual (ITS), así que vale la pena seguir usando condón (preservativo) si te preocupan las ITS.",
+        },
+        {
+          heading: "Cuándo hablar con un médico o una enfermera",
+          body: "Habla con un médico o una enfermera si los efectos secundarios o los cambios en el sangrado te molestan, o si se acerca la fecha de cambiar tu implante. El sangrado después de las relaciones sexuales siempre debe revisarse. Sin sangrados regulares, puede ser más difícil darse cuenta de un embarazo. Si tienes posibles señales como náuseas, pechos sensibles o un cansancio fuera de lo normal, hazte una prueba de embarazo o habla con un médico o una enfermera.",
+        },
+      ],
+      notice: "Esta es información general. Un médico o una enfermera pueden decirte si el implante es adecuado para ti y cuándo hay que cambiar el tuyo.",
+    },
     en: {
       title: "The implant",
       summary: "The implant is a small rod placed under the skin of your arm. It releases a hormone that prevents pregnancy for years, with nothing to remember day to day.",
@@ -186,6 +306,37 @@ export const CONTRACEPTION_ARTICLES: LearnArticle[] = [
       { label: "CDC — Combined hormonal contraceptives (US guidance for clinicians)", href: "https://www.cdc.gov/contraception/hcp/usspr/combined-hormonal-contraceptives.html" },
     ],
     related: ["periods-on-birth-control", "delaying-a-period", "choosing-contraception"],
+    es: {
+      title: "Parche, anillo e inyección",
+      summary: "El parche anticonceptivo, el anillo vaginal y la inyección anticonceptiva son métodos hormonales en los que no tienes que pensar cada día. Aquí verás cómo funciona cada uno, cada cuánto se usa y qué esperar.",
+      sections: [
+        {
+          heading: "El parche",
+          body: "El parche anticonceptivo es un cuadrado pequeño, de unos 5 cm por 5 cm, que se pega en la piel. Libera dos hormonas, estrógeno y progestágeno, a la sangre. Estas hormonas impiden que los ovarios liberen un óvulo. Llevas cada parche durante 7 días y luego lo cambias. En la pauta habitual, usas parches durante 3 semanas y luego pasas una semana sin parche. Entre los posibles efectos secundarios están la irritación de la piel, las molestias de estómago y los cambios en el sangrado.",
+        },
+        {
+          heading: "El anillo vaginal",
+          body: "El anillo vaginal es un anillo pequeño que te colocas en la vagina por tu cuenta. Como el parche, libera estrógeno y progestágeno, que impiden que los ovarios liberen un óvulo. En la pauta habitual, lo dejas puesto 3 semanas, lo retiras durante 1 semana y luego te pones un anillo nuevo. Entre los posibles efectos secundarios están el dolor de cabeza, las molestias de estómago, los pechos sensibles y la irritación en la vagina.",
+        },
+        {
+          heading: "La inyección",
+          body: "La inyección anticonceptiva contiene solo una hormona, el progestágeno. Una inyección dura de 8 a 13 semanas, según el tipo, así que necesitas una nueva cada 2 o 3 meses. Funciona impidiendo la ovulación. Entre los posibles efectos secundarios están el sangrado entre periodos, la falta de periodos, el aumento de peso y los cambios de ánimo. Usarla durante mucho tiempo puede causar cierta pérdida de masa ósea. Cuando la dejas, la fertilidad puede tardar hasta 1 año en volver, así que puede que no te convenga si quieres un embarazo pronto.",
+        },
+        {
+          heading: "Su eficacia",
+          body: "Con uso perfecto, el parche, el anillo y la inyección tienen una eficacia de más del 99%. Con uso típico, el parche y el anillo tienen una eficacia de alrededor del 91%, lo que significa que unas 9 de cada 100 personas que los usan se quedan embarazadas en un año. La inyección tiene una eficacia de alrededor del 94% con uso típico. Los errores, como cambiar el parche o el anillo tarde o ponerse la inyección tarde, reducen su eficacia. Si te retrasas al cambiar el parche o el anillo, revisa el prospecto (el folleto que viene en la caja) o pregunta a un farmacéutico o farmacéutica, porque puede que necesites usar condón (preservativo) durante 7 días. Ninguno de estos métodos protege contra las infecciones de transmisión sexual (ITS).",
+        },
+        {
+          heading: "Quién puede necesitar otro método",
+          body: "Estos métodos no son adecuados para todo el mundo. Como la píldora combinada, el parche y el anillo conllevan un pequeño riesgo de problemas graves como coágulos de sangre, accidente cerebrovascular (ictus) e infarto. Fumar aumenta el riesgo de coágulos de sangre. Si fumas y tienes 35 años o más, el parche y el anillo, que contienen estrógeno, pueden no ser seguros para ti. El parche también puede funcionar peor si pesas unos 90 kg o más. Un médico o una enfermera puede comprobar qué método es seguro para ti, incluidos los métodos sin estrógeno.",
+        },
+        {
+          heading: "Señales de alarma de un coágulo",
+          body: "Los coágulos de sangre son poco frecuentes, pero conviene conocer las señales, sobre todo si usas el parche o el anillo. Pide ayuda urgente si una pierna se vuelve dolorosa o se hincha, a menudo en la pantorrilla o el muslo, o si la piel de esa zona se ve roja o más oscura. Llama al número de emergencias de tu país (por ejemplo, 911 en México o 112 en España) si además te falta el aire o tienes dolor en el pecho. Dile al personal sanitario qué método usas.",
+        },
+      ],
+      notice: "Esta es información general. Un médico o una enfermera pueden ayudarte a decidir si el parche, el anillo o la inyección son seguros y adecuados para ti.",
+    },
     en: {
       title: "Patch, ring and injection",
       summary: "The patch, the vaginal ring and the injection are hormonal methods you do not need to think about every day. Here is how each works, how often you use it and what to expect.",
@@ -230,6 +381,33 @@ export const CONTRACEPTION_ARTICLES: LearnArticle[] = [
       { label: "NHS — HIV prevention", href: "https://www.nhs.uk/conditions/hiv-and-aids/prevention/" },
     ],
     related: ["stis", "safer-sex", "emergency-contraception"],
+    es: {
+      title: "Condones (preservativos)",
+      summary: "Los condones son el único método anticonceptivo que también reduce el riesgo de infecciones de transmisión sexual (ITS), incluido el VIH. Funcionan bien si se usan correctamente cada vez. Aquí te contamos cómo hacerlo bien.",
+      sections: [
+        {
+          heading: "Protección frente al embarazo y las ITS",
+          body: "Los condones impiden que los espermatozoides lleguen a un óvulo. Los condones externos, a veces llamados masculinos, se ponen en el pene. Los condones internos, a veces llamados femeninos, se colocan dentro de la vagina. Los condones son el único tipo de anticonceptivo que también reduce el riesgo de infecciones de transmisión sexual (ITS), incluido el VIH. Para la mejor protección, usa condón cada vez que tengas relaciones sexuales. Otros métodos, como la píldora o un DIU, no protegen contra las ITS.",
+        },
+        {
+          heading: "Su eficacia",
+          body: "Los condones externos tienen una eficacia de hasta el 98% si se usan correctamente cada vez. En la vida real, un condón puede ponerse demasiado tarde, romperse o salirse, y con uso típico la eficacia es de alrededor del 82%. Eso significa que alrededor de 1 de cada 5 personas que confían en los condones durante un año se queda embarazada. Los condones internos tienen una eficacia de alrededor del 95% con uso perfecto y de alrededor del 79% con uso típico. Usarlos con cuidado cada vez marca una diferencia real.",
+        },
+        {
+          heading: "Cómo usar un condón",
+          body: "Revisa la fecha de caducidad, porque un condón caducado puede no funcionar, y comprueba que el envase tenga un sello de seguridad reconocido. Pon el condón antes de cualquier contacto entre el pene y la vagina o el ano. Aprieta la punta para sacar el aire y luego desenrolla el condón hasta la base del pene. Después del sexo, sujeta la base del condón al retirar el pene para que no se salga. Usa un condón nuevo cada vez que tengas relaciones sexuales.",
+        },
+        {
+          heading: "Lubricante y látex",
+          body: "Muchos condones son de látex, pero también hay condones sin látex. Pueden ser útiles en caso de irritación o reacción alérgica, tuya o de tu pareja. El lubricante a base de aceite puede hacer que los condones de látex se rompan, así que usa un lubricante a base de agua o de silicona.",
+        },
+        {
+          heading: "Si un condón se rompe o se sale",
+          body: "Si un condón se rompe o se sale durante el sexo, puede que necesites anticoncepción de emergencia para prevenir un embarazo. Actúa rápido: hay que usarla en un plazo de 3 a 5 días, según el tipo, y funciona mejor cuanto antes se use. Puede que también quieras hacerte una prueba de ITS. Un médico, una enfermera o un servicio de salud sexual pueden ayudarte con las dos cosas, y un farmacéutico o farmacéutica puede asesorarte sobre las píldoras anticonceptivas de emergencia.",
+        },
+      ],
+      notice: "Esta es información general. Para recibir consejo sobre anticoncepción o pruebas de ITS, habla con un médico, una enfermera, un farmacéutico o farmacéutica o un servicio de salud sexual.",
+    },
     en: {
       title: "Condoms",
       summary: "Condoms are the only contraception that also lowers the risk of STIs, including HIV. They work well when used correctly every time. Here is how to get it right.",
@@ -271,6 +449,37 @@ export const CONTRACEPTION_ARTICLES: LearnArticle[] = [
       { label: "NHS — Doing a pregnancy test", href: "https://www.nhs.uk/pregnancy/trying-for-a-baby/doing-a-pregnancy-test/" },
     ],
     related: ["iud", "pregnancy-tests", "condoms"],
+    es: {
+      title: "Anticoncepción de emergencia",
+      summary: "La anticoncepción de emergencia puede prevenir un embarazo después de tener relaciones sexuales sin anticonceptivo o cuando un método falla. Actúa en cuanto puedas: funciona mejor cuanto antes la uses.",
+      sections: [
+        {
+          heading: "Cuándo puede ayudar",
+          body: "La anticoncepción de emergencia es una forma de prevenir un embarazo después de tener relaciones sexuales. Puedes necesitarla si tuviste relaciones sin anticonceptivo, si un condón (preservativo) se rompió o se salió, si usaste mal tu método habitual o después de una agresión sexual. La píldora de emergencia funciona impidiendo o retrasando la liberación de un óvulo. No provoca un aborto y no puede interrumpir ni dañar un embarazo que ya ha empezado.",
+        },
+        {
+          heading: "Tus opciones y los plazos",
+          body: "Hay dos tipos: el DIU de cobre y la píldora anticonceptiva de emergencia, a veces llamada píldora del día después. Un médico o una enfermera puede colocar un DIU de cobre en los 5 días (120 horas) siguientes a la relación sexual. Hay dos clases de píldora de emergencia. El levonorgestrel debe tomarse en los 3 días (72 horas) siguientes a la relación sexual. El acetato de ulipristal debe tomarse en los 5 días (120 horas) siguientes. Uses la que uses, cuanto antes, mejor.",
+        },
+        {
+          heading: "Cuál funciona mejor",
+          body: "El DIU de cobre es el tipo de anticoncepción de emergencia más eficaz. Previene más del 99% de los embarazos. Las píldoras de emergencia también funcionan bien, pero en los estudios, entre 1 y 2 de cada 100 personas que tomaron una se quedaron embarazadas de todos modos. El acetato de ulipristal todavía se puede usar entre 3 y 5 días después de la relación sexual, cuando el levonorgestrel ya no es una opción. Un médico, una enfermera o un farmacéutico o farmacéutica pueden ayudarte a decidir cuál es mejor para ti. Si usas anticoncepción hormonal, como la píldora, díselo, porque puede influir en qué píldora de emergencia funciona mejor.",
+        },
+        {
+          heading: "Qué esperar después de la píldora",
+          body: "Las píldoras de emergencia son seguras para casi todo el mundo. No tienen límite de edad, y ninguna enfermedad las descarta por completo. Entre los efectos secundarios pueden estar las náuseas o los vómitos, el dolor de cabeza, cólicos parecidos a los del periodo, un sangrado leve e irregular y el cansancio. Si vomitas en las 2 horas siguientes a tomar una píldora de emergencia, puede que necesites otra dosis, así que habla enseguida con un farmacéutico o farmacéutica.",
+        },
+        {
+          heading: "Dónde conseguirla y qué viene después",
+          body: "Según dónde vivas, puedes conseguir la píldora de emergencia en una farmacia, a través de un médico o una enfermera, o en un servicio de salud sexual. Un DIU de cobre debe colocarlo un médico o una enfermera, y puede quedarse puesto como anticonceptivo habitual durante años. La anticoncepción de emergencia no está pensada para ser tu método habitual, así que vale la pena preguntar por opciones a más largo plazo. No protege contra las infecciones de transmisión sexual (ITS), así que puede que también quieras hacerte una prueba de ITS.",
+        },
+        {
+          heading: "Después",
+          body: "Hazte una prueba de embarazo si tu siguiente periodo se retrasa. Si no sabes cuándo te toca, hazte una al menos 3 semanas (21 días) después de la relación sexual. Si podrías estar embarazada, aunque no tengas una prueba positiva, ponte en contacto con un médico o una enfermera ese mismo día si tienes dolor en la parte baja del abdomen, en un lado, o cualquier sangrado. Busca atención de urgencia si tienes un dolor de abdomen repentino e intenso, dolor en la punta del hombro, un sangrado abundante, o mucho mareo o sensación de desmayo. Pueden ser señales de un embarazo que crece fuera del útero (embarazo ectópico). Después de una agresión sexual, un servicio de salud sexual también puede ofrecerte atención y apoyo.",
+        },
+      ],
+      notice: "Esta es información general. La anticoncepción de emergencia funciona mejor cuanto antes se use, así que acude enseguida a un farmacéutico o farmacéutica, un médico, una enfermera o un servicio de salud sexual.",
+    },
     en: {
       title: "Emergency contraception",
       summary: "Emergency contraception can prevent pregnancy after sex without contraception or when a method fails. Act as soon as you can: it works better the sooner you use it.",
@@ -314,6 +523,33 @@ export const CONTRACEPTION_ARTICLES: LearnArticle[] = [
       { label: "NHS — Vaginal bleeding between periods or after sex", href: "https://www.nhs.uk/symptoms/vaginal-bleeding-between-periods-or-after-sex/" },
     ],
     related: ["delaying-a-period", "the-pill", "spotting"],
+    es: {
+      title: "El periodo con anticoncepción hormonal",
+      summary: "La anticoncepción hormonal a menudo cambia tu sangrado. Puede volverse más leve, irregular o desaparecer. Aquí verás por qué, qué esperar y cuándo conviene revisar un cambio.",
+      sections: [
+        {
+          heading: "Por qué cambia el sangrado",
+          body: "La anticoncepción hormonal cambia las hormonas que controlan tu ciclo, así que tu sangrado también suele cambiar. Muchos métodos hormonales hacen que el sangrado sea más leve y más corto, y pueden ayudar con los periodos abundantes o dolorosos. El DIU hormonal puede hacer que el sangrado sea más leve, irregular o que desaparezca por completo. La inyección anticonceptiva puede causar sangrado entre periodos o falta de periodos, y el implante puede causar sangrado irregular. El DIU de cobre no contiene hormonas, pero puede hacer que los periodos sean más abundantes.",
+        },
+        {
+          heading: "El sangrado con la píldora combinada",
+          body: "Con un envase estándar de píldoras combinadas, tomas píldoras con hormonas durante 3 semanas y luego pasas una semana sin hormonas activas. El sangrado de esa semana se llama sangrado por deprivación. Es la respuesta de tu cuerpo a la bajada de hormonas, y no es lo mismo que un periodo natural. El parche y el anillo suelen seguir una pauta parecida, con un sangrado en la semana de descanso.",
+        },
+        {
+          heading: "Manchado y sangrado intermenstrual",
+          body: "El sangrado leve o el manchado en otros momentos, llamado sangrado intermenstrual, es frecuente en los primeros meses con la píldora combinada. También puede pasar con la píldora de solo progestágeno, y es frecuente cuando los métodos hormonales se usan sin descanso para saltarse sangrados. Suele disminuir con el tiempo, a medida que tu cuerpo se adapta. Si el manchado te sigue molestando después de unos 3 meses, habla con un médico, una enfermera o un farmacéutico o farmacéutica.",
+        },
+        {
+          heading: "Cuando los sangrados desaparecen",
+          body: "No tener sangrados con la anticoncepción hormonal no es perjudicial. Tu cuerpo no necesita estos sangrados para mantenerse sano. Si un método es seguro para ti, usarlo para tener menos sangrados suele ser seguro también, pero consúltalo antes con un médico o una enfermera. Algo que conviene saber: sin sangrados regulares, puede ser más difícil darse cuenta de un embarazo. Si tienes señales como náuseas, pechos sensibles o un cansancio fuera de lo normal, hazte una prueba de embarazo.",
+        },
+        {
+          heading: "Cuándo hacerte una revisión",
+          body: "Registrar el sangrado y el manchado en Ciclo puede mostrar si un nuevo patrón se está estabilizando. Acude a un médico, una enfermera o un servicio de salud sexual si sangras después de las relaciones sexuales, si el sangrado se vuelve abundante o si un patrón que ya era estable cambia sin un motivo claro. A veces, un sangrado nuevo puede deberse a una infección como la clamidia. Busca atención de urgencia si tienes un dolor intenso en la parte baja del abdomen, sobre todo en un lado, y podrías estar embarazada, o si tienes un sangrado muy abundante con mareo o desmayo.",
+        },
+      ],
+      notice: "Esta es información general. Si tu sangrado cambia de una forma que te preocupa, habla con un médico, una enfermera o un farmacéutico o farmacéutica.",
+    },
     en: {
       title: "Periods on hormonal contraception",
       summary: "Hormonal contraception often changes your bleeding. It may get lighter, become irregular or stop. Here is why, what to expect, and when a change is worth checking.",
