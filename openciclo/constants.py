@@ -13,8 +13,11 @@ MIN_CYCLE_LENGTH = 1
 MAX_CYCLE_LENGTH = 90
 
 # Unusual-but-valid bands. Values outside these are kept unless mathematically impossible.
-UNUSUAL_SHORT_DAYS = 21
-UNUSUAL_LONG_DAYS = 45
+# 24–38 days is the adult range used by the US Office on Women's Health and FIGO, and the
+# range the Learn articles give for "worth getting checked". These only add NOTE-level
+# quality issues; they never change the forecast.
+UNUSUAL_SHORT_DAYS = 24
+UNUSUAL_LONG_DAYS = 38
 SUSPICIOUS_SHORT_DAYS = 10
 SUSPICIOUS_LONG_DAYS = 60
 INCOMPLETE_HISTORY_DAYS = 40
