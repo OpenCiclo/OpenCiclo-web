@@ -109,6 +109,8 @@ Intermenstrual bleeding is a symptom, never a period start.
 - No host-side password reset (magic link / email alone). The signup code authorizes inserting the already-wrapped kit; it does not unwrap. Changing the wrap password while unlocked is allowed: re-wrap the mnemonic (own verified mailbox, no new code); do not rotate AES or re-encrypt the diary. Lost password + lost phrase ⇒ lost hosted diary. Export/import restores data, not the old key.
 - Deleting the account row cascades `recovery_mailboxes` and `mailbox_pending` (`ON DELETE CASCADE`), so that HMAC is free for someone else to verify.
 - Session cookie; legacy name `oddy_session` still recognized. Optional persist unlock writes `ciclo.mnemonic` to localStorage; otherwise sessionStorage only. Never send the mnemonic to the server.
+- Startup restore (`restoreStoredSession` in `ciclo-context.tsx`) forgets the stored mnemonic only if it is invalid. Network, server, or sign-in failures keep it and show Try again (`restoreFailed`). `hydrate` sets the wallet only after the vault is fetched and decrypted; never expose an unlocked wallet next to a placeholder diary, because the next save would upload it over the real vault. `fetchVault` throws on 401/404.
+- Auth challenges: up to 5 live per key (two tabs or StrictMode can sign in at once). `verify` consumes the exact challenge with `DELETE … RETURNING`, so it is single use.
 - localStorage keys migrated `oddy.*` → `ciclo.*` in `storage-migrate.ts`. Keep that one-way migrate.
 
 ## Research pool

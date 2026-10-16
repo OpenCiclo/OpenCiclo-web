@@ -11,9 +11,10 @@ import { Card } from "@/components/ui/card";
 import { otherLocale } from "@/lib/i18n";
 
 export function WelcomeScreen() {
-  const { t, locale, setLocale } = useCiclo();
+  const { t, locale, setLocale, restoreFailed, retryRestore } = useCiclo();
   const router = useRouter();
   const [busy, setBusy] = useState(false);
+  const [retrying, setRetrying] = useState(false);
 
   return (
     <div className="flex flex-col gap-6 pt-8">
@@ -30,6 +31,26 @@ export function WelcomeScreen() {
           {locale === "es" ? "EN" : "ES"}
         </button>
       </div>
+      {restoreFailed ? (
+        <Card role="alert" className="flex flex-col gap-3 border-destructive/30 bg-destructive/5 p-4">
+          <p className="text-sm font-semibold text-card-foreground">{t.restoreFailedTitle}</p>
+          <p className="text-sm leading-6 text-muted-foreground">{t.restoreFailedBody}</p>
+          <Button
+            type="button"
+            disabled={retrying}
+            onClick={async () => {
+              setRetrying(true);
+              try {
+                await retryRestore();
+              } finally {
+                setRetrying(false);
+              }
+            }}
+          >
+            {retrying ? "…" : t.restoreRetry}
+          </Button>
+        </Card>
+      ) : null}
       <div>
         <p className="text-lg text-muted-foreground">{t.tagline}</p>
         <p className="mt-3 text-sm text-muted-foreground">{t.welcomeCta}</p>

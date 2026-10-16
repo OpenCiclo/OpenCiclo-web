@@ -1,11 +1,12 @@
 // Copyright © 2026 Emma Flora Harbison & Luis Rey Sánchez
 // SPDX-License-Identifier: Apache-2.0
 
-import { and, eq, gt } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 
 import { verifyChallenge } from "@/lib/crypto/wallet";
-import { accounts, authChallenges } from "@/lib/db/schema";
+import { accounts } from "@/lib/db/schema";
 import { getDb } from "@/lib/db";
+import { consumeChallenge } from "@/lib/server/auth-challenges";
 import { jsonError } from "@/lib/server/env";
 import { setSessionCookie } from "@/lib/server/session";
 import { recordAccountOpen } from "@/lib/server/account-activity";
@@ -41,21 +42,9 @@ export async function POST(request: Request) {
   }
 
   const db = getDb();
-  const challenges = await db
-    .select()
-    .from(authChallenges)
-    .where(
-      and(
-        eq(authChallenges.pubkeyHash, pubkeyHash),
-        eq(authChallenges.nonce, nonce),
-        gt(authChallenges.expiresAt, new Date()),
-      ),
-    )
-    .limit(1);
-  if (!challenges[0]) {
+  if (!(await consumeChallenge(db, pubkeyHash, nonce))) {
     return jsonError("Challenge expired", 401);
   }
-  await db.delete(authChallenges).where(eq(authChallenges.pubkeyHash, pubkeyHash));
 
   const existing = await db
     .select()
