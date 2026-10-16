@@ -12,6 +12,8 @@ You can change the wrap password in Settings while you are signed in. That only 
 
 **Keep me signed in** stores the unlock secret in this browser until you sign out. That is a device convenience, not a server session that can decrypt the diary.
 
+If Ciclo cannot reach the server when it opens (no connection, or a server error), it keeps that secret and shows **Try again**. It does not show an empty diary while it waits, so nothing can be saved over your real one.
+
 ## What happens on save
 
 1. You are signed in. The browser already holds a key derived from your 12-word phrase.

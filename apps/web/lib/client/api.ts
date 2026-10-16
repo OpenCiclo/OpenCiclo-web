@@ -48,8 +48,10 @@ export async function fetchVault(): Promise<{
   nonce: string;
   schemaVersion: number;
 } | null> {
+  // Only called right after a successful sign-in, so 401/404 are failures, not
+  // "no diary yet". Returning null here would show an empty diary that the next
+  // save could upload over the real one.
   const response = await fetch("/api/vault");
-  if (response.status === 404 || response.status === 401) return null;
   const payload = (await parseJson(response)) as {
     ciphertext: string;
     nonce: string;

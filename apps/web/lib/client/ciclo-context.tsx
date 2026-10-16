@@ -69,6 +69,9 @@ type CicloContextValue = {
   colorScheme: ColorScheme;
   t: (typeof messages)["es"];
   error: string | null;
+  /** The phrase kept on this device could not sign in (offline, server error). It is still stored. */
+  restoreFailed: boolean;
+  retryRestore: () => Promise<void>;
   setLocale: (locale: Locale) => void;
   setVisualSeasons: (enabled: boolean) => void;
   setLunarPhasesEnabled: (enabled: boolean) => void;
@@ -137,35 +140,75 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
   const [timeZone, setTimeZoneState] = useState<TimeZoneSetting>(TIME_ZONE_AUTO);
   const [colorScheme, setColorSchemeState] = useState<ColorScheme>("system");
   const [error, setError] = useState<string | null>(null);
+  const [restoreFailed, setRestoreFailed] = useState(false);
   const [pendingSignup, setPendingSignup] = useState<PendingEmailSignup | null>(null);
 
   const locale = diary.locale;
   const t = messages[locale];
 
-  const hydrate = useCallback(async (nextWallet: Wallet, fallbackLocale: Locale) => {
-    setWallet(nextWallet);
-    const vault = await fetchVault();
-    if (vault?.ciphertext) {
-      const plain = await decryptAesGcm(nextWallet.aesKey, vault.ciphertext, vault.nonce);
-      const loaded = parseDiary(bytesToUtf8(plain));
+  // Loads and decrypts the vault before touching state. The wallet is set only
+  // once the real diary is in memory: an unlocked wallet next to an empty diary
+  // would let the next save upload that empty diary over the real one.
+  const hydrate = useCallback(
+    async (nextWallet: Wallet, fallbackLocale: Locale, isCancelled: () => boolean = () => false) => {
+      const vault = await fetchVault();
+      const loaded = vault?.ciphertext
+        ? parseDiary(bytesToUtf8(await decryptAesGcm(nextWallet.aesKey, vault.ciphertext, vault.nonce)))
+        : emptyDiary(fallbackLocale);
+      if (isCancelled()) return;
       setDiary(loaded);
-      if (loaded.poolOptIn) {
+      setWallet(nextWallet);
+      setRestoreFailed(false);
+      if (!loaded.poolOptIn) return;
+      try {
         const synced = await syncPoolIfDue(loaded);
-        if (synced.poolLastSyncedAt !== loaded.poolLastSyncedAt) {
-          setDiary(synced);
-          const sealed = await encryptAesGcm(nextWallet.aesKey, utf8ToBytes(JSON.stringify(synced)));
-          await putVault(sealed.ciphertext, sealed.nonce, synced.schemaVersion);
-        }
+        if (isCancelled() || synced.poolLastSyncedAt === loaded.poolLastSyncedAt) return;
+        setDiary(synced);
+        const sealed = await encryptAesGcm(nextWallet.aesKey, utf8ToBytes(JSON.stringify(synced)));
+        await putVault(sealed.ciphertext, sealed.nonce, synced.schemaVersion);
+      } catch {
+        // The pool is optional; the next save retries it.
       }
-    } else {
-      setDiary(emptyDiary(fallbackLocale));
-    }
-  }, []);
+    },
+    [],
+  );
+
+  // Signs in again with the phrase kept on this device. Only an unusable phrase
+  // is forgotten. Network, server, or sign-in race failures keep it, so the
+  // person can retry instead of losing access to a phrase-only diary.
+  const restoreStoredSession = useCallback(
+    async (isCancelled: () => boolean = () => false) => {
+      const storedLocale = (localStorage.getItem(LOCALE_KEY) as Locale | null) ?? "es";
+      const unlockState = readUnlockState();
+      if (!unlockState.mnemonic) {
+        if (!isCancelled()) setDiary(emptyDiary(storedLocale));
+        return;
+      }
+      let nextWallet: Wallet;
+      try {
+        nextWallet = unlockWallet(unlockState.mnemonic);
+      } catch {
+        clearStoredMnemonic();
+        if (!isCancelled()) setDiary(emptyDiary(storedLocale));
+        return;
+      }
+      try {
+        await loginWithWallet(nextWallet, undefined, unlockState.persistCookie);
+        await hydrate(nextWallet, storedLocale, isCancelled);
+      } catch {
+        if (isCancelled()) return;
+        setWallet(null);
+        setDiary(emptyDiary(storedLocale));
+        setRestoreFailed(true);
+      }
+    },
+    [hydrate],
+  );
 
   useEffect(() => {
+    let cancelled = false;
+    const isCancelled = () => cancelled;
     migrateBrowserStorage();
-    const storedLocale = (localStorage.getItem(LOCALE_KEY) as Locale | null) ?? "es";
-    const unlockState = readUnlockState();
     void (async () => {
       try {
         await Promise.resolve();
@@ -179,21 +222,16 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
         setWeekStartsOnState(parseWeekStartsOn(localStorage.getItem(WEEK_STARTS_ON_KEY)));
         setTimeZoneState(parseTimeZoneSetting(localStorage.getItem(TIME_ZONE_KEY)));
         setColorSchemeState(parseColorScheme(localStorage.getItem(COLOR_SCHEME_KEY)));
-        if (!unlockState.mnemonic) {
-          setDiary(emptyDiary(storedLocale));
-          return;
-        }
-        const nextWallet = unlockWallet(unlockState.mnemonic);
-        await loginWithWallet(nextWallet, undefined, unlockState.persistCookie);
-        await hydrate(nextWallet, storedLocale);
-      } catch {
-        clearStoredMnemonic();
-        setDiary(emptyDiary(storedLocale));
+        await restoreStoredSession(isCancelled);
       } finally {
-        setReady(true);
+        if (!cancelled) setReady(true);
       }
     })();
-  }, [hydrate]);
+    // StrictMode mounts twice in development; only the live run may set state.
+    return () => {
+      cancelled = true;
+    };
+  }, [restoreStoredSession]);
 
   const persistDiary = useCallback(
     async (next: Diary) => {
@@ -250,6 +288,8 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
       t,
       error,
       setError,
+      restoreFailed,
+      retryRestore: () => restoreStoredSession(),
       setLocale: (nextLocale) => {
         localStorage.setItem(LOCALE_KEY, nextLocale);
         if (wallet) {
@@ -397,6 +437,8 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
       pendingSignup,
       persistDiary,
       ready,
+      restoreFailed,
+      restoreStoredSession,
       t,
       unlock,
       visualSeasons,
