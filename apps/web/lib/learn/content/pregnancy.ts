@@ -16,6 +16,33 @@ export const PREGNANCY_ARTICLES: LearnArticle[] = [
       { label: "CDC — Urgent maternal warning signs", href: "https://www.cdc.gov/hearher/maternal-warning-signs/index.html" },
     ],
     related: ["pregnancy-tests", "missed-periods", "ectopic-pregnancy"],
+    es: {
+      title: "Primeras señales de embarazo",
+      summary: "Para la mayoría de las personas, la primera señal de embarazo es un periodo que no llega. Las náuseas, el cansancio y los pechos doloridos también son frecuentes, pero no todo el mundo los tiene.",
+      sections: [
+        {
+          heading: "La falta del periodo",
+          body: "Para la mayoría de las personas, la primera pista es un periodo que no llega. Si tus ciclos varían mucho, puede ser más difícil saber cuándo un periodo se retrasa. Registrar tus periodos en Ciclo puede ayudarte a notar cuándo uno no ha llegado. La mayoría de las pruebas de embarazo funcionan desde el primer día de retraso del periodo. Si no sabes cuándo te toca el periodo, haz la prueba al menos 21 días después de la última vez que tuviste relaciones sexuales sin anticoncepción.",
+        },
+        {
+          heading: "Náuseas y cansancio",
+          body: "Muchas personas tienen náuseas o vómitos al principio del embarazo. Se conocen como náuseas del embarazo o náuseas matutinas, pero pueden aparecer a cualquier hora del día. Suelen empezar hacia las 4 a 6 semanas de embarazo (contando desde el primer día de tu último periodo). Muchas personas sienten mucho cansancio, sobre todo en los 3 primeros meses. Si tienes náuseas intensas y vomitas mucho, busca atención médica de inmediato.",
+        },
+        {
+          heading: "Otros cambios que puedes notar",
+          body: "Puede que tus pechos aumenten de tamaño, estén sensibles o notes hormigueo en ellos. Puede que necesites orinar más a menudo, también por la noche. Algunas personas tienen estreñimiento, más flujo vaginal sin dolor ni irritación, un sabor metálico extraño en la boca o antojos de comidas nuevas. No hay dos embarazos iguales, y puede que tengas solo algunas de estas señales, o ninguna. Las señales por sí solas no te lo pueden confirmar; una prueba de embarazo es la forma de saberlo.",
+        },
+        {
+          heading: "Sangrado leve o manchado",
+          body: "En las primeras semanas, algunas personas tienen un sangrado muy leve o un poco de manchado, que puede parecer un periodo escaso. Se llama sangrado de implantación. Como el sangrado en el embarazo también puede tener otras causas, ponte en contacto con un médico, una enfermera o una matrona o partera si tienes cualquier sangrado y crees que podrías estar embarazada, sobre todo si también tienes dolor.",
+        },
+        {
+          heading: "Cuándo pedir ayuda",
+          body: "Si la prueba sale positiva, ponte en contacto pronto con un médico, una enfermera o una matrona o partera. Si es posible que estés embarazada, ponte en contacto con un médico o una enfermera ese mismo día si tienes dolor en la parte baja del vientre, en un lado, o cualquier sangrado. Pide ayuda de emergencia (por ejemplo, 911 en México o 112 en España) si tienes un dolor de vientre repentino e intenso, dolor en la punta del hombro, un sangrado abundante, o mucho mareo o sensación de desmayo. Pueden ser señales de un embarazo ectópico.",
+        },
+      ],
+      notice: "Esta es información general. Solo una prueba de embarazo puede decirte si estás embarazada. Si te preocupa algún síntoma, habla con un médico, una enfermera o una matrona o partera.",
+    },
     en: {
       title: "Early signs of pregnancy",
       summary: "For most people, the first sign of pregnancy is a period that does not come. Feeling sick, tiredness and sore breasts are common too, but not everyone gets them.",
@@ -55,6 +82,33 @@ export const PREGNANCY_ARTICLES: LearnArticle[] = [
       { label: "Office on Women's Health — Pregnancy tests", href: "https://www.womenshealth.gov/a-z-topics/pregnancy-tests" },
     ],
     related: ["early-pregnancy-signs", "unplanned-pregnancy", "healthy-pregnancy"],
+    es: {
+      title: "Pruebas de embarazo",
+      summary: "La mayoría de las pruebas de embarazo caseras funcionan desde el primer día de retraso del periodo. Un resultado positivo casi siempre es correcto; uno negativo es menos seguro si haces la prueba pronto.",
+      sections: [
+        {
+          heading: "Cómo funcionan las pruebas de embarazo",
+          body: "Las pruebas de embarazo buscan una hormona llamada gonadotropina coriónica humana (hCG). La produce la placenta, que crece en el útero y alimenta al bebé. Tu cuerpo empieza a producir hCG unos 6 días después de que se fecunde un óvulo. Las pruebas caseras analizan la orina. Los análisis de sangre en una clínica pueden detectar cantidades más pequeñas de hCG, a veces antes de la falta del periodo.",
+        },
+        {
+          heading: "Cuándo hacer la prueba",
+          body: "La mayoría de las pruebas caseras funcionan desde el primer día de retraso del periodo. Algunas pruebas más sensibles se pueden usar antes de la falta del periodo, pero el resultado es más fiable si esperas a que el periodo se retrase. Si no sabes cuándo te toca el periodo, haz la prueba al menos 21 días después de la última vez que tuviste relaciones sexuales sin anticoncepción. La primera orina de la mañana suele tener más hCG. Evita beber mucho líquido antes de la prueba, porque puede diluir la hormona. Puedes registrar el resultado en Ciclo junto a las fechas de tu periodo.",
+        },
+        {
+          heading: "Cómo leer el resultado",
+          body: "Sigue las instrucciones de tu prueba, incluido cuánto tiempo hay que esperar. Después de orinar en la tira, el resultado aparece en pocos minutos. Si se usan bien, las pruebas caseras son fiables. Cualquier línea o signo más que puedas ver, aunque sea tenue, lo más probable es que signifique que estás embarazada. Una línea tenue puede indicar que el embarazo está en sus inicios y que tu nivel de hCG aún es bajo. Las pruebas de orina caseras tienen una precisión de alrededor del 97% al 99% cuando se hacen una o dos semanas después de la falta del periodo.",
+        },
+        {
+          heading: "Si la prueba sale negativa",
+          body: "Un resultado negativo es menos fiable, sobre todo si hiciste la prueba pronto. Puede que tu cuerpo aún no haya producido suficiente hCG para que la prueba la detecte. Si sigues pensando que podrías estar embarazada, espera unos días y repite la prueba. Algunos medicamentos también pueden afectar al resultado, así que revisa el folleto de instrucciones o pregunta a un farmacéutico o farmacéutica. Si una segunda prueba es negativa y el periodo sigue sin llegar, consulta a un médico o una enfermera.",
+        },
+        {
+          heading: "Después de una prueba positiva",
+          body: "Decidas lo que decidas, conviene que veas pronto a un médico, una enfermera o una matrona o partera. Si piensas seguir con el embarazo, recibir atención pronto es importante. Si no tienes claro qué quieres hacer, un centro de salud sexual o de planificación familiar puede hablar contigo sobre tus opciones. Si es posible que estés embarazada, ponte en contacto con un médico o una enfermera ese mismo día si tienes dolor en la parte baja del vientre, en un lado, o cualquier sangrado. Pide ayuda de emergencia (por ejemplo, 911 en México o 112 en España) si tienes un dolor de vientre repentino e intenso, dolor en la punta del hombro, un sangrado abundante, o mucho mareo o sensación de desmayo. Pueden ser señales de un embarazo ectópico.",
+        },
+      ],
+      notice: "Esta es información general. Si el resultado no está claro o el periodo sigue sin llegar, habla con un médico, una enfermera o un centro de salud sexual.",
+    },
     en: {
       title: "Pregnancy tests",
       summary: "Most home pregnancy tests work from the first day of a missed period. A positive result is almost always right; a negative one is less certain if you test early.",
@@ -95,6 +149,37 @@ export const PREGNANCY_ARTICLES: LearnArticle[] = [
       { label: "NHS — Foods to avoid in pregnancy", href: "https://www.nhs.uk/pregnancy/keeping-well/foods-to-avoid/" },
     ],
     related: ["preconception-health", "periods-after-birth", "postpartum-depression"],
+    es: {
+      title: "Control prenatal y embarazo saludable",
+      summary: "Las revisiones periódicas durante el embarazo ayudan a detectar problemas a tiempo. Aquí verás qué incluye el control prenatal, hábitos que ayudan y señales de alarma que necesitan atención de inmediato.",
+      sections: [
+        {
+          heading: "Qué es el control prenatal",
+          body: "El control prenatal (también llamado atención prenatal) es la atención sanitaria que recibes mientras estás embarazada. Incluye revisiones y pruebas periódicas. Ayuda a cuidar tu salud y la del bebé, y permite que un médico o una matrona o partera detecte problemas a tiempo. Si piensas seguir con el embarazo, ponte en contacto con un médico, una enfermera o una matrona o partera en cuanto sepas que estás embarazada.",
+        },
+        {
+          heading: "Qué pasa en las revisiones",
+          body: "En algunos países, como Estados Unidos, un calendario habitual es una revisión más o menos una vez al mes hasta la semana 28, dos veces al mes de la semana 28 a la 36, y después cada semana hasta el parto. Tu propio calendario puede ser distinto. En la mayoría de las visitas te toman la presión arterial y el peso, se comprueba el latido del corazón del bebé y te miden el vientre para seguir su crecimiento. También te ofrecerán pruebas, como análisis de sangre y ecografías (ultrasonidos).",
+        },
+        {
+          heading: "Vitaminas y medicamentos",
+          body: "Toma 400 microgramos de ácido fólico al día hasta las 12 semanas de embarazo. Ayuda a prevenir defectos congénitos del cerebro y la columna. Pregunta también por la vitamina D. No tomes suplementos de vitamina A (retinol) ni aceite de hígado de pescado, porque un exceso de vitamina A puede dañar al bebé. Pregunta a tu médico o a tu matrona o partera sobre una alimentación saludable y cuánto peso es adecuado que ganes. Habla siempre con ellos antes de empezar o dejar cualquier medicamento, incluidos los que compras por tu cuenta y los remedios a base de plantas.",
+        },
+        {
+          heading: "Comidas y bebidas que conviene evitar",
+          body: "Algunos alimentos pueden transmitir infecciones como la listeria o la toxoplasmosis, o contener demasiada vitamina A. Evita los quesos blandos de corteza blanca, como el brie, salvo que estén bien cocinados. Evita también el paté, la carne cruda o poco cocinada, los embutidos y carnes curadas que se comen fríos, el hígado, el marisco crudo, y el tiburón, el pez espada y el marlín. Limita el atún y el pescado azul o graso, no tomes más de 200 mg de cafeína al día y evita el alcohol. Los consejos cambian un poco de un país a otro, así que pregunta a tu matrona o partera qué se aplica en tu caso.",
+        },
+        {
+          heading: "Hábitos que te protegen a ti y al bebé",
+          body: "Evita el tabaco, el alcohol y las drogas durante el embarazo, porque pueden dañar tu salud y la del bebé. Si te cuesta dejarlos, pide apoyo a un médico, una enfermera o una matrona o partera. Ir a todas tus revisiones también es importante, aunque te encuentres bien, porque los controles periódicos permiten a tu médico o a tu matrona o partera detectar problemas a tiempo.",
+        },
+        {
+          heading: "Señales de alarma que necesitan atención ya",
+          body: "Busca atención médica de inmediato si tienes sangrado o pérdida de líquido por la vagina, o un dolor de vientre intenso que no se va. Haz lo mismo si tienes un dolor de cabeza que no se va o empeora, cambios en la vista, o una hinchazón extrema de las manos o la cara. Otras señales urgentes son fiebre de 38°C o más, dolor en el pecho, el corazón muy acelerado, dificultad para respirar, desmayos, vómitos intensos o un cansancio extremo. También lo es una pierna o un brazo con dolor, enrojecido o hinchado, o que el bebé se mueva menos o deje de moverse. Di que estás embarazada. Si tienes pensamientos de hacerte daño a ti o a tu bebé, pide ayuda de emergencia ahora: llama al número de emergencias de tu país (por ejemplo, 911 en México o 112 en España) o a una línea de ayuda en crisis de tu país.",
+        },
+      ],
+      notice: "Esta es información general. Tu médico o tu matrona o partera es quien mejor conoce tu embarazo. Si notas que algo no va bien, ponte en contacto con ellos o busca ayuda urgente.",
+    },
     en: {
       title: "Prenatal care and a healthy pregnancy",
       summary: "Regular check-ups during pregnancy help spot problems early. Here is what prenatal care involves, habits that help, and warning signs that need care straight away.",
@@ -138,6 +223,37 @@ export const PREGNANCY_ARTICLES: LearnArticle[] = [
       { label: "Office on Women's Health — Pregnancy loss", href: "https://www.womenshealth.gov/pregnancy/youre-pregnant-now-what/pregnancy-loss" },
     ],
     related: ["ectopic-pregnancy", "healthy-pregnancy", "depression"],
+    es: {
+      title: "Aborto espontáneo",
+      summary: "Perder un embarazo puede ser muy duro. Aquí verás las señales de un aborto espontáneo, cuándo pedir ayuda, qué pasa después y dónde encontrar apoyo.",
+      sections: [
+        {
+          heading: "Qué es un aborto espontáneo",
+          body: "Un aborto espontáneo (pérdida del embarazo) es cuando un embarazo termina por sí solo, más o menos en la primera mitad de la gestación. Según el país, los médicos usan este término para una pérdida antes de las 20 o de las 24 semanas. El aborto espontáneo es frecuente. Alrededor de 10 a 20 de cada 100 embarazos conocidos terminan en aborto espontáneo, y la cifra real es mayor, porque muchos ocurren antes de que la persona sepa que está embarazada. La mayoría ocurren en los 3 primeros meses. Perder un embarazo en cualquier etapa puede ser doloroso y angustiante, y todo lo que sientas es válido.",
+        },
+        {
+          heading: "Por qué ocurre",
+          body: "La mayoría de los abortos espontáneos ocurren porque el embarazo no se está desarrollando bien. A menudo se debe a un problema genético, como un cromosoma de más o de menos. La probabilidad es mayor a partir de los 35 años, cuando el padre del bebé tiene 45 años o más, y con algunas enfermedades de larga duración, como una diabetes mal controlada. Un aborto espontáneo normalmente no se debe a nada que hayas hecho. La mayoría de las veces ocurre por azar y no es culpa de nadie. Cosas cotidianas como el ejercicio, el sexo, el trabajo normal o una discusión no lo provocan.",
+        },
+        {
+          heading: "Señales a las que prestar atención",
+          body: "La señal principal es el sangrado por la vagina, desde un manchado leve hasta un sangrado más abundante. También puedes tener cólicos o dolor en la parte baja del vientre o de la espalda, o notar que sale líquido o tejido por la vagina. El sangrado o el dolor no siempre significan un aborto espontáneo. Aun así, ponte en contacto de inmediato con un médico, una enfermera o una matrona o partera si tienes cualquier sangrado, pérdida de líquido por la vagina o un flujo que no es habitual en ti.",
+        },
+        {
+          heading: "Cuándo pedir ayuda de emergencia",
+          body: "Si estás embarazada o podrías estarlo, llama al número de emergencias de tu país (por ejemplo, 911 en México o 112 en España) o ve a urgencias si tienes un dolor de vientre repentino, agudo y muy fuerte, dolor en la punta del hombro, o un sangrado abundante que empapa una compresa o toalla sanitaria poco después de ponértela. Haz lo mismo si tienes dolor o sangrado y además tienes mucho mareo, sensación de desmayo o náuseas, o tienes la piel muy pálida. Estas señales también pueden indicar un embarazo ectópico, que necesita tratamiento urgente.",
+        },
+        {
+          heading: "Qué pasa después",
+          body: "Un médico puede usar análisis de sangre u orina y una ecografía interna para ver qué está pasando. Si se confirma un aborto espontáneo temprano, suele haber tres opciones. Puedes esperar a que el embarazo se expulse por sí solo, lo que suele tardar unas 2 semanas, aunque puede tardar más. Puedes tomar medicamentos que ayuden a expulsarlo. O puedes someterte a un procedimiento breve, en el que se introduce un tubo fino por la vagina hasta el útero para retirar el tejido del embarazo.",
+        },
+        {
+          heading: "Apoyo y el futuro",
+          body: "El duelo después de un aborto espontáneo es normal, sea cual sea la etapa del embarazo. Hay apoyo disponible, y la orientación psicológica puede ayudarte a sobrellevarlo. Después de un aborto espontáneo, muchas personas tienen más adelante un embarazo saludable. Si decides volver a intentarlo, un médico puede explicarte los posibles riesgos. Si has tenido 3 o más abortos espontáneos, pregunta a un médico por pruebas para buscar una causa.",
+        },
+      ],
+      notice: "Esta es información general. Si tienes sangrado o dolor en el embarazo, ponte en contacto con un médico, una enfermera o una matrona o partera. Si el dolor es intenso, pide ayuda de emergencia.",
+    },
     en: {
       title: "Miscarriage",
       summary: "Losing a pregnancy can be very hard. Here are the signs of miscarriage, when to get help, what happens next and where to find support.",
@@ -179,6 +295,37 @@ export const PREGNANCY_ARTICLES: LearnArticle[] = [
       { label: "MedlinePlus — Ectopic pregnancy", href: "https://medlineplus.gov/ectopicpregnancy.html" },
     ],
     related: ["miscarriage", "early-pregnancy-signs", "pid"],
+    es: {
+      title: "Embarazo ectópico",
+      summary: "Un embarazo ectópico crece fuera del útero y no puede seguir adelante. Puede convertirse en una urgencia médica, así que conviene conocer las señales de alarma y pedir ayuda rápido.",
+      sections: [
+        {
+          heading: "Qué es un embarazo ectópico",
+          body: "Un embarazo ectópico es cuando un óvulo fecundado se implanta y empieza a crecer fuera del útero. Lo más frecuente es que ocurra en una de las trompas de Falopio, que llevan los óvulos desde los ovarios hasta el útero. En el Reino Unido, alrededor de 1 de cada 90 embarazos es ectópico. Por desgracia, el embarazo no puede convertirse en un bebé y no se puede salvar. Si sigue creciendo, la trompa puede romperse y causar una hemorragia grave dentro del cuerpo.",
+        },
+        {
+          heading: "Síntomas que conviene conocer",
+          body: "Algunas personas no tienen síntomas al principio, o solo las señales habituales del embarazo, como la falta del periodo, los pechos doloridos o las náuseas. Cuando aparecen síntomas, suele ser entre la semana 4 y la 12 de embarazo. Pueden incluir dolor en la parte baja del vientre, en un lado, sangrado vaginal o un flujo marrón y acuoso, y molestias al orinar o al defecar. Si tienes alguno de estos síntomas y es posible que estés embarazada, ponte en contacto con un médico o una enfermera ese mismo día.",
+        },
+        {
+          heading: "Pide ayuda de emergencia",
+          body: "Llama al número de emergencias de tu país (por ejemplo, 911 en México o 112 en España) o ve a urgencias si tienes un dolor de vientre repentino, agudo y muy fuerte, dolor en la punta del hombro, o un sangrado abundante que empapa una compresa o toalla sanitaria poco después de ponértela. Haz lo mismo si tienes dolor o sangrado y además tienes mucho mareo, sensación de desmayo o náuseas, o tienes la piel muy pálida. Pueden ser señales de que la trompa se ha roto, lo que pone en peligro la vida.",
+        },
+        {
+          heading: "Quién tiene más riesgo",
+          body: "Un embarazo ectópico es más probable si ya has tenido uno, si has tenido enfermedad inflamatoria pélvica (EIP) o si te han operado de las trompas de Falopio. También es más probable si el embarazo se logró con un tratamiento de fertilidad como la fecundación in vitro (FIV, en la que un óvulo se fecunda en un laboratorio), o mientras usabas un DIU (dispositivo intrauterino) de cobre u hormonal. Fumar y tener más edad, sobre todo más de 35 años, también aumentan el riesgo.",
+        },
+        {
+          heading: "Tratamiento",
+          body: "Como el embarazo no puede continuar, tiene que retirarse o terminar por sí solo. A veces los médicos hacen un seguimiento de cerca para ver si termina sin tratamiento. Si no, el tratamiento es una inyección de un medicamento llamado metotrexato para terminar el embarazo, o una cirugía mínimamente invasiva (laparoscopia) para retirarlo. Tu equipo médico te explicará qué opción es la más segura para ti.",
+        },
+        {
+          heading: "Después de un embarazo ectópico",
+          body: "Perder un embarazo así puede ser muy duro. Muchas personas sienten un duelo profundo, y está bien pedir apoyo. Muchas personas que han tenido un embarazo ectópico tienen después un embarazo saludable. Si tienes un nuevo embarazo, ponte en contacto pronto con un médico o una enfermera y cuéntale que tuviste un embarazo ectópico, porque puede repetirse.",
+        },
+      ],
+      notice: "Esta es información general. Si es posible que estés embarazada y tienes un dolor de vientre repentino e intenso, dolor en la punta del hombro o una fuerte sensación de desmayo, pide ayuda de emergencia ahora.",
+    },
     en: {
       title: "Ectopic pregnancy",
       summary: "An ectopic pregnancy grows outside the womb and cannot continue. It can become a medical emergency, so it helps to know the warning signs and get help fast.",
@@ -222,6 +369,33 @@ export const PREGNANCY_ARTICLES: LearnArticle[] = [
       { label: "NHS inform — Your options if you're pregnant", href: "https://www.nhsinform.scot/healthy-living/womens-health/middle-years-around-25-to-50-years/sexual-health-contraception-and-pregnancy-options/your-options-if-youre-pregnant/" },
     ],
     related: ["pregnancy-tests", "choosing-contraception", "healthy-pregnancy"],
+    es: {
+      title: "Embarazo no planificado: tus opciones",
+      summary: "Si estás embarazada y no lo habías planeado, tienes opciones. La decisión es tuya, y un médico, una enfermera o una clínica pueden ayudarte a pensarlo.",
+      sections: [
+        {
+          heading: "Primero, confirma el embarazo",
+          body: "Si crees que podrías estar embarazada, una prueba de embarazo casera puede decírtelo desde el primer día de retraso del periodo. Un resultado positivo casi siempre es correcto. El siguiente paso es ver a un médico o una enfermera, o ir a un centro de salud sexual o de planificación familiar. Allí pueden confirmar el embarazo y ayudarte a calcular de cuántas semanas estás. Esto importa porque algunas opciones dependen de lo avanzado que esté el embarazo.",
+        },
+        {
+          heading: "Tus opciones",
+          body: "Hay tres opciones principales. Puedes continuar con el embarazo y criar al bebé, por tu cuenta o con una pareja. Puedes continuar con el embarazo y dar al bebé en adopción, para que otra persona o familia lo críe de forma permanente. En algunos lugares, el bebé también puede quedar al cuidado de una familia de acogida o de familiares (acogimiento en familia extensa). O puedes tener un aborto inducido (interrupción del embarazo), que pone fin al embarazo con medicamentos o con un procedimiento médico.",
+        },
+        {
+          heading: "La decisión es tuya",
+          body: "Esta decisión es personal, y no hay dos situaciones iguales. Tú eres la persona más indicada para decidir qué es lo mejor para ti, y nadie debería presionarte en ningún sentido. A muchas personas les ayuda hablar con alguien de confianza, como su pareja, una amistad o un familiar, pero no tienes por qué hacerlo. Si alguien te está presionando o no te sientes a salvo, díselo a un médico, una enfermera o una clínica. Tómate el tiempo que necesites, teniendo en cuenta que los plazos pueden influir en qué opciones tienes disponibles.",
+        },
+        {
+          heading: "Dónde pedir consejo",
+          body: "Un médico, una enfermera o un centro de salud sexual o de planificación familiar pueden darte información precisa sobre todas tus opciones. Puedes preguntarles cómo protegen la confidencialidad de lo que les cuentas. Algunos servicios solo hablan de algunas opciones, así que puede ayudarte elegir uno que te explique todas sin juzgarte. Las leyes y los servicios de atención al embarazo, adopción y aborto cambian de un país a otro, y a veces dentro de un mismo país, así que la información local es importante.",
+        },
+        {
+          heading: "Cuidarte",
+          body: "Decidas lo que decidas, el apoyo emocional y práctico puede ayudarte. Si sigues con el embarazo, empieza el control prenatal lo antes posible. Si es posible que estés embarazada, ponte en contacto con un médico o una enfermera ese mismo día si tienes dolor en la parte baja del vientre, en un lado, o cualquier sangrado. Pide ayuda de emergencia (por ejemplo, 911 en México o 112 en España) si tienes un dolor de vientre repentino e intenso, dolor en la punta del hombro, un sangrado abundante, o mucho mareo o sensación de desmayo. Pueden ser señales de un embarazo ectópico.",
+        },
+      ],
+      notice: "Esta es información general, no un consejo sobre qué elegir. Para recibir apoyo, habla con un médico, una enfermera o un centro de salud sexual o de planificación familiar.",
+    },
     en: {
       title: "Unplanned pregnancy: your options",
       summary: "If you are pregnant and did not plan to be, you have options. The decision is yours, and a doctor, nurse or clinic can help you think it through.",
@@ -261,6 +435,37 @@ export const PREGNANCY_ARTICLES: LearnArticle[] = [
       { label: "Pregnancy, Birth and Baby — Periods after pregnancy", href: "https://www.pregnancybirthbaby.org.au/womens-health/postnatal-health/periods-after-pregnancy" },
     ],
     related: ["choosing-contraception", "postpartum-depression", "irregular-periods"],
+    es: {
+      title: "El periodo después del parto",
+      summary: "Después del parto sangras durante unas semanas, pero no es un periodo. El periodo puede volver en pocas semanas o tras muchos meses, según cómo alimentes a tu bebé.",
+      sections: [
+        {
+          heading: "El sangrado después del parto no es un periodo",
+          body: "Después de dar a luz, sangras por la vagina durante unas semanas. Este sangrado (loquios) es abundante y de color rojo intenso al principio, así que necesitarás compresas o toallas sanitarias de máxima absorción. En las semanas siguientes se vuelve más ligero, pasa a un tono marrón y luego se detiene. Es una parte normal de la recuperación y es distinto de tu primer periodo. Usa compresas, no tampones, hasta después de tu revisión, unas 6 semanas después del parto, porque los tampones pueden aumentar la probabilidad de infección.",
+        },
+        {
+          heading: "Cuándo vuelve el periodo",
+          body: "Si das el biberón, o combinas el biberón con la lactancia materna, tu primer periodo podría llegar ya a las 5 o 6 semanas del parto. Si solo das el pecho, puede que el periodo no vuelva durante varios meses y, en algunas personas que siguen dando el pecho, no hasta 1 o 2 años después. Puede que tus periodos no sean como antes del embarazo, y el dolor menstrual puede sentirse distinto. Si han cambiado y te preocupa, habla con un médico o una enfermera. Registrar tu sangrado en Ciclo puede ayudarte a ver cuándo vuelven tus periodos.",
+        },
+        {
+          heading: "Puede haber embarazo antes del primer periodo",
+          body: "Es posible un nuevo embarazo ya a las 3 semanas del parto, aunque estés dando el pecho y el periodo no haya vuelto. Esto se debe a que tu cuerpo puede liberar un óvulo antes de que vuelva tu primer periodo. Si no quieres un embarazo, empieza a usar un método anticonceptivo en los 21 días siguientes al parto. Un médico, una enfermera o una matrona o partera pueden ayudarte a elegir un método que te convenga, también durante la lactancia.",
+        },
+        {
+          heading: "La lactancia como método anticonceptivo",
+          body: "La lactancia puede ayudar a prevenir un embarazo, pero solo en condiciones estrictas. Se llama método de la amenorrea de la lactancia (MELA). Solo funciona si se cumplen todas estas condiciones: tu bebé tiene menos de 6 meses, tu periodo no ha vuelto y tu bebé solo toma leche materna, sin leche de fórmula ni comida sólida. Además, tienes que dar el pecho al menos cada 4 horas durante el día y cada 6 horas por la noche. Con el uso típico es eficaz en un 98%, lo que significa que unas 2 de cada 100 mujeres tienen un embarazo en un plazo de 6 meses. Si cambia alguna condición, necesitas otro método.",
+        },
+        {
+          heading: "Sangrado abundante después del parto",
+          body: "Pide ayuda de emergencia (por ejemplo, 911 en México o 112 en España) si el sangrado se vuelve de repente mucho más abundante o es muy abundante, sobre todo si sientes que te vas a desmayar o el corazón te late muy rápido. Ponte en contacto con tu matrona o partera o con tu médico ese mismo día si empapas una compresa cada 1 o 2 horas, expulsas coágulos grandes o el sangrado vuelve a ser de color rojo intenso. A menudo se ofrece una revisión unas 6 semanas después del parto.",
+        },
+        {
+          heading: "Otras señales de alarma en el primer año",
+          body: "Durante el año siguiente al parto, busca atención médica de inmediato si tienes fiebre de 38°C o más, un dolor de vientre intenso que no se va, dolor en el pecho, dificultad para respirar, o una pierna con dolor, enrojecida o hinchada. Haz lo mismo si tienes un dolor de cabeza que no se va o empeora, cambios en la vista, o una hinchazón extrema de las manos o la cara. Di que tuviste un parto hace poco. Si tienes pensamientos de hacerte daño a ti o a tu bebé, pide ayuda de emergencia ahora: llama al número de emergencias de tu país o a una línea de ayuda en crisis de tu país.",
+        },
+      ],
+      notice: "Esta es información general. Si el sangrado después del parto se vuelve de repente más abundante o te encuentras mal, ponte en contacto con tu matrona o partera o con tu médico, o pide ayuda de emergencia.",
+    },
     en: {
       title: "Periods after giving birth",
       summary: "After birth you bleed for a few weeks, but this is not a period. Periods can return within weeks or after many months, depending on how you feed your baby.",

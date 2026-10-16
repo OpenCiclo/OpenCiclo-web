@@ -17,6 +17,37 @@ export const CARE_ARTICLES: LearnArticle[] = [
       { label: "Office on Women's Health — Your menstrual cycle", href: "https://www.womenshealth.gov/menstrual-cycle/your-menstrual-cycle" },
     ],
     related: ["heavy-periods", "tracking-for-doctor", "toxic-shock-syndrome"],
+    es: {
+      title: "Cuándo ir al médico por tu periodo",
+      summary: "Algunos cambios en el periodo merecen una revisión de rutina, y unos pocos necesitan atención urgente. Aquí verás cómo distinguirlos y qué llevar a tu consulta.",
+      sections: [
+        {
+          heading: "Conocer lo que es normal para ti",
+          body: "Los periodos varían, así que la mejor guía es lo que es normal para ti. La mayoría de los ciclos en personas adultas duran entre unos 21 y 38 días, y un periodo suele durar de 2 a 7 días. Los periodos suelen llegar con regularidad. Se detienen durante el embarazo y después de la menopausia, y a menudo durante la lactancia. Los periodos irregulares son frecuentes en los primeros años después de que empiezan los periodos y en los años previos a la menopausia. Un cambio claro respecto a tu patrón habitual es un buen motivo para hacerte una revisión.",
+        },
+        {
+          heading: "Pide una cita de rutina",
+          body: "Acude a un médico o una enfermera si tus periodos se vuelven irregulares después de haber sido regulares. Pide cita también si tus ciclos suelen ser más cortos de 24 días o más largos de 38 días. Ve si llevas 3 meses sin periodo y no estás embarazada ni dando el pecho. Ve también si los periodos no han empezado a los 15 años, o en los 3 años siguientes a que empezaran a crecer los pechos, o si empezaron antes de los 8 años. El dolor es otro motivo, si los analgésicos como el ibuprofeno no ayudan o si te impide trabajar o estudiar. También lo son los síntomas premenstruales o las migrañas que afectan a tu vida diaria.",
+        },
+        {
+          heading: "Sangrado abundante o inusual",
+          body: "Hazte una revisión si tus periodos son abundantes. Algunas señales son cambiar la toalla higiénica o el tampón cada 1 o 2 horas, o necesitar dos productos a la vez. Sangrar durante más de 7 días, expulsar coágulos de más de unos 2.5 cm o que el sangrado traspase a la ropa o a la cama también son señales. El sangrado entre periodos, después de las relaciones sexuales o después de la menopausia siempre debe revisarlo un médico. Sentir mucho cansancio o falta de aire con periodos abundantes puede ser una señal de falta de hierro (anemia).",
+        },
+        {
+          heading: "Pide ayuda el mismo día",
+          body: "Si un sangrado abundante te provoca mareo, aturdimiento o debilidad, ponte en contacto con un médico o una enfermera ese mismo día. Haz lo mismo si tienes dolor pélvico con fiebre, flujo vaginal inusual, vómitos o dolor al orinar. Si podrías estar embarazada, aunque no tengas una prueba positiva, ponte en contacto con un médico o una enfermera ese mismo día si tienes dolor en la parte baja del abdomen, en un lado, o cualquier sangrado. Busca atención de urgencia si tienes un dolor de abdomen repentino e intenso, dolor en la punta del hombro, un sangrado abundante, o mucho mareo o sensación de desmayo. Pueden ser señales de un embarazo que crece fuera del útero (embarazo ectópico).",
+        },
+        {
+          heading: "Busca atención de urgencia",
+          body: "Llama al número de emergencias de tu país (por ejemplo, 911 en México o 112 en España) o ve a urgencias si tienes un sangrado abundante y te desmayas o sientes que te vas a desmayar, o si tienes dolor en el pecho o dificultad para respirar. Haz lo mismo si tienes un dolor repentino e intenso en el abdomen o la pelvis. El síndrome de shock tóxico (SST) es una enfermedad poco frecuente pero grave relacionada con los tampones y las copas menstruales. Si de repente tienes fiebre alta, vómitos o una erupción en la piel, o sientes mareo o que te vas a desmayar, mientras usas un tampón, una copa o un disco menstrual, retíralo y busca atención médica enseguida. Si te encuentras muy mal o con confusión, o tienes dificultad para respirar, llama al número de emergencias de tu país.",
+        },
+        {
+          heading: "Aprovecha al máximo tu consulta",
+          body: "Antes de la cita, apunta cuándo empezó y terminó cada periodo, lo abundante que fue el sangrado, cada cuánto cambiabas de producto, y cualquier dolor u otro síntoma. Un diario o calendario de tus periodos y síntomas ayuda al médico o a la enfermera a encontrar la causa de un problema. Ciclo guarda las fechas de tus periodos y los síntomas que registras en un solo lugar, para que puedas revisarlos antes de la consulta. También ayuda llevar una lista de los medicamentos que tomas y de las preguntas que quieres hacer.",
+        },
+      ],
+      notice: "Esta es información general, no un diagnóstico. Si te preocupan tus periodos, habla con un médico o una enfermera.",
+    },
     en: {
       title: "When to see a doctor about your period",
       summary: "Some period changes are worth a routine check-up, and a few need urgent care. Here is how to tell the difference, and what to bring to your appointment.",
@@ -60,6 +91,33 @@ export const CARE_ARTICLES: LearnArticle[] = [
       { label: "Planned Parenthood — What is a pelvic exam?", href: "https://www.plannedparenthood.org/learn/health-and-wellness/wellness-visit/what-pelvic-exam" },
     ],
     related: ["hpv", "gynecology-visit", "gynecologic-cancers"],
+    es: {
+      title: "Citología (prueba de Papanicolaou)",
+      summary: "La citología es una prueba rápida que ayuda a prevenir el cáncer de cuello uterino al detectar a tiempo cambios en las células. A quién se le ofrece, y cada cuánto, depende de dónde vivas.",
+      sections: [
+        {
+          heading: "Qué es la citología",
+          body: "La citología, también llamada prueba de Papanicolaou o cribado de cáncer de cuello uterino, revisa la salud del cuello del útero (cérvix). Busca cambios en las células del cuello del útero antes de que se conviertan en cáncer, para poder tratarlos a tiempo. Según la prueba, en la muestra se busca el virus del papiloma humano (VPH), células anormales o ambas cosas. El cribado es para personas sin síntomas, y detectar y tratar los cambios a tiempo ayuda a prevenir el cáncer de cuello uterino. Sigue haciéndote las pruebas de cribado aunque te hayas vacunado contra el VPH.",
+        },
+        {
+          heading: "A quién se le ofrece y cada cuánto",
+          body: "Las edades y la frecuencia cambian según el país, así que sigue las indicaciones del lugar donde vives. La Organización Mundial de la Salud (OMS) recomienda una prueba de alto rendimiento, como la prueba del VPH, cada 5 a 10 años a partir de los 30 años, o cada 3 a 5 años a partir de los 25 años para las mujeres que viven con el VIH. Por ejemplo, en Inglaterra el NHS (el sistema público de salud) invita a las mujeres y a las personas con cuello uterino de 25 a 64 años cada 5 años. En Estados Unidos, el cribado suele empezar a los 21 o a los 25 años y se repite cada 3 o 5 años hasta los 65, según la prueba. Si tienes más de 65 años, o te han extirpado el útero y el cuello uterino, pregunta si todavía necesitas el cribado.",
+        },
+        {
+          heading: "Cómo es la prueba",
+          body: "Un médico o una enfermera hace la prueba, y solo dura unos minutos. Te desvistes de la cintura para abajo y te acuestas boca arriba con las rodillas dobladas. Se introduce con suavidad en la vagina un instrumento liso llamado espéculo para poder ver el cuello del útero. Después, con un cepillo pequeño y suave se recogen algunas células, que se envían a un laboratorio. Puedes notar presión o un cólico, pero normalmente no duele. Respirar despacio puede ayudarte a relajarte, y si algo te duele, dilo. En algunos lugares puedes tomar la muestra por tu cuenta para una prueba del VPH, y funciona igual de bien que una muestra tomada por un médico o una enfermera.",
+        },
+        {
+          heading: "Antes y después",
+          body: "Intenta pedir la cita para un momento en que no vayas a tener el periodo, porque el sangrado puede afectar al resultado. Unos 5 días después de que termine el periodo es un buen momento. Durante los 2 días antes de la prueba, evita el sexo vaginal, los tampones y las cremas o medicamentos que se aplican dentro de la vagina. Algunas personas tienen un sangrado muy leve después. Los pronósticos de periodo de Ciclo pueden ayudarte a elegir una fecha, pero son estimaciones, así que revisa también tu diario.",
+        },
+        {
+          heading: "Resultados y próximos pasos",
+          body: "Si el resultado es normal, por lo general no necesitarás otra prueba hasta el intervalo habitual en tu país. Si se encuentran cambios, normalmente no significa que haya cáncer. Puede que te pidan repetir la prueba, o que te examinen el cuello del útero más de cerca con un instrumento de aumento (colposcopia). Los resultados poco claros también pueden estar relacionados con el embarazo, la menopausia o una infección. El cribado no es una prueba para síntomas: si tienes sangrado entre periodos, después de las relaciones sexuales o después de la menopausia, acude a un médico sin esperar a tu próxima prueba.",
+        },
+      ],
+      notice: "Esta es información general. Las edades y la frecuencia del cribado varían según el país, así que consulta qué se ofrece donde vives.",
+    },
     en: {
       title: "Cervical screening (smear or Pap test)",
       summary: "Cervical screening is a quick test that helps prevent cervical cancer by finding cell changes early. Who is invited, and how often, depends on where you live.",
@@ -98,6 +156,33 @@ export const CARE_ARTICLES: LearnArticle[] = [
       { label: "MedlinePlus — Pap smear", href: "https://medlineplus.gov/lab-tests/pap-smear/" },
     ],
     related: ["cervical-screening", "tracking-for-doctor", "when-to-see-a-doctor"],
+    es: {
+      title: "Tu consulta de ginecología",
+      summary: "Saber qué pasa en una consulta de ginecología puede hacerla más llevadera. Aquí verás qué esperar, cómo es una exploración pélvica y cómo prepararte.",
+      sections: [
+        {
+          heading: "Por qué podrías ir",
+          body: "Una consulta de ginecología es una revisión de tu salud reproductiva con un médico o una enfermera. Puedes ir para hacerte la citología o una revisión de rutina, o por un problema como sangrado abundante, falta de periodos, dolor o flujo vaginal inusual. No siempre hace falta una exploración interna. En la adolescencia no suele hacerse, salvo que haya un problema. En Estados Unidos, por ejemplo, normalmente no se necesita una exploración pélvica de rutina antes de los 21 años, salvo que haya un problema.",
+        },
+        {
+          heading: "Hablar de tu salud",
+          body: "La mayoría de las consultas empiezan con preguntas. Es probable que te pregunten por tus periodos, como cuándo empezó el último, cuánto duran y lo abundantes que son, y por el dolor u otros síntomas. También pueden preguntarte por el sexo, la anticoncepción, el embarazo, los medicamentos y tu salud en general. Responder con sinceridad te ayuda a recibir la atención adecuada. Llevar las fechas de tus periodos y tus notas de síntomas de Ciclo, y una lista escrita con tus preguntas, lo hace más fácil.",
+        },
+        {
+          heading: "En qué consiste una exploración pélvica",
+          body: "En una exploración pélvica, un médico o una enfermera revisa tu vulva y tus órganos reproductivos internos. Te dan privacidad para desvestirte, normalmente de la cintura para abajo, y una bata para taparte. Primero miran la vulva y la entrada de la vagina. Después introducen con suavidad un espéculo para ver la vagina y el cuello del útero, y pueden tomar una muestra para la citología. También pueden introducir 1 o 2 dedos con guante y lubricados en la vagina mientras presionan suavemente la parte baja del abdomen, para palpar el útero y los ovarios.",
+        },
+        {
+          heading: "Qué se siente",
+          body: "La exploración pélvica en sí suele durar unos 3 a 5 minutos. Algunas partes pueden resultar incómodas o causar presión, pero no debería doler. Si te duele, dilo enseguida. Respirar despacio y hondo puede ayudar a que tu cuerpo se relaje. Intenta aflojar el abdomen y los hombros. Puedes pedir al médico o a la enfermera que te vaya explicando cada paso.",
+        },
+        {
+          heading: "Planificar tu visita",
+          body: "Si puedes, pide la cita para un momento en que no vayas a tener el periodo, sobre todo si te vas a hacer la citología. Durante los 2 días antes de una citología, evita el sexo vaginal, los tampones y las cremas o medicamentos vaginales. Puedes preguntar si una amistad, un familiar o una persona acompañante del propio centro puede estar en la sala. Si la exploración te resulta difícil, por ejemplo por experiencias pasadas, puedes decírselo al centro con antelación y preguntar qué apoyo ofrecen.",
+        },
+      ],
+      notice: "Esta es información general. Puedes hacer preguntas en cualquier momento de la consulta.",
+    },
     en: {
       title: "Your gynaecology appointment",
       summary: "Knowing what happens at a gynaecology appointment can make it feel easier. Here is what to expect, how a pelvic exam works, and how to prepare.",
@@ -136,6 +221,33 @@ export const CARE_ARTICLES: LearnArticle[] = [
       { label: "NHS — Breast pain", href: "https://www.nhs.uk/conditions/breast-pain/" },
     ],
     related: ["breast-pain", "gynecology-visit"],
+    es: {
+      title: "Conocer tus pechos",
+      summary: "Conocer tus pechos significa saber cómo se ven y se sienten normalmente, para notar a tiempo cualquier cambio. Muchos cambios tienen otras causas, pero cualquier cambio nuevo debe revisarse.",
+      sections: [
+        {
+          heading: "Qué significa conocer tus pechos",
+          body: "Conocer tus pechos significa familiarizarte con cómo se ven y se sienten normalmente tus pechos o tu tórax. Revisarlos con regularidad hace que sea más fácil notar cambios en su tamaño, su aspecto o su tacto. Lo más importante es saber qué es normal para ti, para que un cambio llame la atención. Intenta revisarlos más o menos una vez al mes.",
+        },
+        {
+          heading: "Tu ciclo y tus pechos",
+          body: "Los pechos pueden verse y sentirse distintos en diferentes momentos del ciclo menstrual. Muchas personas los notan más sensibles o hinchados en la semana o las dos semanas antes del periodo, y esto suele pasar cuando termina el periodo. Los pechos también cambian después de la menopausia. Por eso, puede ayudarte fijarte en qué momento del ciclo estás cada vez que te revisas, para comparar tus pechos en el mismo punto de cada ciclo. El diario de Ciclo puede ayudarte a verlo.",
+        },
+        {
+          heading: "Cómo revisarte",
+          body: "Ponte delante de un espejo y mira los dos pechos, primero con los brazos abajo y luego con los brazos levantados. Después, usa los dedos para palpar cada pecho o cada lado del tórax con pequeños círculos. Cubre toda la zona hasta la clavícula y hasta cada axila, incluido el pezón. Presiona primero con suavidad y luego con más firmeza, pero nunca tanto que te duela. A algunas personas les resulta más fácil hacerlo acostadas o en la ducha.",
+        },
+        {
+          heading: "Cambios a los que prestar atención",
+          body: "Fíjate si hay un bulto o una hinchazón en el pecho, el tórax o la axila, o un cambio en el tamaño o la forma de uno o de los dos pechos. La piel puede tener hoyuelos, como la piel de naranja. También puede cambiar de color, por ejemplo verse más oscura de lo habitual en la piel negra o morena, o roja en la piel blanca. Fíjate también en si un pezón se hunde hacia dentro o tiene una erupción, o si sale líquido del pezón cuando no estás embarazada ni dando el pecho, que puede contener sangre.",
+        },
+        {
+          heading: "Si notas un cambio",
+          body: "Acude a un médico o una enfermera si notas alguno de estos cambios, y no esperes a ver si desaparecen. Muchos cambios en los pechos, incluidos los bultos, son frecuentes y pueden deberse a otras afecciones, pero solo una revisión puede confirmarlo. Es poco probable que el dolor en los pechos, por sí solo, sea una señal de cáncer. También puedes preguntar a un médico o una enfermera si donde vives se ofrece el cribado de cáncer de mama (una mamografía) para tu edad.",
+        },
+      ],
+      notice: "Esta es información general, no un diagnóstico. Si notas un cambio en el pecho o el tórax, acude a un médico o una enfermera.",
+    },
     en: {
       title: "Breast awareness",
       summary: "Being breast aware means knowing how your breasts usually look and feel, so you notice changes early. Many changes have other causes, but any new change should be checked.",
@@ -174,6 +286,33 @@ export const CARE_ARTICLES: LearnArticle[] = [
       { label: "Office on Women's Health — Premenstrual syndrome (PMS)", href: "https://www.womenshealth.gov/menstrual-cycle/premenstrual-syndrome" },
     ],
     related: ["tracking-your-cycle", "when-to-see-a-doctor", "gynecology-visit"],
+    es: {
+      title: "Usar tu registro del ciclo en una consulta",
+      summary: "Unos meses de notas sobre tus periodos y síntomas pueden ayudar a un médico o una enfermera a entender qué está pasando. Aquí verás qué anotar y cómo usarlo.",
+      sections: [
+        {
+          heading: "Por qué ayuda llevar un registro",
+          body: "Es fácil olvidar detalles de un mes a otro. Un diario o calendario de tus periodos y síntomas puede ayudar a un médico o una enfermera a detectar patrones y encontrar la causa de un problema. Puede mostrar si los síntomas están relacionados con tu ciclo o con otra cosa. En algunas afecciones, como el síndrome premenstrual (SPM) y el trastorno disfórico premenstrual (TDPM), llevar un registro diario durante al menos 2 ciclos forma parte del diagnóstico.",
+        },
+        {
+          heading: "Qué anotar sobre el periodo",
+          body: "Anota el primer y el último día de cada periodo, para que el médico pueda ver cuánto duran tus ciclos y tus periodos. Apunta lo abundante que es el sangrado cada día y cada cuánto cambias de toalla higiénica, tampón o copa menstrual. Anota si hay coágulos o si el sangrado traspasa a la ropa o a la cama. Registra cada día que sangras, no solo el primero, y anota cualquier manchado o sangrado entre periodos o después de las relaciones sexuales.",
+        },
+        {
+          heading: "Dolor, síntomas y estado de ánimo",
+          body: "Apunta cualquier dolor: dónde lo notas, su intensidad y si te ayudan los analgésicos. Anota otros síntomas, como dolor de cabeza, hinchazón, dolor en los pechos, cansancio, cambios en el sueño y el estado de ánimo, junto con su gravedad y los días en que aparecen. Hacerlo a diario, durante unos meses, da una imagen más clara que intentar recordarlo después. Si los síntomas afectan a tu trabajo, tus estudios o tus relaciones, anótalo también, porque muestra su impacto.",
+        },
+        {
+          heading: "Otras cosas que llevar",
+          body: "Haz una lista de los medicamentos que tomas, incluidos los anticonceptivos, los suplementos y los analgésicos. Anota cualquier cosa que pueda afectar a tu ciclo, como un embarazo reciente, la lactancia, un medicamento nuevo, el estrés o una enfermedad. Escribe tus preguntas antes de la cita, con la que más te importa en primer lugar, para no olvidarlas durante la consulta.",
+        },
+        {
+          heading: "Aprovecha al máximo tu registro",
+          body: "Los registros de unos cuantos meses son más útiles que los de un solo mes. Antes de la consulta, repasa tu registro y quédate con los patrones principales, como cuánto suelen durar tus ciclos y cuándo empiezan los síntomas. Sirve cualquier diario, calendario o app. En Ciclo, los periodos, síntomas y notas que registras se guardan en un solo lugar, y los pronósticos se marcan como estimaciones. Comparte tanto como te parezca bien. Tu registro apoya la conversación, pero no es un diagnóstico.",
+        },
+      ],
+      notice: "Esta es información general. Un registro del ciclo te ayuda a hablar con un médico o una enfermera; no puede diagnosticar una afección.",
+    },
     en: {
       title: "Using your cycle log at an appointment",
       summary: "A few months of notes about your periods and symptoms can help a doctor or nurse understand what is going on. Here is what to record and how to use it.",
@@ -212,6 +351,33 @@ export const CARE_ARTICLES: LearnArticle[] = [
       { label: "CDC — Reducing risk for gynecologic cancers", href: "https://www.cdc.gov/gynecologic-cancer/prevention/index.html" },
     ],
     related: ["cervical-screening", "postmenopausal-bleeding", "spotting"],
+    es: {
+      title: "Cánceres ginecológicos: señales que conviene conocer",
+      summary: "Conocer las señales de los cánceres ginecológicos te ayuda a actuar a tiempo. Estos síntomas a menudo tienen otras causas, pero cualquiera que dure o que no sea normal para ti debe revisarse.",
+      sections: [
+        {
+          heading: "Qué son estos cánceres",
+          body: "Los cánceres ginecológicos empiezan en los órganos reproductivos. Los tipos principales son el cáncer de cuello uterino, de ovario, de útero, de vagina y de vulva. Cada tipo tiene sus propias señales, y los síntomas no son iguales para todo el mundo. Muchos de estos síntomas son frecuentes y pueden deberse a otras afecciones, y la única forma de saber la causa es ir al médico. La citología ayuda a detectar a tiempo cambios en el cuello del útero, pero no revisa los otros tipos, así que conocer las señales es importante. La vacuna contra el virus del papiloma humano (VPH) protege contra los tipos de VPH que causan la mayoría de los cánceres de cuello uterino, de vagina y de vulva.",
+        },
+        {
+          heading: "Sangrado o flujo vaginal inusual",
+          body: "Un sangrado o un flujo vaginal inusual puede ser señal de todos estos cánceres, salvo el de vulva. Esto incluye el sangrado entre periodos, después de las relaciones sexuales o después de la menopausia, y los periodos más abundantes de lo habitual para ti. Estos tipos de sangrado siempre debe revisarlos un médico. Un flujo vaginal que no es habitual en ti también merece una revisión.",
+        },
+        {
+          heading: "Cambios en el abdomen, la pelvis y la vejiga",
+          body: "Algunas señales se confunden fácilmente con problemas cotidianos. El cáncer de ovario puede causar un abdomen hinchado o sensación de hinchazón, sensación de saciedad enseguida o falta de apetito, y dolor en el abdomen, la pelvis o la espalda. El dolor o la presión en la pelvis también pueden ser una señal de cáncer de útero. Necesitar orinar más a menudo o con más urgencia, y el estreñimiento, pueden aparecer con el cáncer de ovario y el de vagina. El cáncer de ovario también puede causar indigestión, diarrea, cansancio constante y pérdida de peso sin buscarla.",
+        },
+        {
+          heading: "Cambios en la vulva",
+          body: "El cáncer de vulva tiene sus propias señales. Entre ellas están el picor, el ardor, el dolor o la sensibilidad en la vulva, y los cambios en el color o en la piel de la vulva, como una erupción, llagas o verrugas. Estos cambios también pueden tener otras causas, pero los cambios que duran debe revisarlos un médico o una enfermera.",
+        },
+        {
+          heading: "Cuándo ir al médico",
+          body: "Presta atención a tu cuerpo y conoce lo que es normal para ti. Acude enseguida a un médico por cualquier sangrado vaginal que sea inusual para ti, incluido cualquier sangrado después de la menopausia. Para las demás señales, acude a un médico si una dura 2 semanas o más y no es normal para ti. Si ya has ido al médico y tus síntomas no han desaparecido, han empeorado o aparecen más a menudo, vuelve. Si el médico cree que necesitas más pruebas, puede derivarte de forma urgente a un especialista. Anotar en Ciclo cuándo aparecen los síntomas puede ayudarte a describirlos con claridad.",
+        },
+      ],
+      notice: "Esta es información general, no un diagnóstico. Acude enseguida a un médico si tienes un sangrado inusual, y también si tienes otros síntomas que duran 2 semanas o más.",
+    },
     en: {
       title: "Gynaecological cancers: signs to know",
       summary: "Knowing the signs of gynaecological cancers helps you act early. These symptoms often have other causes, but any that last or are not normal for you should be checked.",
