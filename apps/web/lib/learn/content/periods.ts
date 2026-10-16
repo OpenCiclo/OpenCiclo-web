@@ -7,7 +7,7 @@ export const PERIODS_ARTICLES: LearnArticle[] = [
   {
     slug: "period-basics",
     category: "periods",
-    reviewedAt: "2026-10-04",
+    reviewedAt: "2026-10-16",
     sources: [
       { label: "NHS — Periods", href: "https://www.nhs.uk/conditions/periods/" },
       { label: "Office on Women's Health — Your menstrual cycle", href: "https://www.womenshealth.gov/menstrual-cycle/your-menstrual-cycle" },
@@ -26,7 +26,7 @@ export const PERIODS_ARTICLES: LearnArticle[] = [
         },
         {
           heading: "Cuánto dura y cada cuánto llega",
-          body: "Un periodo suele durar unos 5 días, pero es habitual cualquier duración de 2 a 7 días. Tu ciclo es el tiempo que va desde el primer día de un periodo hasta el inicio del siguiente. Muchas personas tienen el periodo más o menos cada 28 días, pero es habitual tenerlo con más o menos frecuencia. La mayoría de los ciclos en personas adultas duran entre unos 21 y 38 días. Un ciclo también puede ser un poco más corto o más largo de un mes a otro.",
+          body: "Un periodo suele durar unos 5 días, pero es habitual cualquier duración de 2 a 7 días. Tu ciclo es el tiempo que va desde el primer día de un periodo hasta el inicio del siguiente. Muchas personas tienen el periodo más o menos cada 28 días, pero es habitual tenerlo con más o menos frecuencia. La mayoría de los ciclos en personas adultas duran entre unos 24 y 38 días. Un ciclo también puede ser un poco más corto o más largo de un mes a otro.",
         },
         {
           heading: "Cuánta sangre es normal",
@@ -57,7 +57,7 @@ export const PERIODS_ARTICLES: LearnArticle[] = [
         },
         {
           heading: "How long it lasts and how often",
-          body: "A period usually lasts about 5 days, but anything from 2 to 7 days is common. Your cycle is the time from the first day of one period to the start of the next. Many people have a period about every 28 days, but it is common to have them more or less often than this. Most adult cycles last somewhere between about 21 and 38 days. A cycle can also be a bit shorter or longer from one month to the next.",
+          body: "A period usually lasts about 5 days, but anything from 2 to 7 days is common. Your cycle is the time from the first day of one period to the start of the next. Many people have a period about every 28 days, but it is common to have them more or less often than this. Most adult cycles last somewhere between about 24 and 38 days. A cycle can also be a bit shorter or longer from one month to the next.",
         },
         {
           heading: "How much blood is normal",
@@ -369,7 +369,7 @@ export const PERIODS_ARTICLES: LearnArticle[] = [
   {
     slug: "irregular-periods",
     category: "periods",
-    reviewedAt: "2026-10-04",
+    reviewedAt: "2026-10-16",
     sources: [
       { label: "NHS — Irregular periods", href: "https://www.nhs.uk/conditions/irregular-periods/" },
       { label: "Office on Women's Health — Period problems", href: "https://www.womenshealth.gov/menstrual-cycle/period-problems" },
@@ -382,7 +382,7 @@ export const PERIODS_ARTICLES: LearnArticle[] = [
       sections: [
         {
           heading: "Qué significa irregular",
-          body: "Tu ciclo es el tiempo que va desde el primer día de un periodo hasta el primer día del siguiente. La mayoría de los ciclos en personas adultas duran entre unos 21 y 38 días, y un ciclo puede ser un poco más corto o más largo de un mes a otro. Se dice que los periodos son irregulares cuando el tiempo entre uno y otro cambia una y otra vez, o cuando a menudo es de menos de 24 días o de más de 38. A veces el periodo directamente no llega.",
+          body: "Tu ciclo es el tiempo que va desde el primer día de un periodo hasta el primer día del siguiente. La mayoría de los ciclos en personas adultas duran entre unos 24 y 38 días, y un ciclo puede ser un poco más corto o más largo de un mes a otro. Se dice que los periodos son irregulares cuando el tiempo entre uno y otro cambia una y otra vez, o cuando a menudo es de menos de 24 días o de más de 38. A veces el periodo directamente no llega.",
         },
         {
           heading: "Cuándo es de esperar",
@@ -409,7 +409,7 @@ export const PERIODS_ARTICLES: LearnArticle[] = [
       sections: [
         {
           heading: "What irregular means",
-          body: "Your cycle is the time from the first day of one period to the first day of the next. Most adult cycles last somewhere between about 21 and 38 days, and a cycle can be a bit shorter or longer from one month to the next. Periods are called irregular when the gap between them keeps changing, or is often shorter than 24 days or longer than 38 days. Sometimes a period is missed altogether.",
+          body: "Your cycle is the time from the first day of one period to the first day of the next. Most adult cycles last somewhere between about 24 and 38 days, and a cycle can be a bit shorter or longer from one month to the next. Periods are called irregular when the gap between them keeps changing, or is often shorter than 24 days or longer than 38 days. Sometimes a period is missed altogether.",
         },
         {
           heading: "Times when it is expected",
@@ -697,7 +697,7 @@ export const PERIODS_ARTICLES: LearnArticle[] = [
   {
     slug: "period-myths",
     category: "periods",
-    reviewedAt: "2026-10-04",
+    reviewedAt: "2026-10-16",
     sources: [
       { label: "NHS — Periods", href: "https://www.nhs.uk/conditions/periods/" },
       { label: "KidsHealth — All about periods", href: "https://kidshealth.org/en/teens/menstruation.html" },
@@ -711,7 +711,7 @@ export const PERIODS_ARTICLES: LearnArticle[] = [
       sections: [
         {
           heading: "Mito: todos los ciclos duran 28 días",
-          body: "Realidad: 28 días es solo un promedio. Muchas personas tienen el periodo más o menos cada 28 días, pero es habitual tenerlo con más o menos frecuencia. La mayoría de los ciclos en personas adultas duran entre unos 21 y 38 días. También es normal que la duración cambie un poco de un mes a otro.",
+          body: "Realidad: 28 días es solo un promedio. Muchas personas tienen el periodo más o menos cada 28 días, pero es habitual tenerlo con más o menos frecuencia. La mayoría de los ciclos en personas adultas duran entre unos 24 y 38 días. También es normal que la duración cambie un poco de un mes a otro.",
         },
         {
           heading: "Mito: se pierde mucha sangre",
@@ -742,7 +742,7 @@ export const PERIODS_ARTICLES: LearnArticle[] = [
       sections: [
         {
           heading: "Myth: every cycle is 28 days",
-          body: "Fact: 28 days is only an average. Many people have a period about every 28 days, but it is common to have them more or less often. Most adult cycles last somewhere between about 21 and 38 days. It is also normal for the length to change a little from one month to the next.",
+          body: "Fact: 28 days is only an average. Many people have a period about every 28 days, but it is common to have them more or less often. Most adult cycles last somewhere between about 24 and 38 days. It is also normal for the length to change a little from one month to the next.",
         },
         {
           heading: "Myth: you lose a lot of blood",

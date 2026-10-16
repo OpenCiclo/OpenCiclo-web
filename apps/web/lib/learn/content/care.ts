@@ -7,7 +7,7 @@ export const CARE_ARTICLES: LearnArticle[] = [
   {
     slug: "when-to-see-a-doctor",
     category: "care",
-    reviewedAt: "2026-10-04",
+    reviewedAt: "2026-10-16",
     sources: [
       { label: "Office on Women's Health — Period problems", href: "https://www.womenshealth.gov/menstrual-cycle/period-problems" },
       { label: "NHS — Period problems", href: "https://www.nhs.uk/conditions/periods/period-problems/" },
@@ -23,7 +23,7 @@ export const CARE_ARTICLES: LearnArticle[] = [
       sections: [
         {
           heading: "Conocer lo que es normal para ti",
-          body: "Los periodos varían, así que la mejor guía es lo que es normal para ti. La mayoría de los ciclos en personas adultas duran entre unos 21 y 38 días, y un periodo suele durar de 2 a 7 días. Los periodos suelen llegar con regularidad. Se detienen durante el embarazo y después de la menopausia, y a menudo durante la lactancia. Los periodos irregulares son frecuentes en los primeros años después de que empiezan los periodos y en los años previos a la menopausia. Un cambio claro respecto a tu patrón habitual es un buen motivo para hacerte una revisión.",
+          body: "Los periodos varían, así que la mejor guía es lo que es normal para ti. La mayoría de los ciclos en personas adultas duran entre unos 24 y 38 días, y un periodo suele durar de 2 a 7 días. Los periodos suelen llegar con regularidad. Se detienen durante el embarazo y después de la menopausia, y a menudo durante la lactancia. Los periodos irregulares son frecuentes en los primeros años después de que empiezan los periodos y en los años previos a la menopausia. Un cambio claro respecto a tu patrón habitual es un buen motivo para hacerte una revisión.",
         },
         {
           heading: "Pide una cita de rutina",
@@ -54,7 +54,7 @@ export const CARE_ARTICLES: LearnArticle[] = [
       sections: [
         {
           heading: "Knowing your normal",
-          body: "Periods vary, so the most useful guide is what is normal for you. Most adult cycles last somewhere between about 21 and 38 days, and a period usually lasts 2 to 7 days. Periods usually come regularly. They stop during pregnancy and after menopause, and often while breastfeeding. Irregular periods are common in the first few years after periods start and in the years before menopause. A clear change from your usual pattern is a good reason to get checked.",
+          body: "Periods vary, so the most useful guide is what is normal for you. Most adult cycles last somewhere between about 24 and 38 days, and a period usually lasts 2 to 7 days. Periods usually come regularly. They stop during pregnancy and after menopause, and often while breastfeeding. Irregular periods are common in the first few years after periods start and in the years before menopause. A clear change from your usual pattern is a good reason to get checked.",
         },
         {
           heading: "Book a routine appointment",

@@ -156,10 +156,11 @@ export const CONTRACEPTION_ARTICLES: LearnArticle[] = [
   {
     slug: "iud",
     category: "contraception",
-    reviewedAt: "2026-10-04",
+    reviewedAt: "2026-10-16",
     sources: [
       { label: "NHS — What is an IUD?", href: "https://www.nhs.uk/contraception/methods-of-contraception/iud-coil/what-is-it/" },
       { label: "NHS — Side effects and risks of the IUD", href: "https://www.nhs.uk/contraception/methods-of-contraception/iud-coil/side-effects/" },
+      { label: "NHS — Side effects and risks of the hormonal coil (IUS)", href: "https://www.nhs.uk/contraception/methods-of-contraception/ius-hormonal-coil/side-effects-and-risks/" },
       { label: "Office on Women's Health — Birth control methods", href: "https://www.womenshealth.gov/a-z-topics/birth-control-methods" },
       { label: "NHS — How well contraception works at preventing pregnancy", href: "https://www.nhs.uk/contraception/choosing-contraception/how-well-it-works-at-preventing-pregnancy/" },
     ],
@@ -186,7 +187,7 @@ export const CONTRACEPTION_ARTICLES: LearnArticle[] = [
         },
         {
           heading: "Posibles riesgos",
-          body: "Entre los posibles riesgos de un DIU de cobre están una infección pélvica, normalmente en las 3 semanas siguientes a la colocación, y que el DIU se mueva o se salga, normalmente en los 3 primeros meses. Otros posibles riesgos son una lesión en el útero y, en el caso poco frecuente de que el DIU falle, un embarazo fuera del útero (embarazo ectópico). También hay una pequeña probabilidad de tener candidiasis vaginal que vuelve una y otra vez.",
+          body: "Entre los posibles riesgos de cualquier DIU, de cobre u hormonal, están una infección pélvica, normalmente en las 3 semanas siguientes a la colocación, y que el DIU se mueva o se salga, normalmente en los 3 primeros meses. Otros posibles riesgos son una lesión en el útero y, en el caso poco frecuente de que el DIU falle, un embarazo fuera del útero (embarazo ectópico). También hay una pequeña probabilidad de tener candidiasis vaginal que vuelve una y otra vez.",
         },
         {
           heading: "Cuándo pedir ayuda",
@@ -217,7 +218,7 @@ export const CONTRACEPTION_ARTICLES: LearnArticle[] = [
         },
         {
           heading: "Possible risks",
-          body: "Possible risks with a copper IUD include a pelvic infection, usually within 3 weeks of fitting, and the IUD moving or coming out, usually within 3 months. Other possible risks are damage to the womb and, in the rare case that the IUD fails, a pregnancy outside the womb (ectopic pregnancy). There is also a small chance of thrush that keeps coming back.",
+          body: "Possible risks with either type of IUD, copper or hormonal, include a pelvic infection, usually within 3 weeks of fitting, and the IUD moving or coming out, usually within 3 months. Other possible risks are damage to the womb and, in the rare case that the IUD fails, a pregnancy outside the womb (ectopic pregnancy). There is also a small chance of thrush that keeps coming back.",
         },
         {
           heading: "When to get help",
