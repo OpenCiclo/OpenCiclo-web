@@ -28,6 +28,7 @@ npx dotenv -e .env.local -- psql "$DATABASE_URL" -f drizzle/0001_pool_upsert.sql
 npx dotenv -e .env.local -- psql "$DATABASE_URL" -f drizzle/0002_learn_articles.sql
 npx dotenv -e .env.local -- psql "$DATABASE_URL" -f drizzle/0003_mailbox_pending.sql
 npx dotenv -e .env.local -- psql "$DATABASE_URL" -f drizzle/0004_account_activity.sql
+npx dotenv -e .env.local -- psql "$DATABASE_URL" -f drizzle/0005_vault_version.sql
 npm run dev
 ```
 

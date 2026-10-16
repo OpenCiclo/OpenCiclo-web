@@ -43,32 +43,37 @@ export async function loginWithWallet(
   );
 }
 
-export async function fetchVault(): Promise<{
-  ciphertext: string;
-  nonce: string;
-  schemaVersion: number;
-} | null> {
+export type VaultBlob = { ciphertext: string; nonce: string; schemaVersion: number };
+
+export async function fetchVault(): Promise<{ blob: VaultBlob | null; version: number }> {
   // Only called right after a successful sign-in, so 401/404 are failures, not
   // "no diary yet". Returning null here would show an empty diary that the next
   // save could upload over the real one.
   const response = await fetch("/api/vault");
-  const payload = (await parseJson(response)) as {
-    ciphertext: string;
-    nonce: string;
-    schemaVersion: number;
+  const payload = (await parseJson(response)) as VaultBlob & { version?: number };
+  return {
+    blob: payload.ciphertext ? payload : null,
+    version: payload.version ?? 0,
   };
-  if (!payload.ciphertext) return null;
-  return payload;
 }
 
-export async function putVault(ciphertext: string, nonce: string, schemaVersion: number) {
-  await parseJson(
-    await fetch("/api/vault", {
-      method: "PUT",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ ciphertext, nonce, schemaVersion }),
-    }),
-  );
+export type PutVaultResult =
+  | { ok: true; version: number }
+  | { ok: false; current: VaultBlob & { version: number } };
+
+/** Saves on top of `baseVersion`. A 409 means another device saved first; its blob comes back to merge. */
+export async function putVault(blob: VaultBlob, baseVersion: number): Promise<PutVaultResult> {
+  const response = await fetch("/api/vault", {
+    method: "PUT",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ ...blob, baseVersion }),
+  });
+  if (response.status === 409) {
+    const current = (await response.json()) as VaultBlob & { version: number };
+    return { ok: false, current };
+  }
+  const payload = (await parseJson(response)) as { version: number };
+  return { ok: true, version: payload.version };
 }
 
 export async function deleteAccount() {
