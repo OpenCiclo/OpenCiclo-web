@@ -22,6 +22,12 @@ If Ciclo cannot reach the server when it opens (no connection, or a server error
 
 A new symptom label or a day note does not change the database schema. It stays inside the blob.
 
+### Two devices at once
+
+Each save says which version of the diary it was made on. If another device (or another tab) saved in between, the server refuses the save and sends back the newer encrypted copy. Your browser decrypts it, combines both sets of edits, and saves again. The server never sees the contents.
+
+Edits on different days, or to different things on the same day, are all kept. Something deleted on one device stays deleted. If both devices changed the same thing (for example the note on the same day), the device that saves last wins.
+
 ## What the server does store
 
 - **Account identity** — a public key hash, not your phrase.

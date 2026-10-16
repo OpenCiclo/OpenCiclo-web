@@ -30,6 +30,7 @@ export const accounts = pgTable("accounts", {
   schemaVersion: integer("schema_version").notNull().default(1),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  vaultVersion: integer("vault_version").notNull().default(0),
 });
 
 export const accountActivityDays = pgTable(

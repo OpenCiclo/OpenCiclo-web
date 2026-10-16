@@ -17,7 +17,7 @@ There is **no** Clerk, Auth0, or analytics SDK.
 
 1. Create a Vercel project with **root directory** `apps/web`.
 2. Provision **Neon** Postgres (Vercel Marketplace) and set `DATABASE_URL`.
-3. Run every file in `apps/web/drizzle/` on that database, in order (`0000_init.sql` through `0004_account_activity.sql`). Never use `drizzle-kit push`; see *Host on Vercel* → *Change the schema of a live database*.
+3. Run every file in `apps/web/drizzle/` on that database, in order (`0000_init.sql` through `0005_vault_version.sql`). Never use `drizzle-kit push`; see *Host on Vercel* → *Change the schema of a live database*.
 4. Set `SESSION_SECRET` and `EMAIL_LOOKUP_SECRET` to long random strings.
 5. Set `APP_URL` to the production URL (for example `https://your-app.vercel.app`).
 6. For email signup: `RESEND_API_KEY` and `MAIL_FROM`, plus the DNS records Resend asks for. Day-to-day sign-in does not use inbox links; creating the account sends a 6-digit code once. Without mail, email signup returns 503.
@@ -37,6 +37,7 @@ npx dotenv -e .env.local -- psql "$DATABASE_URL" -f drizzle/0001_pool_upsert.sql
 npx dotenv -e .env.local -- psql "$DATABASE_URL" -f drizzle/0002_learn_articles.sql
 npx dotenv -e .env.local -- psql "$DATABASE_URL" -f drizzle/0003_mailbox_pending.sql
 npx dotenv -e .env.local -- psql "$DATABASE_URL" -f drizzle/0004_account_activity.sql
+npx dotenv -e .env.local -- psql "$DATABASE_URL" -f drizzle/0005_vault_version.sql
 npm run dev
 ```
 
