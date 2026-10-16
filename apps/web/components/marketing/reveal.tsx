@@ -5,6 +5,7 @@
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
 
+import { useBrowserValue, usePrefersReducedMotion } from "@/lib/client/hooks";
 import { cn } from "@/lib/utils";
 
 export function Reveal({
@@ -19,23 +20,21 @@ export function Reveal({
   as?: "div" | "section" | "li";
 }) {
   const ref = useRef<HTMLDivElement>(null);
-  const [visible, setVisible] = useState(false);
+  const [intersected, setIntersected] = useState(false);
+  const reduceMotion = usePrefersReducedMotion();
+  const noObserver = useBrowserValue(() => typeof IntersectionObserver === "undefined", false);
+  // Without motion or an observer there is nothing to wait for: show at once.
+  const visible = intersected || reduceMotion || noObserver;
 
   useEffect(() => {
     const node = ref.current;
-    if (!node) return;
-
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduce || typeof IntersectionObserver === "undefined") {
-      setVisible(true);
-      return;
-    }
+    if (!node || reduceMotion || noObserver) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
           if (entry.isIntersecting) {
-            setVisible(true);
+            setIntersected(true);
             observer.disconnect();
           }
         }
@@ -44,7 +43,7 @@ export function Reveal({
     );
     observer.observe(node);
     return () => observer.disconnect();
-  }, []);
+  }, [reduceMotion, noObserver]);
 
   return (
     <Tag

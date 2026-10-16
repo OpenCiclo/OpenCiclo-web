@@ -15,7 +15,12 @@ from openciclo.schemas.enums import (
     SymptomIntensity,
     UncertaintyLevel,
 )
-from openciclo.schemas.forecast import DailyProbability, Forecast, ForecastDriver, LengthDistribution
+from openciclo.schemas.forecast import (
+    DailyProbability,
+    Forecast,
+    ForecastDriver,
+    LengthDistribution,
+)
 from openciclo.schemas.observations import DailyObservation
 
 __all__ = [

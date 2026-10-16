@@ -5,7 +5,7 @@
 
 import Link from "next/link";
 import { useState, type ReactNode } from "react";
-import { ArrowUpRight, Monitor, Moon, Sun, X } from "lucide-react";
+import { ArrowUpRight, Monitor, Moon, Sun } from "lucide-react";
 
 import { useCiclo } from "@/lib/client/ciclo-context";
 import type { ColorScheme } from "@/lib/client/color-scheme";

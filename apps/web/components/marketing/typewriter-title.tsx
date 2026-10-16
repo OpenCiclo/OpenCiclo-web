@@ -5,6 +5,8 @@
 
 import { useEffect, useState } from "react";
 
+import { usePrefersReducedMotion } from "@/lib/client/hooks";
+
 type TypewriterTitleProps = {
   lines: string[];
   prefix?: string;
@@ -14,21 +16,12 @@ export function TypewriterTitle({ lines, prefix }: TypewriterTitleProps) {
   const [lineIndex, setLineIndex] = useState(0);
   const [text, setText] = useState(lines[0] ?? "");
   const [isDeleting, setIsDeleting] = useState(false);
-  const [reducedMotion, setReducedMotion] = useState(false);
+  const reducedMotion = usePrefersReducedMotion();
+  // Reduced motion or a single line: show the first line, no animation.
+  const isStatic = reducedMotion || lines.length < 2;
 
   useEffect(() => {
-    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const updateMotionPreference = () => setReducedMotion(mediaQuery.matches);
-    updateMotionPreference();
-    mediaQuery.addEventListener("change", updateMotionPreference);
-    return () => mediaQuery.removeEventListener("change", updateMotionPreference);
-  }, []);
-
-  useEffect(() => {
-    if (reducedMotion || lines.length < 2) {
-      setText(lines[0] ?? "");
-      return;
-    }
+    if (isStatic) return;
 
     const currentLine = lines[lineIndex] ?? "";
     const isComplete = text === currentLine;
@@ -51,14 +44,14 @@ export function TypewriterTitle({ lines, prefix }: TypewriterTitleProps) {
     }, delay);
 
     return () => window.clearTimeout(timer);
-  }, [isDeleting, lineIndex, lines, reducedMotion, text]);
+  }, [isDeleting, isStatic, lineIndex, lines, text]);
 
-  const currentLine = lines[lineIndex] ?? lines[0] ?? "";
+  const currentLine = isStatic ? (lines[0] ?? "") : (lines[lineIndex] ?? lines[0] ?? "");
   const accessible = prefix ? `${prefix} ${currentLine}` : currentLine;
 
   return (
     <span aria-live="polite" aria-label={accessible} className="block min-h-[1.15em]">
-      {text}
+      {isStatic ? currentLine : text}
       <span aria-hidden className="ml-1 inline-block h-[0.85em] w-px translate-y-1 animate-pulse bg-current" />
     </span>
   );
