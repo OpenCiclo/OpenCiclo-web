@@ -8,6 +8,7 @@ from __future__ import annotations
 import os
 from datetime import date
 from pathlib import Path
+from typing import cast
 
 import pandas as pd
 from pydantic import BaseModel, ConfigDict
@@ -52,7 +53,8 @@ def kaggle_factors_csv_available(path: Path | None = None) -> bool:
 
 
 def _to_day(raw: object) -> date:
-    return pd.to_datetime(raw).date()
+    # CSV cells arrive as date strings; pandas-stubs 3 rejects a bare `object`.
+    return pd.to_datetime(cast("str | date", raw)).date()
 
 
 def load_kaggle_factors_series(path: Path | None = None) -> list[KaggleFactorsSeries]:
@@ -87,7 +89,12 @@ def load_kaggle_factors_series(path: Path | None = None) -> list[KaggleFactorsSe
             ages = [int(v) for v in ordered["Age"].tolist() if pd.notna(v)]
             if ages:
                 age_value = int(round(float(sum(ages) / len(ages))))
-        person = str(int(person_id)) if pd.notna(person_id) else str(person_id)
+        # "User ID" is numeric in the CSV; the groupby key is typed as any scalar.
+        person = (
+            str(int(cast("int | float | str", person_id)))
+            if pd.notna(person_id)
+            else str(person_id)
+        )
         series.append(
             KaggleFactorsSeries(
                 person_id=person,
