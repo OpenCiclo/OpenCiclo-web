@@ -15,6 +15,37 @@ export const MENOPAUSE_ARTICLES: LearnArticle[] = [
       { label: "NHS — About hormone replacement therapy (HRT)", href: "https://www.nhs.uk/medicines/hormone-replacement-therapy-hrt/about-hormone-replacement-therapy-hrt/" },
     ],
     related: ["menopause-symptoms", "early-menopause", "heavy-periods"],
+    es: {
+      title: "Perimenopausia",
+      summary: "La perimenopausia es la etapa antes de tu último periodo, cuando cambian los niveles hormonales y los periodos se vuelven menos previsibles. Suele empezar en la década de los 40 y dura unos años.",
+      sections: [
+        {
+          heading: "Qué es la perimenopausia",
+          body: "La perimenopausia, también llamada transición menopáusica, es la etapa que lleva a tu último periodo. Tus ovarios producen menos estrógeno y progesterona, así que tus periodos cambian y al final dejan de venir. La menopausia es cuando los periodos se terminan para siempre. Se confirma cuando llevas 12 meses sin periodo. La mayoría de las personas llegan a la menopausia entre mediados de los 40 y mediados de los 50, pero puede ocurrir antes.",
+        },
+        {
+          heading: "Cuándo empieza y cuánto dura",
+          body: "La perimenopausia suele empezar entre mediados y finales de los 40. En promedio dura unos 4 años antes de que los periodos se terminen, pero puede durar entre 2 y 8 años. El momento y los síntomas varían mucho de una persona a otra, así que tu experiencia puede ser muy distinta de la de una amiga o de alguien de tu familia.",
+        },
+        {
+          heading: "Cambios en tus periodos",
+          body: "Tus periodos pueden venir más seguidos o más espaciados, y puede que no te venga el periodo durante un mes o varios. El sangrado puede ser más abundante o más ligero que antes, y los periodos pueden durar más o menos de lo habitual. Registrar tus periodos y síntomas en Ciclo puede ayudarte a ver el patrón y explicárselo a un médico, pero sus pronósticos son estimaciones y son menos fiables mientras tus ciclos están cambiando.",
+        },
+        {
+          heading: "Otros síntomas comunes",
+          body: "A medida que cambian los niveles hormonales, muchas personas notan también otros síntomas. Entre ellos están los sofocos y los sudores nocturnos, los problemas para dormir, el ánimo bajo o la ansiedad, menos deseo sexual, la sequedad vaginal y los problemas de memoria o de concentración. Si los síntomas afectan a tu vida diaria, hay tratamientos que pueden ayudar.",
+        },
+        {
+          heading: "Todavía es posible el embarazo",
+          body: "Aunque tus periodos sean irregulares o no te vengan durante unos meses, durante la perimenopausia todavía es posible un embarazo. Si no quieres un embarazo, sigue usando anticoncepción hasta que lleves 2 años sin periodos si tienes menos de 50 años, o 1 año si tienes 50 o más. La terapia hormonal (THS) no evita el embarazo. La anticoncepción hormonal puede ocultar tus periodos naturales, así que un médico o una enfermera puede decirte qué método te conviene en esta etapa de la vida y cuándo es seguro dejarlo.",
+        },
+        {
+          heading: "Cuándo consultar a un médico o una enfermera",
+          body: "Consulta a un médico o una enfermera si tus síntomas te molestan, o si crees que tienes síntomas de menopausia antes de los 45 años. Hazte también una revisión si tus periodos se vuelven muy abundantes, por ejemplo si necesitas cambiar la compresa (toalla sanitaria) o el tampón cada 1 a 2 horas. El sangrado entre periodos o después de tener relaciones sexuales también debe revisarse. Y también cualquier sangrado cuando ya llevas un año sin periodo. Busca ayuda urgente si tienes un sangrado muy abundante con mareo o desmayo.",
+        },
+      ],
+      notice: "Esto es información general, no un diagnóstico. Si te preocupan los cambios en tus periodos o tus síntomas, habla con un médico o una enfermera.",
+    },
     en: {
       title: "Perimenopause",
       summary: "Perimenopause is the time leading up to your last period, when hormone levels change and periods become less predictable. It often starts in your 40s and lasts a few years.",
@@ -58,6 +89,37 @@ export const MENOPAUSE_ARTICLES: LearnArticle[] = [
       { label: "Office on Women's Health — Menopause basics", href: "https://www.womenshealth.gov/menopause/menopause-basics" },
     ],
     related: ["hrt", "perimenopause", "postmenopausal-bleeding"],
+    es: {
+      title: "Síntomas de la menopausia",
+      summary: "Los sofocos, dormir mal, los cambios de ánimo y la sequedad vaginal son comunes alrededor de la menopausia. Aquí verás por qué ocurren, qué ayuda y cuándo hablar con un médico o una enfermera.",
+      sections: [
+        {
+          heading: "Por qué aparecen los síntomas",
+          body: "Alrededor de la menopausia, tus ovarios producen mucho menos estrógeno. Los niveles bajos de estrógeno están detrás de muchos de los cambios que se notan, desde los sofocos hasta la sequedad vaginal. Los síntomas suelen empezar en la perimenopausia, antes de que se terminen los periodos, y varían mucho de una persona a otra. Entre los más comunes están los sofocos y los sudores nocturnos, los problemas para dormir, el ánimo bajo o la ansiedad, los problemas de memoria o de concentración, la sequedad vaginal y menos deseo sexual.",
+        },
+        {
+          heading: "Sofocos y sudores nocturnos",
+          body: "Los sofocos (también llamados bochornos) son el síntoma más común. Durante un sofoco, una sensación de calor se extiende de repente por la parte superior del cuerpo. Son más frecuentes el año antes y el año después de tu último periodo, pero pueden continuar hasta 14 años después de la menopausia. La comida picante, el alcohol, la cafeína, el estrés y los lugares calurosos pueden desencadenarlos. Puede ayudar vestirte por capas que puedas quitarte, usar un ventilador y anotar qué los desencadena en tu caso.",
+        },
+        {
+          heading: "Sueño",
+          body: "Los sudores nocturnos pueden despertarte, y algunas personas necesitan levantarse varias veces por la noche para orinar. Hacer actividad física durante el día ayuda a muchas personas a dormir. Una habitación fresca, oscura y silenciosa también ayuda. Intenta no hacer una comida abundante, fumar ni beber alcohol a última hora del día.",
+        },
+        {
+          heading: "Ánimo, memoria y concentración",
+          body: "Puedes sentirte irritable o con ganas de llorar, y el riesgo de depresión y ansiedad es mayor alrededor de la menopausia. El estrés, los cambios en la familia y el cansancio pueden sumarse a esto. Hasta dos de cada tres mujeres en la perimenopausia notan problemas de memoria o de concentración. Si el ánimo bajo o la ansiedad no mejoran, habla con un médico o una enfermera, porque las terapias psicológicas y los medicamentos pueden ayudar. Si estás pensando en hacerte daño, busca ayuda de emergencia o contacta ahora con una línea de crisis.",
+        },
+        {
+          heading: "Cambios en la vagina, la vejiga y la vida sexual",
+          body: "Los niveles bajos de estrógeno pueden hacer que la vagina esté más seca y más fina. Esto puede causar picor, ardor o molestias, y hacer que las relaciones sexuales duelan. Un hidratante vaginal y un lubricante a base de agua pueden ayudar, y un médico puede recetarte estrógeno para usar en la vagina. Algunas personas tienen escapes de orina al toser, estornudar o reír. El interés por el sexo puede bajar o subir, y el dolor durante las relaciones sexuales puede reducirlo.",
+        },
+        {
+          heading: "Pedir ayuda",
+          body: "Si algún síntoma te molesta, habla con un médico o una enfermera. La terapia hormonal (THS) alivia la mayoría de los síntomas de la menopausia. Otras opciones son la terapia cognitivo-conductual (TCC) y algunos medicamentos sin hormonas. Hay muy pocas pruebas sobre lo bien que funcionan los remedios de hierbas o lo seguros que son. Consulta a un médico o una enfermera lo antes posible si tienes cualquier sangrado o manchado después de un año sin periodos.",
+        },
+      ],
+      notice: "Esto es información general. Si los síntomas de la menopausia afectan a tu vida diaria, un médico o una enfermera puede explicarte las opciones de tratamiento.",
+    },
     en: {
       title: "Menopause symptoms",
       summary: "Hot flushes, poor sleep, mood changes and vaginal dryness are common around menopause. Here is why they happen, what helps, and when to talk to a doctor or nurse.",
@@ -103,6 +165,37 @@ export const MENOPAUSE_ARTICLES: LearnArticle[] = [
       { label: "NHS — Blood clots", href: "https://www.nhs.uk/conditions/blood-clots/" },
     ],
     related: ["menopause-symptoms", "bone-health", "early-menopause"],
+    es: {
+      title: "Terapia hormonal y otros tratamientos",
+      summary: "La terapia hormonal (THS) alivia la mayoría de los síntomas de la menopausia y ayuda a proteger tus huesos. Aquí tienes una mirada equilibrada a sus beneficios y riesgos, y a las opciones sin hormonas.",
+      sections: [
+        {
+          heading: "Qué es la THS",
+          body: "La terapia hormonal (THS) sustituye las hormonas que tu cuerpo produce en menor cantidad alrededor de la menopausia. El estrógeno es la hormona principal, y puede tomarse en pastillas o usarse en parches, espray o gel. Si todavía tienes útero, normalmente se toma estrógeno junto con progestágeno (THS combinada). El progestágeno puede tomarse en pastillas, en un parche combinado o mediante un DIU hormonal (SIU). Si te han extirpado el útero, normalmente basta con estrógeno solo.",
+        },
+        {
+          heading: "Cómo puede ayudar la THS",
+          body: "La THS alivia la mayoría de los síntomas de la perimenopausia y la menopausia. Esto incluye los sofocos, los sudores nocturnos, los problemas de sueño, la sequedad vaginal, y la ansiedad y el ánimo bajo causados por la menopausia. También ayuda a prevenir la osteoporosis, la enfermedad que debilita los huesos, y puede ayudar a que tus músculos se mantengan fuertes. A algunas personas también se les ofrece testosterona en gel o en crema, que puede ayudar con el deseo sexual bajo. Para la mayoría de las personas, los beneficios de la THS superan a los riesgos.",
+        },
+        {
+          heading: "Riesgos que debes conocer",
+          body: "La THS puede aumentar ligeramente el riesgo de cáncer de mama. Con la THS combinada, hay unos 5 casos más de cáncer de mama por cada 1000 mujeres que la toman durante 5 años. La THS solo con estrógeno apenas aumenta el riesgo o no lo aumenta. El riesgo sube cuanto más tiempo tomas la THS y cuanto mayor eres, y vuelve a bajar cuando la dejas. Las pastillas de THS pueden aumentar el riesgo de coágulos de sangre y aumentar ligeramente el riesgo de ictus (accidente cerebrovascular), pero ambos riesgos siguen siendo muy bajos. Los parches, el espray y el gel de THS no aumentan ninguno de los dos riesgos. La THS tiene poco o ningún efecto sobre el riesgo de enfermedades del corazón. Para la mayoría de las personas, los efectos secundarios graves de la THS son raros.",
+        },
+        {
+          heading: "Otras opciones",
+          body: "Si no puedes tomar THS o prefieres no hacerlo, hay otras opciones. La terapia cognitivo-conductual (TCC), un tipo de terapia psicológica, puede ayudar con los síntomas de la menopausia. Algunos medicamentos que también se usan para la depresión, la epilepsia o la presión arterial alta pueden ayudar con los sofocos. La clonidina es un ejemplo. Para la sequedad vaginal pueden ayudar los hidratantes y los lubricantes a base de agua, y otra opción es el estrógeno en crema vaginal o en óvulos vaginales. Hay muy pocas pruebas sobre lo bien que funcionan los remedios de hierbas o lo seguros que son.",
+        },
+        {
+          heading: "Tomar tu decisión",
+          body: "Tomar o no la THS es una decisión personal. Depende de tus síntomas, de tu salud y de cómo valores los beneficios y los riesgos. Puede que la THS no sea adecuada para ti si has tenido cáncer de mama, de ovario o de útero, o un coágulo de sangre, o si tienes la presión arterial alta sin tratar o una enfermedad del hígado. La THS no evita el embarazo, así que puede que aún necesites anticoncepción durante un tiempo. Anotar tus síntomas en Ciclo durante unas semanas antes de la cita puede ayudarte a explicar lo que más te afecta.",
+        },
+        {
+          heading: "Cuándo pedir ayuda",
+          body: "El sangrado irregular o el manchado son comunes en los primeros meses de THS y suelen desaparecer en un plazo de 6 meses. Consulta a un médico si duran más de 6 meses, se vuelven más abundantes, o empiezan después de que tu sangrado ya se hubiera detenido. Busca ayuda urgente si una pierna se vuelve dolorosa o se hincha, a menudo en la pantorrilla o el muslo, o si la piel de esa zona se ve roja o más oscura. Llama al número de emergencias de tu país (por ejemplo, 911 en México o 112 en España) si además te falta el aire o tienes dolor en el pecho.",
+        },
+      ],
+      notice: "Esto es información general. Las decisiones sobre la THS son personales y es mejor tomarlas con un médico o una enfermera que conozca tu historial de salud.",
+    },
     en: {
       title: "HRT and other treatments",
       summary: "Hormone replacement therapy (HRT) relieves most menopause symptoms and helps protect your bones. Here is a balanced look at its benefits and risks, and at options without hormones.",
@@ -147,6 +240,37 @@ export const MENOPAUSE_ARTICLES: LearnArticle[] = [
       { label: "NICHD — About primary ovarian insufficiency (POI)", href: "https://www.nichd.nih.gov/health/topics/poi/conditioninfo" },
     ],
     related: ["bone-health", "hrt", "age-and-fertility"],
+    es: {
+      title: "Menopausia temprana e IOP",
+      summary: "La menopausia antes de los 45 años se llama menopausia temprana, y antes de los 40 se llama insuficiencia ovárica prematura (IOP). Aquí verás por qué ocurre y por qué el tratamiento importa para tu salud a largo plazo.",
+      sections: [
+        {
+          heading: "Qué significa la menopausia temprana",
+          body: "La mayoría de las personas llegan a la menopausia entre mediados de los 40 y mediados de los 50. La menopausia temprana es cuando los periodos se terminan antes de los 45 años. Cuando esto ocurre antes de los 40, se llama insuficiencia ovárica prematura (IOP). La IOP no siempre es lo mismo que la menopausia. Los periodos pueden seguir viniendo de vez en cuando, y a veces los ovarios vuelven a funcionar durante un tiempo. La señal principal es que los periodos se vuelven irregulares o se detienen por completo. También puedes tener sofocos, sudores nocturnos y problemas para dormir, o cambios en el ánimo, el deseo sexual, la memoria y la concentración.",
+        },
+        {
+          heading: "Por qué puede ocurrir",
+          body: "A menudo no se encuentra ninguna causa. Entre las causas conocidas están los tratamientos contra el cáncer como la radioterapia o la quimioterapia, la cirugía para extirpar los ovarios, ciertos medicamentos hormonales y algunas enfermedades genéticas y autoinmunes. La probabilidad también es mayor si hay casos de menopausia temprana en tu familia, si tu primer periodo llegó pronto, si fumas o si tienes bajo peso.",
+        },
+        {
+          heading: "Hacerte una revisión",
+          body: "Consulta a un médico si tienes menos de 45 años y crees que tienes síntomas de menopausia, o si tus periodos se vuelven irregulares o se detienen. El médico te preguntará por tus síntomas y puede pedirte análisis de sangre. Un registro de tus periodos y síntomas, como el de Ciclo, puede ayudarte a explicar qué ha cambiado. Los periodos también pueden detenerse por otras razones, como un embarazo, así que vale la pena averiguar la causa.",
+        },
+        {
+          heading: "Por qué importa para los huesos y el corazón",
+          body: "El estrógeno ayuda a mantener los huesos fuertes, y tener el estrógeno muy bajo es la causa más común de pérdida de masa ósea en las mujeres. Cuando la menopausia llega pronto, pasas más años con el estrógeno bajo. Esto significa una mayor probabilidad de osteoporosis, en la que los huesos se debilitan y se rompen con facilidad, y de enfermedad cardiovascular, que afecta al corazón y a los vasos sanguíneos. Reponer tus hormonas hasta la edad habitual de la menopausia ayuda a proteger tus huesos, tu corazón y tus vasos sanguíneos.",
+        },
+        {
+          heading: "Tratamiento",
+          body: "Los tratamientos principales son la terapia hormonal (THS) o la píldora anticonceptiva combinada, que sustituyen las hormonas que tus ovarios ya no producen. Además de aliviar los síntomas, la THS ayuda a prevenir la osteoporosis. Los médicos suelen recomendar tomarla hasta los 50 años aproximadamente, la edad habitual de la menopausia. La actividad física en la que sostienes tu propio peso, tomar suficiente calcio y vitamina D, y no fumar también ayudan a cuidar tus huesos.",
+        },
+        {
+          heading: "Fertilidad y apoyo",
+          body: "La menopausia temprana puede hacer más difícil conseguir un embarazo. Con IOP, el embarazo todavía es posible: entre 5 y 10 de cada 100 personas logran un embarazo sin tratamiento. Si no quieres un embarazo, pregunta por la anticoncepción, porque la THS no evita el embarazo. Algunas personas pueden tener hijos mediante fecundación in vitro (FIV), con sus propios óvulos congelados o con óvulos de donante. Saber que la menopausia ha llegado pronto puede ser duro, sobre todo si querías tener hijos o tener más. Un médico, un psicólogo o una psicóloga, o un grupo de apoyo pueden ayudarte con la parte emocional además de la física.",
+        },
+      ],
+      notice: "Esto es información general, no un diagnóstico. Si tus periodos se detienen o se vuelven irregulares antes de los 45 años, habla con un médico.",
+    },
     en: {
       title: "Early menopause and POI",
       summary: "Menopause before 45 is called early menopause, and before 40 it is called premature ovarian insufficiency (POI). Here is why it happens and why treatment matters for long-term health.",
@@ -190,6 +314,33 @@ export const MENOPAUSE_ARTICLES: LearnArticle[] = [
       { label: "NICHD — Treatments for primary ovarian insufficiency (POI)", href: "https://www.nichd.nih.gov/health/topics/poi/conditioninfo/treatments" },
     ],
     related: ["calcium-vitamin-d", "early-menopause", "hrt"],
+    es: {
+      title: "Salud de los huesos y osteoporosis",
+      summary: "Después de la menopausia, el estrógeno más bajo acelera la pérdida de hueso y aumenta el riesgo de osteoporosis. Aquí verás por qué ocurre y qué puedes hacer para proteger tus huesos.",
+      sections: [
+        {
+          heading: "Por qué los huesos se debilitan después de la menopausia",
+          body: "La osteoporosis es una enfermedad que debilita los huesos, de modo que se rompen con facilidad. Las mujeres suelen tener huesos más pequeños y finos que los hombres. La causa más común de pérdida de hueso en las mujeres son los niveles muy bajos de la hormona estrógeno, que es lo que ocurre después de la menopausia. Algunas mujeres pierden hasta una cuarta parte de su masa ósea en los primeros 10 años después de la menopausia. En Estados Unidos, alrededor de 1 de cada 4 mujeres de 65 años o más tiene osteoporosis.",
+        },
+        {
+          heading: "Una enfermedad silenciosa",
+          body: "La osteoporosis no suele causar síntomas. Puedes perder hueso durante muchos años sin saberlo, hasta que un hueso se rompe. Las fracturas son más frecuentes en la cadera, la muñeca y la columna. Como no hay señales de alerta tempranas, conviene conocer tu riesgo y cuidar tus huesos antes de que pase algo.",
+        },
+        {
+          heading: "Qué aumenta tu riesgo",
+          body: "Haber pasado la menopausia aumenta tu riesgo, y una menopausia temprana lo aumenta aún más. Otros factores de riesgo son tener un cuerpo pequeño y delgado, tener antecedentes de osteoporosis en la familia, no tomar suficiente calcio y vitamina D, y no hacer suficiente actividad física. Fumar, beber demasiado alcohol, tener un trastorno de la conducta alimentaria y algunos medicamentos para problemas de salud crónicos también aumentan el riesgo. Antes de la menopausia, pasar 3 meses seguidos sin periodo también aumenta tu riesgo.",
+        },
+        {
+          heading: "Proteger tus huesos",
+          body: "La actividad en la que tus pies y tus piernas sostienen tu peso, como caminar, ayuda a formar hueso y a frenar su pérdida. Tomar suficiente calcio y vitamina D importa a cualquier edad, y el artículo sobre calcio y vitamina D explica cuánto necesitas. No fumar reduce el riesgo de fracturas y, si bebes alcohol, ayuda beber con moderación. La terapia hormonal (THS) también ayuda a prevenir la osteoporosis, y un médico puede hablar contigo sobre si es adecuada para ti.",
+        },
+        {
+          heading: "Pruebas y tratamiento",
+          body: "Una prueba de densidad ósea, normalmente un tipo de exploración con rayos X llamada DXA o densitometría, muestra lo fuertes que están tus huesos. En Estados Unidos se recomienda hacer la prueba a las mujeres a partir de los 65 años, o antes si tienen factores de riesgo. Las recomendaciones cambian de un país a otro, así que pregunta a un médico o una enfermera. Si tienes osteoporosis, medicamentos como los bisfosfonatos, el denosumab o la THS pueden ayudar. Habla con un médico o una enfermera si tienes factores de riesgo, tuviste la menopausia pronto o te has roto un hueso con más facilidad de lo esperado.",
+        },
+      ],
+      notice: "Esto es información general. Un médico o una enfermera puede revisar la salud de tus huesos y decirte si necesitas una prueba de densidad ósea.",
+    },
     en: {
       title: "Bone health and osteoporosis",
       summary: "After menopause, lower oestrogen speeds up bone loss and raises the risk of osteoporosis. Here is why it happens and what you can do to protect your bones.",
@@ -229,6 +380,33 @@ export const MENOPAUSE_ARTICLES: LearnArticle[] = [
       { label: "NHS — Side effects of HRT", href: "https://www.nhs.uk/medicines/hormone-replacement-therapy-hrt/side-effects-of-hormone-replacement-therapy-hrt/" },
     ],
     related: ["gynecologic-cancers", "menopause-symptoms", "spotting"],
+    es: {
+      title: "Sangrado después de la menopausia",
+      summary: "Cualquier sangrado vaginal después de la menopausia debe revisarlo un médico pronto, aunque sea leve o solo ocurra una vez. La mayoría de las causas no son cáncer, pero hay que revisarlo.",
+      sections: [
+        {
+          heading: "Qué se considera sangrado después de la menopausia",
+          body: "El sangrado posmenopáusico es cualquier sangrado vaginal después de la menopausia, es decir, cuando ya llevas 12 meses sin periodo. Incluye el manchado y el sangrado muy ligero. Hay que revisarlo aunque sea poca cantidad o aunque solo haya ocurrido una vez.",
+        },
+        {
+          heading: "Por qué hay que revisarlo",
+          body: "La mayoría de las veces la causa no es grave. Pero a veces el sangrado es una señal temprana de cáncer, como el cáncer de útero, y por eso es importante revisarlo. Encontrar la causa pronto permite tratar antes cualquier problema. Consulta a un médico o una enfermera lo antes posible, y no esperes a ver si vuelve a pasar.",
+        },
+        {
+          heading: "Causas comunes",
+          body: "Lo más frecuente es que la causa no sea cáncer. El estrógeno más bajo después de la menopausia puede hacer que el revestimiento de la vagina o del útero se vuelva más fino y se inflame (vaginitis atrófica o atrofia endometrial). Los pólipos, que son pequeños crecimientos de tejido en el cuello del útero o dentro del útero, son otra causa y normalmente no son cáncer. Un engrosamiento del revestimiento del útero (hiperplasia endometrial) también puede causar sangrado. Con menos frecuencia, la causa es un cáncer, como el cáncer de útero o de ovario.",
+        },
+        {
+          heading: "Qué pruebas esperar",
+          body: "Normalmente, el médico te examinará la pelvis y la vagina. Pueden ofrecerte una ecografía (ultrasonido) vaginal para ver el útero. A algunas personas también se les hace una histeroscopia, en la que se usa una cámara fina para mirar dentro del útero, y puede tomarse una pequeña muestra de tejido (biopsia) para analizarla. El tratamiento depende de lo que muestren las pruebas.",
+        },
+        {
+          heading: "Cuándo pedir ayuda",
+          body: "Pide cita con un médico lo antes posible ante cualquier sangrado después de la menopausia, aunque ya se haya detenido. Anotar las fechas y lo abundante que fue, por ejemplo en Ciclo, puede ayudarte a describirlo. Si usas terapia hormonal (THS), es de esperar algo de sangrado. Algunos tipos causan un sangrado mensual, y el manchado es común en los primeros meses. Consulta a un médico si el sangrado irregular dura más de 6 meses después de empezar la THS, se vuelve más abundante, o empieza después de que tu sangrado ya se hubiera detenido. Busca ayuda de emergencia si el sangrado es muy abundante y tienes mareo o sensación de desmayo.",
+        },
+      ],
+      notice: "Esto es información general, no un diagnóstico. Cualquier sangrado después de la menopausia debe revisarlo un médico, aunque sea leve o ya se haya detenido.",
+    },
     en: {
       title: "Bleeding after menopause",
       summary: "Any bleeding from the vagina after menopause should be checked by a doctor promptly, even if it is light or happens once. Most causes are not cancer, but it must be checked.",

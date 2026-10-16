@@ -15,6 +15,37 @@ export const INTIMATE_HEALTH_ARTICLES: LearnArticle[] = [
       { label: "WHO — Sexually transmitted infections (STIs)", href: "https://www.who.int/news-room/fact-sheets/detail/sexually-transmitted-infections-(stis)" },
     ],
     related: ["cervical-mucus", "yeast-infection", "bacterial-vaginosis"],
+    es: {
+      title: "Flujo vaginal: qué es normal",
+      summary: "El flujo vaginal es un líquido normal y sano que mantiene la vagina limpia y húmeda. Aquí verás cómo es el flujo habitual y qué cambios conviene revisar.",
+      sections: [
+        {
+          heading: "Para qué sirve el flujo",
+          body: "El flujo vaginal es un líquido o moco que sale de la vagina. Tenerlo es normal y sano. Ayuda a mantener la vagina sana, húmeda y limpia, y ayuda a prevenir infecciones. La cantidad y el aspecto del flujo pueden cambiar de un día a otro. Conocer lo que es habitual para ti hace más fácil detectar un cambio que haya que revisar.",
+        },
+        {
+          heading: "Cómo es un flujo sano",
+          body: "El flujo sano es transparente o blanco. A veces es espeso y pegajoso, y otras veces es resbaladizo y húmedo. No debería tener un olor fuerte ni desagradable. Hacia el momento de la ovulación (cuando se libera un óvulo), el flujo suele ser más transparente y húmedo, y puede que notes más cantidad. Estos cambios se deben al moco cervical, que tiene su propio artículo sobre las señales de fertilidad.",
+        },
+        {
+          heading: "Por qué cambia la cantidad",
+          body: "La cantidad de flujo varía entre personas y con el tiempo. Normalmente tendrás más cuando estés embarazada, cuando tengas una vida sexual activa o cuando uses anticonceptivos. Esto por sí solo no es señal de que algo vaya mal. Registrar el flujo en Ciclo puede ayudarte a conocer tu patrón habitual, para que un cambio sea más fácil de notar y describir.",
+        },
+        {
+          heading: "Cambios que pueden indicar una infección",
+          body: "Algunos cambios apuntan a una infección frecuente. Un flujo con olor a pescado puede ser señal de vaginosis bacteriana. Un flujo blanco y espeso que parece requesón es típico de la candidiasis (infección por hongos). Un flujo verde, amarillo o espumoso puede ser señal de tricomoniasis, una infección de transmisión sexual (ITS). Un flujo acompañado de dolor pélvico o sangrado puede deberse a clamidia o gonorrea. Un flujo con ampollas o llagas puede ser señal de herpes genital. Todas estas infecciones tienen tratamiento.",
+        },
+        {
+          heading: "Cómo cuidarte",
+          body: "La vagina se limpia sola, así que no hace falta lavarla por dentro. Lavar el interior de la vagina (duchas vaginales) puede alterar su equilibrio natural de bacterias. Lava con suavidad la piel que rodea la vagina con agua tibia y un jabón suave sin perfume. Evita los jabones y geles perfumados, los desodorantes y las toallitas perfumadas. Los productos perfumados dentro o alrededor de la vagina se asocian a la vaginosis bacteriana.",
+        },
+        {
+          heading: "Cuándo hacerte una revisión",
+          body: "Consulta a un médico, una enfermera o un servicio de salud sexual si tu flujo cambia de color, olor o textura, o si tienes picor, irritación o dolor. El sangrado entre periodos o después del sexo siempre debe revisarse. No esperes si el flujo viene con dolor en la parte baja del vientre. La clamidia y la gonorrea sin tratar pueden causar enfermedad inflamatoria pélvica (EIP) y problemas de fertilidad. Busca atención médica urgente si tienes un dolor repentino e intenso en la parte baja del vientre, o dolor de vientre con fiebre alta, vómitos o sensación de estar muy mal.",
+        },
+      ],
+      notice: "Esto es información general, no un diagnóstico. Si tu flujo cambia o tienes picor, dolor o un sangrado inusual, habla con un médico o una enfermera.",
+    },
     en: {
       title: "Vaginal discharge: what's normal",
       summary: "Discharge is a normal, healthy fluid that keeps your vagina clean and moist. Here is what usual discharge looks like and which changes are worth getting checked.",
@@ -56,6 +87,37 @@ export const INTIMATE_HEALTH_ARTICLES: LearnArticle[] = [
       { label: "CDC — Vaginal candidiasis", href: "https://www.cdc.gov/fungal/diseases/candidiasis/genital/index.html" },
     ],
     related: ["vaginal-discharge", "bacterial-vaginosis", "intimate-hygiene"],
+    es: {
+      title: "Candidiasis (infección por hongos)",
+      summary: "La candidiasis es una infección por hongos frecuente que causa picor y un flujo blanco y espeso. No se considera una infección de transmisión sexual (ITS), y el tratamiento antifúngico suele curarla en 1 a 2 semanas.",
+      sections: [
+        {
+          heading: "Qué es la candidiasis",
+          body: "La candidiasis la causa la cándida (Candida), una levadura. Las levaduras son un tipo de hongo. Normalmente, la cándida es inofensiva. Crece mejor en lugares cálidos y húmedos, y la candidiasis puede aparecer cuando cambia el equilibrio natural de la vagina. La candidiasis es frecuente. Después de la vaginosis bacteriana, es una de las infecciones vaginales más frecuentes. No se considera una infección de transmisión sexual (ITS), pero el sexo puede desencadenarla y, con menos frecuencia, transmitirla.",
+        },
+        {
+          heading: "Señales de candidiasis",
+          body: "La señal más típica es un flujo blanco que parece requesón y que normalmente no huele. También puedes tener picor e irritación alrededor de la vulva y la vagina, y dolor o escozor durante el sexo o al orinar. Un olor a pescado apunta más a vaginosis bacteriana, y un flujo verde, amarillo o espumoso puede ser señal de una ITS. Estas necesitan otro tratamiento, así que conviene saber con seguridad qué tienes.",
+        },
+        {
+          heading: "Qué hace más probable la candidiasis",
+          body: "La candidiasis es más probable si estás tomando antibióticos o los has tomado hace poco. También es más frecuente durante el embarazo y en personas que usan anticonceptivos hormonales o terapia hormonal (THS). La diabetes mal controlada aumenta la probabilidad, y también un sistema inmunitario debilitado, por ejemplo por el VIH o por un tratamiento contra el cáncer (quimioterapia). La piel irritada o dañada alrededor de la vulva también puede facilitar que empiece la candidiasis.",
+        },
+        {
+          heading: "Cómo se trata",
+          body: "La candidiasis se trata con un medicamento antifúngico. Puede ser una pastilla que se traga, como el fluconazol, una pastilla que se introduce en la vagina (óvulo vaginal) o una crema para aliviar la irritación de la piel. Los síntomas suelen desaparecer en 1 a 2 semanas desde que empiezas el tratamiento. Si un médico te ha diagnosticado candidiasis en el pasado y reconoces las señales, puedes comprar el tratamiento en una farmacia. Pregunta al farmacéutico o farmacéutica qué opción te conviene. Si estás embarazada o amamantando, consulta a un médico o una enfermera antes de usar cualquier tratamiento para la candidiasis.",
+        },
+        {
+          heading: "Cómo ayudar a prevenirla",
+          body: "Lava la zona con agua y una crema hidratante sencilla (emoliente) en lugar de jabón o gel de ducha, y sécala bien después. Usa ropa interior de algodón y evita la ropa interior ajustada o las medias. No uses duchas vaginales ni desodorantes en la vulva ni dentro de la vagina. Si la candidiasis vuelve una y otra vez, anotar cuándo ocurre puede ayudar a un médico o una enfermera a buscar un patrón.",
+        },
+        {
+          heading: "Cuándo consultar a un médico o una enfermera",
+          body: "Consulta a un médico o una enfermera si tienes señales de candidiasis por primera vez. Consulta también si tienes menos de 16 años o más de 60, o si estás embarazada o amamantando. Pide también una revisión si el tratamiento no ha funcionado, si la candidiasis vuelve una y otra vez (más de 4 veces en 12 meses) o si tienes el sistema inmunitario debilitado. Un médico o una enfermera puede tomar una pequeña muestra del flujo para comprobar la causa y sugerirte otro tratamiento si hace falta.",
+        },
+      ],
+      notice: "Esto es información general, no un diagnóstico. Si tienes síntomas de candidiasis por primera vez, o vuelven una y otra vez, consulta a un médico o una enfermera.",
+    },
     en: {
       title: "Thrush (yeast infection)",
       summary: "Thrush is a common yeast infection that causes itching and thick white discharge. It is not classed as an STI, and antifungal treatment usually clears it within 1 to 2 weeks.",
@@ -98,6 +160,37 @@ export const INTIMATE_HEALTH_ARTICLES: LearnArticle[] = [
       { label: "NHS — Vaginal discharge", href: "https://www.nhs.uk/conditions/vaginal-discharge/" },
     ],
     related: ["vaginal-discharge", "yeast-infection", "intimate-hygiene"],
+    es: {
+      title: "Vaginosis bacteriana",
+      summary: "La vaginosis bacteriana es un cambio frecuente en el equilibrio de bacterias de la vagina. Puede causar un flujo poco espeso con olor a pescado, y se trata con antibióticos.",
+      sections: [
+        {
+          heading: "Qué es la vaginosis bacteriana",
+          body: "La vaginosis bacteriana ocurre cuando cambia el equilibrio natural de bacterias de la vagina y algunos tipos crecen demasiado. Es la afección vaginal más frecuente en mujeres de 15 a 44 años, y una causa frecuente de flujo inusual. La vaginosis bacteriana no se considera una infección de transmisión sexual (ITS). El sexo puede desencadenarla o transmitirla, pero también pueden tenerla personas que nunca han tenido sexo.",
+        },
+        {
+          heading: "Señales de vaginosis bacteriana",
+          body: "La señal principal es un flujo con un fuerte olor a pescado, que suele ser más intenso después del sexo. El flujo también puede cambiar de color y de textura, y volverse poco espeso, acuoso y de color blanco grisáceo. Algunas personas tienen picor, dolor o ardor en la vagina o a su alrededor, o ardor al orinar. Alrededor de la mitad de las mujeres con vaginosis bacteriana no tienen ningún síntoma.",
+        },
+        {
+          heading: "Qué aumenta la probabilidad",
+          body: "Los médicos no entienden del todo cómo se relaciona el sexo con la vaginosis bacteriana. Es más frecuente si tienes una vida sexual activa, una pareja nueva o más de una pareja, o si tienes sexo sin condón (preservativo). Lavar el interior de la vagina (duchas vaginales), usar productos perfumados dentro o alrededor de la vagina y llevar un DIU (dispositivo intrauterino) también se asocian a la vaginosis bacteriana. No fumar puede ayudar a reducir la probabilidad de tenerla.",
+        },
+        {
+          heading: "Tratamiento y por qué importa",
+          body: "La vaginosis bacteriana se trata con antibióticos. Pueden ser pastillas, o un gel o una crema. Si tu pareja tiene vagina, puede que también necesite tratamiento. Tratarla es importante porque se asocia a una mayor probabilidad de contraer el VIH y otras ITS. Durante el embarazo hay una pequeña probabilidad de que la vaginosis bacteriana cause problemas como un parto antes de tiempo (prematuro) o un aborto espontáneo (pérdida del embarazo).",
+        },
+        {
+          heading: "Cómo evitar que vuelva",
+          body: "La vaginosis bacteriana vuelve a menudo, normalmente en unos meses. Para reducir la probabilidad, lava tu zona genital con agua y jabón sencillo, y dúchate en lugar de darte baños de tina (bañera). Evita el jabón perfumado, el baño de espuma, el gel de ducha y los líquidos antisépticos en el agua del baño. No uses lavados vaginales, desodorantes ni duchas vaginales, y evita los detergentes fuertes para tu ropa interior. Usar condón cada vez que tienes sexo también puede ayudar.",
+        },
+        {
+          heading: "Cuándo consultar a un médico o una enfermera",
+          body: "Consulta a un médico, una enfermera o un servicio de salud sexual si crees que tienes vaginosis bacteriana, y diles si estás embarazada. Vuelve a consultar si sigue reapareciendo (más de 4 veces en un año), porque otro tratamiento puede ayudar. Pide también una revisión si tu flujo es verde, amarillo o espumoso, o si viene con dolor pélvico o sangrado. Pueden ser señales de una ITS que necesita otro tratamiento.",
+        },
+      ],
+      notice: "Esto es información general, no un diagnóstico. Si notas un flujo inusual o un olor a pescado, consulta a un médico, una enfermera o un servicio de salud sexual.",
+    },
     en: {
       title: "Bacterial vaginosis (BV)",
       summary: "BV is a common change in the balance of bacteria in the vagina. It can cause thin, fishy-smelling discharge, and it is treated with antibiotics.",
@@ -140,6 +233,37 @@ export const INTIMATE_HEALTH_ARTICLES: LearnArticle[] = [
       { label: "MedlinePlus — Urinary tract infections", href: "https://medlineplus.gov/urinarytractinfections.html" },
     ],
     related: ["intimate-hygiene", "stis", "pelvic-floor"],
+    es: {
+      title: "Infecciones urinarias (ITU)",
+      summary: "Una infección urinaria (ITU) puede hacer que te arda al orinar y que necesites ir más a menudo. La mayoría se curan con antibióticos, pero algunas señales significan que debes buscar atención el mismo día.",
+      sections: [
+        {
+          heading: "Qué es una ITU",
+          body: "Tu aparato urinario incluye los riñones y la vejiga. También incluye los conductos que llevan la orina a la vejiga y el conducto que saca la orina del cuerpo (uretra). Una infección urinaria (ITU) puede afectar a cualquiera de estas partes. Una infección de la vejiga se llama cistitis. Unas cuatro veces más mujeres que hombres tienen ITU. La diabetes, o necesitar un tubo para vaciar la vejiga (sonda), también aumenta el riesgo.",
+        },
+        {
+          heading: "Síntomas frecuentes",
+          body: "Las señales de una ITU incluyen dolor o ardor al orinar, necesidad de orinar más a menudo de lo habitual y ganas de orinar repentinas o urgentes. La orina puede verse turbia, oler mal o tener sangre. Puedes sentir dolor o presión en la parte baja del vientre. Algunas personas también sienten cansancio o temblores. En personas mayores, una ITU a veces puede causar confusión o agitación.",
+        },
+        {
+          heading: "Señales de una infección de riñón",
+          body: "Una infección de la vejiga a veces puede extenderse a los riñones, lo que es más grave. Las señales incluyen fiebre alta, sentir calor y frío o tener escalofríos, dolor en la espalda o en el costado justo debajo de las costillas, y náuseas o vómitos. Una infección de riñón necesita tratamiento rápido. Si no se trata, puede causar sepsis, una reacción grave a una infección.",
+        },
+        {
+          heading: "Tratamiento y autocuidado",
+          body: "Un médico o una enfermera puede comprobar si tienes una ITU con un análisis de orina. El tratamiento suele ser un tratamiento corto con antibióticos. Tómate todo el medicamento, aunque empieces a sentirte mejor. En algunos lugares, un farmacéutico o farmacéutica también puede valorar y tratar una ITU. Mientras te recuperas, descansa y bebe lo suficiente para que tu orina sea de color claro. El paracetamol puede aliviar el dolor. El zumo (jugo) de fruta, el café y el alcohol pueden irritar la vejiga, así que quizá quieras evitarlos durante un tiempo.",
+        },
+        {
+          heading: "Cómo reducir el riesgo",
+          body: "Bebe mucho líquido, sobre todo agua. Límpiate de delante hacia atrás después de ir al baño. Orina lo antes posible después del sexo, y no aguantes las ganas de orinar cuando necesites ir. Usar ropa interior de algodón también puede ayudar. Si las ITU vuelven una y otra vez, un médico o una enfermera puede hablar contigo sobre por qué ocurre y qué más podría ayudar.",
+        },
+        {
+          heading: "Cuándo pedir ayuda",
+          body: "Busca atención médica el mismo día si tus síntomas empeoran rápido o no han mejorado después de 2 días, o si estás embarazada o tienes 65 años o más. Búscala también el mismo día si hay sangre en tu orina, o si tienes fiebre alta, escalofríos o dolor en la espalda o en el costado. Consulta a un médico o una enfermera si tienes ITU con frecuencia (2 en 6 meses, o 3 en 12 meses). Si alguien con una ITU presenta confusión, mucha somnolencia o dificultad para hablar, busca ayuda de emergencia: llama al número de emergencias de tu país (por ejemplo, 911 en México o 112 en España) o ve a urgencias.",
+        },
+      ],
+      notice: "Esto es información general, no un diagnóstico. Si tienes fiebre alta, dolor en la espalda o en el costado, o sangre en la orina, o si estás embarazada, busca atención médica el mismo día.",
+    },
     en: {
       title: "Urinary tract infections (UTIs)",
       summary: "A UTI can make it burn when you pee and make you need to go more often. Most clear up with antibiotics, but some signs mean you should get help the same day.",
@@ -183,6 +307,37 @@ export const INTIMATE_HEALTH_ARTICLES: LearnArticle[] = [
       { label: "NHS — Thrush in men and women", href: "https://www.nhs.uk/conditions/thrush-in-men-and-women/" },
     ],
     related: ["vaginal-discharge", "bacterial-vaginosis", "yeast-infection"],
+    es: {
+      title: "Cómo cuidar tu vulva y tu vagina",
+      summary: "Tu vagina se limpia sola y necesita muy poca ayuda. Basta con lavar suavemente la parte externa, y las duchas vaginales y los productos perfumados pueden hacer más mal que bien.",
+      sections: [
+        {
+          heading: "Tu vagina se limpia sola",
+          body: "La vulva es la parte externa de tus genitales. La vagina es el conducto interno. La vagina se mantiene limpia produciendo moco, que sale en forma de flujo vaginal. Una vagina sana tiene un equilibrio entre bacterias buenas y dañinas. Este equilibrio mantiene la vagina ácida, lo que ayuda a protegerla de infecciones. Por eso, el interior de la vagina no necesita lavarse.",
+        },
+        {
+          heading: "Cómo lavarte",
+          body: "Basta con lavar la parte externa, la vulva, con agua tibia cuando te bañas o te duchas. Puedes usar un jabón suave sin perfume. Si tienes candidiasis, una crema hidratante sencilla (emoliente) en lugar de jabón puede ser más suave con tu piel. Lávate con suavidad y seca bien la zona después. Si sueles tener vaginosis bacteriana, puede que te vaya mejor ducharte que darte baños de tina (bañera).",
+        },
+        {
+          heading: "Por qué las duchas vaginales no son buena idea",
+          body: "Las duchas vaginales consisten en lavar el interior de la vagina con agua u otros líquidos. Los médicos las desaconsejan. Se asocian a la vaginosis bacteriana, la enfermedad inflamatoria pélvica (EIP), las infecciones de transmisión sexual (ITS) y problemas en el embarazo, como el parto prematuro y el embarazo ectópico. Las mujeres que se hacen duchas vaginales una vez a la semana tienen unas cinco veces más probabilidades de tener vaginosis bacteriana que las que no se las hacen. Las duchas vaginales no evitan el embarazo ni las ITS, y pueden hacer más probable contraer una ITS.",
+        },
+        {
+          heading: "Productos que conviene evitar",
+          body: "Los jabones perfumados, los geles de ducha y los baños de espuma pueden alterar el equilibrio dentro y alrededor de la vagina, y también los líquidos antisépticos en el agua del baño. Es mejor evitar los lavados vaginales, los desodorantes y las toallitas perfumadas, así como las toallas higiénicas (compresas), los tampones, los polvos y los aerosoles perfumados. Usa un detergente suave para tu ropa interior. Usar ropa interior de algodón, y evitar la ropa interior ajustada o las medias, puede ayudar a prevenir la candidiasis.",
+        },
+        {
+          heading: "Flujo y olor",
+          body: "Algo de flujo es normal y no hace falta lavarlo. El flujo sano es transparente o blanco y no tiene un olor fuerte ni desagradable. Un fuerte olor a pescado, o un cambio en el color o la textura del flujo, puede ser señal de una infección como la vaginosis bacteriana o la candidiasis. Son frecuentes y tienen tratamiento, así que vale la pena revisarlas en lugar de intentar disimularlas.",
+        },
+        {
+          heading: "Cuándo consultar a un médico o una enfermera",
+          body: "Consulta a un médico o una enfermera si tu flujo huele mal o cambia de color o de textura, o si tienes picor, ardor, enrojecimiento, hinchazón o irritación alrededor de la vulva o la vagina. Pide también una revisión si notas llagas o ampollas, o sangrado entre periodos o después del sexo. Suelen ser señales de una infección frecuente que tiene tratamiento. No intentes tratarlas con duchas vaginales ni con productos perfumados, porque pueden empeorar las cosas.",
+        },
+      ],
+      notice: "Esto es información general, no un diagnóstico. Si notas picor, irritación o un cambio en el flujo o el olor, habla con un médico o una enfermera.",
+    },
     en: {
       title: "Caring for your vulva and vagina",
       summary: "Your vagina cleans itself and needs very little help. Gentle washing of the outside is enough, and douching and scented products can do more harm than good.",
@@ -224,6 +379,37 @@ export const INTIMATE_HEALTH_ARTICLES: LearnArticle[] = [
       { label: "MedlinePlus — Kegel exercises: self-care", href: "https://medlineplus.gov/ency/patientinstructions/000141.htm" },
     ],
     related: ["periods-after-birth", "painful-sex", "menopause-symptoms"],
+    es: {
+      title: "Tu suelo pélvico",
+      summary: "Los músculos del suelo pélvico (piso pélvico) sostienen la vejiga, el útero y el intestino. Los ejercicios regulares pueden fortalecerlos y ayudar con los escapes.",
+      sections: [
+        {
+          heading: "Qué hace el suelo pélvico",
+          body: "El suelo pélvico (también llamado piso pélvico) es un grupo de músculos que está debajo del útero (matriz), la vejiga y el intestino. Estos músculos sostienen esos órganos y te ayudan a controlar cuándo orinas, defecas y expulsas gases. Para encontrarlos, imagina que intentas aguantar la orina y retener un gas a la vez. Los músculos que aprietas para hacerlo son tu suelo pélvico.",
+        },
+        {
+          heading: "Por qué puede debilitarse",
+          body: "Los músculos del suelo pélvico pueden debilitarse después del embarazo y el parto, con la edad, si aumentas de peso y después de algunos tipos de cirugía ginecológica. Hacer fuerza para defecar cuando tienes estreñimiento también los debilita. Una tos de larga duración, por ejemplo por fumar, también los somete a esfuerzo. Cuando los músculos están débiles, puede que se te escape la orina o que te cueste más controlar los gases o las heces.",
+        },
+        {
+          heading: "Cómo hacer ejercicios de suelo pélvico",
+          body: "Aprieta los músculos del suelo pélvico, como si aguantaras la orina y los gases. Mantén la contracción unos segundos y luego relaja unos segundos. Repítelo 10 veces, e intenta hacer una serie 3 veces al día. Con el tiempo, ve aumentando hasta que puedas mantener cada contracción 10 segundos. Respira con normalidad mientras los haces. Intenta no apretar el vientre, los muslos, los glúteos ni el pecho.",
+        },
+        {
+          heading: "Cómo hacerlos bien",
+          body: "Cuando ya sepas hacer los ejercicios, no los hagas mientras orinas, salvo para comprobar de vez en cuando que usas los músculos correctos. Hace falta tiempo para notar un cambio. Algunas personas tienen menos escapes después de 4 a 6 semanas, pero puede tardar unos meses. Si tienes dudas sobre si los haces bien, un médico o una enfermera puede ayudarte.",
+        },
+        {
+          heading: "Otras formas de ayudar a una vejiga débil",
+          body: "Algunos hábitos diarios también pueden ayudar. Intenta beber de 6 a 8 vasos de líquido al día. Reduce la cafeína, que irrita la vejiga y puede empeorar los escapes. El alcohol hace que orines más a menudo, así que reducirlo también puede ayudar. Intenta evitar el estreñimiento, porque hacer fuerza para defecar debilita el suelo pélvico. Si fumas, dejarlo puede aliviar el esfuerzo que la tos supone para estos músculos.",
+        },
+        {
+          heading: "Cuándo pedir ayuda",
+          body: "Habla con un médico o una enfermera si tienes escapes de orina o de heces, si no tienes claro si estás encontrando los músculos correctos o si los ejercicios no te han ayudado después de unos meses. Los escapes y los músculos débiles a menudo tienen solución, así que no hay por qué sentir vergüenza al preguntar. Un médico o una enfermera puede comprobar qué ocurre y sugerirte otro tratamiento.",
+        },
+      ],
+      notice: "Esto es información general. Si tienes escapes, o no sabes bien cómo hacer los ejercicios de suelo pélvico, habla con un médico o una enfermera.",
+    },
     en: {
       title: "Your pelvic floor",
       summary: "Your pelvic floor muscles support your bladder, womb and bowel. Regular exercises can make them stronger and help with leaks.",

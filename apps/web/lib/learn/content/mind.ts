@@ -15,6 +15,37 @@ export const MIND_ARTICLES: LearnArticle[] = [
       { label: "NHS — Postnatal depression", href: "https://www.nhs.uk/mental-health/conditions/post-natal-depression/overview/" },
     ],
     related: ["pms", "pmdd", "depression"],
+    es: {
+      title: "Cambios de ánimo a lo largo del ciclo",
+      summary: "Muchas personas notan que su estado de ánimo cambia antes del periodo. Aquí verás cómo pueden influir las hormonas, qué ayuda y cuándo el ánimo bajo es algo más que el SPM.",
+      sections: [
+        {
+          heading: "Cómo puede afectar tu ciclo al estado de ánimo",
+          body: "Tus niveles de hormonas suben y bajan a lo largo de cada ciclo menstrual. Muchas personas notan cambios en su estado de ánimo en las semanas antes del periodo. Esto forma parte del síndrome premenstrual (SPM). No se conoce la causa exacta, pero puede estar relacionada con estos cambios en los niveles de hormonas. Cuánto afecta varía mucho de una persona a otra. Algunas personas solo notan pequeños cambios. Para otras, los cambios son mucho más difíciles de llevar.",
+        },
+        {
+          heading: "Emociones frecuentes antes del periodo",
+          body: "Entre los cambios emocionales frecuentes están los cambios de ánimo, la irritabilidad, el ánimo bajo, y sentir malestar, ansiedad o más sensibilidad emocional. A menudo aparecen a la vez síntomas físicos. Entre ellos, cansancio o problemas para dormir, hinchazón, pechos doloridos, dolores de cabeza y cambios en el apetito o antojos. Estas emociones son frecuentes y no son una señal de debilidad. El artículo sobre el SPM explica los síntomas con más detalle.",
+        },
+        {
+          heading: "Cuando es algo más que el SPM",
+          body: "En un pequeño número de personas, los síntomas premenstruales son mucho más intensos. Esto se llama trastorno disfórico premenstrual (TDPM). Los síntomas aparecen en el tiempo entre la ovulación y el siguiente periodo. Para la mayoría de las personas, ese tiempo dura unas 2 semanas. El TDPM puede causar depresión, ansiedad, ira y pensamientos suicidas. Las investigaciones sugieren que las personas con TDPM pueden ser más sensibles a los cambios hormonales normales del ciclo. El artículo sobre el TDPM explica cómo se diagnostica y se trata.",
+        },
+        {
+          heading: "Otros momentos en que las hormonas pueden afectar al ánimo",
+          body: "El estado de ánimo también puede cambiar en otros momentos de grandes cambios hormonales. Tener el ánimo decaído, ansiedad o irritabilidad durante unos días después de dar a luz es muy frecuente y suele pasar en un plazo de 2 semanas. Si el ánimo bajo es intenso o dura más, puede ser depresión posparto. Algunas mujeres también sienten con más fuerza irritabilidad, ansiedad, tristeza o pérdida del disfrute en los años previos a la menopausia (perimenopausia). Ambos tipos de depresión se pueden tratar.",
+        },
+        {
+          heading: "Qué puede ayudar",
+          body: "Hacer ejercicio con regularidad, llevar una dieta sana y equilibrada y dormir lo suficiente pueden ayudar a aliviar los síntomas del SPM. El yoga, la meditación u otras formas de reducir el estrés también pueden ayudar, igual que no fumar y no beber demasiado alcohol. Llevar un registro de tu estado de ánimo durante al menos 2 ciclos puede mostrar si los cambios siguen un patrón, y registrar el ánimo en Ciclo junto a tu periodo lo hace más fácil. Si cuidarte por tu cuenta no basta, un médico puede hablar contigo sobre la anticoncepción hormonal, la terapia psicológica (terapia cognitivo-conductual o TCC) o los antidepresivos.",
+        },
+        {
+          heading: "Cuándo pedir ayuda",
+          body: "Consulta a un médico o una enfermera si los cambios de ánimo afectan a tu vida diaria o si cuidarte por tu cuenta no ha funcionado. Pide ayuda también si tienes el ánimo bajo la mayor parte del día, casi todos los días, durante 2 semanas o más, en cualquier momento del ciclo. Si piensas en hacerte daño o en quitarte la vida, pide ayuda de emergencia ahora: llama al número de emergencias de tu país (por ejemplo, 911 en México o 112 en España) o a una línea de ayuda en crisis de tu país.",
+        },
+      ],
+      notice: "Esta es información general, no un diagnóstico. Si los cambios de ánimo te resultan difíciles de llevar, habla con un médico o una enfermera.",
+    },
     en: {
       title: "Mood changes across the cycle",
       summary: "Many people notice their mood shift before a period. Here is how hormones may play a part, what helps, and when low mood is more than PMS.",
@@ -57,6 +88,37 @@ export const MIND_ARTICLES: LearnArticle[] = [
       { label: "NIMH — Depression in women: 4 types of depression unique to women", href: "https://www.nimh.nih.gov/health/publications/depression-in-women" },
     ],
     related: ["mood-and-cycle", "anxiety", "postpartum-depression"],
+    es: {
+      title: "Depresión",
+      summary: "La depresión es más que unos días de tristeza. Es frecuente, influye en cómo te sientes, piensas y afrontas las cosas, y se puede tratar. Aquí verás las señales y por dónde empezar.",
+      sections: [
+        {
+          heading: "Qué es la depresión",
+          body: "Todo el mundo está triste o bajo de ánimo a veces. La depresión es distinta. Es una enfermedad que cambia tu estado de ánimo y tu forma de pensar, y hace más difícil manejar cosas cotidianas como dormir, comer o trabajar. Es frecuente: la OMS calcula que alrededor de 1 de cada 20 adultos en el mundo tiene depresión, y es aproximadamente una vez y media más frecuente en las mujeres que en los hombres. Los genes, la química del cuerpo, las situaciones estresantes o difíciles de la vida y tu entorno pueden influir.",
+        },
+        {
+          heading: "Señales a las que prestar atención",
+          body: "Las señales principales son un estado de ánimo bajo, triste, irritable o vacío, o perder el interés o el placer por cosas que antes disfrutabas. Otras señales son mucho cansancio, dificultad para concentrarte, dormir o comer más o menos de lo habitual, sentimientos de culpa o de no valer nada, y desesperanza sobre el futuro. Algunas personas tienen dolores y molestias sin una causa física clara. En la depresión, estas emociones duran la mayor parte del día, casi todos los días, durante al menos 2 semanas.",
+        },
+        {
+          heading: "La depresión y tus hormonas",
+          body: "Algunos tipos de depresión están relacionados con etapas de cambio hormonal. El trastorno disfórico premenstrual (TDPM) causa un ánimo muy bajo, irritabilidad y otros síntomas en las semanas antes del periodo. La depresión perinatal puede empezar durante el embarazo o después del parto. Algunas mujeres también tienen depresión durante la transición a la menopausia (perimenopausia). Si tu ánimo bajo parece seguir tu ciclo, registrarlo en Ciclo puede ayudarte a mostrarle el patrón a un médico.",
+        },
+        {
+          heading: "Tratamientos que funcionan",
+          body: "La depresión se puede tratar, incluso cuando es grave. Los tratamientos habituales son la terapia psicológica, los medicamentos antidepresivos o ambos a la vez. Entre las terapias psicológicas con buena evidencia están la terapia cognitivo-conductual (TCC), la activación conductual, la terapia interpersonal y la terapia de resolución de problemas. La terapia puede ser presencial o en línea. Un médico o una enfermera puede repasar las opciones contigo y ayudarte a elegir la que más te convenga.",
+        },
+        {
+          heading: "Cosas que puedes hacer por ti",
+          body: "Los pequeños pasos pueden ayudarte a recuperarte. Intenta seguir haciendo cosas que antes disfrutabas, aunque sea poco tiempo. Mantén el contacto con tus amistades y tu familia. Intenta hacer actividad física a menudo. Un paseo corto es un buen comienzo. Mantén horarios regulares para comer y dormir cuando puedas. Evita o reduce el alcohol, y evita las drogas ilegales.",
+        },
+        {
+          heading: "Cuándo pedir ayuda",
+          body: "Consulta a un médico o una enfermera si has tenido señales de depresión la mayor parte del día, casi todos los días, durante 2 semanas o más. Pide cita antes si te está costando sobrellevarlo. La depresión puede afectar a cualquiera, y pedir ayuda es un primer paso normal. Si piensas en hacerte daño o en quitarte la vida, pide ayuda de emergencia ahora: llama al número de emergencias de tu país (por ejemplo, 911 en México o 112 en España) o a una línea de ayuda en crisis de tu país.",
+        },
+      ],
+      notice: "Esta es información general, no un diagnóstico. Si crees que podrías tener depresión, habla con un médico o una enfermera.",
+    },
     en: {
       title: "Depression",
       summary: "Depression is more than a few sad days. It is common, it affects how you feel, think and cope, and it can be treated. Here are the signs and where to start.",
@@ -101,6 +163,33 @@ export const MIND_ARTICLES: LearnArticle[] = [
       { label: "NHS — Panic disorder", href: "https://www.nhs.uk/mental-health/conditions/panic-disorder/" },
     ],
     related: ["mood-and-cycle", "depression", "pmdd"],
+    es: {
+      title: "Ansiedad",
+      summary: "Sentir ansiedad de vez en cuando es normal. Cuando la preocupación es difícil de controlar y se interpone en tu vida diaria, el apoyo y el tratamiento pueden ayudar.",
+      sections: [
+        {
+          heading: "Preocupación cotidiana y trastornos de ansiedad",
+          body: "La mayoría de las personas sienten ansiedad a veces, por ejemplo antes de un examen o de una conversación difícil. Eso no significa que tengas un trastorno de ansiedad. En un trastorno de ansiedad, la preocupación no se va. Aparece en muchos ámbitos de tu vida y puede hacerse más intensa con el tiempo. Entre los tipos están el trastorno de ansiedad generalizada (TAG), el trastorno de pánico, el trastorno de ansiedad social y las fobias. El TAG es un trastorno frecuente y afecta a más mujeres que hombres. Es más probable si tus familiares cercanos tienen ansiedad o depresión, después de situaciones estresantes o traumáticas, o si vives con una enfermedad de larga duración que causa dolor.",
+        },
+        {
+          heading: "Cómo se puede sentir la ansiedad",
+          body: "La señal principal del TAG es un estrés o una preocupación difícil de controlar que afecta a tu vida diaria. Puedes sentir inquietud, tensión o irritabilidad, tener dificultad para concentrarte o cansarte con facilidad. La ansiedad también afecta al cuerpo. Puede causar problemas para dormir, molestias de estómago, latidos fuertes o fuera de lo normal (palpitaciones) y sensación de aturdimiento o mareo. Puede venir acompañada de ánimo bajo o depresión. Un ataque de pánico es una oleada repentina de miedo intenso, a menudo sin una razón clara. El corazón puede acelerarse, y puedes sudar, temblar, tener náuseas, mareo o falta de aire, o dolor en el pecho. La mayoría de los ataques duran de 5 a 20 minutos. Asustan, pero no dañan tu cuerpo.",
+        },
+        {
+          heading: "La ansiedad y tu ciclo",
+          body: "En algunas personas, los cambios hormonales pueden influir en la ansiedad. Sentir ansiedad, malestar o más sensibilidad emocional es una parte frecuente del síndrome premenstrual (SPM) en las semanas antes del periodo. La ansiedad intensa, la irritabilidad o el ánimo bajo antes del periodo pueden ser una señal de trastorno disfórico premenstrual (TDPM). La ansiedad también puede aparecer junto a la depresión durante el embarazo, después del parto o en torno a la menopausia. Anotar tu estado de ánimo en Ciclo puede mostrar si tu ansiedad sigue tu ciclo.",
+        },
+        {
+          heading: "Qué puede ayudar",
+          body: "Hablar de cómo te sientes con alguien de confianza puede ayudar. También puede ayudar aprender ejercicios de respiración para calmarte, hacer actividad física con regularidad, comer de forma saludable y dormir lo suficiente. Intenta reducir el café, el té, los refrescos de cola y las bebidas energéticas. Intenta no recurrir al alcohol, el tabaco, las apuestas o las drogas ilegales para manejar la ansiedad. Si la ansiedad afecta a tu vida, un médico puede ofrecerte tratamiento. Las principales opciones son la terapia psicológica, normalmente la terapia cognitivo-conductual (TCC), y los medicamentos, sobre todo un tipo de antidepresivo llamado ISRS.",
+        },
+        {
+          heading: "Cuándo pedir ayuda",
+          body: "Consulta a un médico o una enfermera si crees que podrías tener un trastorno de ansiedad, o si la preocupación es difícil de controlar y afecta a tu vida diaria. El dolor en el pecho o la dificultad para respirar también pueden tener otras causas. Si no tienes claro que sea un ataque de pánico, pide ayuda de emergencia (por ejemplo, 911 en México o 112 en España). Si piensas en hacerte daño o en quitarte la vida, pide ayuda de emergencia ahora: llama al número de emergencias de tu país o a una línea de ayuda en crisis de tu país.",
+        },
+      ],
+      notice: "Esta es información general, no un diagnóstico. Si la preocupación afecta a tu vida diaria, habla con un médico o una enfermera.",
+    },
     en: {
       title: "Anxiety",
       summary: "Feeling anxious now and then is normal. When worry is hard to control and gets in the way of daily life, support and treatment can help.",
@@ -140,6 +229,37 @@ export const MIND_ARTICLES: LearnArticle[] = [
       { label: "NHS — Postpartum psychosis", href: "https://www.nhs.uk/mental-health/conditions/post-partum-psychosis/" },
     ],
     related: ["periods-after-birth", "depression", "mood-and-cycle"],
+    es: {
+      title: "Depresión posparto",
+      summary: "Tener el ánimo bajo unos días después del parto es muy frecuente. Si el ánimo bajo es intenso o dura más de 2 semanas, puede ser depresión posparto, que se puede tratar.",
+      sections: [
+        {
+          heading: "Tristeza posparto o depresión",
+          body: "Muchas personas tienen el ánimo decaído, ansiedad o irritabilidad durante unos días después de dar a luz. A menudo se llama tristeza posparto o «baby blues». Es muy frecuente y suele pasar en un plazo de 2 semanas. La depresión posparto (también llamada depresión postnatal) es distinta. Es un problema de salud mental frecuente, y las emociones son más intensas o duran más. Puede empezar durante el embarazo, poco después del parto o en cualquier momento durante el año siguiente.",
+        },
+        {
+          heading: "Señales a las que prestar atención",
+          body: "Las señales incluyen el ánimo bajo, no poder disfrutar de nada y sentir desesperanza o que no puedes con todo. Puedes sentir culpa o que no vales nada, o sentir que eres una mala madre o un mal padre. Algunas personas se preocupan todo el tiempo, sienten inquietud o irritabilidad, no pueden dormir aunque tengan la oportunidad de descansar, o les cuesta concentrarse. Puedes tener emociones difíciles hacia tu bebé o que te cueste crear un vínculo con él. Tener estas emociones no es culpa tuya.",
+        },
+        {
+          heading: "Por qué ocurre",
+          body: "Pueden influir varias cosas. Entre ellas, los cambios hormonales del embarazo y el parto, la falta de sueño y las exigencias físicas y emocionales de cuidar a un bebé recién nacido. Otras fuentes de estrés, como la presión en el trabajo o un trauma pasado, pueden sumarse. Es más probable que la tengas si ya has tenido depresión o trastorno bipolar, o si los ha tenido un familiar cercano. Las parejas, incluidos los padres, también pueden tener depresión después de la llegada de un bebé.",
+        },
+        {
+          heading: "Tratamiento y apoyo",
+          body: "La depresión posparto se puede tratar. Las opciones incluyen terapias psicológicas como la terapia cognitivo-conductual (TCC), los medicamentos antidepresivos o ambos. Muchos antidepresivos son seguros durante la lactancia. Si estás dando el pecho, pregunta a un médico cuáles te convienen. Mantener el contacto con tus amistades y tu familia también puede ayudar. No tienes que esperar a sentirte muy mal para pedir apoyo.",
+        },
+        {
+          heading: "Cuándo pedir ayuda",
+          body: "Habla con un médico, una enfermera o una matrona o partera si crees que podrías tener depresión posparto, o si el ánimo bajo dura más de 2 semanas después del parto. Si piensas en hacerte daño a ti o a tu bebé, o en quitarte la vida, pide ayuda de emergencia ahora: llama al número de emergencias de tu país (por ejemplo, 911 en México o 112 en España) o a una línea de ayuda en crisis de tu país.",
+        },
+        {
+          heading: "Una urgencia poco frecuente: la psicosis posparto",
+          body: "La psicosis posparto es una enfermedad poco frecuente pero grave. Afecta a alrededor de 1 de cada 1000 madres y suele empezar de repente en las 2 primeras semanas después del parto, a menudo en cuestión de horas o días. Las señales incluyen ver u oír cosas que no están ahí, creer cosas que no son ciertas, sentir una euforia inusual o desconfianza, cambios de ánimo muy rápidos y confusión. Es una urgencia médica. Si notas estas señales en ti o en otra persona, pide ayuda de emergencia de inmediato. Con tratamiento, la mayoría de las personas se recuperan por completo. Si tienes trastorno bipolar o has tenido psicosis antes, díselo a tu médico o a tu matrona o partera durante el embarazo.",
+        },
+      ],
+      notice: "Esta es información general, no un diagnóstico. Si lo estás pasando mal después de tener un bebé, habla con un médico, una enfermera o una matrona o partera.",
+    },
     en: {
       title: "Postnatal depression",
       summary: "Feeling low for a few days after birth is very common. If low mood is severe or lasts longer than 2 weeks, it may be postnatal depression, which can be treated.",
@@ -182,6 +302,29 @@ export const MIND_ARTICLES: LearnArticle[] = [
       { label: "NHS — 10 stress busters", href: "https://www.nhs.uk/mental-health/self-help/guides-tools-and-activities/tips-to-reduce-stress/" },
     ],
     related: ["missed-periods", "irregular-periods", "anxiety"],
+    es: {
+      title: "El estrés y tu ciclo",
+      summary: "El estrés puede retrasar el periodo o incluso detenerlo durante un tiempo. Aquí verás cómo afecta el estrés a tu ciclo, formas de sobrellevarlo y cuándo conviene consultar por la falta del periodo.",
+      sections: [
+        {
+          heading: "Cómo afecta el estrés a tu periodo",
+          body: "Tu ciclo está controlado por hormonas, y las señales empiezan en el cerebro. Una pequeña zona del cerebro llamada hipotálamo ayuda a regular muchos procesos del cuerpo, entre ellos tu ciclo. Un estrés físico o emocional intenso puede alterar su funcionamiento. Entonces puede liberar más despacio, o dejar de liberar, una hormona de la que depende el ciclo. Como resultado, el periodo puede retrasarse, o los periodos pueden detenerse durante un tiempo.",
+        },
+        {
+          heading: "Otras razones por las que el periodo puede retrasarse",
+          body: "El estrés es solo una de las posibles razones de un retraso o una falta del periodo. Otras son el embarazo, la lactancia, una pérdida de peso repentina, hacer mucho ejercicio, algunos tipos de anticoncepción hormonal, la perimenopausia, el síndrome de ovario poliquístico (SOP) y los problemas de tiroides. Un entrenamiento muy intenso, comer muy poco y el estrés también pueden sumarse y detener los periodos a la vez. Si el periodo se retrasa y es posible que estés embarazada, haz primero una prueba de embarazo.",
+        },
+        {
+          heading: "Formas de manejar el estrés",
+          body: "No siempre puedes cambiar una situación estresante, pero hay formas de afrontarla mejor. Hacer actividad física puede ayudar a calmar las emociones intensas. Pasa tiempo con personas que te apoyan, y reserva tiempo para descansar, para tus aficiones o para relajarte. Céntrate en lo que puedes controlar e intenta aceptar lo que no. Intenta no depender del alcohol, el tabaco o la cafeína para sobrellevarlo. Ayudar a otras personas, por ejemplo haciendo voluntariado, también puede ayudarte a afrontar mejor los momentos difíciles.",
+        },
+        {
+          heading: "Cuándo consultar a un médico o una enfermera",
+          body: "Consulta a un médico o una enfermera si te han faltado 3 periodos seguidos y no estás embarazada ni dando el pecho, o si tus periodos se han vuelto irregulares. Hazte también una revisión si la falta del periodo viene con otros cambios, como aumento o pérdida de peso, cansancio, vello nuevo en la cara, o piel seca o grasa. Registrar tus periodos y tu estado de ánimo en Ciclo puede mostrar si las semanas de estrés coinciden con los retrasos. Si el estrés te resulta difícil de manejar o afecta a tu ánimo casi todos los días, un médico o una enfermera también pueden ayudarte con eso. Si piensas en hacerte daño, pide ayuda de emergencia ahora: llama al número de emergencias de tu país (por ejemplo, 911 en México o 112 en España) o a una línea de ayuda en crisis de tu país.",
+        },
+      ],
+      notice: "Esta es información general, no un diagnóstico. Si tus periodos se detienen o cambian, habla con un médico o una enfermera.",
+    },
     en: {
       title: "Stress and your cycle",
       summary: "Stress can delay or even stop your period for a while. Here is how stress affects your cycle, ways to cope, and when a missed period needs checking.",
@@ -216,6 +359,33 @@ export const MIND_ARTICLES: LearnArticle[] = [
       { label: "NHS — PMS (premenstrual syndrome)", href: "https://www.nhs.uk/conditions/pre-menstrual-syndrome/" },
     ],
     related: ["eating-disorders", "depression", "healthy-eating"],
+    es: {
+      title: "Imagen corporal",
+      summary: "La imagen corporal es lo que piensas y sientes sobre tu cuerpo. Mirarte con más amabilidad es bueno para tu salud mental, y se puede aprender con la práctica.",
+      sections: [
+        {
+          heading: "Qué significa la imagen corporal",
+          body: "La imagen corporal es cómo ves tu cuerpo y cómo te sientes con él, en el espejo o en tu mente. Una imagen corporal sana significa sentirte a gusto en tu cuerpo y que, en general, te guste tu aspecto. Además, tu cuerpo cambia de forma natural con el tiempo, e incluso a lo largo de un ciclo. Por ejemplo, la hinchazón antes del periodo es frecuente.",
+        },
+        {
+          heading: "Qué influye en cómo te ves",
+          body: "Muchas cosas influyen en la imagen corporal. Los medios y la publicidad suelen mostrar mujeres delgadas y jóvenes, y las imágenes a menudo están retocadas. Las personas de tu entorno también cuentan. Los niños y las niñas absorben ideas de los adultos: las hijas de madres que hacen dieta tienen el doble de probabilidades de pensar en hacer dieta ellas mismas. Que se burlen de ti o te acosen por tu aspecto en la infancia también puede influir en cómo te ves más adelante.",
+        },
+        {
+          heading: "Por qué importa para tu salud",
+          body: "Una imagen corporal negativa puede bajar tu autoestima, lo que puede afectar a muchos aspectos de tu vida. También puede aumentar el riesgo de algunos problemas de salud mental, como la depresión y los trastornos de la conducta alimentaria. Algunas personas sienten una angustia muy grande por defectos pequeños o imaginarios en su aspecto. Esto puede ser una señal de trastorno dismórfico corporal (TDC), que es una enfermedad grave. Un médico o una enfermera puede ayudarte.",
+        },
+        {
+          heading: "Construir una mirada más amable hacia tu cuerpo",
+          body: "La imagen corporal puede cambiar con la práctica. Los pensamientos amables se vuelven más fáciles con la práctica. Intenta darte cuenta de los pensamientos duros sobre tu cuerpo y cambiarlos por otros más justos. Fijarte en las partes de ti que te gustan puede ayudar. Aprender a aceptar tu aspecto es mejor para ti que intentar cambiarlo siempre. Recuerda que muchas imágenes de los medios y los anuncios están retocadas. Pasar menos tiempo con contenidos que te hacen sentir peor contigo también puede ayudar.",
+        },
+        {
+          heading: "Cuándo pedir ayuda",
+          body: "Habla con un médico o una enfermera si las preocupaciones por tu cuerpo te ocupan mucho tiempo o afectan a tu ánimo, a tu alimentación o a tu vida diaria. Comer muy poco, hacer mucho más ejercicio de lo habitual o dejar de tener el periodo pueden ser señales de alarma de un trastorno de la conducta alimentaria. Conviene revisarlas pronto, y hay apoyo disponible. Si piensas en hacerte daño, pide ayuda de emergencia ahora: llama al número de emergencias de tu país (por ejemplo, 911 en México o 112 en España) o a una línea de ayuda en crisis de tu país.",
+        },
+      ],
+      notice: "Esta es información general. Si las preocupaciones por tu cuerpo están afectando a tu vida, habla con un médico o una enfermera.",
+    },
     en: {
       title: "Body image",
       summary: "Body image is how you think and feel about your body. A kinder view of yourself is good for your mental health, and it can grow with practice.",
@@ -255,6 +425,33 @@ export const MIND_ARTICLES: LearnArticle[] = [
       { label: "NHS — Osteoporosis: causes", href: "https://www.nhs.uk/conditions/osteoporosis/causes/" },
     ],
     related: ["red-s", "body-image", "missed-periods"],
+    es: {
+      title: "Trastornos de la conducta alimentaria",
+      summary: "Los trastornos de la conducta alimentaria son problemas de salud mental graves, y se pueden tratar. Aquí verás las señales, cómo pueden afectar al periodo y cómo pedir ayuda pronto.",
+      sections: [
+        {
+          heading: "Qué es un trastorno de la conducta alimentaria",
+          body: "Un trastorno de la conducta alimentaria es un problema de salud mental. Las personas con un trastorno de este tipo pueden usar la comida, o el control sobre la comida, como forma de sobrellevar emociones difíciles. Estos trastornos son graves y pueden poner en peligro la vida, pero se pueden tratar con éxito. Cualquier persona puede desarrollar uno, aunque afectan con más frecuencia a adolescentes y adultos jóvenes. Puede ser más probable que lo desarrolles si alguien de tu familia ha tenido un trastorno de la conducta alimentaria, o si vives con ansiedad o baja autoestima.",
+        },
+        {
+          heading: "Tipos de trastornos de la conducta alimentaria",
+          body: "La anorexia consiste en intentar controlar el peso no comiendo lo suficiente, haciendo demasiado ejercicio, o ambas cosas. La bulimia supone perder el control al comer y después intentar deshacerse de la comida o evitar ganar peso de formas dañinas. El trastorno por atracón consiste en comer de forma habitual cantidades muy grandes de comida, a menudo sin sentirte capaz de parar, hasta notar el estómago incómodamente lleno. El trastorno de evitación o restricción de la ingesta de alimentos (ARFID, por sus siglas en inglés) consiste en evitar ciertos alimentos, limitar cuánto comes, o ambas cosas. Cuando los síntomas no encajan en un tipo concreto, puede llamarse «otro trastorno de la conducta alimentaria especificado» (OSFED, por sus siglas en inglés).",
+        },
+        {
+          heading: "Señales a las que prestar atención",
+          body: "Las señales incluyen pasar mucho tiempo preocupándote por tu peso o la forma de tu cuerpo, comer muy poco y hacer demasiado ejercicio. El estado de ánimo puede cambiar, con tendencia a aislarte, ansiedad o ánimo bajo. Tu cuerpo también puede dar señales, como sentir frío, cansancio o mareo, e hinchazón, estreñimiento o diarrea. En otra persona, puedes notar que come muy rápido, que va mucho al baño después de comer o que lleva ropa holgada y ancha.",
+        },
+        {
+          heading: "Por qué puede detenerse el periodo",
+          body: "No tener el periodo es una de las señales de un trastorno de la conducta alimentaria, y es una señal de alarma importante. Cuando el cuerpo no recibe suficiente comida, una parte del cerebro llamada hipotálamo puede frenar la hormona de la que depende el ciclo. Los periodos pueden volverse irregulares o detenerse. El estrógeno ayuda a mantener los huesos fuertes. El estrógeno bajo que acompaña a la pérdida del periodo, junto con una mala nutrición, puede debilitar los huesos con el tiempo.",
+        },
+        {
+          heading: "Pedir ayuda",
+          body: "Si crees que podrías tener un trastorno de la conducta alimentaria, consulta a un médico o una enfermera lo antes posible. El tratamiento suele incluir terapia psicológica y revisiones de salud periódicas, y la recuperación es distinta para cada persona. Pedir ayuda pronto te da la mejor oportunidad de recuperarte por completo. Si te preocupa otra persona, hazle saber que te importa y anímala a ir al médico. Pide ayuda de emergencia (por ejemplo, 911 en México o 112 en España) si una persona con un trastorno de la conducta alimentaria se desmaya, tiene dolor en el pecho o tiene el corazón muy acelerado o irregular. Si piensas en hacerte daño o en quitarte la vida, pide ayuda de emergencia ahora: llama al número de emergencias de tu país o a una línea de ayuda en crisis de tu país.",
+        },
+      ],
+      notice: "Esta es información general, no un diagnóstico. Si te preocupa tu alimentación o la de otra persona, habla con un médico o una enfermera.",
+    },
     en: {
       title: "Eating disorders",
       summary: "Eating disorders are serious mental health conditions, and they can be treated. Here are the signs, how they can affect periods, and how to get help early.",

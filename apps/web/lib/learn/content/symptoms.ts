@@ -14,6 +14,37 @@ export const SYMPTOMS_ARTICLES: LearnArticle[] = [
       { label: "CDC — About sleep", href: "https://www.cdc.gov/sleep/about/index.html" },
     ],
     related: ["pmdd", "mood-and-cycle", "bloating-digestion"],
+    es: {
+      title: "Síndrome premenstrual (SPM)",
+      summary: "El SPM es una mezcla de cambios físicos y emocionales en la semana o las dos semanas antes del periodo. La mayoría de las personas tiene algún síntoma, y puedes hacer mucho para sentirte mejor.",
+      sections: [
+        {
+          heading: "Qué es el SPM",
+          body: "El síndrome premenstrual (SPM) es muy común. Los síntomas pueden empezar hasta 2 semanas antes del periodo y suelen desaparecer pocos días después de que empiece, cuando los niveles hormonales vuelven a subir. Más del 90% de las mujeres dicen tener al menos algún síntoma premenstrual. Es probable que se trate de SPM si tus síntomas siguen un patrón. Empiezan en los 5 días antes del periodo y terminan en los 4 días siguientes al inicio del sangrado. Aparecen durante al menos 3 ciclos seguidos y dificultan tu vida diaria.",
+        },
+        {
+          heading: "Señales habituales",
+          body: "Entre las señales físicas están la hinchazón o la sensación de gases, los pechos sensibles o hinchados, los cólicos, el dolor de cabeza o de espalda, el estreñimiento o la diarrea, los granos y el cabello graso. Entre los cambios emocionales y de conducta están los cambios de ánimo, la irritabilidad, tener el ánimo bajo, sentir ansiedad o ganas de llorar, el cansancio y dormir más o menos de lo habitual. También son comunes los cambios de apetito o los antojos, la dificultad para concentrarte y el menor interés por el sexo. Puede que solo notes algunos.",
+        },
+        {
+          heading: "Por qué ocurre",
+          body: "Los expertos no entienden del todo por qué ocurre el SPM. Parece estar relacionado con los cambios hormonales del ciclo. Después de la ovulación, la progesterona sube. Si no hay embarazo, el estrógeno y la progesterona bajan bruscamente en los días antes del periodo. Los síntomas suelen aparecer en esta segunda mitad del ciclo. El SPM puede ser más probable si tienes mucho estrés, si has tenido depresión o depresión posparto, o si hay antecedentes de depresión en tu familia. Es más común entre los 30 y los 39 años, y puede empeorar la migraña, el asma y las alergias.",
+        },
+        {
+          heading: "Pasos diarios que ayudan",
+          body: "Hacer ejercicio aeróbico con regularidad a lo largo del mes puede aliviar el cansancio, el ánimo bajo y la falta de concentración. Intenta dormir al menos 7 horas cada noche, porque dormir mal puede empeorar los cambios de ánimo. Algunas personas se sienten mejor si hacen comidas más pequeñas cada 2 a 3 horas. Reducir la cafeína, la sal y el azúcar en las 2 semanas antes del periodo puede aliviar muchos síntomas. El yoga, la meditación, hablar con amistades o escribir un diario pueden ayudar con el estrés. Fumar se asocia a un SPM más frecuente e intenso, y también ayuda no beber demasiado alcohol.",
+        },
+        {
+          heading: "Analgésicos, suplementos y tratamiento",
+          body: "Los analgésicos como el ibuprofeno o el paracetamol pueden aliviar el dolor. Algunos estudios sugieren que el calcio puede ayudar con el cansancio, los antojos y el ánimo bajo, y que la vitamina B6 o el magnesio pueden ayudar con algunos síntomas. Los resultados de remedios de hierbas como el sauzgatillo y el aceite de onagra (o de prímula) son dispares. Si tomas otros medicamentos, consulta con un médico o con tu farmacéutico o farmacéutica antes de empezar un suplemento. Un médico puede sugerir la píldora anticonceptiva combinada para los síntomas físicos, un antidepresivo (normalmente de un tipo llamado ISRS) para los síntomas emocionales, o una terapia psicológica llamada terapia cognitivo-conductual (TCC).",
+        },
+        {
+          heading: "Cuándo consultar a un médico o una enfermera",
+          body: "Consulta a un médico o una enfermera si tus síntomas afectan a tu vida diaria o si los cambios en tus hábitos no han ayudado. Antes de ir, anota tus síntomas cada día durante al menos 2 ciclos. Registrar tu estado de ánimo y tus síntomas en Ciclo puede mostrar con claridad cuándo empiezan y cuándo terminan. Si tus síntomas son intensos, sobre todo la ira, la ansiedad o el ánimo bajo, pregunta por el trastorno disfórico premenstrual (TDPM). Si estás pensando en hacerte daño, busca ayuda de emergencia o contacta ahora con una línea de crisis.",
+        },
+      ],
+      notice: "Esto es información general, no un diagnóstico. Si los síntomas premenstruales afectan a tu vida diaria, habla con un médico o una enfermera.",
+    },
     en: {
       title: "Premenstrual syndrome (PMS)",
       summary: "PMS is a mix of physical and emotional changes in the week or two before a period. Most people get some symptoms, and there is a lot you can do to feel better.",
@@ -56,6 +87,37 @@ export const SYMPTOMS_ARTICLES: LearnArticle[] = [
       { label: "NHS — PMS (premenstrual syndrome)", href: "https://www.nhs.uk/conditions/pre-menstrual-syndrome/" },
     ],
     related: ["pms", "mood-and-cycle", "depression"],
+    es: {
+      title: "Trastorno disfórico premenstrual (TDPM)",
+      summary: "El TDPM es una forma grave del SPM que afecta sobre todo al estado de ánimo en la semana o las dos semanas antes del periodo. Es un problema de salud reconocido, y el tratamiento puede ayudar.",
+      sections: [
+        {
+          heading: "Qué es el TDPM",
+          body: "El trastorno disfórico premenstrual (TDPM) es una forma grave del síndrome premenstrual (SPM). Afecta sobre todo al estado de ánimo. Puede causar de forma intensa ánimo bajo, ansiedad, irritabilidad o ira en la semana o las dos semanas antes del periodo. Los síntomas suelen aliviarse 2 a 3 días después de que empiece el sangrado. Hasta un 5% de las mujeres en edad fértil tienen TDPM.",
+        },
+        {
+          heading: "Por qué ocurre",
+          body: "El TDPM no es un desequilibrio hormonal. Las personas con TDPM tienen niveles hormonales normales, que suben y bajan como de costumbre a lo largo del ciclo. Pero su cerebro reacciona con fuerza a estos cambios normales. La serotonina, un mensajero químico del cerebro cuyos niveles cambian a lo largo del ciclo, también puede influir. Algunas personas parecen ser más sensibles que otras a estos cambios.",
+        },
+        {
+          heading: "Señales del TDPM",
+          body: "Entre las señales del estado de ánimo están la irritabilidad o la ira persistentes que afectan a otras personas, una tristeza profunda o desesperanza, tensión o ansiedad, ataques de pánico, cambios de ánimo y llorar a menudo. Puedes perder interés por la vida diaria y las relaciones, tener dificultad para concentrarte, sentir mucho cansancio, dormir mal, sentir que pierdes el control, o tener antojos fuertes o atracones de comida. También pueden aparecer señales físicas como hinchazón, pechos sensibles, dolor de cabeza y dolor en las articulaciones o los músculos. Algunas personas tienen pensamientos de suicidio. Lo más característico es el momento: los síntomas aumentan antes del periodo y desaparecen cuando empieza.",
+        },
+        {
+          heading: "Cómo se diagnostica",
+          body: "No hay ningún análisis de sangre para el TDPM. En su lugar, el médico suele pedirte que anotes tus síntomas cada día durante al menos 2 ciclos. Así se ve si siguen el patrón de tu ciclo. Para el diagnóstico hacen falta 5 síntomas o más, y al menos uno debe ser del estado de ánimo. Registrar cada día tu estado de ánimo y tus síntomas en Ciclo, junto a las fechas de tu periodo, te da un registro claro para llevar a la consulta.",
+        },
+        {
+          heading: "Tratamiento y apoyo",
+          body: "Hay varios tratamientos que pueden ayudar. Una opción son los antidepresivos llamados inhibidores selectivos de la recaptación de serotonina (ISRS). A algunas personas se les ofrecen ciertas píldoras anticonceptivas. Los analgésicos sin receta pueden aliviar los síntomas físicos. Manejar el estrés, por ejemplo con técnicas de relajación o reservando tiempo para actividades que disfrutas, también puede ayudar. El médico también puede sugerir una terapia psicológica como la terapia cognitivo-conductual (TCC). Si los primeros tratamientos no ayudan, pueden derivarte a un especialista.",
+        },
+        {
+          heading: "Pedir ayuda y mantenerte a salvo",
+          body: "Consulta a un médico o una enfermera si los síntomas premenstruales afectan a tu trabajo, tus relaciones o tu vida diaria. El TDPM puede traer pensamientos de suicidio, aunque te sientas bien en otros momentos del mes. Si estás pensando en hacerte daño, busca ayuda de emergencia o contacta ahora con una línea de crisis. Si sientes que podrías actuar según esos pensamientos, llama al número de emergencias de tu país (por ejemplo, 911 en México o 112 en España) o acude a un servicio de urgencias. También puede ayudar contarle a alguien de confianza cómo te sientes.",
+        },
+      ],
+      notice: "Esto es información general, no un diagnóstico. Si estás pensando en hacerte daño, busca ayuda de emergencia o contacta ahora con una línea de crisis.",
+    },
     en: {
       title: "Premenstrual dysphoric disorder (PMDD)",
       summary: "PMDD is a severe form of PMS that mainly affects mood in the week or two before a period. It is a recognised medical condition, and treatment can help.",
@@ -98,6 +160,33 @@ export const SYMPTOMS_ARTICLES: LearnArticle[] = [
       { label: "Office on Women's Health — Premenstrual syndrome (PMS)", href: "https://www.womenshealth.gov/menstrual-cycle/premenstrual-syndrome" },
     ],
     related: ["breast-awareness", "pms"],
+    es: {
+      title: "Dolor cíclico en los pechos",
+      summary: "El dolor en los pechos que va y viene con tu ciclo es común y rara vez es grave. Aquí verás cómo se siente, qué ayuda y cuándo conviene revisarlo.",
+      sections: [
+        {
+          heading: "Qué es el dolor cíclico en los pechos",
+          body: "Tener los pechos doloridos es muy común, y la causa rara vez es grave. Por sí solo, es poco probable que sea una señal de cáncer. El dolor que va y viene con los periodos se llama dolor cíclico en los pechos, y está relacionado con los cambios hormonales del ciclo. Los pechos sensibles o hinchados son una de las señales más comunes del síndrome premenstrual (SPM). Los pechos también pueden doler durante el embarazo y alrededor de la menopausia, cuando las hormonas también cambian.",
+        },
+        {
+          heading: "Cómo se siente normalmente",
+          body: "El dolor cíclico en los pechos suele empezar hasta 2 semanas antes del periodo. Tiende a empeorar a medida que se acerca el periodo, y desaparece cuando el periodo termina. Suele ser un dolor sordo, una sensación de pesadez o una molestia continua. A menudo afecta a los dos pechos, y el dolor puede extenderse hacia la axila.",
+        },
+        {
+          heading: "Otras causas del dolor en los pechos",
+          body: "No todo dolor en los pechos está relacionado con el periodo. Las distensiones musculares o las lesiones en el cuello, el hombro o la espalda pueden notarse como dolor en los pechos. Algunos medicamentos, como la píldora anticonceptiva y algunos antidepresivos, pueden causar dolor en los pechos. La mastitis (un pecho doloroso e hinchado, a veces por una infección), o una acumulación de pus llamada absceso mamario, también pueden causar dolor, y un médico debe revisarlas.",
+        },
+        {
+          heading: "Qué puede ayudar",
+          body: "Usa un sujetador que te quede bien durante el día y uno suave por la noche. Los analgésicos como el paracetamol o el ibuprofeno, o un gel analgésico aplicado sobre los pechos, pueden aliviar el dolor. Hay pocas pruebas de que los suplementos de vitamina E o el aceite de onagra (o de prímula) ayuden. Anotar el dolor en los pechos en Ciclo durante unos ciclos puede mostrar si va ligado a tu periodo.",
+        },
+        {
+          heading: "Cuándo consultar a un médico o una enfermera",
+          body: "Consulta a un médico o una enfermera si el dolor en los pechos no mejora o los analgésicos no ayudan. Consulta también si hay casos de cáncer de mama en tu familia o si podrías estar embarazada. Pide una cita urgente si encuentras un bulto duro en el pecho o en la axila, si un pecho cambia de forma, si la piel se ve con hoyuelos como la piel de naranja, si el pezón se hunde hacia dentro o tiene un sarpullido, o si sale líquido del pezón. Pide consejo médico el mismo día si tienes dolor en los pechos con fiebre muy alta, o si sientes calor, frío o escalofríos. Haz lo mismo si una parte del pecho está roja, caliente o hinchada.",
+        },
+      ],
+      notice: "Esto es información general, no un diagnóstico. Si encuentras un bulto o notas un cambio en tu pecho, consulta a un médico o una enfermera.",
+    },
     en: {
       title: "Cyclical breast pain",
       summary: "Breast pain that comes and goes with your cycle is common and rarely serious. Here is how it feels, what helps and when to get it checked.",
@@ -136,6 +225,33 @@ export const SYMPTOMS_ARTICLES: LearnArticle[] = [
       { label: "NHS — Who can take the combined pill", href: "https://www.nhs.uk/contraception/methods-of-contraception/combined-pill/who-can-take-it/" },
     ],
     related: ["pms", "cycle-hormones", "the-pill"],
+    es: {
+      title: "Dolor de cabeza y migraña con el periodo",
+      summary: "La bajada de las hormonas antes del periodo puede desencadenar dolores de cabeza y migrañas. Conocer tu patrón te ayuda a anticiparte y a recibir el tratamiento adecuado.",
+      sections: [
+        {
+          heading: "Por qué el periodo puede desencadenar migrañas",
+          body: "Justo antes de que empiece el periodo, los niveles de las hormonas estrógeno y progesterona bajan bruscamente. En algunas personas, esta bajada puede desencadenar una migraña. Las crisis que ocurren justo antes o durante el periodo se llaman migrañas menstruales. Suelen durar más y ser más intensas que las crisis en otros momentos. Unas 3 de cada 4 personas con migraña son mujeres, y más de la mitad de las migrañas en mujeres ocurren justo antes, durante o después del periodo. Los cambios hormonales más adelante en la vida también importan. En la mayoría de las mujeres, la migraña mejora o desaparece a partir del tercer mes de embarazo aproximadamente, y unas dos terceras partes dicen que mejora después de la menopausia.",
+        },
+        {
+          heading: "Cómo es una migraña",
+          body: "Una migraña suele ser un dolor de cabeza palpitante, a menudo en un lado de la cabeza, y puede ser intenso. Muchas personas también tienen náuseas o vómitos, y se vuelven muy sensibles a la luz y al sonido. Una crisis suele durar entre 4 horas y 3 días. Algunas personas notan antes unas señales de aviso llamadas aura, como líneas en zigzag o luces que parpadean, entumecimiento u hormigueo, mareo o dificultad para hablar. El aura no debería durar más de 1 hora.",
+        },
+        {
+          heading: "Detectar tu patrón",
+          body: "Otras cosas también pueden desencadenar crisis, como el estrés, el cansancio, saltarse comidas, el exceso de cafeína, la ansiedad y el ánimo bajo. Un diario de dolores de cabeza te ayuda a ti y a tu médico a ver si las crisis siguen tu ciclo. Anota todos los días de tu periodo, no solo el primero, y también cada día con dolor de cabeza. En Ciclo puedes registrar los días de periodo y añadir un tag o una nota cuando tengas dolor de cabeza. Comer bien, dormir lo suficiente y hacer actividad física, idealmente 30 minutos casi todos los días, también puede ayudar.",
+        },
+        {
+          heading: "Tratamientos que pueden ayudar",
+          body: "Durante una crisis, puede ayudar dormir o acostarte en una habitación a oscuras. Los analgésicos de farmacia son una opción, pero intenta no tomarlos más de 2 días a la semana, porque tomarlos más a menudo puede causar más dolores de cabeza. Un médico puede recetar medicamentos llamados triptanes o gepantes para las crisis, medicamentos contra las náuseas, o medicamentos diarios para prevenir las crisis. Si tomas la píldora, el médico puede sugerirte tomar solo las píldoras con hormonas durante 3 meses seguidos, sin el descanso habitual, lo que puede mejorar los dolores de cabeza. Si tienes migraña con aura, puede que la píldora combinada no sea segura para ti, así que díselo al médico o a la enfermera que te receta el anticonceptivo.",
+        },
+        {
+          heading: "Cuándo pedir ayuda",
+          body: "Consulta a un médico o una enfermera si tienes varios dolores de cabeza al mes que duran horas o días cada uno, o si los dolores de cabeza alteran tu vida en casa, en el trabajo o en los estudios. Pide consejo pronto si una migraña dura más de 3 días, si el aura dura más de 1 hora, o si tienes una migraña durante el embarazo o poco después del parto. Busca ayuda de emergencia (llama al número de emergencias de tu país, por ejemplo, 911 en México o 112 en España) si un dolor de cabeza aparece de repente y es muy intenso, o si llega con una convulsión, fiebre muy alta o una lesión reciente en la cabeza. Busca también ayuda de emergencia si te cuesta hablar o recordar, pierdes la vista o ves doble, tienes somnolencia o confusión, o sientes debilidad en un lado de la cara o del cuerpo.",
+        },
+      ],
+      notice: "Esto es información general, no un diagnóstico. Un dolor de cabeza repentino y muy intenso necesita ayuda de emergencia.",
+    },
     en: {
       title: "Headaches and migraine around your period",
       summary: "Falling hormone levels before a period can trigger headaches and migraine. Knowing your pattern helps you plan ahead and get the right treatment.",
@@ -175,6 +291,33 @@ export const SYMPTOMS_ARTICLES: LearnArticle[] = [
       { label: "NHS — Isotretinoin: a medicine for severe acne", href: "https://www.nhs.uk/medicines/isotretinoin-capsules/" },
     ],
     related: ["pms", "pcos", "body-image"],
+    es: {
+      title: "El acné y tu ciclo",
+      summary: "Los granos que empeoran antes del periodo son comunes y están relacionados con cambios hormonales normales. Cuidar la piel con suavidad ayuda, y un médico puede ofrecerte más si hace falta.",
+      sections: [
+        {
+          heading: "Por qué los granos pueden empeorar con tu ciclo",
+          body: "El acné aparece cuando los folículos pilosos de la piel se tapan con grasa y células muertas. Los cambios en los niveles hormonales pueden desencadenarlo, por eso el acné es común en la pubertad, alrededor del periodo, en el embarazo y en la menopausia. Los granos y el cabello graso están entre las señales más comunes del síndrome premenstrual (SPM), en la semana o las dos semanas antes del periodo. El acné suele afectar a la cara, el pecho y la espalda.",
+        },
+        {
+          heading: "Tipos de granos",
+          body: "El acné puede ir de leve a grave. Los puntos negros son granos negros o marrones que suelen ser planos. Los puntos blancos son pequeños bultos del mismo color que tu piel. Las pápulas son bultos elevados, y las pústulas son bultos elevados con pus. Los nódulos y los quistes son bultos más grandes bajo la piel, y pueden ser profundos y dolorosos.",
+        },
+        {
+          heading: "Mitos comunes",
+          body: "El acné no se debe a tener la piel sucia, y los puntos negros no son suciedad. Hay pocas pruebas de que alimentos como el chocolate o la comida con mucha grasa influyan mucho en el acné en la mayoría de las personas. El estrés no causa acné, aunque puede empeorar los granos. Cualquiera puede tener acné, aunque es común en adolescentes y adultos jóvenes.",
+        },
+        {
+          heading: "Cuidar tu piel",
+          body: "Lávate la piel dos veces al día con un limpiador suave, e intenta no tocarla demasiado. No pellizques ni revientes los granos, porque pueden quedar cicatrices. Elige productos para la piel y maquillaje con la etiqueta «no comedogénico», que están hechos para no tapar los poros. Las cremas o geles de farmacia con ácido salicílico o peróxido de benzoilo pueden ayudar. Intenta evitar el exceso de sol. Anotar los brotes en Ciclo durante unos ciclos puede mostrar si tus granos van ligados a tu periodo.",
+        },
+        {
+          heading: "Cuándo consultar a un médico o una enfermera",
+          body: "Consulta a un médico o una enfermera si has intentado tratar el acné por tu cuenta y no mejora, si tienes muchos granos, o si los granos son profundos, duelen o dejan cicatrices. Un médico puede recetar cremas o geles (como retinoides o antibióticos), antibióticos en pastillas, la píldora anticonceptiva combinada o, para algunas personas, un medicamento más fuerte que se toma por boca llamado isotretinoína. La isotretinoína puede dañar gravemente al bebé en desarrollo, así que no debe tomarse durante el embarazo ni cuando buscas un embarazo. Si el acné afecta a tu estado de ánimo o a tu confianza, eso ya es por sí solo un motivo para consultar a un médico. El acné también puede estar relacionado con el síndrome de ovario poliquístico (SOP, que ahora también se conoce como PMOS, por sus siglas en inglés), así que cuéntale al médico cualquier cambio en tus periodos.",
+        },
+      ],
+      notice: "Esto es información general, no un diagnóstico. Si el acné te duele, te deja cicatrices o te desanima, habla con un médico o una enfermera.",
+    },
     en: {
       title: "Acne and your cycle",
       summary: "Spots that flare before a period are common and linked to normal hormone changes. Gentle skin care helps, and a doctor can offer more if needed.",
@@ -215,6 +358,33 @@ export const SYMPTOMS_ARTICLES: LearnArticle[] = [
       { label: "NHS — Bloating", href: "https://www.nhs.uk/conditions/bloating/" },
     ],
     related: ["pms", "gynecologic-cancers", "period-pain"],
+    es: {
+      title: "Hinchazón y cambios digestivos",
+      summary: "Muchas personas notan hinchazón o cambios en el intestino antes o durante el periodo. Es común, y unos pasos sencillos pueden ayudar. Aquí verás cuándo conviene consultar.",
+      sections: [
+        {
+          heading: "Cambios intestinales comunes alrededor del periodo",
+          body: "La hinchazón, la sensación de gases, el dolor abdominal, el estreñimiento y la diarrea son comunes antes o durante el periodo. Son señales reconocidas del síndrome premenstrual (SPM). En una encuesta a 156 mujeres sanas, casi 3 de cada 4 tenían al menos un síntoma digestivo antes o durante el periodo. Unas 6 de cada 10 notaban hinchazón antes del periodo, y alrededor de 1 de cada 4 tenía diarrea. La encuesta se basaba en lo que las personas recordaban, así que las cifras exactas son inciertas, pero estos cambios son claramente comunes.",
+        },
+        {
+          heading: "Por qué ocurre",
+          body: "Antes del periodo, se cree que los cambios hormonales hacen que el cuerpo retenga más agua, lo que puede darte una sensación de hinchazón. Lo que comes también puede influir, y la comida salada puede hacer que retengas más agua. Durante el periodo, el útero libera unas sustancias llamadas prostaglandinas que hacen que se contraiga. Las prostaglandinas también pueden hacer que se contraigan los músculos del intestino y cambiar cómo maneja los líquidos, lo que puede explicar que algunas personas tengan heces más blandas.",
+        },
+        {
+          heading: "Qué puede ayudar",
+          body: "Comer menos sal puede reducir la retención de líquidos. Reducir la cafeína, la sal y el azúcar en las 2 semanas antes del periodo puede aliviar muchos síntomas del SPM. El ejercicio aeróbico regular, dormir bien y relajarte, por ejemplo con ejercicios de respiración, yoga o masajes, también pueden ayudar. Hay algunas pruebas de que el magnesio puede reducir la retención de líquidos y de que la vitamina B6 puede aliviar la hinchazón. Pregunta a tu farmacéutico o farmacéutica antes de tomar suplementos, sobre todo si tomas otros medicamentos.",
+        },
+        {
+          heading: "Medicamentos y registro",
+          body: "Si la hinchazón es un problema importante, un médico puede recetar diuréticos (pastillas que ayudan a eliminar líquido), que pueden reducir la hinchazón en algunas personas. Tomar diuréticos junto con analgésicos antiinflamatorios como el ibuprofeno puede dañar los riñones, así que úsalos solo si te lo indica un médico. La anticoncepción hormonal también puede ayudar con los síntomas físicos del SPM. Registrar la digestión y la hinchazón en Ciclo durante unos meses puede mostrar si los cambios siguen tu ciclo o vienen de otra cosa.",
+        },
+        {
+          heading: "Cuándo consultar",
+          body: "Consulta a un médico o una enfermera si notas hinchazón o el abdomen hinchado con frecuencia, o si la hinchazón llega con sangre en las heces o con pérdida de peso sin buscarla. Consulta también si a menudo notas que te llenas muy rápido, pierdes el apetito, necesitas orinar más a menudo, o tienes dolor en el abdomen o la pelvis. Estos síntomas tienen muchas causas, pero en raras ocasiones pueden ser una señal de cáncer de ovario. Busca ayuda el mismo día si la hinchazón llega con vómitos, fiebre alta, un bulto en el abdomen, o si no puedes orinar, hacer caca ni expulsar gases. Busca ayuda de emergencia si tienes un dolor repentino e intenso en el abdomen o la pelvis, o si vomitas sangre.",
+        },
+      ],
+      notice: "Esto es información general, no un diagnóstico. Si la hinchazón o los cambios intestinales son frecuentes o no siguen tu ciclo, consulta a un médico o una enfermera.",
+    },
     en: {
       title: "Bloating and digestion changes",
       summary: "Many people feel bloated or notice bowel changes before or during a period. This is common, and a few simple steps can help. Here is when to get checked.",
@@ -254,6 +424,37 @@ export const SYMPTOMS_ARTICLES: LearnArticle[] = [
       { label: "CDC — About sleep", href: "https://www.cdc.gov/sleep/about/index.html" },
     ],
     related: ["sleep", "anemia", "heavy-periods"],
+    es: {
+      title: "Cansancio y sueño a lo largo del ciclo",
+      summary: "Tener más cansancio o dormir mal antes del periodo es común. Aquí verás por qué ocurre, qué puede ayudar y cuándo conviene revisar el cansancio.",
+      sections: [
+        {
+          heading: "Por qué puedes sentir más cansancio",
+          body: "El cansancio y los cambios en el sueño son señales comunes del síndrome premenstrual (SPM). Algunas personas duermen mal antes del periodo, y otras duermen más de lo habitual. A muchas les cuesta más dormirse y mantener el sueño en los días antes del periodo. Se cree que los cambios hormonales influyen. Estos problemas de sueño suelen aliviarse pocos días después de que empiece el sangrado.",
+        },
+        {
+          heading: "El sueño y el TDPM",
+          body: "Los problemas de sueño también son comunes en el trastorno disfórico premenstrual (TDPM), una forma grave del SPM. No poder dormir (insomnio) es un síntoma común del TDPM y a veces puede ser grave. La falta de sueño también se asocia al ánimo bajo y a la ansiedad, y puede empeorar los cambios de ánimo premenstruales.",
+        },
+        {
+          heading: "Periodos abundantes y falta de hierro",
+          body: "El cansancio también puede tener otras causas. Los periodos abundantes son una causa muy frecuente de anemia por falta de hierro. Ocurre cuando la falta de hierro impide que el cuerpo produzca suficientes glóbulos rojos sanos. Las señales incluyen cansancio y falta de energía, falta de aire, latidos del corazón que se notan (palpitaciones), piel más pálida de lo habitual y dolor de cabeza. Un análisis de sangre puede detectarla. Si tus niveles son bajos, normalmente se recomiendan pastillas de hierro.",
+        },
+        {
+          heading: "Hábitos que te ayudan a dormir",
+          body: "Intenta acostarte y levantarte a la misma hora todos los días, y mantén tu dormitorio a oscuras, fresco y en silencio. Una rutina relajante antes de dormir, como leer, escuchar música o hacer yoga suave, puede ayudarte a desconectar. Evita la cafeína, el alcohol y la nicotina al menos 5 horas antes de acostarte, e intenta evitar las pantallas brillantes justo antes de dormir. La mayoría de las personas adultas necesitan dormir al menos 7 horas cada noche.",
+        },
+        {
+          heading: "Moverte y aliviar los síntomas",
+          body: "El ejercicio aeróbico regular a lo largo del mes puede aliviar el cansancio, el ánimo bajo y la falta de concentración relacionados con el SPM. Hacer actividad durante el día ayuda a dormir, pero intenta no hacer ejercicio en las 5 a 6 horas antes de acostarte. Algunos estudios sugieren que el calcio puede ayudar con el cansancio del SPM. Si los cólicos no te dejan dormir, los analgésicos como el ibuprofeno o el paracetamol pueden ayudar. Anotar el cansancio y el sueño en Ciclo con un tag o una nota puede mostrar si siguen tu ciclo.",
+        },
+        {
+          heading: "Cuándo consultar a un médico o una enfermera",
+          body: "Consulta a un médico o una enfermera si el cansancio o dormir mal afecta a tu vida diaria, o si los cambios en tus hábitos no han ayudado. Hazte también una revisión si tus periodos son abundantes o tienes señales de anemia, como falta de aire o palpitaciones. Si sientes que te vas a desmayar, o tienes dolor en el pecho o dificultad para respirar, busca ayuda de emergencia. Si el ánimo bajo, la ansiedad o la ira antes del periodo son intensos, pregunta por el TDPM. Si estás pensando en hacerte daño, busca ayuda de emergencia o contacta ahora con una línea de crisis.",
+        },
+      ],
+      notice: "Esto es información general, no un diagnóstico. Si el cansancio afecta a tu vida diaria, habla con un médico o una enfermera.",
+    },
     en: {
       title: "Tiredness and sleep across the cycle",
       summary: "Feeling more tired or sleeping badly before a period is common. Here is why it happens, what can help, and when tiredness is worth getting checked.",
@@ -298,6 +499,33 @@ export const SYMPTOMS_ARTICLES: LearnArticle[] = [
       { label: "NHS — PMS (premenstrual syndrome)", href: "https://www.nhs.uk/conditions/pre-menstrual-syndrome/" },
     ],
     related: ["pms", "eating-disorders", "healthy-eating"],
+    es: {
+      title: "Antojos y apetito",
+      summary: "Tener más hambre o ganas de ciertos alimentos antes del periodo es común. Aquí verás lo que muestra la investigación, lo que aún no está claro y formas amables de cuidarte.",
+      sections: [
+        {
+          heading: "Un cambio premenstrual común",
+          body: "Los cambios de apetito y los antojos son señales reconocidas del síndrome premenstrual (SPM). Algunas personas tienen más hambre en la semana o las dos semanas antes del periodo, y otras tienen ganas de alimentos concretos. Como otros síntomas del SPM, estos cambios suelen pasar pocos días después de que empiece el periodo. Son una parte normal de cómo el ciclo puede afectar a tu cuerpo.",
+        },
+        {
+          heading: "Lo que muestra la investigación",
+          body: "Una revisión combinó 15 conjuntos de resultados de 330 mujeres. En promedio, comieron un poco más en la segunda mitad del ciclo, después de la ovulación, que en la primera mitad. Pero los estudios eran pequeños, usaron distintas formas de calcular las fases del ciclo y sus resultados variaron mucho. Así que aún no está claro de qué tamaño es el cambio ni a quién afecta más.",
+        },
+        {
+          heading: "Por qué podría ocurrir",
+          body: "Las razones no se entienden del todo. Una idea es que la hormona estrógeno podría ayudar a reducir el apetito, mientras que la progesterona, que sube después de la ovulación, podría aumentarlo. Son explicaciones posibles, no demostradas, y todavía se están estudiando. Como las pruebas son limitadas, desconfía de las afirmaciones rotundas, las dietas especiales o los planes de alimentación basados en las fases del ciclo.",
+        },
+        {
+          heading: "Formas amables de manejarlo",
+          body: "No necesitas luchar contra tu apetito ni prohibirte los alimentos que te gustan. Algunas personas se sienten más estables si hacen comidas más pequeñas y más a menudo, por ejemplo cada 2 a 3 horas. El ejercicio regular y dormir lo suficiente pueden ayudar con el cansancio y el ánimo bajo, que también son comunes antes del periodo. Algunos estudios sugieren que el calcio puede ayudar con los antojos. Pregunta a tu farmacéutico o farmacéutica antes de tomar un suplemento, sobre todo si tomas otros medicamentos. Registrar tus síntomas en Ciclo puede mostrar si los cambios de apetito siguen tu ciclo, para que te sorprendan menos.",
+        },
+        {
+          heading: "Cuándo hablar con alguien",
+          body: "Habla con un médico o una enfermera si los cambios en tu forma de comer llegan con un ánimo muy bajo, mucha ansiedad o mucha ira antes del periodo. Puede ser una señal del trastorno disfórico premenstrual (TDPM), que puede incluir atracones de comida. Hazte también una revisión si tienes ganas de comer cosas que no son comida, como hielo o papel, porque puede ser una señal de falta de hierro. Si sientes que pierdes el control al comer, o te preocupa la comida, el peso o tu cuerpo, pide ayuda. Si estás pensando en hacerte daño, busca ayuda de emergencia o contacta ahora con una línea de crisis.",
+        },
+      ],
+      notice: "Esto es información general, no un diagnóstico. Si te preocupa tu forma de comer, habla con un médico o una enfermera.",
+    },
     en: {
       title: "Food cravings and appetite",
       summary: "Feeling hungrier or wanting certain foods before a period is common. Here is what research shows, what is still unclear, and gentle ways to look after yourself.",
