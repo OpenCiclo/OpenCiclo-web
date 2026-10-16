@@ -144,7 +144,7 @@ export const FERTILITY_ARTICLES: LearnArticle[] = [
       { label: "NHS — Infertility", href: "https://www.nhs.uk/conditions/infertility/" },
       { label: "CDC — Infertility FAQs", href: "https://www.cdc.gov/reproductive-health/infertility-faq/index.html" },
       { label: "Office on Women's Health — Preconception health", href: "https://womenshealth.gov/pregnancy/you-get-pregnant/preconception-health" },
-      { label: "NHS — Vitamins, supplements and nutrition in pregnancy", href: "https://www.nhs.uk/pregnancy/keeping-well/vitamins-supplements-and-nutrition/" },
+      { label: "NHS — Vitamins and supplements in pregnancy", href: "https://www.nhs.uk/pregnancy/keeping-well/pregnancy-vitamins-and-supplements/" },
     ],
     related: ["fertile-window", "preconception-health", "infertility"],
     es: {
@@ -205,12 +205,12 @@ export const FERTILITY_ARTICLES: LearnArticle[] = [
   {
     slug: "preconception-health",
     category: "fertility",
-    reviewedAt: "2026-10-04",
+    reviewedAt: "2026-10-16",
     sources: [
       { label: "Office on Women's Health — Preconception health", href: "https://womenshealth.gov/pregnancy/you-get-pregnant/preconception-health" },
       { label: "CDC — About folic acid", href: "https://www.cdc.gov/folic-acid/about/index.html" },
       { label: "NHS — Trying to get pregnant", href: "https://www.nhs.uk/pregnancy/trying-for-a-baby/trying-to-get-pregnant/" },
-      { label: "NHS — Vitamins, supplements and nutrition in pregnancy", href: "https://www.nhs.uk/pregnancy/keeping-well/vitamins-supplements-and-nutrition/" },
+      { label: "NHS — Vitamins and supplements in pregnancy", href: "https://www.nhs.uk/pregnancy/keeping-well/pregnancy-vitamins-and-supplements/" },
     ],
     related: ["trying-to-conceive", "healthy-eating", "alcohol-smoking"],
     es: {
@@ -223,7 +223,7 @@ export const FERTILITY_ARTICLES: LearnArticle[] = [
         },
         {
           heading: "Ácido fólico",
-          body: "El ácido fólico es una forma de la vitamina llamada folato. Ayuda a prevenir defectos congénitos graves del cerebro y la columna vertebral (defectos del tubo neural), como la espina bífida. Los Centros para el Control y la Prevención de Enfermedades de EE. UU. (CDC) recomiendan que todas las personas que puedan quedarse embarazadas tomen 400 microgramos de ácido fólico al día, y que empiecen al menos 1 mes antes de buscar el embarazo. Sigue tomándolo hasta las 12 semanas de embarazo. Viene en suplementos y en algunos alimentos enriquecidos, como los cereales de desayuno. Pregunta a un médico antes de empezar si tienes diabetes, si tomas medicamentos para la epilepsia o el VIH, o si tú, el padre biológico del bebé, un embarazo anterior o cualquiera de las dos familias se han visto afectados por un defecto del tubo neural. Puede que necesites una dosis más alta.",
+          body: "El ácido fólico es una forma de la vitamina llamada folato. Ayuda a prevenir defectos congénitos graves del cerebro y la columna vertebral (defectos del tubo neural), como la espina bífida. Los Centros para el Control y la Prevención de Enfermedades de EE. UU. (CDC) recomiendan que todas las personas que puedan quedarse embarazadas tomen 400 microgramos de ácido fólico al día, y que empiecen al menos 1 mes antes de buscar el embarazo. Sigue tomándolo hasta las 12 semanas de embarazo. Viene en suplementos y en algunos alimentos enriquecidos, como los cereales de desayuno. Pregunta a un médico antes de empezar si tienes diabetes o una enfermedad de la sangre como la anemia falciforme o la talasemia, si tomas medicamentos para la epilepsia o el VIH, o si tú, el padre biológico del bebé, un embarazo anterior o cualquiera de las dos familias se han visto afectados por un defecto del tubo neural. Puede que necesites una dosis más alta.",
         },
         {
           heading: "Una revisión antes de empezar",
@@ -246,7 +246,7 @@ export const FERTILITY_ARTICLES: LearnArticle[] = [
         },
         {
           heading: "Folic acid",
-          body: "Folic acid is a form of the vitamin folate. It helps prevent serious birth defects of the brain and spine (neural tube defects), such as spina bifida. The US Centers for Disease Control and Prevention (CDC) advises everyone who could become pregnant to get 400 micrograms of folic acid every day, and to start at least 1 month before trying. Keep taking it until you are 12 weeks pregnant. It comes in supplements and in some fortified foods, such as breakfast cereals. Ask a doctor before you start if you have diabetes, take medicine for epilepsy or HIV, or if you, the baby's biological father, a past pregnancy or either family has been affected by a neural tube defect. You may need a higher dose.",
+          body: "Folic acid is a form of the vitamin folate. It helps prevent serious birth defects of the brain and spine (neural tube defects), such as spina bifida. The US Centers for Disease Control and Prevention (CDC) advises everyone who could become pregnant to get 400 micrograms of folic acid every day, and to start at least 1 month before trying. Keep taking it until you are 12 weeks pregnant. It comes in supplements and in some fortified foods, such as breakfast cereals. Ask a doctor before you start if you have diabetes or a blood condition such as sickle cell anaemia or thalassaemia, take medicine for epilepsy or HIV, or if you, the baby's biological father, a past pregnancy or either family has been affected by a neural tube defect. You may need a higher dose.",
         },
         {
           heading: "A check-up before you try",

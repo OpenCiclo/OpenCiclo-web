@@ -157,7 +157,7 @@ export const PUBERTY_ARTICLES: LearnArticle[] = [
   {
     slug: "teen-period-problems",
     category: "puberty",
-    reviewedAt: "2026-10-04",
+    reviewedAt: "2026-10-16",
     sources: [
       { label: "KidsHealth — PMS, cramps and irregular periods (for teens)", href: "https://kidshealth.org/en/teens/menstrual-problems.html" },
       { label: "KidsHealth — All about periods (for teens)", href: "https://kidshealth.org/en/teens/menstruation.html" },
@@ -173,7 +173,7 @@ export const PUBERTY_ARTICLES: LearnArticle[] = [
       sections: [
         {
           heading: "Periodos irregulares al principio",
-          body: "Durante los primeros dos años, es normal que los periodos lleguen en momentos distintos. Son frecuentes los ciclos de más de 38 días. En la mayoría de las personas, los ciclos se ajustan al rango habitual de las personas adultas, de unos 21 a 38 días, en unos 3 años. El estrés y los cambios grandes de peso también pueden afectar a los periodos. Si has tenido relaciones sexuales y el periodo se retrasa, podrías estar embarazada. Hazte una prueba de embarazo o habla con un médico o una enfermera.",
+          body: "Durante los primeros dos años, es normal que los periodos lleguen en momentos distintos. Son frecuentes los ciclos de más de 38 días. En la mayoría de las personas, los ciclos se ajustan al rango habitual de las personas adultas, de unos 24 a 38 días, en 2 o 3 años. El estrés y los cambios grandes de peso también pueden afectar a los periodos. Si has tenido relaciones sexuales y el periodo se retrasa, podrías estar embarazada. Hazte una prueba de embarazo o habla con un médico o una enfermera.",
         },
         {
           heading: "Cólicos y qué ayuda",
@@ -200,7 +200,7 @@ export const PUBERTY_ARTICLES: LearnArticle[] = [
       sections: [
         {
           heading: "Irregular periods at first",
-          body: "For the first couple of years, it is normal for periods to come at different times. Cycles longer than 38 days are common. Most people's cycles settle into the usual adult range, about 21 to 38 days, within about 3 years. Stress and big weight changes can also affect periods. If you have had sex and your period is late, you could be pregnant. Take a pregnancy test or talk to a doctor or nurse.",
+          body: "For the first couple of years, it is normal for periods to come at different times. Cycles longer than 38 days are common. Most people's cycles settle into the usual adult range, about 24 to 38 days, within 2 to 3 years. Stress and big weight changes can also affect periods. If you have had sex and your period is late, you could be pregnant. Take a pregnancy test or talk to a doctor or nurse.",
         },
         {
           heading: "Cramps and what helps",
