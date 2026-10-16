@@ -1,7 +1,7 @@
 // Copyright © 2026 Emma Flora Harbison & Luis Rey Sánchez
 // SPDX-License-Identifier: Apache-2.0
 
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { emptyDiary, parseDiary } from "@/lib/diary";
 import {
@@ -9,6 +9,7 @@ import {
   daysSinceIso,
   poolCycleLengths,
   shouldSyncPool,
+  syncPoolIfDue,
 } from "@/lib/pool-sync";
 
 describe("pool sync", () => {
@@ -52,5 +53,39 @@ describe("pool sync", () => {
     });
     expect(diary.poolOptIn).toBe(true);
     expect(diary.poolContributorKey).toBeNull();
+  });
+
+  describe("syncPoolIfDue", () => {
+    const due = {
+      ...emptyDiary("es"),
+      poolOptIn: true,
+      poolContributorKey: "550e8400-e29b-41d4-a716-446655440000",
+      periodStarts: ["2026-06-01", "2026-06-29"],
+    };
+
+    afterEach(() => {
+      vi.unstubAllGlobals();
+    });
+
+    it("marks the diary as synced when the upload succeeds", async () => {
+      vi.stubGlobal("fetch", vi.fn(async () => new Response("{}", { status: 200 })));
+      const synced = await syncPoolIfDue(due);
+      expect(synced.poolLastSyncedAt).toBe(new Date().toISOString().slice(0, 10));
+    });
+
+    it("returns the diary unchanged when the upload fails, so saving is not blocked", async () => {
+      vi.stubGlobal("fetch", vi.fn(async () => new Response("{}", { status: 500 })));
+      await expect(syncPoolIfDue(due)).resolves.toBe(due);
+    });
+
+    it("returns the diary unchanged when the network is down", async () => {
+      vi.stubGlobal(
+        "fetch",
+        vi.fn(async () => {
+          throw new TypeError("Failed to fetch");
+        }),
+      );
+      await expect(syncPoolIfDue(due)).resolves.toBe(due);
+    });
   });
 });
