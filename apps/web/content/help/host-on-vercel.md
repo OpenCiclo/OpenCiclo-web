@@ -24,6 +24,23 @@ On that database, run the SQL in:
 
 Those files create accounts, ciphertext columns, sessions, the anonymous research pool, Learn CMS rows, and email confirmation pending. They do not create health columns. `0003` adds `verified_at` on existing mailboxes (set to `created_at`) so current accounts keep working. `0004` records one sign-in per account per UTC day so the console can count unique opens. It does not store email or diary contents.
 
+### Change the schema of a live database
+
+Once real people use the instance, treat every schema change as a production migration.
+
+1. Take a Neon snapshot first: **Backup & restore** → **Create snapshot**. A snapshot is a saved copy of the branch you can restore later.
+2. Apply only the new file, in one transaction, and stop at the first error:
+
+```bash
+psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -1 -f apps/web/drizzle/0005_example.sql
+```
+
+`-1` wraps the file in a single transaction. If any statement fails, nothing from that file is kept.
+
+Migration files only add things, and are safe to run twice (`IF NOT EXISTS`). `npm test` rejects `DROP`, `TRUNCATE`, `DELETE`, `UPDATE`, `RENAME`, and `ALTER COLUMN` unless the statement is listed as reviewed in `lib/db/migrations.test.ts`.
+
+Do not use `drizzle-kit push`. It compares `lib/db/schema.ts` with the live database and changes the database to match. That can drop indexes and constraints without asking.
+
 ## 3. Environment variables
 
 Set these in Vercel (Production, and Preview if you use it):

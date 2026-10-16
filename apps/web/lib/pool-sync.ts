@@ -58,7 +58,15 @@ export async function submitPoolContribution(diary: Diary): Promise<Diary> {
   return { ...withKey, poolLastSyncedAt: todayIsoUtc() };
 }
 
+/**
+ * Best effort. The pool is optional, so a failed upload must never block saving
+ * the diary or unlocking. poolLastSyncedAt stays unset and the next save retries.
+ */
 export async function syncPoolIfDue(diary: Diary): Promise<Diary> {
   if (!shouldSyncPool(diary)) return diary;
-  return submitPoolContribution(diary);
+  try {
+    return await submitPoolContribution(diary);
+  } catch {
+    return diary;
+  }
 }

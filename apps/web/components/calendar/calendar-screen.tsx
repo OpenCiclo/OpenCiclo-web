@@ -19,7 +19,6 @@ import {
   hasSymptoms,
   isIsoDate,
   monthCells,
-  todayIsoUtc,
   upsertDay,
   type CustomSymptomDefinition,
   weekdayLabels,
@@ -28,7 +27,7 @@ import {
 } from "@/lib/diary";
 import { formatIsoUtc } from "@/lib/format-date";
 import type { Locale, Messages } from "@/lib/i18n";
-import { useCiclo } from "@/lib/client/ciclo-context";
+import { useCiclo, useTodayIso } from "@/lib/client/ciclo-context";
 import { lunarDayInfo } from "@/lib/lunar/phases";
 import { symptomColor, symptomLabel, symptomMeta } from "@/lib/symptoms/catalog";
 import { matchingFilterSymptoms } from "@/lib/symptoms/filter";
@@ -57,7 +56,7 @@ export function CalendarScreen() {
   } = useCiclo();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const today = todayIsoUtc();
+  const today = useTodayIso();
   const todayDate = new Date(`${today}T00:00:00Z`);
   const deepLinkDay = (() => {
     const day = searchParams.get("day");

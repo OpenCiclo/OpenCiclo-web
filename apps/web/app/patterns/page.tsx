@@ -7,9 +7,8 @@ import { useCallback, useMemo, useState } from "react";
 import Link from "next/link";
 import { CalendarDays, ChevronRight, Droplet, Lightbulb, PenLine, RotateCcw } from "lucide-react";
 
-import { useCiclo } from "@/lib/client/ciclo-context";
+import { useCiclo, useTodayIso } from "@/lib/client/ciclo-context";
 import { formatIsoUtc } from "@/lib/format-date";
-import { todayIsoUtc } from "@/lib/diary";
 import { patternStats } from "@/lib/patterns/stats";
 import { findSymptomMeta, symptomLabel } from "@/lib/symptoms/catalog";
 import { buildTipContext } from "@/lib/tips/context";
@@ -37,7 +36,7 @@ const TIP_TONE = {
 
 export default function PatternsPage() {
   const { t, diary, wallet, locale } = useCiclo();
-  const today = todayIsoUtc();
+  const today = useTodayIso();
   const [activeEntry, setActiveEntry] = useState<JournalEntry | null>(null);
   const [closing, setClosing] = useState(false);
   const stats = useMemo(() => patternStats(diary, today), [diary, today]);

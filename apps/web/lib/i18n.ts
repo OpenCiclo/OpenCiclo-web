@@ -41,6 +41,11 @@ const es = {
   weekStartsOn: "La semana empieza",
   weekStartsMonday: "Lunes",
   weekStartsSunday: "Domingo",
+  timeZone: "Zona horaria",
+  timeZoneHint:
+    "Decide a qué hora empieza «hoy» en el calendario. Automática usa la zona horaria de este dispositivo. Se guarda solo en este dispositivo.",
+  timeZoneAuto: "Automática",
+  timeZoneAutoWith: "Automática ({zone})",
   colorScheme: "Apariencia",
   colorSchemeLight: "Día",
   colorSchemeDark: "Noche",
@@ -569,6 +574,11 @@ const en = {
   weekStartsOn: "Week starts on",
   weekStartsMonday: "Monday",
   weekStartsSunday: "Sunday",
+  timeZone: "Time zone",
+  timeZoneHint:
+    "Sets when “today” starts on the calendar. Automatic uses this device's time zone. Saved on this device only.",
+  timeZoneAuto: "Automatic",
+  timeZoneAutoWith: "Automatic ({zone})",
   colorScheme: "Appearance",
   colorSchemeLight: "Day",
   colorSchemeDark: "Night",
