@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 
 import { PHRASE_USERNAME, getBrowserPassword, storeBrowserPassword } from "@/lib/client/credentials";
 import { InvalidCredentialsError, lastEmail, useCiclo } from "@/lib/client/ciclo-context";
+import { useBrowserValue } from "@/lib/client/hooks";
 import { InvalidPhraseError } from "@/lib/crypto/wallet";
 import { unlockDestination } from "@/lib/console/paths";
 import { AppShell } from "@/components/app-shell";
@@ -25,7 +26,11 @@ export default function UnlockPage() {
   const { t, unlock, unlockWithPassword } = useCiclo();
   const router = useRouter();
   const [tab, setTab] = useState<Tab>("email");
-  const [email, setEmail] = useState("");
+  // Pre-fill with the last email used on this device until the person types
+  // (or the browser's password manager fills) something else.
+  const storedEmail = useBrowserValue(lastEmail, "");
+  const [enteredEmail, setEmail] = useState<string | null>(null);
+  const email = enteredEmail ?? storedEmail;
   const [password, setPassword] = useState("");
   const [phrase, setPhrase] = useState("");
   const [keepLoggedIn, setKeepLoggedIn] = useState(true);
@@ -34,8 +39,6 @@ export default function UnlockPage() {
   const [scanning, setScanning] = useState(false);
 
   useEffect(() => {
-    const stored = lastEmail();
-    if (stored) setEmail(stored);
     void getBrowserPassword().then((cred) => {
       if (!cred) return;
       if (cred.id.includes("@")) {

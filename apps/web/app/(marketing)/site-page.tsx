@@ -16,7 +16,6 @@ import {
   Lock,
   MessageCircle,
   ShieldCheck,
-  type LucideIcon,
 } from "lucide-react";
 
 import { useCiclo } from "@/lib/client/ciclo-context";

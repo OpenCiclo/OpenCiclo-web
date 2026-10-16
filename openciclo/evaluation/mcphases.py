@@ -17,7 +17,12 @@ import numpy as np
 import pandas as pd
 
 from openciclo.artifacts.release import ReleasedModel, write_released_model
-from openciclo.constants import ENGINE_VERSION, MAX_CYCLE_LENGTH, MCPHASES_DATA_NOTICE, MIN_CYCLE_LENGTH
+from openciclo.constants import (
+    ENGINE_VERSION,
+    MAX_CYCLE_LENGTH,
+    MCPHASES_DATA_NOTICE,
+    MIN_CYCLE_LENGTH,
+)
 from openciclo.data.mcphases import (
     McphasesSeries,
     default_mcphases_csv,

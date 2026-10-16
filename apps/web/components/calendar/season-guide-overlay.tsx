@@ -8,6 +8,7 @@ import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 
 import { SeasonDecor } from "@/components/calendar/season-scene";
+import { useLatest } from "@/lib/client/hooks";
 import { phaseBody, phaseLabel, type CyclePhase, type CycleSeason } from "@/lib/cycle/phases";
 import { seasonGuide } from "@/lib/cycle/season-guide";
 import type { Locale, Messages } from "@/lib/i18n";
@@ -56,24 +57,28 @@ export function SeasonGuideOverlay({
 }) {
   const titleId = useId();
   const closeRef = useRef<HTMLButtonElement>(null);
-  const ignoreCloseUntil = useRef(Date.now() + 450);
+  // The tap that opened the overlay must not close it: ignore closes for 450 ms after mount.
+  const ignoreCloseUntil = useRef<number | null>(null);
   const reduceMotion = prefersReducedMotion();
   const [ready, setReady] = useState(false);
   const [expanded, setExpanded] = useState(reduceMotion);
   const canClose = expanded || reduceMotion;
-  const onCloseRef = useRef(onClose);
-  const onClosedRef = useRef(onClosed);
-  onCloseRef.current = onClose;
-  onClosedRef.current = onClosed;
+  const onCloseRef = useLatest(onClose);
+  const onClosedRef = useLatest(onClosed);
   const seasonName = String(t[SEASON_LABELS[season]]);
   const guide = seasonGuide(season, locale);
   const target = columnTarget();
   const frame = !reduceMotion && (closing || !expanded) ? origin : target;
 
   function requestClose() {
-    if (Date.now() < ignoreCloseUntil.current) return;
+    const until = ignoreCloseUntil.current;
+    if (until === null || Date.now() < until) return;
     onCloseRef.current();
   }
+
+  useEffect(() => {
+    ignoreCloseUntil.current = Date.now() + 450;
+  }, []);
 
   useLayoutEffect(() => {
     if (reduceMotion) return;
@@ -101,15 +106,16 @@ export function SeasonGuideOverlay({
     if (!closing) return;
     const id = window.setTimeout(() => onClosedRef.current(), reduceMotion ? 0 : 500);
     return () => window.clearTimeout(id);
-  }, [closing, reduceMotion]);
+  }, [closing, onClosedRef, reduceMotion]);
 
+  const requestCloseRef = useLatest(requestClose);
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") requestClose();
+      if (event.key === "Escape") requestCloseRef.current();
     }
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, []);
+  }, [requestCloseRef]);
 
   const overlay = (
     <div

@@ -7,6 +7,7 @@ import { useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 
+import { useLatest } from "@/lib/client/hooks";
 import { parsePhraseQr } from "@/lib/crypto/phrase-qr";
 import type { Messages } from "@/lib/i18n";
 
@@ -52,12 +53,9 @@ export function PhraseQrScanner({
 }) {
   const titleId = useId();
   const videoRef = useRef<HTMLVideoElement>(null);
-  const onPhraseRef = useRef(onPhrase);
-  const onCancelRef = useRef(onCancel);
-  const notAPhraseRef = useRef(t.qrNotAPhrase);
-  onPhraseRef.current = onPhrase;
-  onCancelRef.current = onCancel;
-  notAPhraseRef.current = t.qrNotAPhrase;
+  const onPhraseRef = useLatest(onPhrase);
+  const onCancelRef = useLatest(onCancel);
+  const notAPhraseRef = useLatest(t.qrNotAPhrase);
 
   const [status, setStatus] = useState<"starting" | "live" | "denied" | "unavailable">("starting");
   const [scanError, setScanError] = useState<string | null>(null);
@@ -68,7 +66,7 @@ export function PhraseQrScanner({
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, []);
+  }, [onCancelRef]);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -169,7 +167,8 @@ export function PhraseQrScanner({
       if (el) el.srcObject = null;
       stopStream(stream);
     };
-  }, []);
+    // The refs are stable (useLatest), so this runs once and the camera starts once.
+  }, [notAPhraseRef, onPhraseRef]);
 
   const statusMessage =
     status === "denied" ? t.qrCameraDenied : status === "unavailable" ? t.qrCameraUnavailable : t.scanningQr;

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 
 import { useCiclo } from "@/lib/client/ciclo-context";
+import { useBrowserValue } from "@/lib/client/hooks";
 import {
   detectInstallPlatform,
   isInstalledDisplay,
@@ -44,24 +45,24 @@ function installedNow(): boolean {
 
 export function InstallPrompt({ mode = "nudge" }: { mode?: InstallPromptMode }) {
   const { t } = useCiclo();
-  const [platform, setPlatform] = useState<InstallPlatform | null>(null);
+  // Browser-only (user agent, display mode, localStorage), so read after hydration.
+  const detected = useBrowserValue<InstallPlatform | null>(() => {
+    if (installedNow() || readDismissed(mode)) return null;
+    return detectInstallPlatform(navigator.userAgent, { maxTouchPoints: navigator.maxTouchPoints });
+  }, null);
+  const [dismissed, setDismissed] = useState(false);
+  const platform = dismissed ? null : detected;
   const [promptEvent, setPromptEvent] = useState<BeforeInstallPromptEvent | null>(null);
 
   useEffect(() => {
-    if (installedNow() || readDismissed(mode)) return;
-    const detected = detectInstallPlatform(navigator.userAgent, {
-      maxTouchPoints: navigator.maxTouchPoints,
-    });
     if (!detected) return;
-    setPlatform(detected);
-
     function onPrompt(event: Event) {
       event.preventDefault();
       setPromptEvent(event as BeforeInstallPromptEvent);
     }
     window.addEventListener("beforeinstallprompt", onPrompt);
     return () => window.removeEventListener("beforeinstallprompt", onPrompt);
-  }, [mode]);
+  }, [detected]);
 
   if (!platform) return null;
 
@@ -81,7 +82,7 @@ export function InstallPrompt({ mode = "nudge" }: { mode?: InstallPromptMode }) 
   function dismiss() {
     if (mode === "calendar") localStorage.setItem(CALENDAR_KEY, "1");
     else if (mode === "nudge") localStorage.setItem(NUDGE_KEY, String(Date.now() + NUDGE_MS));
-    setPlatform(null);
+    setDismissed(true);
   }
 
   async function install() {
