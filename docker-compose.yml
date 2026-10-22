@@ -15,6 +15,7 @@ services:
       - ./apps/web/drizzle/0003_mailbox_pending.sql:/docker-entrypoint-initdb.d/0003_mailbox_pending.sql
       - ./apps/web/drizzle/0004_account_activity.sql:/docker-entrypoint-initdb.d/0004_account_activity.sql
       - ./apps/web/drizzle/0005_vault_version.sql:/docker-entrypoint-initdb.d/0005_vault_version.sql
+      - ./apps/web/drizzle/0006_rate_limit_hits.sql:/docker-entrypoint-initdb.d/0006_rate_limit_hits.sql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U openciclo -d openciclo"]
       interval: 5s

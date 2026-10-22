@@ -17,6 +17,46 @@ export const MAILBOX_SEND_MAX_PER_HOUR = 3;
 // Above the usual mail-provider latency.
 export const MAILBOX_PENDING_MIN_RESPONSE_MS = 1500;
 
+export type MailboxKit = {
+  wrappedSecret: string;
+  wrapNonce: string;
+  wrapSalt: string;
+  wrapParams: { kdf: "pbkdf2-sha256"; iterations: number; hash: "SHA-256" };
+};
+
+const BASE64 = /^[A-Za-z0-9+/]+={0,2}$/;
+
+/**
+ * Validates a password-wrapped kit before it is stored. A real kit is a
+ * 12-word phrase sealed with AES-GCM (about 125 base64 characters), a 12-byte
+ * nonce and a 16-byte salt. The caps leave slack but stop anyone from storing
+ * megabytes per row or odd KDF parameters.
+ */
+export function parseMailboxKit(body: Record<string, unknown>): MailboxKit | null {
+  const { wrappedSecret, wrapNonce, wrapSalt, wrapParams } = body;
+  const field = (value: unknown, max: number): value is string =>
+    typeof value === "string" && value.length > 0 && value.length <= max && BASE64.test(value);
+  if (!field(wrappedSecret, 512) || !field(wrapNonce, 64) || !field(wrapSalt, 64)) return null;
+  if (!wrapParams || typeof wrapParams !== "object") return null;
+  const params = wrapParams as Record<string, unknown>;
+  if (
+    params.kdf !== "pbkdf2-sha256" ||
+    params.hash !== "SHA-256" ||
+    typeof params.iterations !== "number" ||
+    !Number.isInteger(params.iterations) ||
+    params.iterations < 100_000 ||
+    params.iterations > 10_000_000
+  ) {
+    return null;
+  }
+  return {
+    wrappedSecret,
+    wrapNonce,
+    wrapSalt,
+    wrapParams: { kdf: "pbkdf2-sha256", iterations: params.iterations, hash: "SHA-256" },
+  };
+}
+
 export type MailboxRegisterAction = "update-wrap" | "reject-taken" | "start-pending";
 
 export function mailboxRegisterAction(args: {

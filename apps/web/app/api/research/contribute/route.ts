@@ -7,6 +7,7 @@ import { researchContributions } from "@/lib/db/schema";
 import { getDb } from "@/lib/db";
 import { jsonError } from "@/lib/server/env";
 import { hashPoolContributorKey } from "@/lib/server/pool-key";
+import { sourceKey, takeRateLimit, tooManyRequests } from "@/lib/server/rate-limit";
 import { upsertPoolContribution } from "@/lib/server/research-pool";
 
 function parseCycleLengths(raw: unknown): number[] | null {
@@ -38,7 +39,13 @@ export async function POST(request: Request) {
     return jsonError("Send between 1 and 200 cycle lengths (integers 1–90)", 400);
   }
 
-  await upsertPoolContribution(getDb(), contributorKeyHash, cycleLengths);
+  // A device uploads about once a month; this stops scripts from flooding the
+  // pool with made-up contributor keys. The client retries later on 429.
+  const db = getDb();
+  if (!(await takeRateLimit(db, "pool-contribute", sourceKey(request)))) {
+    return tooManyRequests();
+  }
+  await upsertPoolContribution(db, contributorKeyHash, cycleLengths);
 
   return Response.json({ ok: true });
 }

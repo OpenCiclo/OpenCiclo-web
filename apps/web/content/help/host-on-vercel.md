@@ -22,8 +22,9 @@ On that database, run the SQL in:
 - `apps/web/drizzle/0003_mailbox_pending.sql`
 - `apps/web/drizzle/0004_account_activity.sql`
 - `apps/web/drizzle/0005_vault_version.sql`
+- `apps/web/drizzle/0006_rate_limit_hits.sql`
 
-Those files create accounts, ciphertext columns, sessions, the anonymous research pool, Learn CMS rows, and email confirmation pending. They do not create health columns. `0003` adds `verified_at` on existing mailboxes (set to `created_at`) so current accounts keep working. `0004` records one sign-in per account per UTC day so the console can count unique opens. It does not store email or diary contents. `0005` adds a version number to each diary, so a save made on top of an older copy (another device saved in between) is merged instead of overwriting it.
+Those files create accounts, ciphertext columns, sessions, the anonymous research pool, Learn CMS rows, and email confirmation pending. They do not create health columns. `0003` adds `verified_at` on existing mailboxes (set to `created_at`) so current accounts keep working. `0004` records one sign-in per account per UTC day so the console can count unique opens. It does not store email or diary contents. `0005` adds a version number to each diary, so a save made on top of an older copy (another device saved in between) is merged instead of overwriting it. `0006` adds a table of request counts per client, used to limit abuse of public endpoints. It stores a keyed hash of the IP address, never the address itself, and the app deletes rows older than a day.
 
 ### Change the schema of a live database
 
@@ -33,7 +34,7 @@ Once real people use the instance, treat every schema change as a production mig
 2. Apply only the new file, in one transaction, and stop at the first error:
 
 ```bash
-psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -1 -f apps/web/drizzle/0006_example.sql
+psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -1 -f apps/web/drizzle/0007_example.sql
 ```
 
 `-1` wraps the file in a single transaction. If any statement fails, nothing from that file is kept.
