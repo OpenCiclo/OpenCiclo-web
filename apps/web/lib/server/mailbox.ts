@@ -12,6 +12,10 @@ import { requireSecret } from "@/lib/server/env";
 export const MAILBOX_CODE_TTL_MS = 15 * 60 * 1000;
 export const MAILBOX_CODE_MAX_ATTEMPTS = 5;
 export const MAILBOX_SEND_MAX_PER_HOUR = 3;
+// "Code sent" answers never come back sooner than this, whether or not a mail
+// was really sent, so response time does not reveal that an email is taken.
+// Above the usual mail-provider latency.
+export const MAILBOX_PENDING_MIN_RESPONSE_MS = 1500;
 
 export type MailboxRegisterAction = "update-wrap" | "reject-taken" | "start-pending";
 
