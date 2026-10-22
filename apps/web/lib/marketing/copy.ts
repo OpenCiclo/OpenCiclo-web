@@ -9,8 +9,8 @@ export const MARKETING_LINKS = {
   docs: "/help",
   privacy: "/privacy",
   contact: "/contact",
-  github: "https://github.com/OpenCiclo/OpenCilco-web",
-  issues: "https://github.com/OpenCiclo/OpenCilco-web/issues",
+  github: "https://github.com/OpenCiclo/OpenCiclo-web",
+  issues: "https://github.com/OpenCiclo/OpenCiclo-web/issues",
 } as const;
 
 type NavItem = { label: string; href: string; external?: boolean };

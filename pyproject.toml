@@ -46,7 +46,7 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/OpenCiclo/openciclo"
+Homepage = "https://github.com/OpenCiclo/OpenCiclo-web"
 Documentation = "docs/"
 License = "LICENSE"
 
