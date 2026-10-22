@@ -5,7 +5,7 @@ import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 
 import { PHRASE_USERNAME, getBrowserPassword, storeBrowserPassword } from "@/lib/client/credentials";
-import { InvalidCredentialsError, lastEmail, useCiclo } from "@/lib/client/ciclo-context";
+import { InvalidCredentialsError, RateLimitedError, lastEmail, useCiclo } from "@/lib/client/ciclo-context";
 import { useBrowserValue } from "@/lib/client/hooks";
 import { InvalidPhraseError } from "@/lib/crypto/wallet";
 import { unlockDestination } from "@/lib/console/paths";
@@ -63,6 +63,8 @@ export default function UnlockPage() {
     } catch (cause) {
       if (cause instanceof InvalidCredentialsError) {
         setError(t.invalidCredentials);
+      } else if (cause instanceof RateLimitedError) {
+        setError(t.tooManyEmailCodes);
       } else {
         setError(t.errorGeneric);
       }

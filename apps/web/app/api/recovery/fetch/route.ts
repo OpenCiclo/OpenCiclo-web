@@ -7,6 +7,7 @@ import { recoveryAttempts, recoveryMailboxes } from "@/lib/db/schema";
 import { getDb } from "@/lib/db";
 import { emailLookup, hashIp, jsonError } from "@/lib/server/env";
 import { mailboxIsFetchable } from "@/lib/server/mailbox";
+import { decoyKit } from "@/lib/server/recovery-decoy";
 
 const MAX_PER_HOUR = 5;
 
@@ -39,7 +40,9 @@ export async function POST(request: Request) {
     .limit(1);
   const kit = rows[0];
   if (!kit || !mailboxIsFetchable(kit)) {
-    return jsonError("Not found", 404);
+    // Same status and shape as a real kit, so the answer does not say whether
+    // this email has an account. See lib/server/recovery-decoy.ts.
+    return Response.json(await decoyKit(lookup));
   }
   return Response.json({
     wrappedSecret: kit.wrappedSecret,

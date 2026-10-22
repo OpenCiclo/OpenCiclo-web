@@ -93,6 +93,9 @@ export async function fetchRemoteKit(email: string): Promise<WrappedKit> {
     headers: { "content-type": "application/json" },
     body: JSON.stringify({ email: normalizeEmail(email) }),
   });
+  // The server answers every email the same way (decoy kit if there is no
+  // account), so only the rate limit gets its own message.
+  if (response.status === 429) throw new RateLimitedError();
   if (!response.ok) throw new InvalidCredentialsError();
   return (await response.json()) as WrappedKit;
 }
