@@ -55,6 +55,30 @@ export function MarketingShell({ children }: { children: ReactNode }) {
     { id: "dark", label: t.colorSchemeDark, icon: Moon },
     { id: "system", label: t.colorSchemeSystem, icon: Monitor },
   ];
+  const schemeSwitcher = (
+    <div className="flex items-center rounded-full border border-border p-0.5" role="group" aria-label={t.colorScheme}>
+      {schemes.map((scheme) => {
+        const Icon = scheme.icon;
+        const selected = colorScheme === scheme.id;
+        return (
+          <button
+            key={scheme.id}
+            type="button"
+            aria-label={scheme.label}
+            aria-pressed={selected}
+            onClick={() => setColorScheme(scheme.id)}
+            className={
+              selected
+                ? "inline-flex size-7 items-center justify-center rounded-full bg-primary text-primary-foreground"
+                : "inline-flex size-7 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-foreground"
+            }
+          >
+            <Icon className="size-3.5" aria-hidden />
+          </button>
+        );
+      })}
+    </div>
+  );
 
   return (
     <div className="marketing-theme flex min-h-dvh flex-col bg-background text-foreground">
@@ -99,32 +123,8 @@ export function MarketingShell({ children }: { children: ReactNode }) {
           </nav>
 
           <div className="flex items-center gap-2">
-            <div
-              className="flex items-center rounded-full border border-border p-0.5"
-              role="group"
-              aria-label={t.colorScheme}
-            >
-              {schemes.map((scheme) => {
-                const Icon = scheme.icon;
-                const selected = colorScheme === scheme.id;
-                return (
-                  <button
-                    key={scheme.id}
-                    type="button"
-                    aria-label={scheme.label}
-                    aria-pressed={selected}
-                    onClick={() => setColorScheme(scheme.id)}
-                    className={
-                      selected
-                        ? "inline-flex size-7 items-center justify-center rounded-full bg-primary text-primary-foreground"
-                        : "inline-flex size-7 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-foreground"
-                    }
-                  >
-                    <Icon className="size-3.5" aria-hidden />
-                  </button>
-                );
-              })}
-            </div>
+            {/* Below sm the row is too narrow for the switcher; it moves into the menu. */}
+            <div className="hidden sm:block">{schemeSwitcher}</div>
             <button
               type="button"
               onClick={() => setLocale(otherLocale(locale))}
@@ -154,12 +154,16 @@ export function MarketingShell({ children }: { children: ReactNode }) {
                   href={item.href}
                   external={item.external}
                   onClick={() => setMenuOpen(false)}
-                  className="flex items-center justify-between border-b border-border/50 py-3 text-base font-semibold text-foreground last:border-b-0"
+                  className="flex items-center justify-between border-b border-border/50 py-3 text-base font-semibold text-foreground last-of-type:border-b-0"
                 >
                   {item.label}
                   {item.external ? <ArrowUpRight className="size-4 text-muted-foreground" /> : null}
                 </NavLink>
               ))}
+              <div className="flex items-center justify-between border-t border-border/50 py-3 sm:hidden">
+                <span className="text-base font-semibold text-foreground">{t.colorScheme}</span>
+                {schemeSwitcher}
+              </div>
             </nav>
           </div>
         ) : null}
