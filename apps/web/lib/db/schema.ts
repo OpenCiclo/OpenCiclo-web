@@ -137,6 +137,20 @@ export const learnArticles = pgTable(
   (table) => [check("learn_articles_status_check", sql`${table.status} IN ('draft', 'published')`)],
 );
 
+export const rateLimitHits = pgTable(
+  "rate_limit_hits",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    bucket: text("bucket").notNull(),
+    keyHash: text("key_hash").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    index("rate_limit_hits_bucket_key_created_idx").on(table.bucket, table.keyHash, table.createdAt),
+    index("rate_limit_hits_created_idx").on(table.createdAt),
+  ],
+);
+
 export const recoveryTokens = pgTable("recovery_tokens", {
   id: uuid("id").defaultRandom().primaryKey(),
   emailLookup: text("email_lookup").notNull(),

@@ -45,6 +45,7 @@ Process memory on a shared computer is still in scope for the user (shoulder sur
 | Email-as-reset | Host decrypts diary | Password-wrapped kit; email fetch returns ciphertext only; unwrap is client-side |
 | Kit fetch by email | Offline password guessing | PBKDF2 600k; rate limit `/api/recovery/fetch`; generic errors |
 | Account enumeration by email | Learn that someone uses a cycle tracker | `/api/recovery/fetch` answers every email with 200 and a kit. Unknown or unverified emails get a decoy: a real-looking wrapped BIP39 phrase, deterministic per email, that no password opens. `/api/recovery/register` gives a taken email the same rate limit, status, and minimum response time as a new one, and sends the code after responding. The rate limit is per email for both routes. |
+| Scripted abuse of public endpoints | Fill the database, spam code mails, poison the research pool | Per-IP limits stored as HMAC(IP) in `rate_limit_hits`: auth challenges, account creation, pool uploads, kit fetches, mailbox registration. Payload caps on the initial vault, nonces, and recovery kits. Stale bookkeeping (old hits and attempts, expired challenges) is pruned automatically. An optional Vercel WAF rule can add an edge limit on top. |
 | Password manager | Phrase or password stored by the browser | Same as any site; user can decline; never sent to OpenCiclo as a login API |
 | Wrapped kit in localStorage | Offline brute-force of the password | PBKDF2 600k; kit is still ciphertext |
 | XSS | Script reads keys in memory | Strict CSP, no third-party scripts, no analytics |
