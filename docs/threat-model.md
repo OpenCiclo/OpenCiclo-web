@@ -14,6 +14,7 @@ This is a living document for the Python engine and the V1 web app. It is not a 
 - Passphrase used to wrap the optional recovery kit (the user's account password on the email path)
 - Wrapped kit cached in `localStorage` on a given browser
 - Optional persisted mnemonic in `localStorage` when “keep signed in” is on
+- Android on-device mode: `device-diary.json` (sealed blob) and `device-phrase.bin` (phrase sealed by a Keystore key) in the app's private storage, plus the Keystore keys
 - Consent flags (recovery email / research pool)
 
 ## Trust boundaries
@@ -59,6 +60,22 @@ Process memory on a shared computer is still in scope for the user (shoulder sur
 | Lost mnemonic + password | Permanent data loss | Honest UX; export/import offered while the device is unlocked |
 | Utah mixed into prior | Silent cohort blending | `released_model.json` is mcPHASES-only; tests assert that |
 
+## Android app
+
+The app runs the web code in a WebView (Capacitor), so every row above still applies to hosted diaries. These rows cover what is new.
+
+| Threat | Risk | Mitigation |
+| --- | --- | --- |
+| Lost or stolen unlocked phone (on-device mode) | Diary read on the device | Optional app lock: the Keystore key that seals the phrase needs a fingerprint or screen-lock check on every use; the diary leaves memory after 30 s in the background; `FLAG_SECURE` while the lock is on |
+| File extraction (root, forensic copy) | Offline attack on the diary file | File is the same AES-256-GCM blob as the hosted vault; the phrase file is sealed by a non-exportable Keystore key (StrongBox when available) |
+| Cloud backup or device transfer | Phrase or diary copied off the phone | `allowBackup="false"` and data extraction rules exclude all app data |
+| Logcat | Phrase, emails, or vault bodies in system logs | Capacitor `loggingBehavior: "none"` in every build; the native plugin never logs |
+| Wrong phrase on an on-device diary | Empty hosted account created by mistake | Phrase unlock opens the device file and never signs in to a host while an on-device diary exists |
+| Damaged diary file | Next save overwrites it with an empty diary | Decoding throws instead of reading as empty; writes are atomic (`AtomicFile`) |
+| Moving between device and host | Data loss half-way | The old copy is deleted only after the new one is saved; moving to the device rolls back if the account delete fails |
+| Plaintext export | Diary readable in the chosen share target | User-initiated only; cached export deleted on next export and on app start |
+| Lost phone, no export (on-device mode) | Permanent data loss | Honest UX in onboarding and Settings; export through the share sheet |
+
 ## Cryptography (standard primitives only)
 
 - BIP39 mnemonic via `@scure/bip39`
@@ -66,6 +83,7 @@ Process memory on a shared computer is still in scope for the user (shoulder sur
 - AES-256-GCM via WebCrypto
 - Ed25519 challenge signatures via `@noble/ed25519`
 - Recovery wrap: PBKDF2-SHA-256 (WebCrypto, 600_000 iterations) then AES-GCM
+- Android on-device phrase seal: AES-256-GCM with an Android Keystore key (platform API, not our own crypto)
 
 We will not invent a protocol. We will not use a “recovery email” that re-derives the AES key without a user secret.
 
@@ -74,4 +92,4 @@ We will not invent a protocol. We will not use a “recovery email” that re-de
 - Nation-state disk imaging of a powered-on machine
 - Hardware keyloggers
 - Compelled disclosure of a passphrase the user still remembers
-- Native mobile app threat model
+- A compromised Android OS or Keystore implementation

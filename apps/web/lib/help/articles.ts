@@ -66,6 +66,12 @@ export const HELP_ARTICLES: HelpArticleMeta[] = [
     section: "privacy",
   },
   {
+    slug: "android-on-device",
+    title: "Android: keep the diary on the phone",
+    summary: "No account, no server. Encrypted on the phone, phrase in Android Keystore, optional fingerprint lock.",
+    section: "privacy",
+  },
+  {
     slug: "research-pool",
     title: "Optional anonymous research pool",
     summary: "Cycle lengths only, no account map. Off until you opt in. Not a backup.",

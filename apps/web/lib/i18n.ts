@@ -218,6 +218,43 @@ const es = {
   restoreFailedBody:
     "Puede ser la conexión o el servidor. Tu acceso sigue guardado en este dispositivo y tus datos no se han tocado.",
   restoreRetry: "Reintentar",
+  deviceMode: "Solo en este dispositivo",
+  deviceModeHint:
+    "Sin cuenta ni servidor. El diario se guarda cifrado en este móvil y no sale de él. Guardas 12 palabras por si la app no puede abrirlo sola. Si pierdes el móvil, solo te salva un export.",
+  deviceModeBody:
+    "Estas 12 palabras abren tu diario si la app no puede hacerlo sola. Ciclo las guarda cifradas en este móvil, pero apúntalas en un sitio seguro.",
+  deviceStorageHint:
+    "Tu diario solo está en este móvil, cifrado. No hay copia en ningún servidor. Si pierdes el móvil o desinstalas la app, se pierde salvo que tengas un export. Exporta de vez en cuando.",
+  storageTitle: "Dónde se guarda tu diario",
+  storageDevice: "Solo en este dispositivo, cifrado.",
+  storageHosted: "En la nube de Ciclo, cifrado. Solo tú puedes leerlo.",
+  moveToHosted: "Guardar en la nube",
+  moveToHostedHint:
+    "Sube tu diario cifrado. Después lo abres en cualquier dispositivo con tu frase de 12 palabras, y se borra la copia de este móvil.",
+  moveToHostedConfirm:
+    "Tu diario se subirá cifrado a la nube y se borrará la copia de este móvil. Desde entonces entras con tu frase de 12 palabras. ¿Continuar?",
+  moveToHostedDone: "Tu diario ya está en la nube.",
+  moveToDevice: "Guardar solo en este dispositivo",
+  moveToDeviceHint:
+    "Guarda tu diario cifrado en este móvil y borra tu cuenta del servidor, también el acceso con correo y contraseña.",
+  moveToDeviceConfirm:
+    "Tu diario se guardará solo en este móvil y se borrará tu cuenta del servidor, también el acceso con correo y contraseña. Antes, apunta tu frase de 12 palabras (Guardar en el navegador → Ver QR de la frase) y haz un export. ¿Continuar?",
+  moveToDeviceDone: "Tu diario ya está solo en este móvil.",
+  appLock: "Bloquear con huella o PIN",
+  appLockHint:
+    "Pide tu huella o el bloqueo de pantalla al abrir Ciclo y tras 30 segundos fuera. También oculta la app en recientes y en capturas.",
+  appLockUnavailable: "Configura una huella o un bloqueo de pantalla en Android para usarlo.",
+  appLockPromptTitle: "Abrir Ciclo",
+  appLockPromptSubtitle: "Confirma que eres tú para ver tu diario.",
+  deleteDeviceDiary: "Borrar diario de este dispositivo",
+  deleteDeviceConfirm:
+    "Esto borra para siempre el diario de este móvil. No hay copia en ningún servidor. El pool de investigación anónimo no se puede deshacer. ¿Continuar?",
+  deviceLockedTitle: "Ciclo está bloqueado",
+  deviceLockedBody:
+    "Tu diario está guardado en este dispositivo. Desbloquéalo con tu huella o el bloqueo de pantalla, o escribe tu frase de 12 palabras.",
+  deviceUnlock: "Desbloquear",
+  deviceUsePhrase: "Usar mi frase",
+  deviceUnlockHint: "Este diario está guardado solo en este dispositivo. Ábrelo con su frase de 12 palabras.",
   installTitle: "Añádela a la pantalla de inicio",
   installDismiss: "Ahora no",
   installAction: "Instalar",
@@ -751,6 +788,43 @@ const en = {
   restoreFailedBody:
     "It may be your connection or our server. Your sign-in is still saved on this device and your data was not touched.",
   restoreRetry: "Try again",
+  deviceMode: "Only on this device",
+  deviceModeHint:
+    "No account, no server. The diary is saved encrypted on this phone and never leaves it. You keep 12 words in case the app cannot open it on its own. If you lose the phone, only an export saves it.",
+  deviceModeBody:
+    "These 12 words open your diary if the app cannot do it on its own. Ciclo keeps them encrypted on this phone, but write them down somewhere safe.",
+  deviceStorageHint:
+    "Your diary is only on this phone, encrypted. There is no copy on any server. If you lose the phone or uninstall the app, it is gone unless you have an export. Export now and then.",
+  storageTitle: "Where your diary is saved",
+  storageDevice: "Only on this device, encrypted.",
+  storageHosted: "In the Ciclo cloud, encrypted. Only you can read it.",
+  moveToHosted: "Save to the cloud",
+  moveToHostedHint:
+    "Uploads your encrypted diary. You then open it on any device with your 12-word phrase, and the copy on this phone is deleted.",
+  moveToHostedConfirm:
+    "Your diary will be uploaded encrypted and the copy on this phone deleted. From then on you sign in with your 12-word phrase. Continue?",
+  moveToHostedDone: "Your diary is now in the cloud.",
+  moveToDevice: "Keep only on this device",
+  moveToDeviceHint:
+    "Saves your encrypted diary on this phone and deletes your account on the server, including email and password sign-in.",
+  moveToDeviceConfirm:
+    "Your diary will be kept only on this phone and your account on the server deleted, including email and password sign-in. First, write down your 12-word phrase (Save in the browser → Show phrase QR) and make an export. Continue?",
+  moveToDeviceDone: "Your diary is now only on this phone.",
+  appLock: "Lock with fingerprint or PIN",
+  appLockHint:
+    "Asks for your fingerprint or screen lock when Ciclo opens and after 30 seconds away. It also hides the app in recent apps and screenshots.",
+  appLockUnavailable: "Set up a fingerprint or screen lock in Android to use this.",
+  appLockPromptTitle: "Open Ciclo",
+  appLockPromptSubtitle: "Confirm it's you to see your diary.",
+  deleteDeviceDiary: "Delete the diary on this device",
+  deleteDeviceConfirm:
+    "This deletes the diary on this phone for good. There is no copy on any server. The anonymous research pool cannot be undone. Continue?",
+  deviceLockedTitle: "Ciclo is locked",
+  deviceLockedBody:
+    "Your diary is saved on this device. Unlock it with your fingerprint or screen lock, or type your 12-word phrase.",
+  deviceUnlock: "Unlock",
+  deviceUsePhrase: "Use my phrase",
+  deviceUnlockHint: "This diary is saved only on this device. Open it with its 12-word phrase.",
   installTitle: "Add it to your home screen",
   installDismiss: "Not now",
   installAction: "Install",

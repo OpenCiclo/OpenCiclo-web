@@ -5,9 +5,11 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ChevronDown } from "lucide-react";
 
+import { IS_ANDROID_APP } from "@/lib/app-target";
 import { InvalidCredentialsError, useCiclo } from "@/lib/client/ciclo-context";
 import { lastEmail } from "@/lib/client/kit-store";
 import { storeBrowserPassword } from "@/lib/client/credentials";
+import { saveFile } from "@/lib/client/save-file";
 import { diaryToCsv, diaryToJson, mergeDiaries, parseImportedFile, previewImport } from "@/lib/diary-io";
 import { otherLocale } from "@/lib/i18n";
 import { AppShell } from "@/components/app-shell";
@@ -39,15 +41,8 @@ function SettingsDisclosure({ title, children }: { title: string; children: Reac
   );
 }
 
-function download(filename: string, body: string, type: string) {
-  const blob = new Blob([body], { type });
-  const url = URL.createObjectURL(blob);
-  const anchor = document.createElement("a");
-  anchor.href = url;
-  anchor.download = filename;
-  anchor.click();
-  URL.revokeObjectURL(url);
-}
+const SWITCH_CLASS =
+  "h-7 w-12 shrink-0 cursor-pointer appearance-none rounded-full bg-muted-foreground/30 p-1 transition-colors before:block before:size-5 before:rounded-full before:bg-white before:shadow-sm before:transition-transform checked:bg-primary checked:before:translate-x-5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:cursor-not-allowed disabled:opacity-50";
 
 export default function SettingsPage() {
   const {
@@ -70,7 +65,15 @@ export default function SettingsPage() {
     wipe,
     signOut,
     changePassword,
+    storageMode,
+    appLockAvailable,
+    appLockEnabled,
+    setAppLock,
+    moveToHosted,
+    moveToDevice,
   } = useCiclo();
+  const onDevice = storageMode === "device";
+  const [storageBusy, setStorageBusy] = useState(false);
   const router = useRouter();
   const fileRef = useRef<HTMLInputElement>(null);
   const [email, setEmail] = useState(() => lastEmail());
@@ -82,7 +85,20 @@ export default function SettingsPage() {
   const [researchOk, setResearchOk] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [showPhrase, setShowPhrase] = useState(false);
-  const canChangePassword = diary.recoveryEmailSet || Boolean(lastEmail());
+  const canChangePassword = !onDevice && (diary.recoveryEmailSet || Boolean(lastEmail()));
+
+  async function runStorageAction(action: () => Promise<void>, done?: string) {
+    setStorageBusy(true);
+    setMessage(null);
+    try {
+      await action();
+      if (done) setMessage(done);
+    } catch {
+      setMessage(t.errorGeneric);
+    } finally {
+      setStorageBusy(false);
+    }
+  }
   const [importPreview, setImportPreview] = useState<{ days: number; starts: number; raw: string } | null>(
     null,
   );
@@ -225,8 +241,67 @@ export default function SettingsPage() {
       </Card>
       <InstallPrompt mode="settings" />
       <Card className="mt-4 rounded-3xl border-primary/20 bg-primary/5 p-4 text-sm leading-6 text-muted-foreground">
-        {t.noResetHint}
+        {onDevice ? t.deviceStorageHint : t.noResetHint}
       </Card>
+      {IS_ANDROID_APP ? (
+        <Card className="mt-4 flex flex-col gap-3 rounded-3xl">
+          <h2 className="font-medium">{t.storageTitle}</h2>
+          <p className="text-sm text-muted-foreground">{onDevice ? t.storageDevice : t.storageHosted}</p>
+          {onDevice ? (
+            <>
+              <label
+                htmlFor="app-lock"
+                className="flex cursor-pointer items-center justify-between gap-4 rounded-2xl bg-muted/60 p-3"
+              >
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-card-foreground">{t.appLock}</p>
+                  <p id="app-lock-hint" className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
+                    {appLockAvailable || appLockEnabled ? t.appLockHint : t.appLockUnavailable}
+                  </p>
+                </div>
+                <input
+                  id="app-lock"
+                  type="checkbox"
+                  role="switch"
+                  aria-describedby="app-lock-hint"
+                  checked={appLockEnabled}
+                  disabled={storageBusy || (!appLockAvailable && !appLockEnabled)}
+                  onChange={(event) => {
+                    const enabled = event.target.checked;
+                    void runStorageAction(() => setAppLock(enabled));
+                  }}
+                  className={SWITCH_CLASS}
+                />
+              </label>
+              <p className="text-xs text-muted-foreground">{t.moveToHostedHint}</p>
+              <Button
+                variant="outline"
+                disabled={storageBusy}
+                onClick={() => {
+                  if (!window.confirm(t.moveToHostedConfirm)) return;
+                  void runStorageAction(moveToHosted, t.moveToHostedDone);
+                }}
+              >
+                {t.moveToHosted}
+              </Button>
+            </>
+          ) : (
+            <>
+              <p className="text-xs text-muted-foreground">{t.moveToDeviceHint}</p>
+              <Button
+                variant="outline"
+                disabled={storageBusy}
+                onClick={() => {
+                  if (!window.confirm(t.moveToDeviceConfirm)) return;
+                  void runStorageAction(moveToDevice, t.moveToDeviceDone);
+                }}
+              >
+                {t.moveToDevice}
+              </Button>
+            </>
+          )}
+        </Card>
+      ) : null}
       {canChangePassword ? (
         <SettingsDisclosure title={t.changePassword}>
           <p className="text-xs text-muted-foreground">{t.changePasswordHint}</p>
@@ -313,11 +388,11 @@ export default function SettingsPage() {
       <SettingsDisclosure title={t.backupTitle}>
         <Button
           variant="outline"
-          onClick={() => download("ciclo-diary.json", diaryToJson(diary), "application/json")}
+          onClick={() => void saveFile("ciclo-diary.json", diaryToJson(diary), "application/json")}
         >
           {t.exportJson}
         </Button>
-        <Button variant="outline" onClick={() => download("ciclo-diary.csv", diaryToCsv(diary), "text/csv")}>
+        <Button variant="outline" onClick={() => void saveFile("ciclo-diary.csv", diaryToCsv(diary), "text/csv")}>
           {t.exportCsv}
         </Button>
         <input
@@ -370,37 +445,39 @@ export default function SettingsPage() {
         ) : null}
       </SettingsDisclosure>
       <SettingsDisclosure title={t.saveInBrowser}>
-        <form
-          className="flex flex-col gap-3"
-          onSubmit={async (event) => {
-            event.preventDefault();
-            if (email && browserPassword) {
-              await storeBrowserPassword(email.trim().toLowerCase(), browserPassword);
-              setMessage(t.savedInBrowser);
-            }
-          }}
-        >
-          <Label htmlFor="settings-email">{t.email}</Label>
-          <Input
-            id="settings-email"
-            name="username"
-            type="email"
-            autoComplete="username"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-          />
-          <Label htmlFor="settings-browser-password">{t.password}</Label>
-          <PasswordInput
-            id="settings-browser-password"
-            name="password"
-            autoComplete="current-password"
-            value={browserPassword}
-            onChange={(event) => setBrowserPassword(event.target.value)}
-            showLabel={t.showPassword}
-            hideLabel={t.hidePassword}
-          />
-          <Button type="submit">{t.saveInBrowser}</Button>
-        </form>
+        {onDevice ? null : (
+          <form
+            className="flex flex-col gap-3"
+            onSubmit={async (event) => {
+              event.preventDefault();
+              if (email && browserPassword) {
+                await storeBrowserPassword(email.trim().toLowerCase(), browserPassword);
+                setMessage(t.savedInBrowser);
+              }
+            }}
+          >
+            <Label htmlFor="settings-email">{t.email}</Label>
+            <Input
+              id="settings-email"
+              name="username"
+              type="email"
+              autoComplete="username"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+            />
+            <Label htmlFor="settings-browser-password">{t.password}</Label>
+            <PasswordInput
+              id="settings-browser-password"
+              name="password"
+              autoComplete="current-password"
+              value={browserPassword}
+              onChange={(event) => setBrowserPassword(event.target.value)}
+              showLabel={t.showPassword}
+              hideLabel={t.hidePassword}
+            />
+            <Button type="submit">{t.saveInBrowser}</Button>
+          </form>
+        )}
         <SavePhraseForm mnemonic={wallet.mnemonic} t={t} />
         <button type="button" className="text-left text-sm underline" onClick={() => setShowPhrase((v) => !v)}>
           {showPhrase ? t.hideBackupPhrase : t.showBackupPhrase}
@@ -483,18 +560,21 @@ export default function SettingsPage() {
         )}
       </Card>
       <Card className="mt-4 flex flex-col gap-3 rounded-3xl">
-        <Button variant="outline" onClick={() => void signOut().then(() => router.push("/app"))}>
-          {t.logout}
-        </Button>
+        {onDevice ? null : (
+          <Button variant="outline" onClick={() => void signOut().then(() => router.push("/app"))}>
+            {t.logout}
+          </Button>
+        )}
         <Button
           variant="destructive"
+          disabled={storageBusy}
           onClick={async () => {
-            if (!window.confirm(t.deleteConfirm)) return;
+            if (!window.confirm(onDevice ? t.deleteDeviceConfirm : t.deleteConfirm)) return;
             await wipe();
             router.push("/app");
           }}
         >
-          {t.deleteAccount}
+          {onDevice ? t.deleteDeviceDiary : t.deleteAccount}
         </Button>
       </Card>
       {message ? <p className="mt-3 text-sm">{message}</p> : null}
