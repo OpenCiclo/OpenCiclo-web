@@ -6,10 +6,10 @@ const config: CapacitorConfig = {
   appName: "Ciclo",
   // Static export of the `*.android.tsx` routes in apps/web (`npm run build`).
   webDir: "../web/out-android",
-  // With CapacitorHttp on, the bridge logs every request and response body
-  // (emails on the recovery endpoints). Keep that to debug builds; never
-  // "production".
-  loggingBehavior: "debug",
+  // Off in every build. The bridge would log each request and response body
+  // (emails on the recovery endpoints) and each plugin result, including the
+  // phrase returned by DeviceVault.readPhrase. Debug through chrome://inspect.
+  loggingBehavior: "none",
   plugins: {
     // The bundle is served from https://localhost and calls the Ciclo host for
     // /api. Native HTTP keeps the session cookie (httpOnly, SameSite=Lax) in the

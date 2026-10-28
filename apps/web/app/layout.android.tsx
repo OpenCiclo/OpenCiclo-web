@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 
 import { CicloProvider } from "@/lib/client/ciclo-context";
+import { DeviceLockGate } from "@/components/device-lock-gate";
 import { FloatingTabBar } from "@/components/floating-tab-bar";
 import { ThemeClass } from "@/components/theme-class";
 import { API_BASE } from "@/lib/app-target";
@@ -48,6 +49,7 @@ export default function AndroidRootLayout({ children }: { children: React.ReactN
         <CicloProvider>
           {children}
           <FloatingTabBar />
+          <DeviceLockGate />
           <ThemeClass />
         </CicloProvider>
       </body>

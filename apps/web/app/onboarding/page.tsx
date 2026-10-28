@@ -3,8 +3,10 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
+import { IS_ANDROID_APP } from "@/lib/app-target";
 import { type Wallet } from "@/lib/crypto/wallet";
 import { storeBrowserPassword } from "@/lib/client/credentials";
+import { saveFile } from "@/lib/client/save-file";
 import {
   InvalidConfirmError,
   MailNotConfiguredError,
@@ -20,11 +22,19 @@ import { Card } from "@/components/ui/card";
 import { Input, PasswordInput } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-type Method = "choose" | "email" | "phrase";
+// "device": Android only. Same phrase steps as "phrase", but the diary stays on the phone.
+type Method = "choose" | "email" | "phrase" | "device";
 
 export default function OnboardingPage() {
-  const { t, startOnboarding, unlock, createEmailAccount, confirmEmailAccount, resendEmailCode } =
-    useCiclo();
+  const {
+    t,
+    startOnboarding,
+    unlock,
+    createDeviceDiary,
+    createEmailAccount,
+    confirmEmailAccount,
+    resendEmailCode,
+  } = useCiclo();
   const router = useRouter();
   const [method, setMethod] = useState<Method>("choose");
   const [wallet, setWallet] = useState<Wallet | null>(null);
@@ -56,7 +66,11 @@ export default function OnboardingPage() {
     }
     try {
       setBusy(true);
-      await unlock(wallet.mnemonic, { create: true, persist: true });
+      if (method === "device") {
+        await createDeviceDiary(wallet);
+      } else {
+        await unlock(wallet.mnemonic, { create: true, persist: true });
+      }
       router.push("/app");
     } catch (cause) {
       const message = cause instanceof Error ? cause.message : t.errorGeneric;
@@ -173,6 +187,17 @@ export default function OnboardingPage() {
                 {t.superPrivateMode}
               </Button>
             </Card>
+            {IS_ANDROID_APP ? (
+              <Card className="flex flex-col gap-3">
+                <div>
+                  <h2 className="font-medium">{t.deviceMode}</h2>
+                  <p className="mt-1 text-sm text-muted-foreground">{t.deviceModeHint}</p>
+                </div>
+                <Button variant="outline" onClick={() => setMethod("device")}>
+                  {t.deviceMode}
+                </Button>
+              </Card>
+            ) : null}
           </div>
         </>
       ) : null}
@@ -280,10 +305,12 @@ export default function OnboardingPage() {
         </>
       ) : null}
 
-      {method === "phrase" ? (
+      {method === "phrase" || method === "device" ? (
         <>
-          <h1 className="text-2xl font-semibold">{t.superPrivateMode}</h1>
-          <p className="mt-2 text-sm text-muted-foreground">{t.onboardingBody}</p>
+          <h1 className="text-2xl font-semibold">{method === "device" ? t.deviceMode : t.superPrivateMode}</h1>
+          <p className="mt-2 text-sm text-muted-foreground">
+            {method === "device" ? t.deviceModeBody : t.onboardingBody}
+          </p>
           {!wallet ? (
             <Button className="mt-6 w-full" onClick={generate}>
               {t.createWallet}
@@ -318,15 +345,7 @@ export default function OnboardingPage() {
                   type="button"
                   variant="outline"
                   className="flex-1"
-                  onClick={() => {
-                    const blob = new Blob([wallet.mnemonic], { type: "text/plain" });
-                    const url = URL.createObjectURL(blob);
-                    const anchor = document.createElement("a");
-                    anchor.href = url;
-                    anchor.download = "ciclo-recovery-phrase.txt";
-                    anchor.click();
-                    URL.revokeObjectURL(url);
-                  }}
+                  onClick={() => void saveFile("ciclo-recovery-phrase.txt", wallet.mnemonic, "text/plain")}
                 >
                   {t.download}
                 </Button>

@@ -89,7 +89,9 @@ apps/mobile/android  (Capacitor WebView, served from https://localhost)
 Ciclo host /api  (same endpoints, same ciphertext-only vault)
 ```
 
-Only platform services (secure key storage, biometrics, files) belong in native code. Details and the plan for an on-device encrypted mode: [docs/android.md](docs/android.md).
+Only platform services (secure key storage, biometrics, files) belong in native code.
+
+On Android the diary can also stay on the phone with no account ("Only on this device"). It is the same sealed blob, saved to a file in the app's private storage instead of Postgres. The 12-word phrase is sealed by an Android Keystore key, optionally behind a fingerprint or screen-lock check. Details: [docs/android.md](docs/android.md).
 
 ## Local Python runtime
 

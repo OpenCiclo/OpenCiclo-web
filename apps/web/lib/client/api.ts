@@ -12,11 +12,12 @@ async function parseJson(response: Response) {
   return payload;
 }
 
+/** Signs in, creating the account (with `vault` as its first blob) if the host has none. Returns whether it was created. */
 export async function loginWithWallet(
   wallet: Wallet,
   vault?: { ciphertext: string; nonce: string; schemaVersion: number },
   persist = true,
-) {
+): Promise<boolean> {
   const challenge = await parseJson(
     await fetch(apiUrl("/api/auth/challenge"), {
       method: "POST",
@@ -26,7 +27,7 @@ export async function loginWithWallet(
   );
   const nonce = (challenge as { nonce: string }).nonce;
   const signature = signChallenge(wallet, nonce);
-  await parseJson(
+  const verified = await parseJson(
     await fetch(apiUrl("/api/auth/verify"), {
       method: "POST",
       headers: { "content-type": "application/json" },
@@ -42,9 +43,13 @@ export async function loginWithWallet(
       }),
     }),
   );
+  return (verified as { created?: boolean }).created === true;
 }
 
 export type VaultBlob = { ciphertext: string; nonce: string; schemaVersion: number };
+
+/** Where the diary lives: the Ciclo host, or (Android only) a file on this device. */
+export type StorageMode = "hosted" | "device";
 
 export async function fetchVault(): Promise<{ blob: VaultBlob | null; version: number }> {
   // Only called right after a successful sign-in, so 401/404 are failures, not
@@ -76,6 +81,18 @@ export async function putVault(blob: VaultBlob, baseVersion: number): Promise<Pu
   const payload = (await parseJson(response)) as { version: number };
   return { ok: true, version: payload.version };
 }
+
+/**
+ * Loads and saves the sealed diary blob. Both kinds keep the same compare-and-set
+ * contract: `save` on a stale `baseVersion` returns the current blob instead of writing.
+ */
+export type VaultBackend = {
+  mode: StorageMode;
+  load: () => Promise<{ blob: VaultBlob | null; version: number }>;
+  save: (blob: VaultBlob, baseVersion: number) => Promise<PutVaultResult>;
+};
+
+export const hostedVault: VaultBackend = { mode: "hosted", load: fetchVault, save: putVault };
 
 export async function deleteAccount() {
   await parseJson(await fetch(apiUrl("/api/account"), { method: "DELETE" }));
