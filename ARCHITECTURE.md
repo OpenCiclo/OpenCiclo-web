@@ -40,6 +40,7 @@ UI / eval         V1 web app or benchmark harness
 | `openciclo.evaluation` | Walk-forward, metrics, Markdown/CSV reports |
 | `openciclo.calibration` | Reliability-style summaries |
 | `apps/web` | Next.js app: email+password or phrase identity, AES-GCM vault (diary schema v6), calendar, short day notes, estimated phases, patterns, Learn wiki, Help docs, TS forecast |
+| `apps/mobile` | Android app: a Capacitor shell around a static export of `apps/web` (see [docs/android.md](docs/android.md)) |
 
 ## Data model (conceptual)
 
@@ -76,6 +77,20 @@ Email accounts store a **password-wrapped** kit (PBKDF2-SHA-256 + AES-GCM). On a
 
 Optional research contribution POSTs cycle **lengths** (integers) with no public key. The server assigns an opaque `pool_id` and **does not** store `user_id → pool_id`. “Already contributed” is remembered on the device.
 
+## Android app
+
+The Android app runs the same React screens, crypto, and forecast code as the web app. It is not a second implementation.
+
+```text
+apps/web  ── npm run build:android ──▶  out-android/ (static HTML + JS, *.android.tsx routes)
+                                             ↓ cap sync
+apps/mobile/android  (Capacitor WebView, served from https://localhost)
+                                             ↓ native HTTP + cookie jar
+Ciclo host /api  (same endpoints, same ciphertext-only vault)
+```
+
+Only platform services (secure key storage, biometrics, files) belong in native code. Details and the plan for an on-device encrypted mode: [docs/android.md](docs/android.md).
+
 ## Local Python runtime
 
 ```text
@@ -98,4 +113,4 @@ V0 baselines are deterministic given those inputs (no RNG in `predict`).
 
 ## Out of scope for this layer
 
-Native mobile apps, federated learning, custom cryptography, deep learning, confirmed ovulation/fertility claims, training on the anonymous pool.
+Native (Kotlin/Swift) reimplementations of the app, federated learning, custom cryptography, deep learning, confirmed ovulation/fertility claims, training on the anonymous pool.

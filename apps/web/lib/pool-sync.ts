@@ -1,6 +1,7 @@
 // Copyright © 2026 Emma Flora Harbison & Luis Rey Sánchez
 // SPDX-License-Identifier: Apache-2.0
 
+import { apiUrl } from "@/lib/app-target";
 import { cycleLengths } from "@/lib/forecast/math";
 import type { Diary } from "@/lib/diary";
 
@@ -46,7 +47,7 @@ export async function submitPoolContribution(diary: Diary): Promise<Diary> {
   const withKey = ensurePoolContributorKey(diary);
   const lengths = poolCycleLengths(withKey.periodStarts);
   if (lengths.length === 0) throw new Error("Need at least one completed cycle");
-  const response = await fetch("/api/research/contribute", {
+  const response = await fetch(apiUrl("/api/research/contribute"), {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify({
