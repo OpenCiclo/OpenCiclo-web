@@ -2,6 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 
+import { apiUrl } from "@/lib/app-target";
 import { decryptAesGcm, encryptAesGcm } from "@/lib/crypto/aes";
 import { bytesToUtf8, utf8ToBytes } from "@/lib/crypto/bytes";
 import { createWallet, unlockWallet, type Wallet } from "@/lib/crypto/wallet";
@@ -106,7 +107,7 @@ type PendingEmailSignup = {
 };
 
 async function postRecoveryKit(email: string, kit: WrappedKit, locale: Locale): Promise<{ pending: boolean }> {
-  const response = await fetch("/api/recovery/register", {
+  const response = await fetch(apiUrl("/api/recovery/register"), {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify({ email, locale, ...kit }),
@@ -119,7 +120,7 @@ async function postRecoveryKit(email: string, kit: WrappedKit, locale: Locale): 
 }
 
 async function confirmRecoveryCode(code: string) {
-  const response = await fetch("/api/recovery/confirm", {
+  const response = await fetch(apiUrl("/api/recovery/confirm"), {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify({ code }),

@@ -16,6 +16,7 @@ out/
 dist/
 apps/web/.next/
 apps/web/out/
+apps/web/out-android/
 .vercel/
 apps/web/.vercel/
 *.tsbuildinfo

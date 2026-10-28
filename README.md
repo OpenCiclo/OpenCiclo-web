@@ -57,6 +57,7 @@ Optional symptoms, temperature, and lab-style signals are stored in the data mod
 - Utah/Creighton: external check only
 - Synthetic benchmarks: CI only, **not** used to choose `model_id`
 - Web app: `apps/web` (Next.js). Hosted path: Vercel + Neon. Local path: Next.js or Docker.
+- Android app: `apps/mobile` (Capacitor shell around the web app). In development, not on Google Play yet.
 - Public research datasets: documented, not redistributed
 
 Installers get the published aggregate prior. They do **not** need the mcPHASES or Utah CSVs to forecast.
@@ -144,6 +145,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md). Pull requests that change forecasting be
 | [docs/kb/](docs/kb/README.md)                | Index of product Help articles (source: `apps/web/content/help/`) |
 | [SECURITY.md](SECURITY.md)                   | Vulnerability reporting                                           |
 | [apps/web/README.md](apps/web/README.md)     | Vercel + Neon (primary), local Next.js, Docker                    |
+| [docs/android.md](docs/android.md)           | Android app: build, run on a phone, security, roadmap             |
 | [agents.txt](agents.txt)                     | Map for coding agents                                             |
 
 
