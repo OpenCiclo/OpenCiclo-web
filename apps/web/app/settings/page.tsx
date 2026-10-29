@@ -98,11 +98,9 @@ export default function SettingsPage() {
 
   return (
     <AppShell>
-      <header className="animate-fade-up">
-        <p className="text-sm font-medium text-muted-foreground">{t.appName}</p>
-        <h1 className="font-serif text-3xl leading-tight text-foreground">{t.settings}</h1>
-      </header>
-      <Card className="mt-4 flex flex-col gap-3 rounded-3xl">
+      {/* No title on screen: the tab bar already says where you are. */}
+      <h1 className="sr-only">{t.settings}</h1>
+      <Card className="flex flex-col gap-3 rounded-3xl">
         <Button variant="secondary" onClick={() => setLocale(otherLocale(locale))}>
           {t.language}: {locale.toUpperCase()}
         </Button>
