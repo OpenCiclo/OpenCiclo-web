@@ -444,9 +444,12 @@
 }
 
 /*
- * Ghosts of the other tabs (see TabGhosts): fixed over the page and under the
- * tab bar, not painted until a drag of the selection shows one beside the
- * real screen. The tab bar moves them.
+ * Ghosts of the other tabs (see TabGhosts): fixed under the tab bar, not
+ * painted until a drag of the selection shows one beside the real screen.
+ * The tab bar moves them. Hidden ones also wait out of sight: on a Galaxy S22
+ * some layers inside (the moons' drop shadow, Learn's scrolling filter row)
+ * were drawn over the page through visibility: hidden. contain: strict clips
+ * everything inside to the ghost, so out of sight means all of it.
  */
 .tab-ghost {
   position: fixed;
@@ -456,6 +459,15 @@
   visibility: hidden;
   pointer-events: none;
   contain: strict;
+  transform: translateX(-300%);
+}
+
+/* A ghost shows its screen as it ends up, with no entrance animations. */
+.tab-ghost *,
+.tab-ghost *::before,
+.tab-ghost *::after {
+  animation: none !important;
+  transition: none !important;
 }
 
 /*
