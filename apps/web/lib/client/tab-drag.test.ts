@@ -3,7 +3,16 @@
 
 import { describe, expect, it } from "vitest";
 
-import { SWITCH_AT, dragFrame, resist, stepSpring, stretchScale, type Spring } from "@/lib/client/tab-drag";
+import {
+  SWITCH_AT,
+  dragFrame,
+  labelScale,
+  resist,
+  screenPull,
+  stepSpring,
+  stretchScale,
+  type Spring,
+} from "@/lib/client/tab-drag";
 
 describe("tab bar drag", () => {
   it("follows the finger with resistance and stays on its tab below the threshold", () => {
@@ -53,6 +62,23 @@ describe("tab bar drag", () => {
     expect(squashed.x).toBeLessThan(1);
     expect(squashed.y).toBeGreaterThan(1);
     expect(stretchScale(0)).toEqual({ x: 1, y: 1 });
+  });
+
+  it("stretches the label under the selection a little more, like gum", () => {
+    const gum = labelScale(stretchScale(1));
+    expect(gum.x).toBeGreaterThan(stretchScale(1).x);
+    expect(gum.x).toBeLessThan(1.3);
+    expect(labelScale({ x: 1, y: 1 })).toEqual({ x: 1, y: 1 });
+  });
+
+  it("pulls the screen the other way from the selection, with resistance", () => {
+    // Selection pulled toward the next tab: the screen goes left.
+    expect(screenPull(1.3, 1)).toBeLessThan(0);
+    expect(screenPull(0.7, 1)).toBeGreaterThan(0);
+    expect(screenPull(1, 1)).toBeCloseTo(0, 6);
+    // It gives less and less, and never leaves more than a quarter of the screen.
+    expect(Math.abs(screenPull(1.6, 1))).toBeLessThan(2 * Math.abs(screenPull(1.3, 1)));
+    expect(Math.abs(screenPull(5, 1))).toBeLessThanOrEqual(0.25);
   });
 
   it("springs to the target with a small overshoot", () => {

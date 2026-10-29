@@ -73,6 +73,26 @@ export function stretchScale(stretch: number): { x: number; y: number } {
     : { x: 1 + 0.12 * amount, y: 1 - 0.08 * amount };
 }
 
+/** The label under the selection stretches a little more than the selection, like gum. */
+export function labelScale(scale: { x: number; y: number }): { x: number; y: number } {
+  return { x: 1 + 1.25 * (scale.x - 1), y: 1 + 0.5 * (scale.y - 1) };
+}
+
+/** Share of the screen width the screen moves per tab the selection moves, before resistance. */
+const SCREEN_GAIN = 0.6;
+/** Farthest the screen follows the selection, as a share of its width. */
+const SCREEN_LIMIT = 0.25;
+
+/**
+ * How far the screen of tab `screenTab` moves, as a share of its width, while
+ * the selection sits at `position`. It moves the other way, the way a carousel
+ * does: pulling the selection toward the next tab drags the screen left, where
+ * the next screen will push it out. It gives less and less the farther it goes.
+ */
+export function screenPull(position: number, screenTab: number): number {
+  return -resist((position - screenTab) * SCREEN_GAIN, SCREEN_LIMIT);
+}
+
 const POSITION_STIFFNESS = 420;
 const POSITION_RATIO = 0.65;
 const STRETCH_STIFFNESS = 300;
@@ -106,6 +126,11 @@ export class SelectionMotion {
   /** The tab the selection is drawn closest to. */
   get nearest(): number {
     return Math.round(this.position.value);
+  }
+
+  /** Where the selection is now, in tabs, springs included. */
+  get current(): number {
+    return this.position.value;
   }
 
   /** Puts the selection on tab `index` without animating. */

@@ -3,14 +3,18 @@
 
 "use client";
 
-import { useRef, ViewTransition } from "react";
+import { useLayoutEffect, useRef, ViewTransition } from "react";
 
 import { useCiclo } from "@/lib/client/ciclo-context";
+import { showScreen } from "@/lib/client/tab-screen";
 import { cn } from "@/lib/utils";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const { t, wallet } = useCiclo();
   const screenRef = useRef<HTMLDivElement>(null);
+
+  // The tab bar moves this screen while its selection is dragged.
+  useLayoutEffect(() => (screenRef.current ? showScreen(screenRef.current) : undefined), []);
 
   // A screen that slides in arrives whole: its own entrance animations
   // (fade-up and friends) would play on top of the slide. Skip them to the end.
