@@ -142,9 +142,11 @@ type Press = {
   held: number;
   tabWidth: number;
   dragging: boolean;
-  /** Where the finger is, in tabs, its speed in tabs per second, and when it last moved. */
+  /** Where the finger is, in tabs, and its speed in tabs per second. */
   finger: number;
   speed: number;
+  /** When the finger last moved (the touch's own time), and when that move got here. */
+  touchedAt: number;
   movedAt: number;
 };
 
@@ -272,7 +274,8 @@ export function FloatingTabBar() {
       dragging: false,
       finger: pressed,
       speed: 0,
-      movedAt: event.timeStamp,
+      touchedAt: event.timeStamp,
+      movedAt: performance.now(),
     };
     // Now, before the finger moves, so the layer is ready when the screen does.
     if (!prefersReducedMotion()) layerScreen(true);
@@ -329,10 +332,13 @@ export function FloatingTabBar() {
       followRef.current = !prefersReducedMotion();
     }
     const finger = press.start + dx / press.tabWidth;
-    const seconds = (event.timeStamp - press.movedAt) / 1000;
+    // Speed from the touch times; stillness from when the events get here, since
+    // after a slow frame they arrive late, with old times, from a finger still moving.
+    const seconds = (event.timeStamp - press.touchedAt) / 1000;
     if (seconds > 0.001) press.speed = 0.6 * press.speed + (0.4 * (finger - press.finger)) / seconds;
     press.finger = finger;
-    press.movedAt = event.timeStamp;
+    press.touchedAt = event.timeStamp;
+    press.movedAt = performance.now();
     const frame = dragFrame(press.start, finger - press.start, press.held, TABS.length);
     if (frame.held !== press.held) {
       press.held = frame.held;
