@@ -7,22 +7,25 @@ import { recoveryAttempts, recoveryMailboxes } from "@/lib/db/schema";
 import { getDb } from "@/lib/db";
 import { emailLookup, hashIp, jsonError } from "@/lib/server/env";
 import { mailboxIsFetchable } from "@/lib/server/mailbox";
+import { clientIp, sourceKey, takeRateLimit, tooManyRequests } from "@/lib/server/rate-limit";
 import { decoyKit } from "@/lib/server/recovery-decoy";
 
 const MAX_PER_HOUR = 5;
 
 export async function POST(request: Request) {
-  const body = (await request.json()) as { email?: string };
-  const email = body.email?.trim().toLowerCase() ?? "";
-  if (!email.includes("@")) {
+  const body = (await request.json()) as { email?: unknown };
+  const email = typeof body.email === "string" ? body.email.trim().toLowerCase() : "";
+  if (!email.includes("@") || email.length > 320) {
     return jsonError("Invalid email", 400);
   }
   const lookup = emailLookup(email);
-  const ip =
-    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
-    request.headers.get("x-real-ip") ??
-    "local";
+  const ip = clientIp(request);
   const db = getDb();
+  // Per source, on top of the per-email limit below: stops one client from
+  // collecting kits (or decoys) for many addresses. Same for every email.
+  if (!(await takeRateLimit(db, "recovery-fetch", sourceKey(request)))) {
+    return tooManyRequests();
+  }
   const hourAgo = new Date(Date.now() - 60 * 60 * 1000);
   const recent = await db
     .select({ n: sql<number>`count(*)::int` })

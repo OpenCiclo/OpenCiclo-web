@@ -16,8 +16,10 @@ import {
   MAILBOX_SEND_MAX_PER_HOUR,
   mailboxRegisterAction,
   parseMailboxEmail,
+  parseMailboxKit,
   parseMailLocale,
 } from "@/lib/server/mailbox";
+import { clientIp, sourceKey, takeRateLimit, tooManyRequests } from "@/lib/server/rate-limit";
 import { mailTransportConfigured, sendMailboxCode } from "@/lib/server/mail";
 
 export async function POST(request: Request) {
@@ -31,13 +33,11 @@ export async function POST(request: Request) {
   if (!email) {
     return jsonError("Invalid email", 400);
   }
-  const wrappedSecret = typeof body.wrappedSecret === "string" ? body.wrappedSecret : "";
-  const wrapNonce = typeof body.wrapNonce === "string" ? body.wrapNonce : "";
-  const wrapSalt = typeof body.wrapSalt === "string" ? body.wrapSalt : "";
-  const wrapParams = body.wrapParams;
-  if (!wrappedSecret || !wrapNonce || !wrapSalt || !wrapParams) {
+  const kit = parseMailboxKit(body);
+  if (!kit) {
     return jsonError("Incomplete kit", 400);
   }
+  const { wrappedSecret, wrapNonce, wrapSalt, wrapParams } = kit;
 
   const lookup = emailLookup(email);
   const db = getDb();
@@ -83,10 +83,13 @@ export async function POST(request: Request) {
     return jsonError("Mail is not configured", 503);
   }
 
-  const ip =
-    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
-    request.headers.get("x-real-ip") ??
-    "local";
+  // Per source, before we know which branch applies, so it treats taken and
+  // new emails the same. Caps how many code mails one client can trigger.
+  if (!(await takeRateLimit(db, "recovery-register", sourceKey(request)))) {
+    return tooManyRequests();
+  }
+
+  const ip = clientIp(request);
   const hourAgo = new Date(Date.now() - 60 * 60 * 1000);
   const recent = await db
     .select({ n: sql<number>`count(*)::int` })
