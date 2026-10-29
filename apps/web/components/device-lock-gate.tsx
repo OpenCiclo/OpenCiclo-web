@@ -8,7 +8,8 @@ import { Button } from "@/components/ui/button";
 import { useCiclo } from "@/lib/client/ciclo-context";
 
 // Android only (layout.android.tsx). Covers every screen while an on-device diary
-// is locked. /unlock stays reachable so the phrase can open it.
+// is locked. /unlock stays reachable so the phrase can open it. The Android back
+// button leaves the app here (`data-device-lock`, lib/client/android-back.ts).
 export function DeviceLockGate() {
   const { t, ready, deviceLocked, retryRestore } = useCiclo();
   const pathname = usePathname();
@@ -22,6 +23,7 @@ export function DeviceLockGate() {
       role="dialog"
       aria-modal="true"
       aria-labelledby="device-lock-title"
+      data-device-lock=""
       className="fixed inset-0 z-50 flex flex-col justify-center bg-background px-6"
     >
       <div className="mx-auto flex w-full max-w-md flex-col gap-6">
