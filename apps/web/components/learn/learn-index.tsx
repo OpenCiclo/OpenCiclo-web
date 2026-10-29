@@ -4,12 +4,13 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Search, X } from "lucide-react";
 
 import { AppShell } from "@/components/app-shell";
 import { Badge } from "@/components/ui/badge";
 import { useCiclo } from "@/lib/client/ciclo-context";
+import { useIsGhost } from "@/lib/client/ghost";
 import { formatIsoUtc } from "@/lib/format-date";
 import {
   LEARN_CATEGORIES,
@@ -22,8 +23,25 @@ import {
 } from "@/lib/learn/articles";
 import { cn } from "@/lib/utils";
 
+/** Pixels from the top of the screen where the compact bar's filters sit. */
+const BAR_PADDING = 8;
+/** The magnifier bubble's width plus the gap after it: how far the filters move to make room. */
+const BUBBLE_ROOM = 52;
+
 export function LearnIndex({ articles }: { articles: LearnArticle[] }) {
   const { t, locale } = useCiclo();
+  const ghost = useIsGhost();
+  // Scrolled down, the search box and the filters turn into a compact bar
+  // stuck to the top: a magnifier bubble, and the filters beside it, which
+  // scroll sideways. The bar takes over when the filters reach the top, and
+  // the block it replaces scrolls away as before, so the list never jumps.
+  const chipsRef = useRef<HTMLDivElement>(null);
+  const barChipsRef = useRef<HTMLDivElement>(null);
+  const [scrolledPast, setScrolledPast] = useState(false);
+  // The bubble opened the search box in the bar: it keeps the bar up while
+  // it has the focus, so the keyboard stays put even when fewer results make
+  // the page short. With text in it, the bar shows the box instead of the bubble.
+  const [barSearch, setBarSearch] = useState(false);
   const [activeSlug, setActiveSlug] = useState<string | null>(null);
   const [closing, setClosing] = useState(false);
   const [category, setCategory] = useState<LearnCategory | null>(null);
@@ -65,6 +83,39 @@ export function LearnIndex({ articles }: { articles: LearnArticle[] }) {
       }));
   }, [articles, categories, category, query, locale]);
 
+  const compact = scrolledPast || barSearch;
+
+  useEffect(() => {
+    // A ghost (see TabGhosts) sits at the top and out of sight: never compact.
+    if (ghost) return;
+    const row = chipsRef.current;
+    if (!row) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        const top = entry.rootBounds?.top ?? BAR_PADDING;
+        setScrolledPast(entry.intersectionRatio < 1 && entry.boundingClientRect.top < top);
+      },
+      { rootMargin: `-${BAR_PADDING}px 0px 0px 0px`, threshold: 1 },
+    );
+    observer.observe(row);
+    return () => observer.disconnect();
+  }, [ghost]);
+
+  // The two rows of filters show the same chips: hand over how far they
+  // were scrolled, so the one taking over starts where the other was.
+  useLayoutEffect(() => {
+    const from = compact ? chipsRef.current : barChipsRef.current;
+    const to = compact ? barChipsRef.current : chipsRef.current;
+    if (from && to) to.scrollLeft = from.scrollLeft;
+  }, [compact]);
+
+  /** From the bar, a new filter or search starts the list again right under the bar. */
+  function showListTop() {
+    const row = chipsRef.current;
+    if (!compact || !row) return;
+    window.scrollTo({ top: row.getBoundingClientRect().top + window.scrollY - BAR_PADDING + 1, behavior: "instant" });
+  }
+
   const closeOverlay = useCallback(() => {
     if (!activeArticle || closing) return;
     if (typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
@@ -86,7 +137,75 @@ export function LearnIndex({ articles }: { articles: LearnArticle[] }) {
 
   return (
     <AppShell>
+      <h1 className="mb-3 font-serif text-xl text-foreground">{t.learn}</h1>
       <div className="flex flex-col gap-5 pb-4">
+        {/* The compact bar. Sticky and of no height, so it takes no room in
+            the list; it shows only once the filters below reach the top. */}
+        <div className="sticky top-0 z-20 -mx-5 -mb-5 h-0">
+          <div
+            aria-hidden={!compact}
+            inert={!compact}
+            className={cn(
+              "absolute inset-x-0 top-0 flex items-center gap-2 bg-background/90 py-2 pl-5 backdrop-blur-md transition-opacity duration-200 motion-reduce:transition-none",
+              compact ? "opacity-100" : "pointer-events-none opacity-0",
+            )}
+          >
+            {barSearch || (compact && query !== "") ? (
+              <label className="relative mr-5 block flex-1">
+                <span className="sr-only">{t.learnSearchPlaceholder}</span>
+                <Search
+                  className="pointer-events-none absolute top-1/2 left-4 size-4 -translate-y-1/2 text-muted-foreground"
+                  aria-hidden
+                />
+                <input
+                  type="search"
+                  autoFocus={barSearch}
+                  value={query}
+                  onChange={(event) => {
+                    setQuery(event.target.value);
+                    showListTop();
+                  }}
+                  onBlur={() => setBarSearch(false)}
+                  placeholder={t.learnSearchPlaceholder}
+                  className="flex min-h-11 w-full rounded-full border border-input bg-card py-2 pr-4 pl-10 text-base shadow-sm md:text-sm"
+                />
+              </label>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  aria-label={t.learnSearchPlaceholder}
+                  onClick={() => setBarSearch(true)}
+                  className={cn(
+                    "grid size-11 shrink-0 place-items-center rounded-full border border-input bg-card shadow-sm transition-transform duration-300 active:scale-95 motion-reduce:transition-none",
+                    compact ? "scale-100" : "scale-50",
+                  )}
+                >
+                  <Search className="size-4 text-muted-foreground" aria-hidden />
+                </button>
+                <div
+                  ref={barChipsRef}
+                  role="group"
+                  aria-label={t.learnCategoriesLabel}
+                  className={cn(
+                    "flex min-w-0 flex-1 gap-2 overflow-x-auto pr-5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+                    "transition-transform duration-300 ease-out motion-reduce:transition-none",
+                  )}
+                  style={{ transform: compact ? undefined : `translateX(-${BUBBLE_ROOM}px)` }}
+                >
+                  <CategoryChips
+                    categories={categories}
+                    category={category}
+                    onPick={(value) => {
+                      setCategory(value);
+                      showListTop();
+                    }}
+                  />
+                </div>
+              </>
+            )}
+          </div>
+        </div>
         <div className="animate-fade-up flex flex-col gap-3">
           <label className="relative block">
             <span className="sr-only">{t.learnSearchPlaceholder}</span>
@@ -103,18 +222,13 @@ export function LearnIndex({ articles }: { articles: LearnArticle[] }) {
             />
           </label>
           <div
+            ref={chipsRef}
             role="group"
             aria-label={t.learnCategoriesLabel}
+            aria-hidden={compact}
             className="-mx-5 flex gap-2 overflow-x-auto px-5 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           >
-            <CategoryChip active={category === null} onClick={() => setCategory(null)}>
-              {t.learnAll}
-            </CategoryChip>
-            {categories.map((value) => (
-              <CategoryChip key={value} active={category === value} onClick={() => setCategory(value)}>
-                {t[LEARN_CATEGORY_COPY[value].title]}
-              </CategoryChip>
-            ))}
+            <CategoryChips categories={categories} category={category} onPick={setCategory} />
           </div>
         </div>
 
@@ -253,6 +367,31 @@ export function LearnIndex({ articles }: { articles: LearnArticle[] }) {
         </div>
       ) : null}
     </AppShell>
+  );
+}
+
+/** The filters: all articles, then one chip per category. */
+function CategoryChips({
+  categories,
+  category,
+  onPick,
+}: {
+  categories: LearnCategory[];
+  category: LearnCategory | null;
+  onPick: (value: LearnCategory | null) => void;
+}) {
+  const { t } = useCiclo();
+  return (
+    <>
+      <CategoryChip active={category === null} onClick={() => onPick(null)}>
+        {t.learnAll}
+      </CategoryChip>
+      {categories.map((value) => (
+        <CategoryChip key={value} active={category === value} onClick={() => onPick(value)}>
+          {t[LEARN_CATEGORY_COPY[value].title]}
+        </CategoryChip>
+      ))}
+    </>
   );
 }
 
