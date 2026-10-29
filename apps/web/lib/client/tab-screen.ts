@@ -1,13 +1,11 @@
 // Copyright © 2026 Emma Flora Harbison & Luis Rey Sánchez
 // SPDX-License-Identifier: Apache-2.0
 
-// The content of the screen AppShell is showing, so the tab bar can move it
-// with the finger while the selection is dragged (see FloatingTabBar). AppShell
-// clips it. AppShell also says when the screen carousel's slides start, so the
-// tab bar can take them over (see screen-carousel.ts).
+// The content of the screen AppShell is showing, and the ghosts of the other
+// tabs, so the tab bar can move them with the finger while the selection is
+// dragged (see FloatingTabBar and TabGhosts). AppShell clips its content.
 
 let shown: HTMLElement | null = null;
-let onSlides: (() => void) | null = null;
 
 /**
  * Marks `screen` as the one on display. The cleanup runs when the screen
@@ -23,19 +21,6 @@ export function showScreen(screen: HTMLElement): () => void {
 
 export function shownScreen(): HTMLElement | null {
   return shown;
-}
-
-/** Called by AppShell when the slides that bring a screen in have started. */
-export function slidesStarted(): void {
-  onSlides?.();
-}
-
-/** Calls `callback` each time the slides that bring a screen in start. */
-export function watchSlides(callback: () => void): () => void {
-  onSlides = callback;
-  return () => {
-    if (onSlides === callback) onSlides = null;
-  };
 }
 
 // Copies of the other tab screens (see TabGhosts), by tab, for a drag to slide in.

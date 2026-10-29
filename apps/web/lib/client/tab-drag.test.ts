@@ -4,15 +4,11 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  STILL_FRAMES,
-  STILL_MS,
-  SWEEP_SPEED,
   SWITCH_AT,
   dragFrame,
   labelScale,
   resist,
   stepSpring,
-  stoppedOnTab,
   stretchScale,
   type Spring,
 } from "@/lib/client/tab-drag";
@@ -72,20 +68,6 @@ describe("tab bar drag", () => {
     expect(gum.x).toBeGreaterThan(stretchScale(1).x);
     expect(gum.x).toBeLessThan(1.3);
     expect(labelScale({ x: 1, y: 1 })).toEqual({ x: 1, y: 1 });
-  });
-
-  it("changes screens where the finger stops, not on every tab a sweep passes", () => {
-    const fast = SWEEP_SPEED + 2;
-    // Slow enough to be stopping on this tab.
-    expect(stoppedOnTab(1, 0, 0)).toBe(true);
-    // Sweeping past it, still moving.
-    expect(stoppedOnTab(fast, 0, 0)).toBe(false);
-    expect(stoppedOnTab(-fast, 0, 0)).toBe(false);
-    // The last move was fast, but frames and time went by without another: it stopped.
-    expect(stoppedOnTab(fast, STILL_FRAMES, STILL_MS)).toBe(true);
-    // One slow frame is not a stop, nor a few quick frames the finger skipped.
-    expect(stoppedOnTab(fast, 1, 200)).toBe(false);
-    expect(stoppedOnTab(fast, STILL_FRAMES, STILL_MS - 15)).toBe(false);
   });
 
   it("springs to the target with a small overshoot", () => {

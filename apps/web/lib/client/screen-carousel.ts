@@ -1,65 +1,14 @@
 // Copyright © 2026 Emma Flora Harbison & Luis Rey Sánchez
 // SPDX-License-Identifier: Apache-2.0
 
-// Screens that follow the finger while the tab bar selection is dragged, like
-// a carousel: halfway between two tabs, half of each screen shows. Only the
-// screen on display exists, so the tab bar navigates to the next tab as soon
-// as the drag heads that way, and the view transition that swaps the two
-// screens (the `tab-slide` animations, see globals.css) is paused: its
-// progress comes from the finger instead of the clock.
+// The spring that moves the strip of screens while the tab bar selection is
+// dragged (see FloatingTabBar and TabGhosts).
 
 import { type Spring, stepSpring } from "@/lib/client/tab-drag";
 
 /**
- * How far along a drag from tab `from` toward the tab on its `direction` side
- * the finger is, from 0 (still on `from`) to 1 (on the next tab). Linear: the
- * screens move exactly as far as the finger, no resistance.
- */
-export function slideProgress(finger: number, from: number, direction: number): number {
-  return Math.min(1, Math.max(0, (finger - from) * direction));
-}
-
-/**
- * Takes over the slides of the view transition that just started: pauses them
- * and returns them, or returns null if they cannot follow a finger yet (the
- * old screen left alone; the new one comes in a later transition).
- */
-export function takeSlides(): Animation[] | null {
-  const slides = document
-    .getAnimations()
-    .filter((animation) => animation instanceof CSSAnimation && animation.animationName.startsWith("tab-slide"));
-  if (!slides.some((slide) => (slide as CSSAnimation).animationName.startsWith("tab-slide-in"))) return null;
-  for (const slide of slides) slide.pause();
-  return slides;
-}
-
-function length(slide: Animation): number {
-  const duration = slide.effect?.getComputedTiming().duration;
-  return typeof duration === "number" ? duration : 0;
-}
-
-/** Shows the slides `progress` of the way: 0 with the old screen in place, 1 with the new one. */
-export function setSlides(slides: Animation[], progress: number): void {
-  for (const slide of slides) slide.currentTime = progress * length(slide);
-}
-
-/** Ends the transition with the new screen in place. */
-export function finishSlides(slides: Animation[]): void {
-  for (const slide of slides) slide.finish();
-}
-
-/** Ends the transition with the old screen in place, where it started. */
-export function rewindSlides(slides: Animation[]): void {
-  for (const slide of slides) {
-    slide.playbackRate = -1;
-    slide.finish();
-  }
-}
-
-/**
  * Stiffness of the spring that keeps the screens with the finger: critically
- * damped, it trails by about 20 ms, enough to smooth out uneven touch events
- * and to catch up gently when the next screen shows up late.
+ * damped, it trails by about 20 ms, enough to smooth out uneven touch events.
  */
 const FOLLOW_STIFFNESS = 2400;
 /**
@@ -83,9 +32,9 @@ const STEP = 1 / 240;
 const MAX_FRAME = 0.05;
 
 /**
- * Slide progress (0 to 1, see `setSlides`), or a position along the tabs, on
- * a critically damped spring, one animation frame at a time: it never
- * bounces. `paint` gets each frame, clamped to 0..`max`.
+ * A position along the tabs on a critically damped spring, one animation
+ * frame at a time: it never bounces. `paint` gets each frame, clamped to
+ * 0..`max`.
  */
 export class SlideMotion {
   private spring: Spring = { value: 0, velocity: 0 };

@@ -416,20 +416,12 @@
  * tabs, the tab bar sets data-tab-slide on <html> to "next" (the new tab is to
  * the right) or "prev". Otherwise the screens swap in place.
  *
- * A drag of the tab bar selection moves the screens with the finger instead
- * (see lib/client/screen-carousel.ts): the tab bar sets data-tab-drag, the
- * slides run linear and paused, and the finger sets their progress.
- * --tab-slide-out is how far the old screen had already followed the finger
- * when its picture was taken, so the slide picks up from there.
+ * A drag of the tab bar selection moves the screens itself (see TabGhosts),
+ * and its screen change swaps them in place with no slide.
  */
 :root {
   --tab-slide-duration: 0.4s;
   --tab-slide-easing: cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-:root[data-tab-drag] {
-  --tab-slide-duration: 1s;
-  --tab-slide-easing: linear;
 }
 
 /*
@@ -503,12 +495,6 @@
   overflow: clip;
 }
 
-/* The finger can bring the old screen back past where its picture was taken:
-   no clip, or a gap would open between the two screens. */
-:root[data-tab-drag]::view-transition-group(.tab-slide) {
-  overflow: visible;
-}
-
 ::view-transition-old(.tab-slide),
 ::view-transition-new(.tab-slide) {
   animation: none;
@@ -536,14 +522,9 @@
   }
 }
 
-/* The old screen's picture sits where it was, --tab-slide-out along already:
-   from there it starts back at its place and ends a whole screen away. */
 @keyframes tab-slide-out-left {
-  from {
-    transform: translateX(var(--tab-slide-out, 0%));
-  }
   to {
-    transform: translateX(calc(var(--tab-slide-out, 0%) - 100%));
+    transform: translateX(-100%);
   }
 }
 
@@ -554,11 +535,8 @@
 }
 
 @keyframes tab-slide-out-right {
-  from {
-    transform: translateX(calc(0% - var(--tab-slide-out, 0%)));
-  }
   to {
-    transform: translateX(calc(100% - var(--tab-slide-out, 0%)));
+    transform: translateX(100%);
   }
 }
 
