@@ -201,12 +201,13 @@ export function FloatingTabBar() {
   const offsetRef = useRef(0);
   // Frame watch for a finger that sweeps past tabs (see `followRoute`).
   const sweepFrameRef = useRef(0);
-  // The tab a drag has picked, shown as selected until the route catches up.
-  const [held, setHeld] = useState<{ index: number; pathname: string } | null>(null);
-  // Once the route moves, forget it: coming back to this route later must not
-  // light the tab the old drag picked.
-  if (held && held.pathname !== pathname) setHeld(null);
-  const litIndex = held?.pathname === pathname ? held.index : activeIndex;
+  // The tab the selection holds during a drag, lit whatever the route is (the
+  // route runs ahead, to the screen the finger heads for). After the finger
+  // lifts it stays lit until the route gets there, or moves anywhere else:
+  // coming back to this route later must not light the tab an old drag picked.
+  const [held, setHeld] = useState<{ index: number; down: boolean; pathname: string } | null>(null);
+  if (held && !held.down && (held.index === activeIndex || held.pathname !== pathname)) setHeld(null);
+  const litIndex = held ? held.index : activeIndex;
 
   function motion() {
     motionRef.current ??= new SelectionMotion(
@@ -520,6 +521,7 @@ export function FloatingTabBar() {
       press.dragging = true;
       event.currentTarget.setPointerCapture(event.pointerId);
       followRef.current = !prefersReducedMotion();
+      setHeld({ index: press.held, down: true, pathname });
     }
     const finger = press.start + dx / press.tabWidth;
     const seconds = (event.timeStamp - press.movedAt) / 1000;
@@ -531,7 +533,7 @@ export function FloatingTabBar() {
     const frame = dragFrame(press.start, finger - press.start, press.held, TABS.length);
     if (frame.held !== press.held) {
       press.held = frame.held;
-      setHeld({ index: frame.held, pathname });
+      setHeld({ index: frame.held, down: true, pathname });
     }
     if (followRef.current) slideScreens(press);
     else followRoute(press);
@@ -557,7 +559,7 @@ export function FloatingTabBar() {
     else if (!pair.reverting) landPair(pair, target);
     else if (target !== pair.from) pair.afterRevert = () => navigateTo(target);
     motion().settle(target);
-    if (target === activeIndex) setHeld(null);
+    setHeld({ index: target, down: false, pathname });
   }
 
   // A drag can end in a click on the link it started on; that is not a tap.
