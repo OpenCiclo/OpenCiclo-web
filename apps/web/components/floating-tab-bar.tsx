@@ -30,6 +30,8 @@ const CLICK_AFTER_DRAG_MS = 500;
 const WAIT_LIMIT = 0.35;
 /** A finger this far (in tabs) back past where the drag started turns it around. */
 const TURN_BACK = 0.08;
+/** How far (in tabs) the finger leaves a screen before the next one is brought in. */
+const LEAVE_AT = 0.05;
 /** How long the screens take to finish a whole screen's slide once the finger lifts. */
 const LAND_MS = 320;
 /** How long going back to the first screen may take before the slides are put away anyway. */
@@ -150,6 +152,8 @@ type Press = {
   handledAt: number;
   /** Screens this drag has already slid all the way through. */
   slidThrough: number;
+  /** How far, in tabs, the finger had moved when the drag took hold. */
+  slop: number;
 };
 
 /**
@@ -322,6 +326,7 @@ export function FloatingTabBar() {
       stillFrames: 0,
       handledAt: performance.now(),
       slidThrough: 0,
+      slop: 0,
     };
     // Now, before the finger moves, so the layer is ready when the screen does.
     if (!prefersReducedMotion()) layerScreen(true);
@@ -368,16 +373,19 @@ export function FloatingTabBar() {
   // half of each screen shows. The route goes to the tab the finger heads
   // for as soon as it heads there, a real navigation, so that screen exists.
   function slideScreens(press: Press) {
+    // Measured from where the drag took hold, past the slop, so the screens do
+    // not jump when it starts. They trail the finger by those few pixels.
+    const finger = press.finger - press.slop;
     const pair = pairRef.current;
     if (pair) {
       if (pair.reverting) return;
-      if ((press.finger - pair.from) * pair.direction < -TURN_BACK) {
+      if ((finger - pair.from) * pair.direction < -TURN_BACK) {
         // Turned around past where it started: back to that screen first,
         // then on to the other side.
         revertPair(pair, null);
         return;
       }
-      pair.progress = slideProgress(press.finger, pair.from, pair.direction);
+      pair.progress = slideProgress(finger, pair.from, pair.direction);
       if (pair.slides) {
         setSlides(pair.slides, pair.progress);
         if (pair.progress >= 1) slidThrough(press, pair);
@@ -389,14 +397,23 @@ export function FloatingTabBar() {
     const from = screenTabRef.current;
     // A screen change is still on its way: wait for it.
     if (from < 0 || routeTabRef.current !== from) return;
-    const direction = Math.sign(press.finger - from);
+    const away = finger - from;
+    const direction = Math.sign(away);
     const to = from + direction;
-    // Nothing that way: the screen stays put.
-    if (direction === 0 || to < 0 || to >= TABS.length) return;
     // Sweeping on past the tab it just slid to, or already past the next tab:
     // one screen change, where it stops, not every screen on the way.
-    if (Math.abs(press.finger - from) > 1 || (press.slidThrough > 0 && Math.abs(press.speed) >= SWEEP_SPEED)) {
+    if (Math.abs(away) > 1 || (press.slidThrough > 0 && Math.abs(press.speed) >= SWEEP_SPEED)) {
       followRoute(press);
+      return;
+    }
+    // Nothing that way: the screen stays put.
+    if (direction === 0 || to < 0 || to >= TABS.length) {
+      moveScreen(0);
+      return;
+    }
+    // Close to this screen's tab: it follows the finger, the next one is not needed yet.
+    if (Math.abs(away) < LEAVE_AT) {
+      moveScreen(-away);
       return;
     }
     stopSweepWatch();
@@ -405,13 +422,14 @@ export function FloatingTabBar() {
       to,
       direction,
       slides: null,
-      progress: slideProgress(press.finger, from, direction),
+      progress: slideProgress(finger, from, direction),
       landing: null,
       reverting: false,
       afterRevert: null,
       revertTimer: 0,
       stopTween: null,
     };
+    moveScreen(-direction * Math.min(pairRef.current.progress, WAIT_LIMIT));
     navigateTo(to);
   }
 
@@ -529,6 +547,7 @@ export function FloatingTabBar() {
       }
       if (Math.abs(dx) <= DRAG_SLOP) return;
       press.dragging = true;
+      press.slop = dx / press.tabWidth;
       event.currentTarget.setPointerCapture(event.pointerId);
       followRef.current = !prefersReducedMotion();
       setHeld({ index: press.held, down: true, pathname });
