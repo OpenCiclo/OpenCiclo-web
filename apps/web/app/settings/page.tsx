@@ -9,6 +9,7 @@ import { InvalidCredentialsError, useCiclo } from "@/lib/client/ciclo-context";
 import { lastEmail } from "@/lib/client/kit-store";
 import { storeBrowserPassword } from "@/lib/client/credentials";
 import { diaryToCsv, diaryToJson, mergeDiaries, parseImportedFile, previewImport } from "@/lib/diary-io";
+import { VISUAL_SEASONS_AVAILABLE } from "@/lib/features";
 import { otherLocale } from "@/lib/i18n";
 import { AppShell } from "@/components/app-shell";
 import { InstallPrompt } from "@/components/install-prompt";
@@ -107,6 +108,7 @@ export default function SettingsPage() {
         </Button>
         <label
           htmlFor="visual-seasons"
+          hidden={!VISUAL_SEASONS_AVAILABLE}
           className="flex cursor-pointer items-center justify-between gap-4 rounded-2xl bg-muted/60 p-3"
         >
           <div className="min-w-0">
