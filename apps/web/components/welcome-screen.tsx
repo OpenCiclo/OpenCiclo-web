@@ -11,7 +11,7 @@ import { Card } from "@/components/ui/card";
 import { otherLocale } from "@/lib/i18n";
 
 export function WelcomeScreen() {
-  const { t, locale, setLocale, restoreFailed, retryRestore } = useCiclo();
+  const { t, locale, setLocale, restoreFailed, restoreNoAccount, retryRestore } = useCiclo();
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [retrying, setRetrying] = useState(false);
@@ -50,6 +50,13 @@ export function WelcomeScreen() {
           >
             {retrying ? "…" : t.restoreRetry}
           </Button>
+        </Card>
+      ) : null}
+      {/* No retry: asking again gets the same answer. The buttons below are the way on. */}
+      {restoreNoAccount ? (
+        <Card role="alert" className="flex flex-col gap-3 border-destructive/30 bg-destructive/5 p-4">
+          <p className="text-sm font-semibold text-card-foreground">{t.restoreNoAccountTitle}</p>
+          <p className="text-sm leading-6 text-muted-foreground">{t.restoreNoAccountBody}</p>
         </Card>
       ) : null}
       <div>

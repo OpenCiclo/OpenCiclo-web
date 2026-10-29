@@ -5,7 +5,13 @@ import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 
 import { PHRASE_USERNAME, getBrowserPassword, storeBrowserPassword } from "@/lib/client/credentials";
-import { InvalidCredentialsError, RateLimitedError, lastEmail, useCiclo } from "@/lib/client/ciclo-context";
+import {
+  AccountNotFoundError,
+  InvalidCredentialsError,
+  RateLimitedError,
+  lastEmail,
+  useCiclo,
+} from "@/lib/client/ciclo-context";
 import { goBack, returnTo } from "@/lib/client/back-navigation";
 import { useBrowserValue } from "@/lib/client/hooks";
 import { InvalidPhraseError } from "@/lib/crypto/wallet";
@@ -86,7 +92,13 @@ export default function UnlockPage() {
       await storeBrowserPassword(PHRASE_USERNAME, normalized);
       returnTo(router, unlockDestination(new URLSearchParams(window.location.search).get("next")));
     } catch (cause) {
-      setError(cause instanceof InvalidPhraseError ? t.invalidPhrase : t.errorGeneric);
+      setError(
+        cause instanceof InvalidPhraseError
+          ? t.invalidPhrase
+          : cause instanceof AccountNotFoundError
+            ? t.noAccountForPhrase
+            : t.errorGeneric,
+      );
     } finally {
       setBusy(false);
     }
