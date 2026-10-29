@@ -21,10 +21,21 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     }
   }
 
+  // Next.js sometimes swaps screens in two commits: the old screen leaves in
+  // one view transition and the new one arrives in the next, which waits for
+  // the first to end. Hurry a lone exit so the gap stays short.
+  function onExit() {
+    const slides = document.getAnimations().filter((animation) => animation instanceof CSSAnimation);
+    if (slides.some((animation) => animation.animationName.startsWith("tab-slide-in"))) return;
+    for (const animation of slides) {
+      if (animation.animationName.startsWith("tab-slide-out")) animation.playbackRate = 3;
+    }
+  }
+
   // Screens enter and leave as a carousel when the route moves between tabs.
   // The tab bar picks the direction; see `tab-slide` in globals.css.
   return (
-    <ViewTransition enter="tab-slide" exit="tab-slide" default="none" onEnter={onEnter}>
+    <ViewTransition enter="tab-slide" exit="tab-slide" default="none" onEnter={onEnter} onExit={onExit}>
       <div ref={screenRef} className="mx-auto flex min-h-dvh w-full max-w-md flex-col bg-background">
         <main id="main-content" className="flex-1 px-5 pt-6 pb-8">
           {children}
