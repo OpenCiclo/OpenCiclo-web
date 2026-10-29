@@ -101,16 +101,17 @@ The app talks to one host only. An account that lives on production is not on th
 - WebView debugging is on in debug builds only (Capacitor's default).
 - Capacitor's bridge logging is off in every build (`loggingBehavior: "none"`). With it on, logcat would get every request and response body (emails on the recovery endpoints) and every plugin result, including the phrase from `DeviceVault.readPhrase`. Debug through `chrome://inspect` instead.
 - The app has a Content Security Policy in a meta tag (`layout.android.tsx`), since a static export sends no headers.
+- The launcher icon (adaptive, themed, and bitmaps for Android 7) and the splash screen are the brand mark. The system splash shows the still mark, then the web loading screen draws the same mark at the same size and moves it. `npm run icons` in `apps/web` regenerates them. See `docs/brand/logo.md`.
 
 ## Known gaps
 
 - A full reload always lands on the start screen. Capacitor serves the root `index.html` for any path without a file extension.
-- Edge-to-edge layout, the app icon, and the splash screen still use Capacitor defaults.
+- Edge-to-edge layout still uses Capacitor defaults.
 - Hosted accounts in the app still keep "Keep me signed in" in WebView `localStorage`, as on the web. Only on-device diaries use Keystore.
 - The web build emits Capacitor as a lazy chunk (Turbopack keeps dynamic imports). The web never requests it.
 
 ## Roadmap
 
 1. **Hosted phrase in Keystore.** Move the persisted phrase of hosted accounts from WebView storage to the Keystore seal used by on-device mode.
-2. **Android polish.** Safe areas, icon and splash screen.
+2. **Android polish.** Safe areas.
 3. **Google Play.** Release signing, the health apps declaration, the Data safety form, and the privacy policy.
