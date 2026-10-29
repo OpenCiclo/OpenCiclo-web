@@ -4,7 +4,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  SWEEP_PAUSE_MS,
+  STILL_FRAMES,
   SWEEP_SPEED,
   SWITCH_AT,
   dragFrame,
@@ -90,8 +90,9 @@ describe("tab bar drag", () => {
     // Sweeping past it, still moving.
     expect(stoppedOnTab(SWEEP_SPEED + 2, 0)).toBe(false);
     expect(stoppedOnTab(-(SWEEP_SPEED + 2), 0)).toBe(false);
-    // The last move was fast, but the finger has not moved since: it stopped.
-    expect(stoppedOnTab(SWEEP_SPEED + 2, SWEEP_PAUSE_MS)).toBe(true);
+    // The last move was fast, but frames went by without another: it stopped.
+    expect(stoppedOnTab(SWEEP_SPEED + 2, STILL_FRAMES - 1)).toBe(false);
+    expect(stoppedOnTab(SWEEP_SPEED + 2, STILL_FRAMES)).toBe(true);
   });
 
   it("springs to the target with a small overshoot", () => {
