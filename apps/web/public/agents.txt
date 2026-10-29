@@ -13,6 +13,7 @@ Cursor: also see the short AGENTS.md at the repo root. Do not edit apps/web/AGEN
 - Ciclo for Android: Capacitor shell in `apps/mobile/` around a static export of `apps/web`. Same UI, crypto, forecast, and vault code. See "Android app" below and `docs/android.md`.
 - Names: Python import is `openciclo`, never `oddy`. Some crypto labels and legacy cookies still say `oddy-*` / `oddy_session` — do not rename those without a migration.
 - Public name in the UI: Ciclo. Repo/docs: OpenCiclo.
+- Brand: the names OpenCiclo and Ciclo and the round-sea logo are trademarks, outside Apache-2.0 (TRADEMARKS.md). The logo files listed there (`lib/brand/sea-mark.ts`, the generated icons, `docs/brand/sea-mark-motion.html`) are all rights reserved: keep their notices, never mark them Apache-2.0, and add any new logo file to the list.
 
 ## Non-negotiables
 
