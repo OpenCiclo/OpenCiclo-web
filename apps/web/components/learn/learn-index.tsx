@@ -109,6 +109,15 @@ export function LearnIndex({ articles }: { articles: LearnArticle[] }) {
     if (from && to) to.scrollLeft = from.scrollLeft;
   }, [compact]);
 
+  // On Android, hiding the keyboard keeps the focus in the box. Empty, it
+  // closes once the list is scrolled, and the bubble and filters come back.
+  useEffect(() => {
+    if (!barSearch || query !== "") return;
+    const close = () => (document.activeElement as HTMLElement | null)?.blur();
+    window.addEventListener("scroll", close, { passive: true });
+    return () => window.removeEventListener("scroll", close);
+  }, [barSearch, query]);
+
   /** From the bar, a new filter or search starts the list again right under the bar. */
   function showListTop() {
     const row = chipsRef.current;
@@ -163,7 +172,8 @@ export function LearnIndex({ articles }: { articles: LearnArticle[] }) {
                   value={query}
                   onChange={(event) => {
                     setQuery(event.target.value);
-                    showListTop();
+                    // Not for an emptied box: that scroll would close it mid-edit.
+                    if (event.target.value) showListTop();
                   }}
                   onBlur={() => setBarSearch(false)}
                   placeholder={t.learnSearchPlaceholder}
