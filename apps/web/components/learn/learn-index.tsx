@@ -201,6 +201,8 @@ export function LearnIndex({ articles }: { articles: LearnArticle[] }) {
                   )}
                   style={{
                     paddingLeft: `calc(1.25rem + ${BUBBLE_ROOM}px)`,
+                    // Gone left of the bubble: the filters disappear into its circle.
+                    maskImage: "linear-gradient(to right, transparent 1.25rem, black calc(1.25rem + 2.75rem))",
                     transform: compact ? undefined : `translateX(-${BUBBLE_ROOM}px)`,
                   }}
                 >
