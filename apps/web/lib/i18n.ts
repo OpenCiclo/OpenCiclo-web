@@ -293,6 +293,7 @@ const es = {
   initialProbabilityToday: "El cálculo inicial daba a hoy un {percent}% de probabilidad.",
   initialProbabilityTodayUnderOne: "El cálculo inicial daba a hoy menos del 1% de probabilidad.",
   tapToLog: "Toca un día para registrar cómo te sientes",
+  clickToLog: "Haz clic en un día para registrar cómo te sientes",
   futureDayDisabled: "Los días futuros no se pueden editar",
   periodDueTitle: "Tu menstruación debería llegar pronto",
   periodDueBody:
@@ -860,6 +861,7 @@ const en = {
   initialProbabilityToday: "The initial forecast gave today a {percent}% chance.",
   initialProbabilityTodayUnderOne: "The initial forecast gave today less than a 1% chance.",
   tapToLog: "Tap any day to log how you feel",
+  clickToLog: "Click any day to log how you feel",
   futureDayDisabled: "Future days cannot be edited",
   periodDueTitle: "Your period should arrive soon",
   periodDueBody:

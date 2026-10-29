@@ -4,6 +4,7 @@
 "use client";
 
 import { useEffect, useId, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import { ArrowLeft, Check, ChevronRight, Filter, X } from "lucide-react";
 
 import type { CustomSymptomDefinition, SymptomId } from "@/lib/diary";
@@ -104,8 +105,9 @@ export function SymptomFilterSheet({
     void onUpdateFavorites(toggleFavoriteSymptom(favoriteSymptomIds, id, catalog));
   }
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center">
+  // In <body>, like DaySheet: out of the desktop's sticky calendar column.
+  return createPortal(
+    <div className="fixed inset-0 z-50 flex items-end justify-center desktop:items-center desktop:p-6">
       <button
         type="button"
         aria-label={t.close}
@@ -124,7 +126,7 @@ export function SymptomFilterSheet({
           if (closing) onExited();
         }}
         className={cn(
-          "relative flex max-h-[85vh] w-full max-w-md flex-col overflow-hidden rounded-t-4xl bg-card shadow-2xl",
+          "sheet-dialog relative flex max-h-[85vh] w-full max-w-md flex-col overflow-hidden rounded-t-4xl bg-card shadow-2xl desktop:max-w-lg desktop:rounded-4xl",
           closing ? "animate-sheet-down" : "animate-sheet-up",
         )}
       >
@@ -235,6 +237,7 @@ export function SymptomFilterSheet({
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

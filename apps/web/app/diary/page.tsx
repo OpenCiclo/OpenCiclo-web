@@ -52,7 +52,7 @@ export default function DiaryHistoryPage() {
   }
 
   return (
-    <AppShell>
+    <AppShell size="reading">
       <div className="flex flex-col gap-5 pb-4">
         <header className="animate-fade-up flex items-start gap-3">
           <Link

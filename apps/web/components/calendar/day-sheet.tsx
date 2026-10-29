@@ -4,6 +4,7 @@
 "use client";
 
 import { useEffect, useId, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import { ArrowLeft, Check, ChevronRight, Droplet, PenLine, Sparkles, Trash2, X } from "lucide-react";
 
 import {
@@ -239,8 +240,10 @@ export function DaySheet({
     void onUpdateSymptomPreferences(next.favoriteSymptomIds, next.customSymptoms);
   }
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center">
+  // In <body>: on the desktop the calendar sits in a sticky column, whose own
+  // stacking context would keep the sheet under the Patterns column.
+  return createPortal(
+    <div className="fixed inset-0 z-50 flex items-end justify-center desktop:items-center desktop:p-6">
       <button
         type="button"
         aria-label={t.close}
@@ -259,7 +262,7 @@ export function DaySheet({
           if (closing) onExited();
         }}
         className={cn(
-          "relative flex max-h-[85vh] w-full max-w-md flex-col overflow-hidden rounded-t-4xl bg-card shadow-2xl [scrollbar-gutter:stable]",
+          "sheet-dialog relative flex max-h-[85vh] w-full max-w-md flex-col overflow-hidden rounded-t-4xl bg-card shadow-2xl [scrollbar-gutter:stable] desktop:max-w-lg desktop:rounded-4xl",
           closing ? "animate-sheet-down" : "animate-sheet-up",
         )}
       >
@@ -281,7 +284,7 @@ export function DaySheet({
                 <>
                   <p
                     id={titleId}
-                    className="font-serif text-xl leading-tight text-card-foreground capitalize text-balance"
+                    className="font-serif text-xl leading-tight text-card-foreground capitalize text-balance desktop:normal-case desktop:first-letter:uppercase"
                   >
                     {t.moreSymptoms}
                   </p>
@@ -295,7 +298,7 @@ export function DaySheet({
                   <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
                     <p
                       id={titleId}
-                      className="font-serif text-xl leading-tight text-card-foreground capitalize text-balance"
+                      className="font-serif text-xl leading-tight text-card-foreground capitalize text-balance desktop:normal-case desktop:first-letter:uppercase"
                     >
                       {dateLabel}
                     </p>
@@ -472,7 +475,8 @@ export function DaySheet({
         </div>
         {error ? <p className="px-5 pb-4 text-sm text-destructive min-[360px]:px-6">{error}</p> : null}
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
 

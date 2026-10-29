@@ -54,7 +54,7 @@ The dark-page colors match `.dark .marketing-theme`. `BrandMark` in the app head
 
 ## Loading screen
 
-The loading screen covers the page from the first paint until the app is ready, which means the stored session has been restored. It stays at least 0.7 s, so it never flickers, and at most 6 s, so a slow network never hides a page that is already there. Then it fades out in 0.3 s.
+The loading screen covers the page from the first paint until the app is ready, which means the stored session has been restored. The public site (the landing, `/contact` and Help) opens at once, with no loading screen, unless `/` is the installed app starting. It stays at least 0.7 s, so it never flickers, and at most 6 s, so a slow network never hides a page that is already there. Then it fades out in 0.3 s.
 
 A small inline script shows it and moves the sea before React loads. If scripts are off, CSS keeps it hidden.
 
