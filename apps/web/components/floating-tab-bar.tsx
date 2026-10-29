@@ -111,6 +111,13 @@ function paintScreen(offset: number) {
   if (screen) screen.style.transform = Math.abs(offset) > 0.0005 ? `translateX(${(offset * 100).toFixed(3)}%)` : "";
 }
 
+/** Gives the screen its own layer while it may move (see `.tab-screen` in globals.css). */
+function layerScreen(on: boolean) {
+  const root = document.documentElement;
+  if (on) root.dataset.tabFollow = "";
+  else delete root.dataset.tabFollow;
+}
+
 type Press = {
   pointerId: number;
   x: number;
@@ -167,13 +174,21 @@ export function FloatingTabBar() {
         const screenTab = screenTabRef.current;
         screenOffsetRef.current = followRef.current && screenTab >= 0 ? screenPull(position, screenTab) : 0;
         paintScreen(screenOffsetRef.current);
+        // At rest the springs land exactly on a tab.
+        if (!pressRef.current && Number.isInteger(position)) layerScreen(false);
       },
       prefersReducedMotion,
     );
     return motionRef.current;
   }
 
-  useEffect(() => () => motionRef.current?.stop(), []);
+  useEffect(
+    () => () => {
+      motionRef.current?.stop();
+      layerScreen(false);
+    },
+    [],
+  );
 
   useLayoutEffect(() => {
     const from = lastTabRef.current;
@@ -189,6 +204,7 @@ export function FloatingTabBar() {
     } else {
       setSlideStart(null);
       followRef.current = false;
+      if (!pressRef.current) layerScreen(false);
     }
     dragNavigationRef.current = false;
     lastTabRef.current = to;
@@ -230,6 +246,8 @@ export function FloatingTabBar() {
       tabWidth: event.currentTarget.getBoundingClientRect().width / TABS.length,
       dragging: false,
     };
+    // Now, before the finger moves, so the layer is ready when the screen does.
+    if (!prefersReducedMotion()) layerScreen(true);
   }
 
   function onPointerMove(event: PointerEvent<HTMLDivElement>) {
@@ -241,6 +259,7 @@ export function FloatingTabBar() {
       if (Math.abs(dy) > DRAG_SLOP && Math.abs(dy) > Math.abs(dx)) {
         // Vertical: the page scrolls (touch-action: pan-y), the bar stays put.
         pressRef.current = null;
+        layerScreen(false);
         return;
       }
       if (Math.abs(dx) <= DRAG_SLOP) return;
@@ -266,7 +285,10 @@ export function FloatingTabBar() {
     const press = pressRef.current;
     if (!press || event.pointerId !== press.pointerId) return;
     pressRef.current = null;
-    if (!press.dragging) return;
+    if (!press.dragging) {
+      layerScreen(false);
+      return;
+    }
     swallowClicksUntilRef.current = event.timeStamp + CLICK_AFTER_DRAG_MS;
     motion().settle(press.held);
     if (press.held === activeIndex) setHeld(null);
