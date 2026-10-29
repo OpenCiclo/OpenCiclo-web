@@ -9,8 +9,8 @@ import { createWallet } from "@/lib/crypto/wallet";
 
 /** Answers the challenge, then the verify request with `verify`. */
 function stubHost(verify: Response) {
-  const fetchMock = vi.fn(async (url: string) =>
-    url.endsWith("/api/auth/challenge") ? Response.json({ nonce: "a1b2c3d4" }) : verify,
+  const fetchMock = vi.fn<typeof fetch>(async (url) =>
+    String(url).endsWith("/api/auth/challenge") ? Response.json({ nonce: "a1b2c3d4" }) : verify,
   );
   vi.stubGlobal("fetch", fetchMock);
   return fetchMock;
