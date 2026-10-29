@@ -435,6 +435,16 @@
   );
 }
 
+/*
+ * From the moment the selection is picked up until the screen is back in
+ * place, the screen gets its own layer, so moving it every frame repaints
+ * nothing (without it a phone drops to about 30 fps). Only then: it would
+ * make fixed sheets inside the screen sit against the screen, not the window.
+ */
+:root[data-tab-follow] .tab-screen {
+  will-change: transform;
+}
+
 .tab-bar {
   view-transition-name: tab-bar;
 }

@@ -44,7 +44,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       {/* Clips the moved content: it must not stick out of the page, or the
           phone widens the layout viewport and the fixed tab bar with it. */}
       <div ref={screenRef} className="mx-auto flex min-h-dvh w-full max-w-md flex-col overflow-x-clip bg-background">
-        <div ref={contentRef} className="flex flex-1 flex-col">
+        <div ref={contentRef} className="tab-screen flex flex-1 flex-col">
           <main id="main-content" className="flex-1 px-5 pt-6 pb-8">
             {children}
           </main>
