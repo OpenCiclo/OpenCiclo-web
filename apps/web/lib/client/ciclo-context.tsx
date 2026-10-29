@@ -2,19 +2,22 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 
-import { apiUrl } from "@/lib/app-target";
+import { IS_ANDROID_APP, apiUrl } from "@/lib/app-target";
 import { decryptAesGcm, encryptAesGcm } from "@/lib/crypto/aes";
 import { bytesToUtf8, utf8ToBytes } from "@/lib/crypto/bytes";
-import { createWallet, unlockWallet, type Wallet } from "@/lib/crypto/wallet";
+import { InvalidPhraseError, createWallet, unlockWallet, type Wallet } from "@/lib/crypto/wallet";
 import { unwrapMnemonic, wrapMnemonic, type WrappedKit } from "@/lib/crypto/wrap";
 import {
   deleteAccount,
-  fetchVault,
+  hostedVault,
   loginWithWallet,
   logoutSession,
-  putVault,
+  type StorageMode,
+  type VaultBackend,
   type VaultBlob,
 } from "@/lib/client/api";
+import type { AuthPrompt } from "@/lib/device-vault";
+import { mergeDiaries } from "@/lib/diary-io";
 import {
   InvalidConfirmError,
   InvalidCredentialsError,
@@ -75,6 +78,19 @@ type CicloContextValue = {
   /** The phrase kept on this device could not sign in (offline, server error). It is still stored. */
   restoreFailed: boolean;
   retryRestore: () => Promise<void>;
+  /** Where the open diary lives. Null while nothing is open. */
+  storageMode: StorageMode | null;
+  /** Android: this install keeps an on-device diary that is not open (app lock, or the phrase is needed). */
+  deviceLocked: boolean;
+  /** Android 11+ with a fingerprint or screen lock: the app lock can be turned on. */
+  appLockAvailable: boolean;
+  appLockEnabled: boolean;
+  createDeviceDiary: (wallet: Wallet) => Promise<void>;
+  setAppLock: (enabled: boolean) => Promise<void>;
+  /** On-device → hosted phrase account. Deletes the device copy once the host has it. */
+  moveToHosted: () => Promise<void>;
+  /** Hosted → on-device. Deletes the hosted account (and its email sign-in) once the device has it. */
+  moveToDevice: () => Promise<void>;
   setLocale: (locale: Locale) => void;
   setVisualSeasons: (enabled: boolean) => void;
   setLunarPhasesEnabled: (enabled: boolean) => void;
@@ -145,6 +161,21 @@ async function openVault(aesKey: Uint8Array, blob: VaultBlob): Promise<Diary> {
   return parseDiary(bytesToUtf8(await decryptAesGcm(aesKey, blob.ciphertext, blob.nonce)));
 }
 
+// Android only. The web build still emits Capacitor as a lazy chunk, but this
+// guard means the web never requests it.
+async function loadDeviceStorage() {
+  if (!IS_ANDROID_APP) throw new Error("On-device storage is Android-only");
+  return import("@/lib/client/device-storage");
+}
+
+function authPrompt(locale: Locale): AuthPrompt {
+  return { title: messages[locale].appLockPromptTitle, subtitle: messages[locale].appLockPromptSubtitle };
+}
+
+// With the app lock on, an on-device diary closes again after the app has been
+// in the background this long.
+const APP_LOCK_GRACE_MS = 30_000;
+
 export function CicloProvider({ children }: { children: React.ReactNode }) {
   const [ready, setReady] = useState(false);
   const [wallet, setWallet] = useState<Wallet | null>(null);
@@ -158,6 +189,15 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
   const [error, setError] = useState<string | null>(null);
   const [restoreFailed, setRestoreFailed] = useState(false);
   const [pendingSignup, setPendingSignup] = useState<PendingEmailSignup | null>(null);
+  const [storageMode, setStorageMode] = useState<StorageMode | null>(null);
+  const [deviceLocked, setDeviceLocked] = useState(false);
+  const [appLockAvailable, setAppLockAvailable] = useState(false);
+  const [appLockEnabled, setAppLockEnabled] = useState(false);
+  // Where the open diary is loaded from and saved to.
+  const backendRef = useRef<VaultBackend | null>(null);
+  // Android: this install keeps its diary on the device. A phrase then opens that
+  // file and never signs in to a host, which would create an empty account there.
+  const deviceDiaryRef = useRef(false);
 
   const locale = diary.locale;
   const t = messages[locale];
@@ -182,10 +222,11 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
   // (409), merges its edits in and tries again. Returns what was stored.
   const saveMerged = useCallback(async (aesKey: Uint8Array, local: Diary): Promise<Diary> => {
     let synced = syncedRef.current;
-    if (!synced) throw new Error("Locked");
+    const backend = backendRef.current;
+    if (!synced || !backend) throw new Error("Locked");
     let candidate = local;
     for (let attempt = 0; attempt < MAX_SAVE_ATTEMPTS; attempt += 1) {
-      const result = await putVault(await sealDiary(aesKey, candidate), synced.version);
+      const result = await backend.save(await sealDiary(aesKey, candidate), synced.version);
       if (result.ok) {
         syncedRef.current = { diary: candidate, version: result.version };
         return candidate;
@@ -204,14 +245,22 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
   // once the real diary is in memory: an unlocked wallet next to an empty diary
   // would let the next save upload that empty diary over the real one.
   const hydrate = useCallback(
-    async (nextWallet: Wallet, fallbackLocale: Locale, isCancelled: () => boolean = () => false) => {
-      const vault = await fetchVault();
+    async (
+      nextWallet: Wallet,
+      fallbackLocale: Locale,
+      backend: VaultBackend,
+      isCancelled: () => boolean = () => false,
+    ) => {
+      const vault = await backend.load();
       const loaded = vault.blob ? await openVault(nextWallet.aesKey, vault.blob) : emptyDiary(fallbackLocale);
       if (isCancelled()) return;
+      backendRef.current = backend;
       syncedRef.current = { diary: loaded, version: vault.version };
+      setStorageMode(backend.mode);
       setDiary(loaded);
       setWallet(nextWallet);
       setRestoreFailed(false);
+      setDeviceLocked(false);
       if (!loaded.poolOptIn) return;
       try {
         const withPool = await syncPoolIfDue(loaded);
@@ -225,12 +274,57 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
     [saveMerged],
   );
 
+  // Opens this install's on-device diary with the phrase sealed in Keystore.
+  // With the app lock on, Android asks for a fingerprint or the screen lock first.
+  const openDeviceDiary = useCallback(
+    async (fallbackLocale: Locale, isCancelled: () => boolean = () => false) => {
+      const device = await loadDeviceStorage();
+      const { phrase } = await device.deviceVault.readPhrase(authPrompt(fallbackLocale));
+      await hydrate(unlockWallet(phrase), fallbackLocale, device.deviceBackend, isCancelled);
+    },
+    [hydrate],
+  );
+
+  // Returns true when this install keeps an on-device diary, opened or not. Then
+  // the hosted restore below must not run.
+  const restoreDeviceDiary = useCallback(
+    async (storedLocale: Locale, isCancelled: () => boolean): Promise<boolean> => {
+      let device;
+      let status;
+      try {
+        device = await loadDeviceStorage();
+        status = await device.deviceVault.status();
+      } catch {
+        return false;
+      }
+      setAppLockAvailable(status.lockAvailable);
+      setAppLockEnabled(status.phraseNeedsAuth);
+      if (!status.hasDiary) return false;
+      deviceDiaryRef.current = true;
+      if (status.phraseNeedsAuth) {
+        void device.deviceVault.setSecureScreen({ enabled: true }).catch(() => undefined);
+      }
+      try {
+        await openDeviceDiary(storedLocale, isCancelled);
+      } catch {
+        // Canceled app lock, invalidated key, or no sealed phrase. The phrase opens it.
+        if (isCancelled()) return true;
+        setWallet(null);
+        setDiary(emptyDiary(storedLocale));
+        setDeviceLocked(true);
+      }
+      return true;
+    },
+    [openDeviceDiary],
+  );
+
   // Signs in again with the phrase kept on this device. Only an unusable phrase
   // is forgotten. Network, server, or sign-in race failures keep it, so the
   // person can retry instead of losing access to a phrase-only diary.
   const restoreStoredSession = useCallback(
     async (isCancelled: () => boolean = () => false) => {
       const storedLocale = (localStorage.getItem(LOCALE_KEY) as Locale | null) ?? "es";
+      if (IS_ANDROID_APP && (await restoreDeviceDiary(storedLocale, isCancelled))) return;
       const unlockState = readUnlockState();
       if (!unlockState.mnemonic) {
         if (!isCancelled()) setDiary(emptyDiary(storedLocale));
@@ -246,7 +340,7 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
       }
       try {
         await loginWithWallet(nextWallet, undefined, unlockState.persistCookie);
-        await hydrate(nextWallet, storedLocale, isCancelled);
+        await hydrate(nextWallet, storedLocale, hostedVault, isCancelled);
       } catch {
         if (isCancelled()) return;
         setWallet(null);
@@ -254,7 +348,7 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
         setRestoreFailed(true);
       }
     },
-    [hydrate],
+    [hydrate, restoreDeviceDiary],
   );
 
   useEffect(() => {
@@ -307,8 +401,171 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
     [wallet, saveMerged],
   );
 
+  // Runs `task` after any save in flight, and holds later saves until it ends.
+  const enqueue = useCallback(<T,>(task: () => Promise<T>): Promise<T> => {
+    const queued = saveQueueRef.current.then(task, task);
+    saveQueueRef.current = queued.catch(() => undefined);
+    return queued;
+  }, []);
+
+  // Opens the on-device diary with a typed or scanned phrase, for when Keystore
+  // cannot: the app lock was canceled, a new fingerprint invalidated the key, or
+  // the sealed phrase is gone. A wrong phrase fails to decrypt the file.
+  const unlockDeviceWithPhrase = useCallback(
+    async (mnemonic: string) => {
+      const nextWallet = unlockWallet(mnemonic);
+      const device = await loadDeviceStorage();
+      const { blob } = await device.deviceBackend.load();
+      if (!blob) throw new Error("The device diary is empty");
+      try {
+        await openVault(nextWallet.aesKey, blob);
+      } catch {
+        throw new InvalidPhraseError();
+      }
+      try {
+        await device.deviceVault.storePhrase({
+          ...authPrompt(locale),
+          phrase: nextWallet.mnemonic,
+          requireAuth: appLockEnabled,
+        });
+      } catch {
+        // The diary still opens. The next start asks for the phrase again.
+      }
+      await hydrate(nextWallet, locale, device.deviceBackend);
+    },
+    [appLockEnabled, hydrate, locale],
+  );
+
+  const createDeviceDiary = useCallback(
+    async (nextWallet: Wallet) => {
+      if (!IS_ANDROID_APP) throw new Error("On-device diaries are Android-only");
+      const device = await loadDeviceStorage();
+      const status = await device.deviceVault.status();
+      // One diary per install. Never replace one that exists.
+      if (status.hasDiary) throw new Error("This device already has a diary");
+      const created = await device.deviceBackend.save(await sealDiary(nextWallet.aesKey, emptyDiary(locale)), 0);
+      if (!created.ok) throw new Error("This device already has a diary");
+      deviceDiaryRef.current = true;
+      await device.deviceVault.storePhrase({ ...authPrompt(locale), phrase: nextWallet.mnemonic, requireAuth: false });
+      // A phrase left by a hosted session would make the next start sign in too.
+      clearStoredMnemonic();
+      setAppLockAvailable(status.lockAvailable);
+      setAppLockEnabled(false);
+      await hydrate(nextWallet, locale, device.deviceBackend);
+    },
+    [hydrate, locale],
+  );
+
+  const setAppLock = useCallback(
+    async (enabled: boolean) => {
+      if (!wallet || storageMode !== "device") throw new Error("No on-device diary is open");
+      const device = await loadDeviceStorage();
+      // Re-seals the phrase with the app-lock key (or back to the plain one).
+      await device.deviceVault.storePhrase({ ...authPrompt(locale), phrase: wallet.mnemonic, requireAuth: enabled });
+      setAppLockEnabled(enabled);
+      await device.deviceVault.setSecureScreen({ enabled });
+    },
+    [locale, storageMode, wallet],
+  );
+
+  // Takes the key and the diary out of memory. Unlocking reads the phrase again.
+  const lockDevice = useCallback(async () => {
+    await enqueue(async () => {
+      syncedRef.current = null;
+      backendRef.current = null;
+      setStorageMode(null);
+      setWallet(null);
+      setDiary((current) => emptyDiary(current.locale));
+      setDeviceLocked(true);
+    });
+  }, [enqueue]);
+
+  useEffect(() => {
+    if (storageMode !== "device" || !appLockEnabled || !wallet) return;
+    let hiddenAt: number | null = null;
+    const onVisibility = () => {
+      if (document.visibilityState === "hidden") {
+        hiddenAt = Date.now();
+        return;
+      }
+      if (hiddenAt !== null && Date.now() - hiddenAt >= APP_LOCK_GRACE_MS) void lockDevice();
+      hiddenAt = null;
+    };
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => document.removeEventListener("visibilitychange", onVisibility);
+  }, [appLockEnabled, lockDevice, storageMode, wallet]);
+
+  // Order matters: the device copy is deleted only once the host holds the
+  // diary, so a failure at any step leaves at least one full copy. If this phrase
+  // already has a hosted diary, both are combined like an import.
+  const moveToHosted = useCallback(
+    () =>
+      enqueue(async () => {
+        const synced = syncedRef.current;
+        if (!wallet || storageMode !== "device" || !synced) throw new Error("No on-device diary is open");
+        const local = synced.diary;
+        const created = await loginWithWallet(wallet, await sealDiary(wallet.aesKey, local), true);
+        if (!created) {
+          const remote = await hostedVault.load();
+          const remoteDiary = remote.blob ? await openVault(wallet.aesKey, remote.blob) : emptyDiary(local.locale);
+          const merged = mergeDiaries(remoteDiary, local, local.locale);
+          const saved = await hostedVault.save(await sealDiary(wallet.aesKey, merged), remote.version);
+          if (!saved.ok) throw new Error("The hosted diary changed during the move");
+        }
+        const device = await loadDeviceStorage();
+        await device.deviceVault.clear();
+        deviceDiaryRef.current = false;
+        setAppLockEnabled(false);
+        await device.deviceVault.setSecureScreen({ enabled: false });
+        writeStoredMnemonic(wallet.mnemonic, true);
+        await hydrate(wallet, local.locale, hostedVault);
+      }),
+    [enqueue, hydrate, storageMode, wallet],
+  );
+
+  // The hosted account is deleted only once the device holds the diary. If the
+  // delete fails, the device copy is removed again and nothing changes.
+  const moveToDevice = useCallback(
+    () =>
+      enqueue(async () => {
+        const synced = syncedRef.current;
+        if (!IS_ANDROID_APP || !wallet || storageMode !== "hosted" || !synced) {
+          throw new Error("No hosted diary is open");
+        }
+        const device = await loadDeviceStorage();
+        const status = await device.deviceVault.status();
+        if (status.hasDiary) throw new Error("This device already has a diary");
+        // The email sign-in goes with the account.
+        const local: Diary = { ...synced.diary, recoveryEmailSet: false };
+        const created = await device.deviceBackend.save(await sealDiary(wallet.aesKey, local), 0);
+        if (!created.ok) throw new Error("This device already has a diary");
+        try {
+          await device.deviceVault.storePhrase({
+            ...authPrompt(local.locale),
+            phrase: wallet.mnemonic,
+            requireAuth: false,
+          });
+          await deleteAccount();
+        } catch (cause) {
+          await device.deviceVault.clear().catch(() => undefined);
+          throw cause;
+        }
+        clearStoredMnemonic();
+        clearLocalKits();
+        deviceDiaryRef.current = true;
+        setAppLockAvailable(status.lockAvailable);
+        setAppLockEnabled(false);
+        await hydrate(wallet, local.locale, device.deviceBackend);
+      }),
+    [enqueue, hydrate, storageMode, wallet],
+  );
+
   const unlock = useCallback(
     async (mnemonic: string, options?: UnlockOptions) => {
+      if (deviceDiaryRef.current) {
+        await unlockDeviceWithPhrase(mnemonic);
+        return;
+      }
       const persist = persistFlag(options);
       const nextWallet = unlockWallet(mnemonic);
       if (options?.create) {
@@ -327,9 +584,9 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
         await loginWithWallet(nextWallet, undefined, persist);
       }
       writeStoredMnemonic(nextWallet.mnemonic, persist);
-      await hydrate(nextWallet, locale);
+      await hydrate(nextWallet, locale, hostedVault);
     },
-    [hydrate, locale],
+    [hydrate, locale, unlockDeviceWithPhrase],
   );
 
   const value = useMemo<CicloContextValue>(
@@ -349,6 +606,14 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
       setError,
       restoreFailed,
       retryRestore: () => restoreStoredSession(),
+      storageMode,
+      deviceLocked,
+      appLockAvailable,
+      appLockEnabled,
+      createDeviceDiary,
+      setAppLock,
+      moveToHosted,
+      moveToDevice,
       setLocale: (nextLocale) => {
         localStorage.setItem(LOCALE_KEY, nextLocale);
         if (wallet) {
@@ -408,7 +673,7 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
           saveLocalKit(normalized, kit);
           writeStoredMnemonic(nextWallet.mnemonic, persist);
           setPendingSignup(null);
-          await hydrate(nextWallet, locale);
+          await hydrate(nextWallet, locale, hostedVault);
           return;
         }
         setPendingSignup({ wallet: nextWallet, email: normalized, kit, persist });
@@ -420,7 +685,7 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
         writeStoredMnemonic(pendingSignup.wallet.mnemonic, pendingSignup.persist);
         const nextWallet = pendingSignup.wallet;
         setPendingSignup(null);
-        await hydrate(nextWallet, locale);
+        await hydrate(nextWallet, locale, hostedVault);
       },
       resendEmailCode: async () => {
         if (!pendingSignup) throw new InvalidConfirmError();
@@ -471,25 +736,47 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
         });
       },
       wipe: async () => {
-        await deleteAccount();
-        clearStoredMnemonic();
-        clearLocalKits();
+        if (storageMode === "device") {
+          const device = await loadDeviceStorage();
+          await device.deviceVault.clear();
+          deviceDiaryRef.current = false;
+          setAppLockEnabled(false);
+          await device.deviceVault.setSecureScreen({ enabled: false });
+        } else {
+          await deleteAccount();
+          clearStoredMnemonic();
+          clearLocalKits();
+        }
         syncedRef.current = null;
+        backendRef.current = null;
+        setStorageMode(null);
         setWallet(null);
         setDiary(emptyDiary(locale));
       },
       signOut: async () => {
+        // An on-device diary has no session to end. Settings offers deleting it instead.
+        if (storageMode === "device") throw new Error("On-device diaries have no session");
         await logoutSession();
         clearStoredMnemonic();
         syncedRef.current = null;
+        backendRef.current = null;
+        setStorageMode(null);
         setWallet(null);
       },
     }),
     [
+      appLockAvailable,
+      appLockEnabled,
+      createDeviceDiary,
+      deviceLocked,
       diary,
       error,
       hydrate,
       locale,
+      moveToDevice,
+      moveToHosted,
+      setAppLock,
+      storageMode,
       lunarPhasesEnabled,
       lunarPhasesVisible,
       weekStartsOn,

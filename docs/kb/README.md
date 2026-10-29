@@ -36,6 +36,7 @@ Health education (cycle biology, symptoms, when to seek care) stays in the in-ap
 | --- | --- |
 | [How data is stored](../../apps/web/content/help/how-data-is-stored.md) | Ciphertext, no password reset |
 | [Email vs 12-word accounts](../../apps/web/content/help/email-vs-phrase.md) | The two sign-in modes |
+| [Android: keep the diary on the phone](../../apps/web/content/help/android-on-device.md) | On-device mode, Keystore, app lock, moving to and from the cloud |
 | [Anonymous research pool](../../apps/web/content/help/research-pool.md) | Cycle lengths only, no account map |
 
 ## Related engineering docs
