@@ -98,8 +98,8 @@ export default function SettingsPage() {
 
   return (
     <AppShell>
-      {/* No title on screen: the tab bar already says where you are. */}
-      <h1 className="sr-only">{t.settings}</h1>
+      {/* Same size and font as the section titles on Patterns ("Forecast"). */}
+      <h1 className="mb-3 font-serif text-xl text-foreground">{t.settings}</h1>
       <Card className="flex flex-col gap-3 rounded-3xl">
         <Button variant="secondary" onClick={() => setLocale(otherLocale(locale))}>
           {t.language}: {locale.toUpperCase()}
