@@ -1,0 +1,18 @@
+{
+  "name": "ciclo-android",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "npm --prefix ../web run build:android && cap sync android",
+    "android": "cap run android",
+    "open": "cap open android"
+  },
+  "dependencies": {
+    "@capacitor/android": "8.5.3",
+    "@capacitor/core": "8.5.3"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "8.5.3",
+    "typescript": "5.9.3"
+  }
+}

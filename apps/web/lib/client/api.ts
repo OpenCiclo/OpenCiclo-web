@@ -1,6 +1,7 @@
 // Copyright © 2026 Emma Flora Harbison & Luis Rey Sánchez
 // SPDX-License-Identifier: Apache-2.0
 
+import { apiUrl } from "@/lib/app-target";
 import { signChallenge, type Wallet } from "@/lib/crypto/wallet";
 
 async function parseJson(response: Response) {
@@ -17,7 +18,7 @@ export async function loginWithWallet(
   persist = true,
 ) {
   const challenge = await parseJson(
-    await fetch("/api/auth/challenge", {
+    await fetch(apiUrl("/api/auth/challenge"), {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ pubkeyHash: wallet.pubkeyHash }),
@@ -26,7 +27,7 @@ export async function loginWithWallet(
   const nonce = (challenge as { nonce: string }).nonce;
   const signature = signChallenge(wallet, nonce);
   await parseJson(
-    await fetch("/api/auth/verify", {
+    await fetch(apiUrl("/api/auth/verify"), {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({
@@ -49,7 +50,7 @@ export async function fetchVault(): Promise<{ blob: VaultBlob | null; version: n
   // Only called right after a successful sign-in, so 401/404 are failures, not
   // "no diary yet". Returning null here would show an empty diary that the next
   // save could upload over the real one.
-  const response = await fetch("/api/vault");
+  const response = await fetch(apiUrl("/api/vault"));
   const payload = (await parseJson(response)) as VaultBlob & { version?: number };
   return {
     blob: payload.ciphertext ? payload : null,
@@ -63,7 +64,7 @@ export type PutVaultResult =
 
 /** Saves on top of `baseVersion`. A 409 means another device saved first; its blob comes back to merge. */
 export async function putVault(blob: VaultBlob, baseVersion: number): Promise<PutVaultResult> {
-  const response = await fetch("/api/vault", {
+  const response = await fetch(apiUrl("/api/vault"), {
     method: "PUT",
     headers: { "content-type": "application/json" },
     body: JSON.stringify({ ...blob, baseVersion }),
@@ -77,9 +78,9 @@ export async function putVault(blob: VaultBlob, baseVersion: number): Promise<Pu
 }
 
 export async function deleteAccount() {
-  await parseJson(await fetch("/api/account", { method: "DELETE" }));
+  await parseJson(await fetch(apiUrl("/api/account"), { method: "DELETE" }));
 }
 
 export async function logoutSession() {
-  await fetch("/api/auth/logout", { method: "POST" });
+  await fetch(apiUrl("/api/auth/logout"), { method: "POST" });
 }
