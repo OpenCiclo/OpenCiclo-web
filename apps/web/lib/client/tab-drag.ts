@@ -246,14 +246,18 @@ export class SelectionMotion {
 
 /** Tabs per second above which the finger is sweeping past tabs rather than stopping on one. */
 export const SWEEP_SPEED = 3.5;
-/** A finger that has not moved for this long has stopped. */
-export const SWEEP_PAUSE_MS = 60;
+/**
+ * Animation frames in a row without a move after which the finger has
+ * stopped. Counted in frames, not time: moves reach the page before each
+ * frame is drawn, so a slow frame cannot pass for a finger that stopped.
+ */
+export const STILL_FRAMES = 4;
 
 /**
  * Whether the route should follow the selection now. Not while the finger
  * sweeps past tabs: every screen on the way would be drawn and slide in turn
  * (each slide waits for the one before), and the finger is already elsewhere.
  */
-export function stoppedOnTab(speed: number, sinceMoveMs: number): boolean {
-  return Math.abs(speed) < SWEEP_SPEED || sinceMoveMs >= SWEEP_PAUSE_MS;
+export function stoppedOnTab(speed: number, stillFrames: number): boolean {
+  return Math.abs(speed) < SWEEP_SPEED || stillFrames >= STILL_FRAMES;
 }

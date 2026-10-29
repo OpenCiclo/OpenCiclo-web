@@ -11,7 +11,6 @@ import { BookOpen, CalendarDays, LineChart, Settings } from "lucide-react";
 
 import { useCiclo } from "@/lib/client/ciclo-context";
 import {
-  SWEEP_PAUSE_MS,
   SelectionMotion,
   dragFrame,
   labelScale,
@@ -142,12 +141,12 @@ type Press = {
   held: number;
   tabWidth: number;
   dragging: boolean;
-  /** Where the finger is, in tabs, and its speed in tabs per second. */
+  /** Where the finger is, in tabs, its speed in tabs per second, and when it last moved. */
   finger: number;
   speed: number;
-  /** When the finger last moved (the touch's own time), and when that move got here. */
-  touchedAt: number;
   movedAt: number;
+  /** Animation frames drawn since the last move. */
+  stillFrames: number;
 };
 
 export function FloatingTabBar() {
@@ -172,8 +171,8 @@ export function FloatingTabBar() {
   // The tab the route is on or on its way to, and whether a drag sent it there.
   const routeTabRef = useRef(activeIndex);
   const dragNavigationRef = useRef(false);
-  // Pending check for a finger that sweeps past tabs (see `followRoute`).
-  const sweepTimerRef = useRef(0);
+  // Frame watch for a finger that sweeps past tabs (see `followRoute`).
+  const sweepFrameRef = useRef(0);
   // The tab a drag has picked, shown as selected until the route catches up.
   const [held, setHeld] = useState<{ index: number; pathname: string } | null>(null);
   // Once the route moves, forget it: coming back to this route later must not
@@ -205,7 +204,7 @@ export function FloatingTabBar() {
     const unwatch = watchScreens(() => motionRef.current?.redraw());
     return () => {
       unwatch();
-      window.clearTimeout(sweepTimerRef.current);
+      cancelAnimationFrame(sweepFrameRef.current);
       motionRef.current?.stop();
       layerScreen(false);
     };
@@ -274,17 +273,21 @@ export function FloatingTabBar() {
       dragging: false,
       finger: pressed,
       speed: 0,
-      touchedAt: event.timeStamp,
-      movedAt: performance.now(),
+      movedAt: event.timeStamp,
+      stillFrames: 0,
     };
     // Now, before the finger moves, so the layer is ready when the screen does.
     if (!prefersReducedMotion()) layerScreen(true);
   }
 
+  function stopSweepWatch() {
+    cancelAnimationFrame(sweepFrameRef.current);
+    sweepFrameRef.current = 0;
+  }
+
   /** Sends the route to tab `index`, unless it is already there or on its way. */
   function navigateTo(index: number) {
-    window.clearTimeout(sweepTimerRef.current);
-    sweepTimerRef.current = 0;
+    stopSweepWatch();
     if (index === routeTabRef.current) return;
     routeTabRef.current = index;
     dragNavigationRef.current = true;
@@ -297,20 +300,21 @@ export function FloatingTabBar() {
   // sweeps past several tabs navigates once, where it stops.
   function followRoute(press: Press) {
     if (press.held === routeTabRef.current) {
-      window.clearTimeout(sweepTimerRef.current);
-      sweepTimerRef.current = 0;
+      stopSweepWatch();
       return;
     }
-    if (stoppedOnTab(press.speed, performance.now() - press.movedAt)) {
+    if (stoppedOnTab(press.speed, press.stillFrames)) {
       navigateTo(press.held);
       return;
     }
-    // A finger that stops sends no more events: look again in a moment.
-    if (!sweepTimerRef.current) {
-      sweepTimerRef.current = window.setTimeout(() => {
-        sweepTimerRef.current = 0;
-        if (pressRef.current === press) followRoute(press);
-      }, SWEEP_PAUSE_MS);
+    // A finger that stops sends no more events: count the frames without one.
+    if (!sweepFrameRef.current) {
+      sweepFrameRef.current = requestAnimationFrame(() => {
+        sweepFrameRef.current = 0;
+        if (pressRef.current !== press) return;
+        press.stillFrames += 1;
+        followRoute(press);
+      });
     }
   }
 
@@ -332,13 +336,11 @@ export function FloatingTabBar() {
       followRef.current = !prefersReducedMotion();
     }
     const finger = press.start + dx / press.tabWidth;
-    // Speed from the touch times; stillness from when the events get here, since
-    // after a slow frame they arrive late, with old times, from a finger still moving.
-    const seconds = (event.timeStamp - press.touchedAt) / 1000;
+    const seconds = (event.timeStamp - press.movedAt) / 1000;
     if (seconds > 0.001) press.speed = 0.6 * press.speed + (0.4 * (finger - press.finger)) / seconds;
     press.finger = finger;
-    press.touchedAt = event.timeStamp;
-    press.movedAt = performance.now();
+    press.movedAt = event.timeStamp;
+    press.stillFrames = 0;
     const frame = dragFrame(press.start, finger - press.start, press.held, TABS.length);
     if (frame.held !== press.held) {
       press.held = frame.held;
