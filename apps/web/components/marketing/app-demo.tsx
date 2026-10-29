@@ -41,6 +41,7 @@ import {
   type SymptomId,
 } from "@/lib/diary";
 import { formatIsoUtc } from "@/lib/format-date";
+import { VISUAL_SEASONS_AVAILABLE } from "@/lib/features";
 import { messages, type Locale } from "@/lib/i18n";
 import { useCiclo } from "@/lib/client/ciclo-context";
 import { LEARN_CATEGORY_COPY, articleCopy, hasArticleCopy, type LearnArticle } from "@/lib/learn/articles";
@@ -803,12 +804,14 @@ function SettingsTab({
       </div>
 
       <div className="flex flex-col gap-2 rounded-2xl bg-card p-2 shadow-sm">
-        <ToggleRow
-          label={t.visualSeasons}
-          hint={t.visualSeasonsHint}
-          checked={seasons}
-          onChange={setSeasons}
-        />
+        {VISUAL_SEASONS_AVAILABLE ? (
+          <ToggleRow
+            label={t.visualSeasons}
+            hint={t.visualSeasonsHint}
+            checked={seasons}
+            onChange={setSeasons}
+          />
+        ) : null}
         <ToggleRow
           label={t.forecastingEnabled}
           hint={t.forecastingEnabledHint}

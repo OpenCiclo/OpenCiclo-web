@@ -11,6 +11,7 @@ import { lastEmail } from "@/lib/client/kit-store";
 import { storeBrowserPassword } from "@/lib/client/credentials";
 import { saveFile } from "@/lib/client/save-file";
 import { diaryToCsv, diaryToJson, mergeDiaries, parseImportedFile, previewImport } from "@/lib/diary-io";
+import { VISUAL_SEASONS_AVAILABLE } from "@/lib/features";
 import { otherLocale } from "@/lib/i18n";
 import { AppShell } from "@/components/app-shell";
 import { InstallPrompt } from "@/components/install-prompt";
@@ -113,16 +114,15 @@ export default function SettingsPage() {
 
   return (
     <AppShell>
-      <header className="animate-fade-up">
-        <p className="text-sm font-medium text-muted-foreground">{t.appName}</p>
-        <h1 className="font-serif text-3xl leading-tight text-foreground">{t.settings}</h1>
-      </header>
-      <Card className="mt-4 flex flex-col gap-3 rounded-3xl">
+      {/* Same size and font as the section titles on Patterns ("Forecast"). */}
+      <h1 className="mb-3 font-serif text-xl text-foreground">{t.settings}</h1>
+      <Card className="flex flex-col gap-3 rounded-3xl">
         <Button variant="secondary" onClick={() => setLocale(otherLocale(locale))}>
           {t.language}: {locale.toUpperCase()}
         </Button>
         <label
           htmlFor="visual-seasons"
+          hidden={!VISUAL_SEASONS_AVAILABLE}
           className="flex cursor-pointer items-center justify-between gap-4 rounded-2xl bg-muted/60 p-3"
         >
           <div className="min-w-0">

@@ -1,5 +1,7 @@
 # Inner seasons
 
+**Not available for now.** Visual seasons is not finished, so the switch is hidden in Settings and the effect is off for everyone, even if you turned it on before. This page describes how it works when it comes back.
+
 When **Visual seasons** is on in Settings, the Calendar status card uses a seasonal scene — winter, spring, summer, or autumn — and a small badge with the season name.
 
 This is a product metaphor (“inner seasons”). It is not a weather forecast and not a lab result.

@@ -404,8 +404,146 @@
   animation: grow-x 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
+/* Before scripts load. Then FloatingTabBar moves it with springs. */
 .tab-bubble {
-  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  transform: translateX(calc(var(--tab-index, 0) * 100%));
+  will-change: transform;
+}
+
+/*
+ * Screen carousel. AppShell is a <ViewTransition> that tags the leaving and
+ * arriving screens with the `tab-slide` class. When the route moves between
+ * tabs, the tab bar sets data-tab-slide on <html> to "next" (the new tab is to
+ * the right) or "prev". Otherwise the screens swap in place.
+ *
+ * A drag of the tab bar selection moves the screens itself (see TabGhosts),
+ * and its screen change swaps them in place with no slide.
+ */
+:root {
+  --tab-slide-duration: 0.4s;
+  --tab-slide-easing: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/*
+ * From the moment the selection is picked up until the screen is back in
+ * place, the screen gets its own layer, so moving it every frame repaints
+ * nothing (without it a phone drops to about 30 fps). Only then: it would
+ * make fixed sheets inside the screen sit against the screen, not the window.
+ */
+:root[data-tab-follow] .tab-screen,
+:root[data-tab-follow] .tab-label {
+  will-change: transform;
+}
+
+/*
+ * Ghosts of the other tabs (see TabGhosts): fixed under the tab bar, not
+ * painted until a drag of the selection shows one beside the real screen.
+ * The tab bar moves them. Hidden ones also wait out of sight: on a Galaxy S22
+ * some layers inside (the moons' drop shadow, Learn's scrolling filter row)
+ * were drawn over the page through visibility: hidden. contain: strict clips
+ * everything inside to the ghost, so out of sight means all of it.
+ */
+.tab-ghost {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  overflow: hidden;
+  visibility: hidden;
+  pointer-events: none;
+  contain: strict;
+  transform: translateX(-300%);
+}
+
+/* A ghost shows its screen as it ends up, with no entrance animations. */
+.tab-ghost *,
+.tab-ghost *::before,
+.tab-ghost *::after {
+  animation: none !important;
+  transition: none !important;
+}
+
+/*
+ * A drag that lands on a ghost swaps the real screens under it. React still
+ * starts a view transition when a screen arrives (any new <ViewTransition>
+ * starts one, even with class "none"); with nothing to animate it ends at
+ * once, instead of the default crossfade holding taps for a quarter second.
+ */
+:root[data-tab-swap]::view-transition-group(*),
+:root[data-tab-swap]::view-transition-old(*),
+:root[data-tab-swap]::view-transition-new(*) {
+  animation: none;
+}
+
+.tab-bar {
+  view-transition-name: tab-bar;
+}
+
+::view-transition-group(tab-bar) {
+  z-index: 1;
+  animation: none;
+}
+
+::view-transition-old(tab-bar) {
+  display: none;
+}
+
+::view-transition-new(tab-bar) {
+  animation: none;
+}
+
+::view-transition-group(.tab-slide) {
+  overflow: clip;
+}
+
+::view-transition-old(.tab-slide),
+::view-transition-new(.tab-slide) {
+  animation: none;
+}
+
+:root:not([data-tab-slide])::view-transition-old(.tab-slide) {
+  display: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  :root[data-tab-slide="next"]::view-transition-old(.tab-slide) {
+    animation: tab-slide-out-left var(--tab-slide-duration) var(--tab-slide-easing) both;
+  }
+
+  :root[data-tab-slide="next"]::view-transition-new(.tab-slide) {
+    animation: tab-slide-in-right var(--tab-slide-duration) var(--tab-slide-easing) both;
+  }
+
+  :root[data-tab-slide="prev"]::view-transition-old(.tab-slide) {
+    animation: tab-slide-out-right var(--tab-slide-duration) var(--tab-slide-easing) both;
+  }
+
+  :root[data-tab-slide="prev"]::view-transition-new(.tab-slide) {
+    animation: tab-slide-in-left var(--tab-slide-duration) var(--tab-slide-easing) both;
+  }
+}
+
+@keyframes tab-slide-out-left {
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+@keyframes tab-slide-in-right {
+  from {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes tab-slide-out-right {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes tab-slide-in-left {
+  from {
+    transform: translateX(-100%);
+  }
 }
 
 .cycle-season-card {
@@ -650,8 +788,8 @@
     animation: none;
   }
 
-  .tab-bubble {
-    transition: none;
+  :root::view-transition-old(.tab-slide) {
+    display: none;
   }
 
   .cycle-season-card {
