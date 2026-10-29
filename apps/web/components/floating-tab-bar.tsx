@@ -86,6 +86,9 @@ export function FloatingTabBar() {
   const lastTabRef = useRef(activeIndex);
   // The tab a drag has picked, shown as selected until the route catches up.
   const [held, setHeld] = useState<{ index: number; pathname: string } | null>(null);
+  // Once the route moves, forget it: coming back to this route later must not
+  // light the tab the old drag picked.
+  if (held && held.pathname !== pathname) setHeld(null);
   const litIndex = held?.pathname === pathname ? held.index : activeIndex;
 
   function motion() {
