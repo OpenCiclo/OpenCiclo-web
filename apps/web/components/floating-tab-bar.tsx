@@ -12,7 +12,7 @@ import { BookOpen, CalendarDays, LineChart, Settings } from "lucide-react";
 import { useCiclo } from "@/lib/client/ciclo-context";
 import { SlideMotion } from "@/lib/client/screen-carousel";
 import { SelectionMotion, dragFrame, labelScale } from "@/lib/client/tab-drag";
-import { endSwapTransition, ghostOf, setSwapping, shownScreen } from "@/lib/client/tab-screen";
+import { endSwapTransition, ghostOf, setSwapping, shownScreen, skipEntrance } from "@/lib/client/tab-screen";
 import { cn } from "@/lib/utils";
 import { TabGhosts } from "@/components/tab-ghosts";
 
@@ -113,13 +113,6 @@ function layerScreen(on: boolean) {
   const root = document.documentElement;
   if (on) root.dataset.tabFollow = "";
   else delete root.dataset.tabFollow;
-}
-
-/** Plays a screen's entrance animations (fade-up and friends) to the end: it arrives whole. */
-function skipEntrance(screen: HTMLElement | null) {
-  for (const animation of screen?.getAnimations({ subtree: true }) ?? []) {
-    if (Number.isFinite(animation.effect?.getComputedTiming().endTime)) animation.finish();
-  }
 }
 
 /** React starts the next screen only once the running slide ends: hurry it along. */
@@ -299,6 +292,12 @@ export function FloatingTabBar() {
   });
   const onRouteMoved = useEffectEvent(() => {
     if (stripRef.current) closeStrip();
+    // A swap overtaken by another screen change (Back before it landed) is over.
+    if (swapRef.current) {
+      swapRef.current = null;
+      setSwapping(false);
+      if (!pressRef.current) layerScreen(false);
+    }
   });
 
   useEffect(
@@ -358,8 +357,9 @@ export function FloatingTabBar() {
     const link = (event.target as Element).closest<HTMLElement>("[data-tab]");
     // Any tab can start a drag: the selection jumps to the finger and follows
     // it. A press that does not turn into a drag stays a tap on the link. In
-    // the margin around the tabs (see the bar's ::before) the tab is the one
-    // the finger is over along the bar.
+    // the margin around the tabs (see the bar's ::before: just past the top of
+    // the pill, where it covers page content, more at the sides and below) the
+    // tab is the one the finger is over along the bar.
     const pressed = link
       ? Number(link.dataset.tab)
       : Math.min(TABS.length - 1, Math.max(0, Math.floor((event.clientX - bar.left) / tabWidth)));
@@ -462,6 +462,13 @@ export function FloatingTabBar() {
       return;
     }
     swallowClicksUntilRef.current = event.timeStamp + CLICK_AFTER_DRAG_MS;
+    if (press.strip && !stripRef.current) {
+      // The route moved during the drag (Back, say) and closed the strip:
+      // nothing to land, and the selection goes back to the route.
+      motion().settle(bubbleIndex);
+      setHeld(null);
+      return;
+    }
     const target = press.held;
     if (press.strip) landStrip(target, press.speed);
     else navigateTo(target);
@@ -482,7 +489,7 @@ export function FloatingTabBar() {
       <nav className="tab-bar fixed inset-x-0 bottom-0 z-40 mx-auto w-full max-w-md pb-[env(safe-area-inset-bottom)]">
         <div className="mx-4 mb-4 rounded-full border border-border bg-card/90 p-1.5 shadow-lg backdrop-blur-md">
           <div
-            className="relative grid touch-none grid-cols-4 select-none [-webkit-touch-callout:none] before:absolute before:-inset-x-3 before:-top-5 before:-bottom-6 before:content-['']"
+            className="relative grid touch-none grid-cols-4 select-none [-webkit-touch-callout:none] before:absolute before:-inset-x-3 before:-top-3 before:-bottom-6 before:content-['']"
             onPointerDown={onPointerDown}
             onPointerMove={onPointerMove}
             onPointerUp={endPress}

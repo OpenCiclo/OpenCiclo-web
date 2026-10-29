@@ -7,7 +7,7 @@ import { useLayoutEffect, useRef, useSyncExternalStore, ViewTransition } from "r
 
 import { useCiclo } from "@/lib/client/ciclo-context";
 import { useIsGhost } from "@/lib/client/ghost";
-import { isSwapping, showScreen, subscribeSwapping } from "@/lib/client/tab-screen";
+import { isSwapping, showScreen, skipEntrance, subscribeSwapping } from "@/lib/client/tab-screen";
 import { cn } from "@/lib/utils";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
@@ -24,10 +24,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   // A screen that slides in arrives whole: its own entrance animations
   // (fade-up and friends) would play on top of the slide. Skip them to the end.
   function onEnter() {
-    if (!document.documentElement.dataset.tabSlide) return;
-    for (const animation of screenRef.current?.getAnimations({ subtree: true }) ?? []) {
-      if (Number.isFinite(animation.effect?.getComputedTiming().endTime)) animation.finish();
-    }
+    if (document.documentElement.dataset.tabSlide) skipEntrance(screenRef.current);
   }
 
   // Next.js sometimes swaps screens in two commits: the old screen leaves in

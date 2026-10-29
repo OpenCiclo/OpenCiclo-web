@@ -52,7 +52,18 @@ export function TabGhosts({ current, count }: { current: number; count: number }
       .sort((a, b) => Math.abs(a - current) - Math.abs(b - current));
     const next = byDistance[0];
     if (next === undefined) return;
-    return whenIdle(() => setDrawn((tabs) => (tabs.includes(next) ? tabs : [...tabs, next])), 1500);
+    let cancel = () => {};
+    const draw = () => {
+      // Never mid-drag (the tab bar's layer flag is up): drawing a screen
+      // then is the very hitch the ghosts are there to avoid.
+      if (document.documentElement.dataset.tabFollow !== undefined) {
+        cancel = whenIdle(draw, 500);
+        return;
+      }
+      setDrawn((tabs) => (tabs.includes(next) ? tabs : [...tabs, next]));
+    };
+    cancel = whenIdle(draw, 1500);
+    return () => cancel();
   }, [current, count, drawn]);
 
   return (
