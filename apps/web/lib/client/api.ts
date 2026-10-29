@@ -2,17 +2,32 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { apiUrl } from "@/lib/app-target";
+import { NO_ACCOUNT_CODE } from "@/lib/auth-codes";
 import { signChallenge, type Wallet } from "@/lib/crypto/wallet";
 
+/** The host has no account for this phrase (and the sign-in brought no first diary to create one). */
+export class AccountNotFoundError extends Error {
+  constructor() {
+    super("No account for this phrase");
+    this.name = "AccountNotFoundError";
+  }
+}
+
 async function parseJson(response: Response) {
-  const payload = (await response.json().catch(() => ({}))) as { error?: string };
+  const payload = (await response.json().catch(() => ({}))) as { error?: string; code?: string };
+  if (response.status === 404 && payload.code === NO_ACCOUNT_CODE) throw new AccountNotFoundError();
   if (!response.ok) {
     throw new Error(payload.error ?? `HTTP ${response.status}`);
   }
   return payload;
 }
 
-/** Signs in, creating the account (with `vault` as its first blob) if the host has none. Returns whether it was created. */
+/**
+ * Signs in. With `vault`, a sign-up: creates the account, with `vault` as its
+ * first blob, if the host has none. Without it, a phrase with no account
+ * throws AccountNotFoundError and nothing is created. Returns whether the
+ * account was created.
+ */
 export async function loginWithWallet(
   wallet: Wallet,
   vault?: { ciphertext: string; nonce: string; schemaVersion: number },

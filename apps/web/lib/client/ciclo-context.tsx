@@ -8,6 +8,7 @@ import { bytesToUtf8, utf8ToBytes } from "@/lib/crypto/bytes";
 import { InvalidPhraseError, createWallet, unlockWallet, type Wallet } from "@/lib/crypto/wallet";
 import { unwrapMnemonic, wrapMnemonic, type WrappedKit } from "@/lib/crypto/wrap";
 import {
+  AccountNotFoundError,
   deleteAccount,
   hostedVault,
   loginWithWallet,
@@ -78,6 +79,11 @@ type CicloContextValue = {
   error: string | null;
   /** The phrase kept on this device could not sign in (offline, server error). It is still stored. */
   restoreFailed: boolean;
+  /**
+   * The host has no account for the phrase kept on this device (deleted from
+   * another device, say). Nothing was created; the phrase is still stored.
+   */
+  restoreNoAccount: boolean;
   retryRestore: () => Promise<void>;
   /** Where the open diary lives. Null while nothing is open. */
   storageMode: StorageMode | null;
@@ -189,6 +195,7 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
   const [colorScheme, setColorSchemeState] = useState<ColorScheme>("system");
   const [error, setError] = useState<string | null>(null);
   const [restoreFailed, setRestoreFailed] = useState(false);
+  const [restoreNoAccount, setRestoreNoAccount] = useState(false);
   const [pendingSignup, setPendingSignup] = useState<PendingEmailSignup | null>(null);
   const [storageMode, setStorageMode] = useState<StorageMode | null>(null);
   const [deviceLocked, setDeviceLocked] = useState(false);
@@ -261,6 +268,7 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
       setDiary(loaded);
       setWallet(nextWallet);
       setRestoreFailed(false);
+      setRestoreNoAccount(false);
       setDeviceLocked(false);
       if (!loaded.poolOptIn) return;
       try {
@@ -321,7 +329,10 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
 
   // Signs in again with the phrase kept on this device. Only an unusable phrase
   // is forgotten. Network, server, or sign-in race failures keep it, so the
-  // person can retry instead of losing access to a phrase-only diary.
+  // person can retry instead of losing access to a phrase-only diary. A host
+  // with no account for it (deleted elsewhere, or a host that lost its data)
+  // keeps it too: the account is never recreated empty, and the phrase is
+  // never dropped on the host's word alone.
   const restoreStoredSession = useCallback(
     async (isCancelled: () => boolean = () => false) => {
       const storedLocale = (localStorage.getItem(LOCALE_KEY) as Locale | null) ?? "es";
@@ -342,11 +353,13 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
       try {
         await loginWithWallet(nextWallet, undefined, unlockState.persistCookie);
         await hydrate(nextWallet, storedLocale, hostedVault, isCancelled);
-      } catch {
+      } catch (cause) {
         if (isCancelled()) return;
         setWallet(null);
         setDiary(emptyDiary(storedLocale));
-        setRestoreFailed(true);
+        const noAccount = cause instanceof AccountNotFoundError;
+        setRestoreNoAccount(noAccount);
+        setRestoreFailed(!noAccount);
       }
     },
     [hydrate, restoreDeviceDiary],
@@ -606,6 +619,7 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
       error,
       setError,
       restoreFailed,
+      restoreNoAccount,
       retryRestore: () => restoreStoredSession(),
       storageMode,
       deviceLocked,
@@ -787,6 +801,7 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
       persistDiary,
       ready,
       restoreFailed,
+      restoreNoAccount,
       restoreStoredSession,
       t,
       unlock,
@@ -812,6 +827,7 @@ export function useTodayIso(): string {
 
 export {
   lastEmail,
+  AccountNotFoundError,
   InvalidConfirmError,
   InvalidCredentialsError,
   MailNotConfiguredError,
