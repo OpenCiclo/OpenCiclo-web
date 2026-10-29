@@ -11,7 +11,6 @@ import {
   dragFrame,
   labelScale,
   resist,
-  screenPull,
   stepSpring,
   stoppedOnTab,
   stretchScale,
@@ -73,16 +72,6 @@ describe("tab bar drag", () => {
     expect(gum.x).toBeGreaterThan(stretchScale(1).x);
     expect(gum.x).toBeLessThan(1.3);
     expect(labelScale({ x: 1, y: 1 })).toEqual({ x: 1, y: 1 });
-  });
-
-  it("pulls the screen the other way from the selection, with resistance", () => {
-    // Selection pulled toward the next tab: the screen goes left.
-    expect(screenPull(1.3, 1)).toBeLessThan(0);
-    expect(screenPull(0.7, 1)).toBeGreaterThan(0);
-    expect(screenPull(1, 1)).toBeCloseTo(0, 6);
-    // It gives less and less, and never leaves more than a quarter of the screen.
-    expect(Math.abs(screenPull(1.6, 1))).toBeLessThan(2 * Math.abs(screenPull(1.3, 1)));
-    expect(Math.abs(screenPull(5, 1))).toBeLessThanOrEqual(0.25);
   });
 
   it("changes screens where the finger stops, not on every tab a sweep passes", () => {

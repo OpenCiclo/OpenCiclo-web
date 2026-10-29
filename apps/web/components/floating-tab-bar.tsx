@@ -3,21 +3,16 @@
 
 "use client";
 
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useEffectEvent, useLayoutEffect, useRef, useState } from "react";
 import type { CSSProperties, MouseEvent, PointerEvent } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { BookOpen, CalendarDays, LineChart, Settings } from "lucide-react";
 
 import { useCiclo } from "@/lib/client/ciclo-context";
-import {
-  SelectionMotion,
-  dragFrame,
-  labelScale,
-  screenPull,
-  stoppedOnTab,
-} from "@/lib/client/tab-drag";
-import { shownScreen, watchScreens } from "@/lib/client/tab-screen";
+import { finishSlides, rewindSlides, setSlides, slideProgress, takeSlides, tween } from "@/lib/client/screen-carousel";
+import { SWEEP_SPEED, SelectionMotion, dragFrame, labelScale, stoppedOnTab } from "@/lib/client/tab-drag";
+import { shownScreen, watchSlides } from "@/lib/client/tab-screen";
 import { cn } from "@/lib/utils";
 
 const TABS = [
@@ -31,6 +26,14 @@ const TABS = [
 const DRAG_SLOP = 8;
 /** How long after a drag a click still belongs to it. */
 const CLICK_AFTER_DRAG_MS = 500;
+/** How far the old screen follows the finger, as a share of its width, while the next one is still being drawn. */
+const WAIT_LIMIT = 0.35;
+/** A finger this far (in tabs) back past where the drag started turns it around. */
+const TURN_BACK = 0.08;
+/** How long the screens take to finish a whole screen's slide once the finger lifts. */
+const LAND_MS = 320;
+/** How long going back to the first screen may take before the slides are put away anyway. */
+const REVERT_WAIT_MS = 600;
 
 function tabIndex(pathname: string) {
   return TABS.findIndex(({ href }) => pathname === href || pathname.startsWith(`${href}/`));
@@ -66,22 +69,19 @@ function setSlideDirection(from: number, to: number) {
 }
 
 /**
- * A drag changes screens while the finger is still down, with both screens
- * already moved: the old one pulled aside by `pulled`, the new one waiting
- * `waiting` short of its place (shares of the screen width, positive in the
- * direction of the slide). The carousel starts from there, with a spring.
- * Without a drag (a tap) it starts from the edges, as before.
+ * A drag swaps screens with slides the finger moves (see screen-carousel.ts).
+ * `pulled` is how far the old screen had already followed the finger, as a
+ * share of its width, when the browser took its picture. Null for any other
+ * screen change, which slides on its own, as a tap does.
  */
-function setSlideStart(drag: { pulled: number; waiting: number } | null) {
+function setSlideStart(pulled: number | null) {
   const root = document.documentElement;
-  if (drag) {
-    root.dataset.tabDrag = "";
-    root.style.setProperty("--tab-slide-out", `${(drag.pulled * 100).toFixed(2)}%`);
-    root.style.setProperty("--tab-slide-in", `${((drag.pulled + drag.waiting) * 100).toFixed(2)}%`);
-  } else {
+  if (pulled === null) {
     delete root.dataset.tabDrag;
     root.style.removeProperty("--tab-slide-out");
-    root.style.removeProperty("--tab-slide-in");
+  } else {
+    root.dataset.tabDrag = "";
+    root.style.setProperty("--tab-slide-out", `${(pulled * 100).toFixed(2)}%`);
   }
 }
 
@@ -148,6 +148,30 @@ type Press = {
   /** Animation frames drawn since the last move, and when that move was handled. */
   stillFrames: number;
   handledAt: number;
+  /** Screens this drag has already slid all the way through. */
+  slidThrough: number;
+};
+
+/**
+ * Two screens the finger is between. The route is already on `to` (or on its
+ * way there), so both can show, and the slides that swap them follow the finger.
+ */
+type Pair = {
+  from: number;
+  to: number;
+  /** +1 when `to` is the next tab, -1 when it is the previous one. */
+  direction: number;
+  /** The paused slides, once the view transition has started. */
+  slides: Animation[] | null;
+  /** 0 with `from` in place, 1 with `to` in place. */
+  progress: number;
+  /** Where the finger let go, if it did before the slides started. */
+  landing: number | null;
+  /** The route is going back to `from`; then `afterRevert` runs. */
+  reverting: boolean;
+  afterRevert: (() => void) | null;
+  revertTimer: number;
+  stopTween: (() => void) | null;
 };
 
 export function FloatingTabBar() {
@@ -165,13 +189,16 @@ export function FloatingTabBar() {
   const pressRef = useRef<Press | null>(null);
   const swallowClicksUntilRef = useRef(0);
   const lastTabRef = useRef(activeIndex);
-  // The tab whose screen is on display, and whether that screen moves with
-  // the selection: from the start of a drag until a tap or Back changes screens.
+  // The tab whose screen is on display, and the tab the route is on or on its
+  // way to, and whether a drag sent it there.
   const screenTabRef = useRef(activeIndex);
-  const followRef = useRef(false);
-  // The tab the route is on or on its way to, and whether a drag sent it there.
   const routeTabRef = useRef(activeIndex);
   const dragNavigationRef = useRef(false);
+  // Whether this drag moves the screens (not with reduced motion), the screens
+  // it is between, and how far the screen on display is moved by hand.
+  const followRef = useRef(false);
+  const pairRef = useRef<Pair | null>(null);
+  const offsetRef = useRef(0);
   // Frame watch for a finger that sweeps past tabs (see `followRoute`).
   const sweepFrameRef = useRef(0);
   // The tab a drag has picked, shown as selected until the route catches up.
@@ -184,7 +211,7 @@ export function FloatingTabBar() {
   function motion() {
     motionRef.current ??= new SelectionMotion(
       TABS.length,
-      (position, scale, screen) => {
+      (position, scale) => {
         const bubble = bubbleRef.current;
         if (!bubble) return;
         // Read before writing anything, so it does not force a layout.
@@ -192,21 +219,31 @@ export function FloatingTabBar() {
         // Fixed decimals: tiny values would otherwise print as 1e-7.
         bubble.style.transform = `translateX(${(position * 100).toFixed(3)}%) scale(${scale.x.toFixed(4)}, ${scale.y.toFixed(4)})`;
         paintLabels(labelRefs.current, position, scale, tabWidth);
-        paintScreen(followRef.current && screenTabRef.current >= 0 ? screen : 0);
         // At rest the springs land exactly on a tab.
-        if (!pressRef.current && Number.isInteger(position)) layerScreen(false);
+        if (!pressRef.current && !pairRef.current && Number.isInteger(position)) layerScreen(false);
       },
       prefersReducedMotion,
     );
     return motionRef.current;
   }
 
+  /** Moves the screen on display by hand: only while the next one is still being drawn. */
+  function moveScreen(offset: number) {
+    offsetRef.current = offset;
+    paintScreen(offset);
+  }
+
+  const onSlidesStarted = useEffectEvent(() => adoptSlides());
+
   useEffect(() => {
-    const unwatch = watchScreens(() => motionRef.current?.redraw());
+    const unwatch = watchSlides(() => onSlidesStarted());
     return () => {
       unwatch();
       cancelAnimationFrame(sweepFrameRef.current);
       motionRef.current?.stop();
+      const pair = pairRef.current;
+      if (pair?.slides) finishSlides(pair.slides);
+      pairRef.current = null;
       layerScreen(false);
     };
   }, []);
@@ -216,24 +253,28 @@ export function FloatingTabBar() {
     const to = tabIndex(pathname);
     setSlideDirection(from, to);
     screenTabRef.current = to;
-    const motion = motionRef.current;
-    if (dragNavigationRef.current && from >= 0 && to >= 0 && from !== to) {
-      // Runs after the browser took its picture of the old screen, as it was
-      // pulled. The new one starts right next to it, where the finger says.
-      const direction = to > from ? 1 : -1;
-      const press = pressRef.current;
-      const waiting = press?.dragging && followRef.current ? screenPull(press.finger, to) : 0;
-      setSlideStart({ pulled: -direction * (motion?.screenOffset ?? 0), waiting: direction * waiting });
-      motion?.rebaseScreen(waiting);
-      // A sweep may pass through here on its way to another tab.
-      if (to === routeTabRef.current) dragNavigationRef.current = false;
-    } else {
-      setSlideStart(null);
-      followRef.current = false;
+    const pair = pairRef.current;
+    if (pair?.reverting && to === pair.from) {
+      // Back on the screen the drag started from: it is the real one again.
+      endRevert(pair);
+    } else if (pair && to === pair.to && dragNavigationRef.current) {
+      // Runs after the browser took its picture of the old screen, as far as
+      // it had followed the finger. The new screen starts in its place: the
+      // slides move both from here.
       dragNavigationRef.current = false;
+      setSlideStart(Math.abs(offsetRef.current));
+      moveScreen(0);
+      if (pair.reverting) window.history.back();
+      else if (typeof document.startViewTransition !== "function") completePair(pair);
+    } else if (dragNavigationRef.current && to === routeTabRef.current) {
+      // A drag landed here without slides of its own (a sweep): slide in as a tap does.
+      dragNavigationRef.current = false;
+      setSlideStart(null);
+    } else {
+      dragNavigationRef.current = false;
+      setSlideStart(null);
       routeTabRef.current = to;
-      motion?.rebaseScreen(0);
-      if (!pressRef.current) layerScreen(false);
+      if (pair) dropPair(pair);
     }
     lastTabRef.current = to;
   }, [pathname]);
@@ -260,6 +301,8 @@ export function FloatingTabBar() {
   function onPointerDown(event: PointerEvent<HTMLDivElement>) {
     swallowClicksUntilRef.current = 0;
     if (!event.isPrimary || event.button !== 0 || activeIndex < 0) return;
+    // The screens are still landing from the last drag.
+    if (pairRef.current) return;
     const tab = (event.target as Element).closest<HTMLElement>("[data-tab]");
     const pressed = Number(tab?.dataset.tab ?? -1);
     // Only the selection can be picked up. Any other tab is a plain link.
@@ -277,6 +320,7 @@ export function FloatingTabBar() {
       movedAt: event.timeStamp,
       stillFrames: 0,
       handledAt: performance.now(),
+      slidThrough: 0,
     };
     // Now, before the finger moves, so the layer is ready when the screen does.
     if (!prefersReducedMotion()) layerScreen(true);
@@ -297,9 +341,8 @@ export function FloatingTabBar() {
     router.push(TABS[index].href);
   }
 
-  // Each tab the selection snaps to is a real navigation, made with the
-  // finger still down, so the next screen comes in right away. A finger that
-  // sweeps past several tabs navigates once, where it stops.
+  // With reduced motion, and for a finger sweeping past several tabs: the
+  // route follows the selection once the finger stops on a tab.
   function followRoute(press: Press) {
     if (press.held === routeTabRef.current) {
       stopSweepWatch();
@@ -318,6 +361,147 @@ export function FloatingTabBar() {
         followRoute(press);
       });
     }
+  }
+
+  // The screens follow the finger like a carousel: halfway between two tabs,
+  // half of each screen shows. The route goes to the tab the finger heads
+  // for as soon as it heads there, a real navigation, so that screen exists.
+  function slideScreens(press: Press) {
+    const pair = pairRef.current;
+    if (pair) {
+      if (pair.reverting) return;
+      if ((press.finger - pair.from) * pair.direction < -TURN_BACK) {
+        // Turned around past where it started: back to that screen first,
+        // then on to the other side.
+        revertPair(pair, null);
+        return;
+      }
+      pair.progress = slideProgress(press.finger, pair.from, pair.direction);
+      if (pair.slides) {
+        setSlides(pair.slides, pair.progress);
+        if (pair.progress >= 1) {
+          press.slidThrough += 1;
+          completePair(pair);
+        }
+      } else {
+        moveScreen(-pair.direction * Math.min(pair.progress, WAIT_LIMIT));
+      }
+      return;
+    }
+    const from = screenTabRef.current;
+    // A screen change is still on its way: wait for it.
+    if (from < 0 || routeTabRef.current !== from) return;
+    const direction = Math.sign(press.finger - from);
+    const to = from + direction;
+    // Nothing that way: the screen stays put.
+    if (direction === 0 || to < 0 || to >= TABS.length) return;
+    // Sweeping on past the tab it just slid to, or already past the next tab:
+    // one screen change, where it stops, not every screen on the way.
+    if (Math.abs(press.finger - from) > 1 || (press.slidThrough > 0 && Math.abs(press.speed) >= SWEEP_SPEED)) {
+      followRoute(press);
+      return;
+    }
+    stopSweepWatch();
+    pairRef.current = {
+      from,
+      to,
+      direction,
+      slides: null,
+      progress: slideProgress(press.finger, from, direction),
+      landing: null,
+      reverting: false,
+      afterRevert: null,
+      revertTimer: 0,
+      stopTween: null,
+    };
+    navigateTo(to);
+  }
+
+  // The view transition for a drag started: take its slides over.
+  function adoptSlides() {
+    const pair = pairRef.current;
+    if (!pair || pair.slides || document.documentElement.dataset.tabDrag === undefined) return;
+    const slides = takeSlides();
+    if (!slides) return;
+    pair.slides = slides;
+    if (pair.reverting) pair.progress = 0;
+    setSlides(slides, pair.progress);
+    if (!pressRef.current && !pair.reverting) landPair(pair, pair.landing ?? pair.from);
+  }
+
+  /** The new screen is all the way in: the transition ends there. */
+  function completePair(pair: Pair) {
+    pair.stopTween?.();
+    if (pair.slides) finishSlides(pair.slides);
+    if (pairRef.current === pair) pairRef.current = null;
+    setSlideStart(null);
+  }
+
+  /** Puts the slides away wherever they are (another navigation took over). */
+  function dropPair(pair: Pair) {
+    pair.stopTween?.();
+    window.clearTimeout(pair.revertTimer);
+    if (pair.slides) finishSlides(pair.slides);
+    if (pairRef.current === pair) pairRef.current = null;
+  }
+
+  /** Slides back to the screen the drag started from, and takes the route back there. */
+  function revertPair(pair: Pair, then: (() => void) | null) {
+    pair.stopTween?.();
+    pair.stopTween = null;
+    pair.reverting = true;
+    pair.afterRevert = then;
+    pair.progress = 0;
+    if (pair.slides) setSlides(pair.slides, 0);
+    moveScreen(0);
+    routeTabRef.current = pair.from;
+    // Back, not another push (Next.js's router.back() is this too): the route
+    // the drag tried leaves no trace in history. If it is not there yet, the
+    // commit that lands it goes back.
+    if (screenTabRef.current === pair.to) window.history.back();
+    pair.revertTimer = window.setTimeout(() => endRevert(pair), REVERT_WAIT_MS);
+  }
+
+  function endRevert(pair: Pair) {
+    window.clearTimeout(pair.revertTimer);
+    if (pair.slides) rewindSlides(pair.slides);
+    if (pairRef.current === pair) pairRef.current = null;
+    setSlideStart(null);
+    routeTabRef.current = screenTabRef.current;
+    if (!pressRef.current) layerScreen(false);
+    pair.afterRevert?.();
+  }
+
+  /** The finger let go on tab `target`: the screens slide on, or back, to it. */
+  function landPair(pair: Pair, target: number) {
+    if (!pair.slides) {
+      pair.landing = target;
+      return;
+    }
+    const slides = pair.slides;
+    const onward = (target - pair.from) * pair.direction > 0;
+    const end = onward ? 1 : 0;
+    pair.stopTween?.();
+    pair.stopTween = tween(
+      pair.progress,
+      end,
+      Math.max(80, LAND_MS * Math.abs(end - pair.progress)),
+      (progress) => {
+        pair.progress = progress;
+        setSlides(slides, progress);
+      },
+      () => {
+        pair.stopTween = null;
+        if (onward) {
+          completePair(pair);
+          // Let go past the next tab: on to that one, as a tap would.
+          if (target !== pair.to) navigateTo(target);
+          else layerScreen(false);
+        } else {
+          revertPair(pair, target !== pair.from ? () => navigateTo(target) : null);
+        }
+      },
+    );
   }
 
   function onPointerMove(event: PointerEvent<HTMLDivElement>) {
@@ -349,13 +533,14 @@ export function FloatingTabBar() {
       press.held = frame.held;
       setHeld({ index: frame.held, pathname });
     }
-    followRoute(press);
-    const screenTab = screenTabRef.current;
-    motion().follow(frame, followRef.current && screenTab >= 0 ? screenPull(finger, screenTab) : 0);
+    if (followRef.current) slideScreens(press);
+    else followRoute(press);
+    motion().follow(frame);
   }
 
   // Lifting the finger (or the system taking the gesture) lands on the tab the
-  // selection snapped to, and lets the selection and the screen spring into place.
+  // selection snapped to: the screens slide on or back to it, and the
+  // selection springs into place.
   function endPress(event: PointerEvent<HTMLDivElement>) {
     const press = pressRef.current;
     if (!press || event.pointerId !== press.pointerId) return;
@@ -365,9 +550,14 @@ export function FloatingTabBar() {
       return;
     }
     swallowClicksUntilRef.current = event.timeStamp + CLICK_AFTER_DRAG_MS;
-    navigateTo(press.held);
-    motion().settle(press.held);
-    if (press.held === activeIndex) setHeld(null);
+    stopSweepWatch();
+    const target = press.held;
+    const pair = pairRef.current;
+    if (!pair) navigateTo(target);
+    else if (!pair.reverting) landPair(pair, target);
+    else if (target !== pair.from) pair.afterRevert = () => navigateTo(target);
+    motion().settle(target);
+    if (target === activeIndex) setHeld(null);
   }
 
   // A drag can end in a click on the link it started on; that is not a tap.
