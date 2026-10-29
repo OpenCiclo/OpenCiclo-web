@@ -86,7 +86,7 @@ apps/web/lib/forecast/           TS port of shrinkage + Laplace; must match Pyth
 apps/web/lib/cycle/phases.ts     observed vs estimated phase heuristic (NOT the forecast engine)
 apps/web/lib/cycle/season-guide.ts  inner-season copy EN/ES
 apps/web/lib/client/ciclo-context.tsx  wallet + diary in memory
-apps/web/components/floating-tab-bar.tsx  tab bar: tap a tab or drag the selection; picks the carousel direction
+apps/web/components/floating-tab-bar.tsx  tab bar: tap a tab, or drag from any tab (the selection jumps to the finger); picks the carousel direction
 apps/web/lib/client/tab-drag.ts  drag thresholds and springs for the tab bar selection, the label stretch, sweep detection
 apps/web/lib/client/tab-screen.ts  which screen the tab bar moves during a drag, and when its slides start
 apps/web/lib/client/screen-carousel.ts  finger-driven slides between two screens during a tab bar drag, and the spring that moves them

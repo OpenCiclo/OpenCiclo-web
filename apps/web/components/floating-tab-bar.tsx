@@ -463,8 +463,9 @@ export function FloatingTabBar() {
     if (pairRef.current || stripRef.current || swapRef.current) return;
     const tab = (event.target as Element).closest<HTMLElement>("[data-tab]");
     const pressed = Number(tab?.dataset.tab ?? -1);
-    // Only the selection can be picked up. Any other tab is a plain link.
-    if (pressed !== motion().nearest) return;
+    // Any tab can start a drag: the selection jumps to the finger and follows
+    // it. A press that does not turn into a drag stays a tap on the link.
+    if (pressed < 0) return;
     pressRef.current = {
       pointerId: event.pointerId,
       x: event.clientX,
