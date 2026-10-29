@@ -4,8 +4,14 @@
 import { verifyChallenge } from "@/lib/crypto/wallet";
 import { getDb } from "@/lib/db";
 import { consumeChallenge } from "@/lib/server/auth-challenges";
-import { createAccountIfMissing } from "@/lib/server/create-account";
+import { accountExists, createAccountIfMissing } from "@/lib/server/create-account";
 import { jsonError } from "@/lib/server/env";
+import { sourceKey, takeRateLimit, tooManyRequests } from "@/lib/server/rate-limit";
+import {
+  isValidSchemaVersion,
+  MAX_INITIAL_VAULT_CIPHERTEXT_LENGTH,
+  MAX_VAULT_NONCE_LENGTH,
+} from "@/lib/server/vault-limits";
 import { setSessionCookie } from "@/lib/server/session";
 import { recordAccountOpen } from "@/lib/server/account-activity";
 
@@ -39,18 +45,40 @@ export async function POST(request: Request) {
     return jsonError("Signature rejected", 401);
   }
 
+  const initialCiphertext = body.ciphertext ?? "";
+  const initialNonce = body.nonceVault ?? "";
+  const schemaVersion = body.schemaVersion ?? 1;
+  if (
+    typeof initialCiphertext !== "string" ||
+    typeof initialNonce !== "string" ||
+    initialNonce.length > MAX_VAULT_NONCE_LENGTH ||
+    !isValidSchemaVersion(schemaVersion)
+  ) {
+    return jsonError("Invalid authentication payload", 400);
+  }
+  if (initialCiphertext.length > MAX_INITIAL_VAULT_CIPHERTEXT_LENGTH) {
+    return jsonError("Vault too large", 413);
+  }
+
   const db = getDb();
   if (!(await consumeChallenge(db, pubkeyHash, nonce))) {
     return jsonError("Challenge expired", 401);
   }
 
-  const created = await createAccountIfMissing(db, {
-    pubkeyHash,
-    pubkey,
-    ciphertext: body.ciphertext ?? "",
-    nonce: body.nonceVault ?? "",
-    schemaVersion: body.schemaVersion ?? 1,
-  });
+  let created = false;
+  if (!(await accountExists(db, pubkeyHash))) {
+    // Only new accounts count: signing in again is never limited here.
+    if (!(await takeRateLimit(db, "account-create", sourceKey(request)))) {
+      return tooManyRequests();
+    }
+    created = await createAccountIfMissing(db, {
+      pubkeyHash,
+      pubkey,
+      ciphertext: initialCiphertext,
+      nonce: initialNonce,
+      schemaVersion,
+    });
+  }
   await setSessionCookie(pubkeyHash, body.persist !== false);
   await recordAccountOpen(pubkeyHash);
   return Response.json({ ok: true, created });

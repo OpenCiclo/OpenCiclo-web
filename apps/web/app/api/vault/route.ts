@@ -5,7 +5,11 @@ import { getDb } from "@/lib/db";
 import { jsonError } from "@/lib/server/env";
 import { requireAccount } from "@/lib/server/account";
 import { parseBaseVersion, writeVault } from "@/lib/server/vault";
-import { MAX_VAULT_CIPHERTEXT_LENGTH } from "@/lib/server/vault-limits";
+import {
+  isValidSchemaVersion,
+  MAX_VAULT_CIPHERTEXT_LENGTH,
+  MAX_VAULT_NONCE_LENGTH,
+} from "@/lib/server/vault-limits";
 
 export { MAX_VAULT_CIPHERTEXT_LENGTH };
 
@@ -30,11 +34,16 @@ export async function PUT(request: Request) {
     schemaVersion?: number;
     baseVersion?: unknown;
   };
-  if (!body.ciphertext || !body.nonce) {
+  if (typeof body.ciphertext !== "string" || typeof body.nonce !== "string" || !body.ciphertext || !body.nonce) {
     return jsonError("Ciphertext and nonce are required", 400);
   }
   if (body.ciphertext.length > MAX_VAULT_CIPHERTEXT_LENGTH) {
     return jsonError("Vault too large", 413);
+  }
+  // The nonce and schema version are stored too, so they need limits of their own.
+  const schemaVersion = body.schemaVersion ?? 1;
+  if (body.nonce.length > MAX_VAULT_NONCE_LENGTH || !isValidSchemaVersion(schemaVersion)) {
+    return jsonError("Invalid vault metadata", 400);
   }
   const baseVersion = parseBaseVersion(body.baseVersion);
   if (baseVersion === "invalid") {
@@ -43,7 +52,7 @@ export async function PUT(request: Request) {
   const result = await writeVault(
     getDb(),
     account.id,
-    { ciphertext: body.ciphertext, nonce: body.nonce, schemaVersion: body.schemaVersion ?? 1 },
+    { ciphertext: body.ciphertext, nonce: body.nonce, schemaVersion },
     baseVersion,
   );
   if (!result.ok) {

@@ -1,12 +1,22 @@
 // Copyright © 2026 Emma Flora Harbison & Luis Rey Sánchez
 // SPDX-License-Identifier: Apache-2.0
 
+import { eq } from "drizzle-orm";
 import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 
 import type * as schema from "@/lib/db/schema";
 import { accounts } from "@/lib/db/schema";
 
 type Db = PostgresJsDatabase<typeof schema>;
+
+export async function accountExists(db: Db, pubkeyHash: string): Promise<boolean> {
+  const rows = await db
+    .select({ id: accounts.id })
+    .from(accounts)
+    .where(eq(accounts.pubkeyHash, pubkeyHash))
+    .limit(1);
+  return rows.length > 0;
+}
 
 /**
  * Creates the account on first sign-in, in one statement. Two sign-ins for a
