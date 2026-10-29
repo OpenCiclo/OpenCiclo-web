@@ -23,6 +23,13 @@ export function shownScreen(): HTMLElement | null {
   return shown;
 }
 
+/** Plays a screen's entrance animations (fade-up and friends) to the end: it arrives whole. */
+export function skipEntrance(screen: HTMLElement | null): void {
+  for (const animation of screen?.getAnimations({ subtree: true }) ?? []) {
+    if (Number.isFinite(animation.effect?.getComputedTiming().endTime)) animation.finish();
+  }
+}
+
 // Copies of the other tab screens (see TabGhosts), by tab, for a drag to slide in.
 const ghosts = new Map<number, HTMLElement>();
 
