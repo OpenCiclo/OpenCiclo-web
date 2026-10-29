@@ -63,7 +63,7 @@ export function rewindSlides(slides: Animation[]): void {
  */
 const FOLLOW_STIFFNESS = 2400;
 /** Softer, once the finger lifts: the screens carry on at its speed and slow down to a stop. */
-const LAND_STIFFNESS = 260;
+const LAND_STIFFNESS = 340;
 const STEP = 1 / 240;
 const MAX_FRAME = 0.05;
 
