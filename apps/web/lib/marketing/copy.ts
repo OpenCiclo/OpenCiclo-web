@@ -239,7 +239,7 @@ const es: MarketingCopy = {
   footer: {
     disclaimer:
       "OpenCiclo ofrece pronósticos de ciclo. Los pronósticos pueden fallar. No es un dispositivo médico, un diagnóstico ni un método anticonceptivo.",
-    license: "OpenCiclo / Ciclo · Licencia Apache 2.0",
+    license: "OpenCiclo / Ciclo · Código con licencia Apache 2.0. El nombre y el logo no entran en la licencia.",
     links: [
       { label: "Aprender", href: "/learn" },
       { label: "Documentación", href: "/help" },
@@ -427,7 +427,7 @@ const en: MarketingCopy = {
   footer: {
     disclaimer:
       "OpenCiclo provides cycle forecasts. Forecasts can be wrong. It is not a medical device, a diagnosis, or a contraceptive method.",
-    license: "OpenCiclo / Ciclo · Apache License 2.0",
+    license: "OpenCiclo / Ciclo · Code under the Apache License 2.0. The name and the logo are not part of the license.",
     links: [
       { label: "Learn", href: "/learn" },
       { label: "Documentation", href: "/help" },
