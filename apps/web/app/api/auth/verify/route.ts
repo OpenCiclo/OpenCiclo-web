@@ -1,6 +1,7 @@
 // Copyright © 2026 Emma Flora Harbison & Luis Rey Sánchez
 // SPDX-License-Identifier: Apache-2.0
 
+import { NO_ACCOUNT_CODE } from "@/lib/auth-codes";
 import { verifyChallenge } from "@/lib/crypto/wallet";
 import { getDb } from "@/lib/db";
 import { consumeChallenge } from "@/lib/server/auth-challenges";
@@ -67,6 +68,13 @@ export async function POST(request: Request) {
 
   let created = false;
   if (!(await accountExists(db, pubkeyHash))) {
+    // Only a sign-up brings a first diary (create account, move an Android
+    // diary to the host). Without one, this is someone signing in with a
+    // phrase that has no account, often a typo: never hand them a new empty
+    // diary that looks like theirs.
+    if (initialCiphertext === "") {
+      return Response.json({ error: "No account for this key", code: NO_ACCOUNT_CODE }, { status: 404 });
+    }
     // Only new accounts count: signing in again is never limited here.
     if (!(await takeRateLimit(db, "account-create", sourceKey(request)))) {
       return tooManyRequests();
