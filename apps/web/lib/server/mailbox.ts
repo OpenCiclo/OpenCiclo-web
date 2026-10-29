@@ -46,6 +46,28 @@ export function parseMailLocale(raw: unknown): "es" | "en" {
   return raw === "en" ? "en" : "es";
 }
 
+// The longest address SMTP can deliver to (RFC 5321).
+export const MAILBOX_EMAIL_MAX_LENGTH = 254;
+// Whitespace, control characters, and the RFC 5322 specials other than "@".
+// A mailer reads these as display names, comments, groups, or lists, so they
+// could make it deliver to a different address than the one we hash.
+const EMAIL_FORBIDDEN = /[\s\p{Cc}()<>[\]\\,;:"]/u;
+
+/**
+ * Normalizes a signup email the same way as the HMAC lookup (trim, lowercase)
+ * and accepts only one plain `local@domain` address. Browsers already reject
+ * these shapes in `type="email"` inputs; this stops direct API callers.
+ */
+export function parseMailboxEmail(raw: unknown): string | null {
+  if (typeof raw !== "string") return null;
+  const email = raw.trim().toLowerCase();
+  if (email.length > MAILBOX_EMAIL_MAX_LENGTH || EMAIL_FORBIDDEN.test(email)) return null;
+  const at = email.indexOf("@");
+  if (at <= 0 || at !== email.lastIndexOf("@")) return null;
+  const domainLabels = email.slice(at + 1).split(".");
+  return domainLabels.every((label) => label.length > 0) ? email : null;
+}
+
 export function generateMailboxCode(): string {
   return String(randomInt(100000, 1000000));
 }
