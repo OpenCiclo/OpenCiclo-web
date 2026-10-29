@@ -78,6 +78,19 @@ export function CalendarScreen() {
   const [activeIso, setActiveIso] = useState<string | null>(() => deepLinkDay);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // A link to a day (a note's "Edit in calendar") can also come while the
+  // calendar is on display: on the desktop it shares the page with the notes.
+  const [linkedDay, setLinkedDay] = useState(deepLinkDay);
+  if (deepLinkDay !== linkedDay) {
+    setLinkedDay(deepLinkDay);
+    if (deepLinkDay && deepLinkDate) {
+      setYear(deepLinkDate.getUTCFullYear());
+      setMonth(deepLinkDate.getUTCMonth() + 1);
+      setError(null);
+      setActiveIso(deepLinkDay);
+      setSheetOpen(true);
+    }
+  }
   const [filterOpen, setFilterOpen] = useState(false);
   const [filterPresent, setFilterPresent] = useState(false);
   const [activeFilters, setActiveFilters] = useState<SymptomId[]>([]);
@@ -125,7 +138,7 @@ export function CalendarScreen() {
 
   useEffect(() => {
     if (ghost || !searchParams.get("day")) return;
-    router.replace("/", { scroll: false });
+    router.replace("/app", { scroll: false });
   }, [ghost, router, searchParams]);
 
   const closeSheet = useCallback(() => {
@@ -184,9 +197,12 @@ export function CalendarScreen() {
   }
 
   return (
-    <div className="flex flex-col gap-5 pb-4">
+    <div className="flex flex-col gap-5 pb-4 desktop:gap-4">
       <header className="animate-fade-up">
-        <p className="text-sm font-medium text-muted-foreground capitalize">{greetingDate}</p>
+        {/* On the desktop, the page's title, level with "Forecast" in the Patterns column. */}
+        <p className="text-sm font-medium text-muted-foreground capitalize desktop:font-serif desktop:text-2xl desktop:font-normal desktop:text-foreground desktop:normal-case desktop:first-letter:uppercase">
+          {greetingDate}
+        </p>
       </header>
 
       <InstallPrompt mode="calendar" />
@@ -200,11 +216,13 @@ export function CalendarScreen() {
       />
 
       <section
-        className="animate-fade-up rounded-3xl bg-card p-4 shadow-sm"
+        className="animate-fade-up rounded-3xl bg-card p-4 shadow-sm desktop:mt-2 desktop:border desktop:border-border/70 desktop:p-6"
         style={{ animationDelay: "120ms" }}
       >
-        <div className="mb-3 flex flex-col gap-2 px-1">
-          <h2 className="whitespace-nowrap font-serif text-lg capitalize text-card-foreground">{monthTitle}</h2>
+        <div className="mb-3 flex flex-col gap-2 px-1 desktop:mb-5 desktop:flex-row desktop:items-center desktop:justify-between">
+          <h2 className="whitespace-nowrap font-serif text-lg capitalize text-card-foreground desktop:text-2xl desktop:normal-case desktop:first-letter:uppercase">
+            {monthTitle}
+          </h2>
           <div className="flex shrink-0 justify-end gap-1">
             {lunarPhasesEnabled ? (
               <button
@@ -358,7 +376,8 @@ export function CalendarScreen() {
         style={{ animationDelay: "220ms" }}
       >
         <Plus className="size-4" />
-        {t.tapToLog}
+        <span className="desktop:hidden">{t.tapToLog}</span>
+        <span className="hidden desktop:inline">{t.clickToLog}</span>
       </p>
 
       <DaySheet
@@ -477,7 +496,7 @@ function DayCell({
     <div
       className={cn(
         "flex flex-col items-center transition-[min-height] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none",
-        filtersActive || showMoon ? "min-h-14" : "min-h-10",
+        filtersActive || showMoon ? "min-h-14 desktop:min-h-16" : "min-h-10 desktop:min-h-12",
       )}
     >
       <span
@@ -498,7 +517,7 @@ function DayCell({
         aria-disabled={isFuture}
         aria-label={markers.join(", ")}
         className={cn(
-          "animate-pop-in relative flex size-10 flex-col items-center justify-center rounded-full text-sm font-medium",
+          "animate-pop-in relative flex size-10 flex-col items-center justify-center rounded-full text-sm font-medium desktop:size-12 desktop:text-base",
           isFuture ? "cursor-default" : "transition-transform active:scale-90",
           bleedFill ??
             (observedFertile

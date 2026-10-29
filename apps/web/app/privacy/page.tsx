@@ -9,7 +9,7 @@ import { Card } from "@/components/ui/card";
 export default function PrivacyPage() {
   const { t, locale } = useCiclo();
   return (
-    <AppShell>
+    <AppShell size="reading">
       <h1 className="text-2xl font-semibold">{t.privacyTitle}</h1>
       <Card className="mt-4 flex flex-col gap-3 text-sm leading-6">
         {locale === "es" ? (
