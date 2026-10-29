@@ -87,8 +87,9 @@ apps/web/lib/cycle/phases.ts     observed vs estimated phase heuristic (NOT the 
 apps/web/lib/cycle/season-guide.ts  inner-season copy EN/ES
 apps/web/lib/client/ciclo-context.tsx  wallet + diary in memory
 apps/web/components/floating-tab-bar.tsx  tab bar: tap a tab or drag the selection; picks the carousel direction
-apps/web/lib/client/tab-drag.ts  drag thresholds and springs for the tab bar selection, the screen pull and the label stretch
-apps/web/lib/client/tab-screen.ts  which screen the tab bar moves during a drag
+apps/web/lib/client/tab-drag.ts  drag thresholds and springs for the tab bar selection, the label stretch, sweep detection
+apps/web/lib/client/tab-screen.ts  which screen the tab bar moves during a drag, and when its slides start
+apps/web/lib/client/screen-carousel.ts  finger-driven slides between two screens during a tab bar drag
 apps/web/lib/features.ts         flags for built but hidden features
 apps/web/lib/crypto/wallet.ts    BIP39, HKDF, Ed25519, AES-GCM
 apps/web/lib/learn/articles.ts   Learn types, categories, copy fallback helpers (client-safe)
@@ -104,7 +105,7 @@ Phase heuristic (`phaseAtDate` / `cycleOverview`): flow today → menstrual obse
 
 Inner seasons: winter=menstrual, spring=follicular, summer=ovulation, fall=luteal. Overlay: `season-guide-overlay.tsx`. Setting: visualSeasons. Hidden for now: `VISUAL_SEASONS_AVAILABLE` is false, so the Settings switch is hidden and the context reports visualSeasons=false even if `ciclo.visualSeasons` is "true". Keep the stored value; flip the flag to bring it back.
 
-Tab bar: every tab change, tapped or dragged, is a real `router.push` (Android Back walks WebView history). Screens slide as a carousel through React `<ViewTransition>` in `AppShell` (class `tab-slide`, CSS in `globals.css`). The tab bar sets `data-tab-slide` on `<html>` in the commit that swaps screens; AppShell's `onEnter` skips the arriving screen's entrance animations (fade-up) while it slides. While the selection is dragged, the screen on display (registered by AppShell in `lib/client/tab-screen.ts`) moves with it, and each tab it snaps to is pushed with the finger still down (a fast sweep across several tabs pushes once, where the finger stops); `data-tab-drag` and `--tab-slide-out` / `--tab-slide-in` make that slide start where the drag left both screens and end with a spring. React renders a popstate synchronously with no view transition, so Back keeps the fade-up. Respect `prefers-reduced-motion`. No swipe on screen content; only the tab bar drags.
+Tab bar: every tab change, tapped or dragged, is a real `router.push` (Android Back walks WebView history). Screens slide as a carousel through React `<ViewTransition>` in `AppShell` (class `tab-slide`, CSS in `globals.css`). The tab bar sets `data-tab-slide` on `<html>` in the commit that swaps screens; AppShell's `onEnter` skips the arriving screen's entrance animations (fade-up) while it slides. While the selection is dragged, the screens follow the finger linearly, like a carousel (`lib/client/screen-carousel.ts`): as soon as the drag heads for a neighbouring tab the route is pushed there, and the slides of that view transition are paused (`data-tab-drag`) and moved by the finger. On release they finish toward the tab the selection snapped to; if that is the starting tab, the route goes back with `history.back()`, so the tried route leaves nothing in history. A fast sweep across several tabs changes screens once, where the finger stops. The selection keeps its own springs and threshold. React renders a popstate synchronously with no view transition, so Back keeps the fade-up. Respect `prefers-reduced-motion`. No swipe on screen content; only the tab bar drags.
 
 Intermenstrual bleeding is a symptom, never a period start.
 

@@ -6,7 +6,7 @@
 import { useLayoutEffect, useRef, ViewTransition } from "react";
 
 import { useCiclo } from "@/lib/client/ciclo-context";
-import { showScreen } from "@/lib/client/tab-screen";
+import { showScreen, slidesStarted } from "@/lib/client/tab-screen";
 import { cn } from "@/lib/utils";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
@@ -20,6 +20,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   // A screen that slides in arrives whole: its own entrance animations
   // (fade-up and friends) would play on top of the slide. Skip them to the end.
   function onEnter() {
+    // A drag of the tab bar may take the slides over and move them with the finger.
+    slidesStarted();
     if (!document.documentElement.dataset.tabSlide) return;
     for (const animation of screenRef.current?.getAnimations({ subtree: true }) ?? []) {
       if (Number.isFinite(animation.effect?.getComputedTiming().endTime)) animation.finish();
