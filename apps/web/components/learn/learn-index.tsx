@@ -155,12 +155,18 @@ export function LearnIndex({ articles }: { articles: LearnArticle[] }) {
             aria-hidden={!compact}
             inert={!compact}
             className={cn(
-              "absolute inset-x-0 top-0 flex items-center gap-2 bg-background/90 py-2 pl-5 backdrop-blur-md transition-opacity duration-200 motion-reduce:transition-none",
+              "absolute inset-x-0 top-0 transition-opacity duration-200 motion-reduce:transition-none",
               compact ? "opacity-100" : "pointer-events-none opacity-0",
             )}
           >
+            {/* Blurred and see-through, it runs on a little below the bar and
+                fades out there, so the list does not end at a hard edge. */}
+            <div
+              aria-hidden
+              className="pointer-events-none absolute inset-x-0 top-0 -bottom-6 bg-background/90 backdrop-blur-md [mask-image:linear-gradient(to_bottom,black_65%,transparent)]"
+            />
             {barSearch || (compact && query !== "") ? (
-              <label className="relative mr-5 block flex-1">
+              <label className="relative mx-5 my-2 block">
                 <span className="sr-only">{t.learnSearchPlaceholder}</span>
                 <Search
                   className="pointer-events-none absolute top-1/2 left-4 size-4 -translate-y-1/2 text-muted-foreground"
@@ -182,26 +188,21 @@ export function LearnIndex({ articles }: { articles: LearnArticle[] }) {
               </label>
             ) : (
               <>
-                <button
-                  type="button"
-                  aria-label={t.learnSearchPlaceholder}
-                  onClick={() => setBarSearch(true)}
-                  className={cn(
-                    "grid size-11 shrink-0 place-items-center rounded-full border border-input bg-card shadow-sm transition-transform duration-300 active:scale-95 motion-reduce:transition-none",
-                    compact ? "scale-100" : "scale-50",
-                  )}
-                >
-                  <Search className="size-4 text-muted-foreground" aria-hidden />
-                </button>
+                {/* The filters run the whole width, under the bubble: scrolled
+                    left, they slip behind its circle. */}
                 <div
                   ref={barChipsRef}
                   role="group"
                   aria-label={t.learnCategoriesLabel}
                   className={cn(
-                    "flex min-w-0 flex-1 gap-2 overflow-x-auto pr-5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+                    // As tall as the bubble with its margin, so both sit on one line.
+                    "relative flex h-15 items-center gap-2 overflow-x-auto pr-5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
                     "transition-transform duration-300 ease-out motion-reduce:transition-none",
                   )}
-                  style={{ transform: compact ? undefined : `translateX(-${BUBBLE_ROOM}px)` }}
+                  style={{
+                    paddingLeft: `calc(1.25rem + ${BUBBLE_ROOM}px)`,
+                    transform: compact ? undefined : `translateX(-${BUBBLE_ROOM}px)`,
+                  }}
                 >
                   <CategoryChips
                     categories={categories}
@@ -212,6 +213,17 @@ export function LearnIndex({ articles }: { articles: LearnArticle[] }) {
                     }}
                   />
                 </div>
+                <button
+                  type="button"
+                  aria-label={t.learnSearchPlaceholder}
+                  onClick={() => setBarSearch(true)}
+                  className={cn(
+                    "absolute top-2 left-5 grid size-11 place-items-center rounded-full border border-input bg-card shadow-sm transition-transform duration-300 active:scale-95 motion-reduce:transition-none",
+                    compact ? "scale-100" : "scale-50",
+                  )}
+                >
+                  <Search className="size-4 text-muted-foreground" aria-hidden />
+                </button>
               </>
             )}
           </div>
