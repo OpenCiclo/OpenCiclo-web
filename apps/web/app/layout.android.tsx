@@ -2,10 +2,12 @@ import type { Metadata, Viewport } from "next";
 
 import { CicloProvider } from "@/lib/client/ciclo-context";
 import { AndroidBack } from "@/components/android-back";
+import { BootSplash } from "@/components/boot-splash";
 import { DeviceLockGate } from "@/components/device-lock-gate";
 import { FloatingTabBar } from "@/components/floating-tab-bar";
 import { ThemeClass } from "@/components/theme-class";
 import { API_BASE } from "@/lib/app-target";
+import { bootSplashScript } from "@/lib/brand/boot-splash-script";
 import { themeBootScript } from "@/lib/client/color-scheme";
 import { fraunces, nunito } from "./fonts";
 import "./globals.css";
@@ -48,6 +50,8 @@ export default function AndroidRootLayout({ children }: { children: React.ReactN
       <body className="min-h-full bg-background font-sans text-foreground">
         <script dangerouslySetInnerHTML={{ __html: themeBootScript() }} />
         <CicloProvider>
+          <BootSplash />
+          <script dangerouslySetInnerHTML={{ __html: bootSplashScript() }} />
           {children}
           <FloatingTabBar />
           <DeviceLockGate />

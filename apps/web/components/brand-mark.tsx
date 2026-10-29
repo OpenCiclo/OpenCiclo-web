@@ -1,13 +1,13 @@
 // Copyright © 2026 Emma Flora Harbison & Luis Rey Sánchez
 // SPDX-License-Identifier: Apache-2.0
 
+import { SEA_MARK_PATH } from "@/lib/brand/sea-mark";
+
 export function BrandMark() {
   return (
-    <span
-      aria-hidden
-      className="grid size-8 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground"
-    >
-      <span className="size-2.5 rounded-full bg-primary-foreground" />
-    </span>
+    <svg aria-hidden viewBox="0 0 32 32" className="size-8 shrink-0">
+      <circle cx="16" cy="16" r="16" className="fill-primary" />
+      <path d={SEA_MARK_PATH} className="fill-primary-foreground" />
+    </svg>
   );
 }

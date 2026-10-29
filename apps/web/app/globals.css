@@ -773,6 +773,12 @@
   background: rgb(210 91 52 / 0.8);
 }
 
+/* Boot splash (components/boot-splash.tsx). Hidden unless its inline script ran,
+   so a page with scripts off is never stuck behind it. */
+html.boot-splash #boot-splash {
+  display: flex;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .animate-fade-up,
   .animate-pop-in,

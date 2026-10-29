@@ -1,5 +1,6 @@
 package com.openciclo.app;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.webkit.WebView;
 
@@ -13,6 +14,9 @@ public class MainActivity extends BridgeActivity {
         // Local plugins must be registered before the bridge starts.
         registerPlugin(DeviceVaultPlugin.class);
         super.onCreate(savedInstanceState);
+        // Until the page paints, show the window background (the splash color)
+        // instead of the WebView's default white.
+        getBridge().getWebView().setBackgroundColor(Color.TRANSPARENT);
         getOnBackPressedDispatcher().addCallback(this, backButton);
     }
 

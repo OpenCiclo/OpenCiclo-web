@@ -33,7 +33,7 @@ Cursor: also see the short AGENTS.md at the repo root. Do not edit apps/web/AGEN
 - `/learn` — health education in 14 categories (cycle, periods, symptoms, conditions, intimate health, fertility, contraception, pregnancy, sexual health, menopause, mind, lifestyle, puberty, care). Bilingual target: `en` is required, `es` is optional until translated and the Spanish UI falls back to English with an "English only for now" badge. Each article cites sources and may list `related` slugs. Shipped source: `apps/web/lib/learn/content/<category>.ts` (types and helpers in `lib/learn/articles.ts`). Operator CMS: `learn_articles` in Postgres, merged in `lib/learn/catalog.ts` (DB row wins; draft hides shipped). Do not dump hosting/crypto here.
 - `/help` — product/operator docs (hosting, encryption, UI labels, forecast behaviour). English. Source: `apps/web/content/help/*.md` + catalog `apps/web/lib/help/articles.ts`. Public, no wallet.
 - `/privacy` — short user privacy page (ES/EN). Long form: `PRIVACY.md`. Contributor checklist: `docs/privacy.md`.
-- GitHub engineering: README.md, ARCHITECTURE.md, CONTRIBUTING.md, MODEL_CARD.md, DATASETS.md, `docs/modeling.md`, `docs/evaluation.md`, `docs/api.md`, `docs/threat-model.md`, `docs/android.md`.
+- GitHub engineering: README.md, ARCHITECTURE.md, CONTRIBUTING.md, MODEL_CARD.md, DATASETS.md, `docs/modeling.md`, `docs/evaluation.md`, `docs/api.md`, `docs/threat-model.md`, `docs/android.md`, `docs/brand/logo.md`.
 - `docs/kb/` — index only. Canonical Help markdown is `apps/web/content/help/` so Vercel (root `apps/web`) actually ships it.
 - Help renderer: `apps/web/lib/help/markdown.tsx` (headings, lists, tables, fenced code, `**bold**`, `` `code` ``, `[text](url)`). No raw HTML. Safe hrefs: `/`, `http(s)`, `#`.
 
@@ -99,6 +99,8 @@ apps/web/lib/learn/articles.ts   Learn types, categories, copy fallback helpers 
 apps/web/lib/learn/content/      Learn library shipped in code, one file per category. Server-only: pass articles to client components as props
 apps/web/lib/learn/catalog.ts    Merge shipped + learn_articles; public list is published only
 apps/web/lib/i18n.ts             all UI chrome + Learn is separate; Help is markdown
+apps/web/lib/brand/sea-mark.ts   brand mark geometry (still + moving sea). `npm run icons` regenerates icon.svg, favicon.ico and the Android icons from it. Notes: docs/brand/logo.md
+apps/web/components/boot-splash.tsx  loading screen with the moving mark until `ready`; an inline script in the root layouts shows and animates it before hydration
 apps/web/content/help/           Help markdown (canonical)
 apps/web/app/**/*.android.tsx    Android routes (static export). See "Android app"
 apps/web/lib/app-target.ts       IS_ANDROID_APP (build-time flag), apiUrl() for every client /api call
