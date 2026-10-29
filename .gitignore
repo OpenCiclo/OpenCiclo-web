@@ -50,6 +50,7 @@ initial_prompt.txt
 
 # Editor / OS
 .cursor/
+.aisounds/
 .idea/
 .vscode/
 *.swp
