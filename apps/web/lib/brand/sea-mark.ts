@@ -1,5 +1,6 @@
-// Copyright © 2026 Emma Flora Harbison & Luis Rey Sánchez
-// SPDX-License-Identifier: Apache-2.0
+// Copyright © 2026 Emma Flora Harbison & Luis Rey Sánchez. All rights reserved.
+// SPDX-License-Identifier: LicenseRef-OpenCiclo-Brand
+// The round-sea logo is not licensed under Apache-2.0. See TRADEMARKS.md.
 
 // The Ciclo mark: a dark disc with a "round sea" inside. Geometry lives in a
 // 32×32 box: the disc fills it (r = 16) and the sea is a circle of radius 5.8

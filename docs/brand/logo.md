@@ -2,7 +2,7 @@
 
 OpenCiclo
 Copyright © 2026 Emma Flora Harbison & Luis Rey Sánchez
-Apache License 2.0
+This page is Apache License 2.0. The logo it describes is not: it is a trademark, and its artwork is all rights reserved. See [TRADEMARKS.md](../../TRADEMARKS.md).
 
 The Ciclo mark is a dark disc with a white "round sea" inside. The sea is almost a circle, but its rim is bent by a few long waves, like a thick liquid. The still mark is the logo, the app icon and the favicon. The moving mark is the loading screen.
 
