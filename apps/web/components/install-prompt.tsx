@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 
 import { IS_ANDROID_APP } from "@/lib/app-target";
 import { useCiclo } from "@/lib/client/ciclo-context";
+import { useIsGhost } from "@/lib/client/ghost";
 import { useBrowserValue } from "@/lib/client/hooks";
 import {
   detectInstallPlatform,
@@ -48,6 +49,8 @@ function installedNow(): boolean {
 
 export function InstallPrompt({ mode = "nudge" }: { mode?: InstallPromptMode }) {
   const { t } = useCiclo();
+  // The browser offers the install prompt once: a ghost (see TabGhosts) must not take it.
+  const ghost = useIsGhost();
   // Browser-only (user agent, display mode, localStorage), so read after hydration.
   const detected = useBrowserValue<InstallPlatform | null>(() => {
     if (installedNow() || readDismissed(mode)) return null;
@@ -58,16 +61,16 @@ export function InstallPrompt({ mode = "nudge" }: { mode?: InstallPromptMode }) 
   const [promptEvent, setPromptEvent] = useState<BeforeInstallPromptEvent | null>(null);
 
   useEffect(() => {
-    if (!detected) return;
+    if (!detected || ghost) return;
     function onPrompt(event: Event) {
       event.preventDefault();
       setPromptEvent(event as BeforeInstallPromptEvent);
     }
     window.addEventListener("beforeinstallprompt", onPrompt);
     return () => window.removeEventListener("beforeinstallprompt", onPrompt);
-  }, [detected]);
+  }, [detected, ghost]);
 
-  if (!platform) return null;
+  if (!platform || ghost) return null;
 
   const body = {
     "ios-safari": t.installIosSafari,

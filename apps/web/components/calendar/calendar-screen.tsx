@@ -28,6 +28,7 @@ import {
 import { formatIsoUtc } from "@/lib/format-date";
 import type { Locale, Messages } from "@/lib/i18n";
 import { useCiclo, useTodayIso } from "@/lib/client/ciclo-context";
+import { useIsGhost } from "@/lib/client/ghost";
 import { lunarDayInfo } from "@/lib/lunar/phases";
 import { symptomColor, symptomLabel, symptomMeta } from "@/lib/symptoms/catalog";
 import { matchingFilterSymptoms } from "@/lib/symptoms/filter";
@@ -56,9 +57,12 @@ export function CalendarScreen() {
   } = useCiclo();
   const router = useRouter();
   const searchParams = useSearchParams();
+  // A ghost (see TabGhosts) reads another screen's address: it opens no day from it.
+  const ghost = useIsGhost();
   const today = useTodayIso();
   const todayDate = new Date(`${today}T00:00:00Z`);
   const deepLinkDay = (() => {
+    if (ghost) return null;
     const day = searchParams.get("day");
     if (!day || !isIsoDate(day) || !isEditableDiaryDate(day, today)) return null;
     return day;
@@ -120,9 +124,9 @@ export function CalendarScreen() {
   }
 
   useEffect(() => {
-    if (!searchParams.get("day")) return;
+    if (ghost || !searchParams.get("day")) return;
     router.replace("/", { scroll: false });
-  }, [router, searchParams]);
+  }, [ghost, router, searchParams]);
 
   const closeSheet = useCallback(() => {
     if (saving) return;
