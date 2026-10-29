@@ -103,7 +103,7 @@ Phase heuristic (`phaseAtDate` / `cycleOverview`): flow today → menstrual obse
 
 Inner seasons: winter=menstrual, spring=follicular, summer=ovulation, fall=luteal. Overlay: `season-guide-overlay.tsx`. Setting: visualSeasons. Hidden for now: `VISUAL_SEASONS_AVAILABLE` is false, so the Settings switch is hidden and the context reports visualSeasons=false even if `ciclo.visualSeasons` is "true". Keep the stored value; flip the flag to bring it back.
 
-Tab bar: every tab change, tapped or dragged, is a real `router.push` (Android Back walks WebView history). Screens slide as a carousel through React `<ViewTransition>` in `AppShell` (class `tab-slide`, CSS in `globals.css`). The tab bar sets `data-tab-slide` on `<html>` in the commit that swaps screens and finishes the arriving screen's entrance animations. React renders a popstate synchronously with no view transition, so Back keeps the fade-up. Respect `prefers-reduced-motion`. No swipe on screen content; only the tab bar drags.
+Tab bar: every tab change, tapped or dragged, is a real `router.push` (Android Back walks WebView history). Screens slide as a carousel through React `<ViewTransition>` in `AppShell` (class `tab-slide`, CSS in `globals.css`). The tab bar sets `data-tab-slide` on `<html>` in the commit that swaps screens; AppShell's `onEnter` skips the arriving screen's entrance animations (fade-up) while it slides. React renders a popstate synchronously with no view transition, so Back keeps the fade-up. Respect `prefers-reduced-motion`. No swipe on screen content; only the tab bar drags.
 
 Intermenstrual bleeding is a symptom, never a period start.
 
