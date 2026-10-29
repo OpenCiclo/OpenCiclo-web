@@ -19,7 +19,7 @@ import {
   takeSlides,
 } from "@/lib/client/screen-carousel";
 import { SWEEP_SPEED, SelectionMotion, dragFrame, labelScale, stoppedOnTab } from "@/lib/client/tab-drag";
-import { ghostOf, setSwapping, shownScreen, watchSlides } from "@/lib/client/tab-screen";
+import { endSwapTransition, ghostOf, setSwapping, shownScreen, watchSlides } from "@/lib/client/tab-screen";
 import { cn } from "@/lib/utils";
 import { TabGhosts } from "@/components/tab-ghosts";
 
@@ -432,6 +432,8 @@ export function FloatingTabBar() {
       if (pair) dropPair(pair);
       onRouteMoved();
     }
+    // Any screen change but a swap animates its view transition as usual.
+    if (!(swap && to === swap.to)) endSwapTransition();
     lastTabRef.current = to;
   }, [pathname]);
 

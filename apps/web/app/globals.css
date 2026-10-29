@@ -458,6 +458,18 @@
   contain: strict;
 }
 
+/*
+ * A drag that lands on a ghost swaps the real screens under it. React still
+ * starts a view transition when a screen arrives (any new <ViewTransition>
+ * starts one, even with class "none"); with nothing to animate it ends at
+ * once, instead of the default crossfade holding taps for a quarter second.
+ */
+:root[data-tab-swap]::view-transition-group(*),
+:root[data-tab-swap]::view-transition-old(*),
+:root[data-tab-swap]::view-transition-new(*) {
+  animation: none;
+}
+
 .tab-bar {
   view-transition-name: tab-bar;
 }
