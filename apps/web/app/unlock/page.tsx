@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 
 import { PHRASE_USERNAME, getBrowserPassword, storeBrowserPassword } from "@/lib/client/credentials";
 import { InvalidCredentialsError, RateLimitedError, lastEmail, useCiclo } from "@/lib/client/ciclo-context";
+import { goBack, returnTo } from "@/lib/client/back-navigation";
 import { useBrowserValue } from "@/lib/client/hooks";
 import { InvalidPhraseError } from "@/lib/crypto/wallet";
 import { unlockDestination } from "@/lib/console/paths";
@@ -62,7 +63,7 @@ export default function UnlockPage() {
       setError(null);
       await unlockWithPassword(email, password, { persist: keepLoggedIn });
       await storeBrowserPassword(email.trim().toLowerCase(), password);
-      router.push(unlockDestination(new URLSearchParams(window.location.search).get("next")));
+      returnTo(router, unlockDestination(new URLSearchParams(window.location.search).get("next")));
     } catch (cause) {
       if (cause instanceof InvalidCredentialsError) {
         setError(t.invalidCredentials);
@@ -83,7 +84,7 @@ export default function UnlockPage() {
       const normalized = nextPhrase.trim().toLowerCase().replace(/\s+/g, " ");
       await unlock(normalized, { persist: keepLoggedIn });
       await storeBrowserPassword(PHRASE_USERNAME, normalized);
-      router.push(unlockDestination(new URLSearchParams(window.location.search).get("next")));
+      returnTo(router, unlockDestination(new URLSearchParams(window.location.search).get("next")));
     } catch (cause) {
       setError(cause instanceof InvalidPhraseError ? t.invalidPhrase : t.errorGeneric);
     } finally {
@@ -114,6 +115,9 @@ export default function UnlockPage() {
 
   return (
     <AppShell>
+      <button type="button" className="mb-4 text-sm underline" onClick={() => goBack(router)}>
+        {t.back}
+      </button>
       <h1 className="text-2xl font-semibold">{t.unlockTitle}</h1>
       {deviceLocked ? null : <p className="mt-2 text-sm text-muted-foreground">{t.unlockBody}</p>}
       <Card className="mt-4 border-primary/20 bg-primary/5 p-4 text-sm leading-6 text-muted-foreground">

@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 
 import { IS_ANDROID_APP } from "@/lib/app-target";
 import { type Wallet } from "@/lib/crypto/wallet";
+import { useBackStep } from "@/lib/client/android-back";
+import { goBack, returnTo } from "@/lib/client/back-navigation";
 import { storeBrowserPassword } from "@/lib/client/credentials";
 import { saveFile } from "@/lib/client/save-file";
 import {
@@ -71,7 +73,7 @@ export default function OnboardingPage() {
       } else {
         await unlock(wallet.mnemonic, { create: true, persist: true });
       }
-      router.push("/app");
+      returnTo(router, "/app");
     } catch (cause) {
       const message = cause instanceof Error ? cause.message : t.errorGeneric;
       setError(message);
@@ -112,7 +114,7 @@ export default function OnboardingPage() {
       setBusy(true);
       setError(null);
       await confirmEmailAccount(code);
-      router.push("/app");
+      returnTo(router, "/app");
     } catch (cause) {
       if (cause instanceof InvalidConfirmError) setError(t.verifyEmailInvalid);
       else setError(t.errorGeneric);
@@ -136,31 +138,33 @@ export default function OnboardingPage() {
     }
   }
 
+  // One step back inside the page. The Back link and the Android back button share it.
+  function stepBack() {
+    if (method === "email" && emailPhase === "code") {
+      setEmailPhase("form");
+      setCode("");
+      setError(null);
+      return;
+    }
+    setMethod("choose");
+    setWallet(null);
+    setEmailPhase("form");
+    setCode("");
+    setError(null);
+  }
+  useBackStep(method === "choose" ? null : stepBack);
+
   const words = wallet?.mnemonic.split(" ") ?? [];
 
   return (
     <AppShell>
-      {method !== "choose" ? (
-        <button
-          type="button"
-          className="mb-4 text-sm underline"
-          onClick={() => {
-            if (method === "email" && emailPhase === "code") {
-              setEmailPhase("form");
-              setCode("");
-              setError(null);
-              return;
-            }
-            setMethod("choose");
-            setWallet(null);
-            setEmailPhase("form");
-            setCode("");
-            setError(null);
-          }}
-        >
-          {t.back}
-        </button>
-      ) : null}
+      <button
+        type="button"
+        className="mb-4 text-sm underline"
+        onClick={method === "choose" ? () => goBack(router) : stepBack}
+      >
+        {t.back}
+      </button>
 
       {method === "choose" ? (
         <>

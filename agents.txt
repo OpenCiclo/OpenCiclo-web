@@ -97,6 +97,7 @@ apps/web/app/**/*.android.tsx    Android routes (static export). See "Android ap
 apps/web/lib/app-target.ts       IS_ANDROID_APP (build-time flag), apiUrl() for every client /api call
 apps/web/lib/device-vault.ts     On-device diary file format + VaultBackend (Android)
 apps/web/components/device-lock-gate.tsx  Lock screen for an on-device diary (Android layout only)
+apps/web/lib/client/android-back.ts  Android back button: overlays, inner steps, then history
 apps/mobile/                     Capacitor shell for Android (capacitor.config.ts, android/ Gradle project)
 ```
 
@@ -152,6 +153,7 @@ POST integer cycle lengths, no pubkey. Server assigns opaque pool_id. Device rem
 - Moving device ↔ hosted deletes the old copy only after the new one is saved; hosted → device removes the device files again if the account delete fails.
 - App lock (optional, Android 11+): per-use Keystore key behind a fingerprint or screen-lock check, `FLAG_SECURE`, and locking after 30 s in the background. `DeviceLockGate` covers every route but `/unlock`.
 - Exports go through `saveFile()` (share sheet in the app). User Help: `android-on-device`.
+- Back button: `MainActivity` asks `window.cicloBack()` (`lib/client/android-back.ts`) before WebView history. Back sends Escape to an open `aria-modal="true"` overlay, so every sheet or dialog must close on Escape through a `window` keydown listener. Screens with inner steps register `useBackStep`. Sign-in forms leave with `returnTo()` (`lib/client/back-navigation.ts`), never `router.push`, so Back does not reopen the form.
 
 ## What not to build here
 

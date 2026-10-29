@@ -36,6 +36,17 @@ The app is served from `https://localhost` on the phone. The API lives on the Ci
 - The Android build bakes the host from `CICLO_API_BASE`. It defaults to `http://localhost:3000`, the local stack. Release builds must pass the production origin, for example `CICLO_API_BASE=https://www.openciclo.com`.
 - `CapacitorHttp` sends `fetch` through Android's HTTP stack with the app's own cookie store. The session cookie stays `httpOnly` and `SameSite=Lax`. The server needs no CORS headers.
 
+## Back button
+
+`MainActivity` asks the page first (`window.cicloBack`, `lib/client/android-back.ts`):
+
+- An open sheet or dialog closes. Back sends the Escape key that each one already listens for, so a new overlay must close on Escape too.
+- Onboarding goes back one step (`useBackStep`).
+- On the lock screen of an on-device diary, the app leaves.
+- Otherwise the WebView goes back in history. At the first screen, Android's default runs and the app goes to the background.
+
+Sign-in forms (onboarding, unlock) leave with `returnTo()` (`lib/client/back-navigation.ts`). It pops back to the screen the form came from, so Back does not reopen the form after signing in.
+
 ## On-device mode
 
 "Only on this device" keeps the diary on the phone with no account. User-facing explanation: Help → `android-on-device`.
@@ -93,14 +104,13 @@ The app talks to one host only. An account that lives on production is not on th
 
 ## Known gaps
 
-- The Android back button closes the app instead of going to the previous screen.
 - A full reload always lands on the start screen. Capacitor serves the root `index.html` for any path without a file extension.
-- Edge-to-edge layout, the back button, the app icon, and the splash screen still use Capacitor defaults.
+- Edge-to-edge layout, the app icon, and the splash screen still use Capacitor defaults.
 - Hosted accounts in the app still keep "Keep me signed in" in WebView `localStorage`, as on the web. Only on-device diaries use Keystore.
 - The web build emits Capacitor as a lazy chunk (Turbopack keeps dynamic imports). The web never requests it.
 
 ## Roadmap
 
 1. **Hosted phrase in Keystore.** Move the persisted phrase of hosted accounts from WebView storage to the Keystore seal used by on-device mode.
-2. **Android polish.** Back button, safe areas, icon and splash screen.
+2. **Android polish.** Safe areas, icon and splash screen.
 3. **Google Play.** Release signing, the health apps declaration, the Data safety form, and the privacy policy.
