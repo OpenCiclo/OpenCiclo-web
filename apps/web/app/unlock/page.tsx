@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 
 import { PHRASE_USERNAME, getBrowserPassword, storeBrowserPassword } from "@/lib/client/credentials";
 import { InvalidCredentialsError, RateLimitedError, lastEmail, useCiclo } from "@/lib/client/ciclo-context";
+import { goBack, returnTo } from "@/lib/client/back-navigation";
 import { useBrowserValue } from "@/lib/client/hooks";
 import { InvalidPhraseError } from "@/lib/crypto/wallet";
 import { unlockDestination } from "@/lib/console/paths";
@@ -23,9 +24,11 @@ const PhraseQrScanner = dynamic(
 type Tab = "email" | "phrase";
 
 export default function UnlockPage() {
-  const { t, unlock, unlockWithPassword } = useCiclo();
+  const { t, unlock, unlockWithPassword, deviceLocked } = useCiclo();
   const router = useRouter();
-  const [tab, setTab] = useState<Tab>("email");
+  const [chosenTab, setTab] = useState<Tab>("email");
+  // An on-device diary opens with its phrase only. Email sign-in would reach a host.
+  const tab: Tab = deviceLocked ? "phrase" : chosenTab;
   // Pre-fill with the last email used on this device until the person types
   // (or the browser's password manager fills) something else.
   const storedEmail = useBrowserValue(lastEmail, "");
@@ -39,6 +42,7 @@ export default function UnlockPage() {
   const [scanning, setScanning] = useState(false);
 
   useEffect(() => {
+    if (deviceLocked) return;
     void getBrowserPassword().then((cred) => {
       if (!cred) return;
       if (cred.id.includes("@")) {
@@ -50,7 +54,7 @@ export default function UnlockPage() {
         setPhrase(cred.password);
       }
     });
-  }, []);
+  }, [deviceLocked]);
 
   async function submitEmail(event: React.FormEvent) {
     event.preventDefault();
@@ -59,7 +63,7 @@ export default function UnlockPage() {
       setError(null);
       await unlockWithPassword(email, password, { persist: keepLoggedIn });
       await storeBrowserPassword(email.trim().toLowerCase(), password);
-      router.push(unlockDestination(new URLSearchParams(window.location.search).get("next")));
+      returnTo(router, unlockDestination(new URLSearchParams(window.location.search).get("next")));
     } catch (cause) {
       if (cause instanceof InvalidCredentialsError) {
         setError(t.invalidCredentials);
@@ -80,7 +84,7 @@ export default function UnlockPage() {
       const normalized = nextPhrase.trim().toLowerCase().replace(/\s+/g, " ");
       await unlock(normalized, { persist: keepLoggedIn });
       await storeBrowserPassword(PHRASE_USERNAME, normalized);
-      router.push(unlockDestination(new URLSearchParams(window.location.search).get("next")));
+      returnTo(router, unlockDestination(new URLSearchParams(window.location.search).get("next")));
     } catch (cause) {
       setError(cause instanceof InvalidPhraseError ? t.invalidPhrase : t.errorGeneric);
     } finally {
@@ -111,19 +115,24 @@ export default function UnlockPage() {
 
   return (
     <AppShell>
+      <button type="button" className="mb-4 text-sm underline" onClick={() => goBack(router)}>
+        {t.back}
+      </button>
       <h1 className="text-2xl font-semibold">{t.unlockTitle}</h1>
-      <p className="mt-2 text-sm text-muted-foreground">{t.unlockBody}</p>
+      {deviceLocked ? null : <p className="mt-2 text-sm text-muted-foreground">{t.unlockBody}</p>}
       <Card className="mt-4 border-primary/20 bg-primary/5 p-4 text-sm leading-6 text-muted-foreground">
-        {t.noResetHint}
+        {deviceLocked ? t.deviceUnlockHint : t.noResetHint}
       </Card>
-      <div className="mt-6 grid grid-cols-2 gap-2">
-        <Button type="button" variant={tab === "email" ? "default" : "outline"} onClick={() => setTab("email")}>
-          {t.loginWithEmail}
-        </Button>
-        <Button type="button" variant={tab === "phrase" ? "default" : "outline"} onClick={() => setTab("phrase")}>
-          {t.loginWithPhrase}
-        </Button>
-      </div>
+      {deviceLocked ? null : (
+        <div className="mt-6 grid grid-cols-2 gap-2">
+          <Button type="button" variant={tab === "email" ? "default" : "outline"} onClick={() => setTab("email")}>
+            {t.loginWithEmail}
+          </Button>
+          <Button type="button" variant={tab === "phrase" ? "default" : "outline"} onClick={() => setTab("phrase")}>
+            {t.loginWithPhrase}
+          </Button>
+        </div>
+      )}
       {tab === "email" ? (
         <Card className="mt-4">
           <form className="flex flex-col gap-3" onSubmit={(event) => void submitEmail(event)}>
@@ -180,7 +189,7 @@ export default function UnlockPage() {
               showLabel={t.showPassword}
               hideLabel={t.hidePassword}
             />
-            {keepLoggedInField}
+            {deviceLocked ? null : keepLoggedInField}
             {error ? <p className="text-sm text-destructive">{error}</p> : null}
             <Button type="submit" disabled={busy}>
               {t.unlock}

@@ -95,6 +95,9 @@ apps/web/lib/i18n.ts             all UI chrome + Learn is separate; Help is mark
 apps/web/content/help/           Help markdown (canonical)
 apps/web/app/**/*.android.tsx    Android routes (static export). See "Android app"
 apps/web/lib/app-target.ts       IS_ANDROID_APP (build-time flag), apiUrl() for every client /api call
+apps/web/lib/device-vault.ts     On-device diary file format + VaultBackend (Android)
+apps/web/components/device-lock-gate.tsx  Lock screen for an on-device diary (Android layout only)
+apps/web/lib/client/android-back.ts  Android back button: overlays, inner steps, then history
 apps/mobile/                     Capacitor shell for Android (capacitor.config.ts, android/ Gradle project)
 ```
 
@@ -142,12 +145,17 @@ POST integer cycle lengths, no pubkey. Server assigns opaque pool_id. Device rem
 - `/` in the app redirects to `/app` (the tab bar hides on `/`). Capacitor serves the root `index.html` for any extensionless path, so a full reload lands on `/` again; client navigation is fine.
 - Android Learn ships `LEARN_ARTICLES` only. Operator edits in `learn_articles` reach the app with the next release. Help is prerendered from `content/help/`.
 - Every client `fetch` to `/api` goes through `apiUrl()`. The web leaves `NEXT_PUBLIC_CICLO_API_BASE` unset, so calls stay same-origin. The Android build bakes `CICLO_API_BASE`: default `http://localhost:3000` (the local stack), release builds pass the production https origin. Never default it to production.
-- `CapacitorHttp` sends `fetch` through native HTTP with the app's own cookie jar, so the session cookie stays httpOnly + SameSite=Lax and the API needs no CORS. Do not add CORS headers or `SameSite=None` for the app. In debug builds the bridge logs request/response bodies to logcat (recovery emails included); `loggingBehavior: "debug"` keeps that out of release. Never set it to "production".
+- `CapacitorHttp` sends `fetch` through native HTTP with the app's own cookie jar, so the session cookie stays httpOnly + SameSite=Lax and the API needs no CORS. Do not add CORS headers or `SameSite=None` for the app. Capacitor `loggingBehavior` stays `"none"` in every build: the bridge would otherwise log request/response bodies (recovery emails) and plugin results (the phrase from `DeviceVault.readPhrase`) to logcat.
 - No service worker, no install prompt, no installed-PWA redirect in the app (`layout.android.tsx`, `IS_ANDROID_APP`).
 - Do not reimplement crypto, forecast, diary parse/merge, or vault sync in Kotlin/Java. Native code is for platform services only (Keystore, biometrics, files, share sheet).
 - Manifest: `allowBackup="false"` and `data_extraction_rules.xml` exclude all app data (WebView storage can hold the phrase). Cleartext http is allowed only in the debug source set, only to localhost. Permissions: INTERNET and CAMERA (phrase QR scanner; `uses-feature` camera `required="false"`). A WebView feature that needs a device permission is silently denied unless the manifest declares it.
 - Local run: `docker compose up -d db mailpit`, `cd apps/web && npm run dev`, `adb reverse tcp:3000 tcp:3000`, then `cd apps/mobile && npm run build && npm run android`. Gradle 8.14 (Capacitor template) needs JDK 21; Android Studio's bundled JBR 25 cannot run it. CLI builds also need `ANDROID_HOME`.
-- Planned: an on-device encrypted storage mode (no account). Design in `docs/android.md`. Until it ships, the app uses the hosted vault only.
+- On-device mode ("Only on this device", Android only): `ciclo-context.tsx` loads/saves through a `VaultBackend` (`hostedVault` in `lib/client/api.ts`, device backend in `lib/device-vault.ts`). Both keep compare-and-set; never bypass `saveMerged`. The device file is the same sealed blob + a version; a damaged file must throw, never read as empty. The phrase lives only in `files/device-phrase.bin`, sealed by an Android Keystore key (`DeviceVaultPlugin.java`), never in WebView storage. Load the plugin only through `import("@/lib/client/device-storage")` behind `IS_ANDROID_APP`.
+- One diary per install: while a device diary exists, `unlock()` opens that file and must never call `loginWithWallet` (it would create an empty hosted account). Never overwrite an existing device diary.
+- Moving device ↔ hosted deletes the old copy only after the new one is saved; hosted → device removes the device files again if the account delete fails.
+- App lock (optional, Android 11+): per-use Keystore key behind a fingerprint or screen-lock check, `FLAG_SECURE`, and locking after 30 s in the background. `DeviceLockGate` covers every route but `/unlock`.
+- Exports go through `saveFile()` (share sheet in the app). User Help: `android-on-device`.
+- Back button: `MainActivity` asks `window.cicloBack()` (`lib/client/android-back.ts`) before WebView history. Back sends Escape to an open `aria-modal="true"` overlay, so every sheet or dialog must close on Escape through a `window` keydown listener. Screens with inner steps register `useBackStep`. Sign-in forms leave with `returnTo()` (`lib/client/back-navigation.ts`), never `router.push`, so Back does not reopen the form.
 
 ## What not to build here
 
