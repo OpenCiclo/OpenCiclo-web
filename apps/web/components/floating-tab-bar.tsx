@@ -30,8 +30,15 @@ const TABS = [
   { href: "/settings", icon: Settings },
 ] as const;
 
-/** Pixels a press may move before it counts as a drag instead of a tap. */
-const DRAG_SLOP = 8;
+/** Pixels a press may move sideways before it counts as a drag instead of a tap. */
+const DRAG_SLOP = 5;
+/**
+ * A press lets go of the bar only once it is clearly vertical: this far, and
+ * more down than across. A thumb moves in an arc, so a drag often starts
+ * slanted.
+ */
+const VERTICAL_SLOP = 10;
+const VERTICAL_RATIO = 1.5;
 /** How long after a drag a click still belongs to it. */
 const CLICK_AFTER_DRAG_MS = 500;
 /**
@@ -175,6 +182,10 @@ type Press = {
   slop: number;
   /** This drag moves a strip of already drawn screens (see `openStrip`). */
   strip: boolean;
+  /** The press started on a tab's link, not in the margin around the tabs. */
+  onLink: boolean;
+  /** The press caught the strip while it was still landing from the last drag. */
+  regrab: boolean;
 };
 
 /**
@@ -230,7 +241,7 @@ export function FloatingTabBar() {
   // the real screen and the ghosts beside it, `low` to `high`, drawn
   // already, so nothing is drawn mid-drag and the route only changes when
   // the finger lifts. `width` is a screen's, in pixels.
-  const stripRef = useRef<{ low: number; high: number; width: number } | null>(null);
+  const stripRef = useRef<{ low: number; high: number; width: number; landing: number | null } | null>(null);
   const stripMotionRef = useRef<SlideMotion | null>(null);
   // The tab a strip landed on while the route follows under its ghost, and
   // where to go on from there if the finger let go past the strip.
@@ -300,7 +311,7 @@ export function FloatingTabBar() {
     while (low > 0 && ghostOf(low - 1)) low -= 1;
     while (high < TABS.length - 1 && ghostOf(high + 1)) high += 1;
     if (low === high) return false;
-    stripRef.current = { low, high, width: shownScreen()?.offsetWidth ?? window.innerWidth };
+    stripRef.current = { low, high, width: shownScreen()?.offsetWidth ?? window.innerWidth, landing: null };
     stripMotion().place(real);
     return true;
   }
@@ -346,6 +357,7 @@ export function FloatingTabBar() {
     const strip = stripRef.current;
     if (!strip) return;
     const stop = Math.min(strip.high, Math.max(strip.low, target));
+    strip.landing = target;
     const velocity = Math.max(-MAX_LAND_SPEED, Math.min(MAX_LAND_SPEED, speed));
     stripMotion().land(stop, velocity, () => {
       if (stop === screenTabRef.current) {
@@ -459,20 +471,29 @@ export function FloatingTabBar() {
   function onPointerDown(event: PointerEvent<HTMLDivElement>) {
     swallowClicksUntilRef.current = 0;
     if (!event.isPrimary || event.button !== 0 || activeIndex < 0) return;
-    // The screens are still landing from the last drag.
-    if (pairRef.current || stripRef.current || swapRef.current) return;
-    const tab = (event.target as Element).closest<HTMLElement>("[data-tab]");
-    const pressed = Number(tab?.dataset.tab ?? -1);
+    // The route is on its way to the screen the last drag landed on: wait for it.
+    if (pairRef.current || swapRef.current) return;
+    const bar = event.currentTarget.getBoundingClientRect();
+    const tabWidth = bar.width / TABS.length;
+    const link = (event.target as Element).closest<HTMLElement>("[data-tab]");
     // Any tab can start a drag: the selection jumps to the finger and follows
-    // it. A press that does not turn into a drag stays a tap on the link.
-    if (pressed < 0) return;
+    // it. A press that does not turn into a drag stays a tap on the link. In
+    // the margin around the tabs (see the bar's ::before) the tab is the one
+    // the finger is over along the bar.
+    const pressed = link
+      ? Number(link.dataset.tab)
+      : Math.min(TABS.length - 1, Math.max(0, Math.floor((event.clientX - bar.left) / tabWidth)));
+    // Caught while the screens were still landing from the last drag: they
+    // stop where they are, and this drag goes on from there.
+    const regrab = stripRef.current !== null;
+    if (regrab) stripMotion().follow(stripMotion().progress);
     pressRef.current = {
       pointerId: event.pointerId,
       x: event.clientX,
       y: event.clientY,
       start: pressed,
       held: pressed,
-      tabWidth: event.currentTarget.getBoundingClientRect().width / TABS.length,
+      tabWidth,
       dragging: false,
       finger: pressed,
       speed: 0,
@@ -482,12 +503,14 @@ export function FloatingTabBar() {
       slidThrough: 0,
       slop: 0,
       strip: false,
+      onLink: Boolean(link),
+      regrab,
     };
     // Now, before the finger moves, so the layer and the screens beside are
     // ready when it does.
     if (!prefersReducedMotion()) {
       layerScreen(true);
-      pressRef.current.strip = openStrip();
+      pressRef.current.strip = regrab || openStrip();
     }
   }
 
@@ -685,10 +708,13 @@ export function FloatingTabBar() {
     const dx = event.clientX - press.x;
     if (!press.dragging) {
       const dy = event.clientY - press.y;
-      if (Math.abs(dy) > DRAG_SLOP && Math.abs(dy) > Math.abs(dx)) {
-        // Vertical: the page scrolls (touch-action: pan-y), the bar stays put.
+      if (Math.abs(dy) > VERTICAL_SLOP && Math.abs(dy) > VERTICAL_RATIO * Math.abs(dx)) {
+        // Vertical: not a drag of the bar. The bar keeps the gesture to itself
+        // (touch-action: none), so the browser cannot take a slanted drag for
+        // a scroll; a vertical swipe on the bar does not scroll the page.
         pressRef.current = null;
-        if (press.strip) closeStrip();
+        if (press.regrab) landStrip(stripRef.current?.landing ?? screenTabRef.current, 0);
+        else if (press.strip) closeStrip();
         layerScreen(false);
         return;
       }
@@ -726,8 +752,19 @@ export function FloatingTabBar() {
     if (!press || event.pointerId !== press.pointerId) return;
     pressRef.current = null;
     if (!press.dragging) {
+      if (press.regrab) {
+        // A tap while the screens were landing: they land on the tab tapped
+        // instead, and its link must not navigate as well.
+        swallowClicksUntilRef.current = event.timeStamp + CLICK_AFTER_DRAG_MS;
+        landStrip(press.start, 0);
+        motion().settle(press.start);
+        setHeld({ index: press.start, down: false, pathname });
+        return;
+      }
       if (press.strip) closeStrip();
       layerScreen(false);
+      // A tap in the margin around the tabs, off any link: to the tab under the finger.
+      if (!press.onLink && press.start !== activeIndex) navigateTo(press.start);
       return;
     }
     swallowClicksUntilRef.current = event.timeStamp + CLICK_AFTER_DRAG_MS;
@@ -755,7 +792,7 @@ export function FloatingTabBar() {
       <nav className="tab-bar fixed inset-x-0 bottom-0 z-40 mx-auto w-full max-w-md pb-[env(safe-area-inset-bottom)]">
       <div className="mx-4 mb-4 rounded-full border border-border bg-card/90 p-1.5 shadow-lg backdrop-blur-md">
         <div
-          className="relative grid touch-pan-y grid-cols-4 select-none [-webkit-touch-callout:none]"
+          className="relative grid touch-none grid-cols-4 select-none [-webkit-touch-callout:none] before:absolute before:-inset-x-3 before:-top-5 before:-bottom-6 before:content-['']"
           onPointerDown={onPointerDown}
           onPointerMove={onPointerMove}
           onPointerUp={endPress}
