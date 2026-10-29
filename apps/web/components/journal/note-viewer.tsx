@@ -130,7 +130,7 @@ export function NoteViewer({
           >
             <X className="size-5" />
           </button>
-          <p id={titleId} className="pr-10 font-serif text-2xl capitalize text-card-foreground">
+          <p id={titleId} className="pr-10 font-serif text-2xl capitalize text-card-foreground desktop:normal-case desktop:first-letter:uppercase">
             {dateLabel}
           </p>
           <p className="mt-1 text-sm text-muted-foreground">{meta}</p>
@@ -189,8 +189,11 @@ export function NoteViewer({
         </div>
 
         <div className="border-t border-border px-5 py-4">
+          {/* Closes too: on the desktop the calendar is on the same page, so the
+              link may not leave it. */}
           <Link
-            href={`/?day=${entry.iso}`}
+            href={`/app?day=${entry.iso}`}
+            onClick={onClose}
             className="flex w-full items-center justify-center gap-2 rounded-2xl bg-primary py-3.5 text-base font-semibold text-primary-foreground shadow-sm transition-transform active:scale-[0.98]"
           >
             <CalendarDays className="size-5" aria-hidden />

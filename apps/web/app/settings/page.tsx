@@ -113,9 +113,12 @@ export default function SettingsPage() {
   }
 
   return (
-    <AppShell>
+    <AppShell size="wide">
       {/* Same size and font as the section titles on Patterns ("Forecast"). */}
-      <h1 className="mb-3 font-serif text-xl text-foreground">{t.settings}</h1>
+      <h1 className="mb-3 font-serif text-xl text-foreground desktop:mb-8 desktop:text-4xl desktop:tracking-tight">{t.settings}</h1>
+      {/* Desktop: preferences on the left; storage, backup, research and the account on the right. */}
+      <div className="desktop:grid desktop:grid-cols-2 desktop:items-start desktop:gap-6">
+      <div>
       <Card className="flex flex-col gap-3 rounded-3xl">
         <Button variant="secondary" onClick={() => setLocale(otherLocale(locale))}>
           {t.language}: {locale.toUpperCase()}
@@ -240,7 +243,9 @@ export default function SettingsPage() {
         </p>
       </Card>
       <InstallPrompt mode="settings" />
-      <Card className="mt-4 rounded-3xl border-primary/20 bg-primary/5 p-4 text-sm leading-6 text-muted-foreground">
+      </div>
+      <div>
+      <Card className="mt-4 rounded-3xl border-primary/20 bg-primary/5 p-4 text-sm leading-6 text-muted-foreground desktop:mt-0">
         {onDevice ? t.deviceStorageHint : t.noResetHint}
       </Card>
       {IS_ANDROID_APP ? (
@@ -578,6 +583,8 @@ export default function SettingsPage() {
         </Button>
       </Card>
       {message ? <p className="mt-3 text-sm">{message}</p> : null}
+      </div>
+      </div>
     </AppShell>
   );
 }

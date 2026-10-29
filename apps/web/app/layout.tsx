@@ -2,11 +2,12 @@ import type { Metadata, Viewport } from "next";
 
 import { CicloProvider } from "@/lib/client/ciclo-context";
 import { BootSplash } from "@/components/boot-splash";
-import { FloatingTabBar } from "@/components/floating-tab-bar";
+import { DesktopHeader } from "@/components/desktop-header";
+import { PhoneTabBar } from "@/components/phone-tab-bar";
 import { RegisterSw } from "@/components/register-sw";
 import { StandaloneHomeRedirect } from "@/components/standalone-home-redirect";
 import { ThemeClass } from "@/components/theme-class";
-import { bootSplashScript } from "@/lib/brand/boot-splash-script";
+import { SITE_PATHS_WITHOUT_SPLASH, bootSplashScript } from "@/lib/brand/boot-splash-script";
 import { themeBootScript } from "@/lib/client/color-scheme";
 import { fraunces, nunito } from "./fonts";
 import "./globals.css";
@@ -35,9 +36,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <script dangerouslySetInnerHTML={{ __html: themeBootScript() }} />
         <CicloProvider>
           <BootSplash />
-          <script dangerouslySetInnerHTML={{ __html: bootSplashScript() }} />
+          <script dangerouslySetInnerHTML={{ __html: bootSplashScript({ skip: SITE_PATHS_WITHOUT_SPLASH }) }} />
+          <DesktopHeader />
           {children}
-          <FloatingTabBar />
+          <PhoneTabBar />
           <StandaloneHomeRedirect />
           <ThemeClass />
           <RegisterSw />
