@@ -10,8 +10,10 @@ import { Search, X } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
 import { Badge } from "@/components/ui/badge";
 import { useCiclo } from "@/lib/client/ciclo-context";
+import { useIsDesktop } from "@/lib/client/desktop";
 import { useIsGhost } from "@/lib/client/ghost";
 import { formatIsoUtc } from "@/lib/format-date";
+import { marketingCopy } from "@/lib/marketing/copy";
 import {
   LEARN_CATEGORIES,
   LEARN_CATEGORY_COPY,
@@ -83,7 +85,10 @@ export function LearnIndex({ articles }: { articles: LearnArticle[] }) {
       }));
   }, [articles, categories, category, query, locale]);
 
-  const compact = scrolledPast || barSearch;
+  // The desktop has no compact bar: its filters stay in view in a sticky side column.
+  const desktop = useIsDesktop();
+  const compact = !desktop && (scrolledPast || barSearch);
+  const site = marketingCopy(locale);
 
   useEffect(() => {
     // A ghost (see TabGhosts) sits at the top and out of sight: never compact.
@@ -145,12 +150,20 @@ export function LearnIndex({ articles }: { articles: LearnArticle[] }) {
   }, [activeArticle, closing, closeOverlay]);
 
   return (
-    <AppShell>
-      <h1 className="mb-3 font-serif text-xl text-foreground">{t.learn}</h1>
-      <div className="flex flex-col gap-5 pb-4">
+    <AppShell size="wide">
+      {/* The desktop opens like the landing's Learn section. */}
+      <p className="hidden text-xs font-semibold tracking-wide text-primary uppercase desktop:block">{t.learn}</p>
+      <h1 className="mb-3 font-serif text-xl text-foreground desktop:mt-3 desktop:mb-0 desktop:max-w-2xl desktop:text-4xl desktop:tracking-tight desktop:text-balance">
+        <span className="desktop:hidden">{t.learn}</span>
+        <span className="hidden desktop:inline">{site.learn.title}</span>
+      </h1>
+      <p className="hidden max-w-2xl text-base leading-relaxed text-pretty text-muted-foreground desktop:mt-4 desktop:mb-10 desktop:block">
+        {site.learn.subtitle}
+      </p>
+      <div className="flex flex-col gap-5 pb-4 desktop:grid desktop:grid-cols-[15rem_minmax(0,1fr)] desktop:items-start desktop:gap-12">
         {/* The compact bar. Sticky and of no height, so it takes no room in
             the list; it shows only once the filters below reach the top. */}
-        <div className="sticky top-0 z-20 -mx-5 -mb-5 h-0">
+        <div className="sticky top-0 z-20 -mx-5 -mb-5 h-0 desktop:hidden">
           <div
             aria-hidden={!compact}
             inert={!compact}
@@ -230,7 +243,7 @@ export function LearnIndex({ articles }: { articles: LearnArticle[] }) {
             )}
           </div>
         </div>
-        <div className="animate-fade-up flex flex-col gap-3">
+        <div className="animate-fade-up flex flex-col gap-3 desktop:sticky desktop:top-24 desktop:gap-4">
           <label className="relative block">
             <span className="sr-only">{t.learnSearchPlaceholder}</span>
             <Search
@@ -250,25 +263,36 @@ export function LearnIndex({ articles }: { articles: LearnArticle[] }) {
             role="group"
             aria-label={t.learnCategoriesLabel}
             aria-hidden={compact}
-            className="-mx-5 flex gap-2 overflow-x-auto px-5 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            className="-mx-5 flex gap-2 overflow-x-auto px-5 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden desktop:mx-0 desktop:flex-col desktop:gap-1 desktop:overflow-visible desktop:px-0"
           >
-            <CategoryChips categories={categories} category={category} onPick={setCategory} />
+            <CategoryChips
+              categories={categories}
+              category={category}
+              onPick={(value) => {
+                setCategory(value);
+                // The side column stays put: show the new list from its top.
+                if (desktop) window.scrollTo({ top: 0, behavior: "smooth" });
+              }}
+            />
           </div>
         </div>
 
+        {/* Phones: the results run on in the column above. Desktop: they are
+            the wide column beside the filters. */}
+        <div className="contents desktop:flex desktop:flex-col desktop:gap-12">
         {groups.length === 0 ? (
           <p className="py-6 text-center text-sm text-muted-foreground">{t.learnNoResults}</p>
         ) : null}
 
         {groups.map((group) => (
-          <section key={group.category} aria-labelledby={`learn-group-${group.category}`} className="flex flex-col gap-3">
+          <section key={group.category} aria-labelledby={`learn-group-${group.category}`} className="flex flex-col gap-3 desktop:gap-5">
             <div className="px-1">
-              <h2 id={`learn-group-${group.category}`} className="font-serif text-xl text-foreground">
+              <h2 id={`learn-group-${group.category}`} className="font-serif text-xl text-foreground desktop:text-2xl">
                 {t[LEARN_CATEGORY_COPY[group.category].title]}
               </h2>
               <p className="mt-0.5 text-sm text-muted-foreground">{t[LEARN_CATEGORY_COPY[group.category].description]}</p>
             </div>
-            <ul className="flex flex-col gap-3">
+            <ul className="flex flex-col gap-3 desktop:grid desktop:grid-cols-2 desktop:gap-4">
               {group.articles.map((article, index) => {
                 const copy = articleCopy(article, locale);
                 const lang = hasArticleCopy(article, locale) ? undefined : "en";
@@ -282,7 +306,7 @@ export function LearnIndex({ articles }: { articles: LearnArticle[] }) {
                         setClosing(false);
                         setActiveSlug(article.slug);
                       }}
-                      className="animate-fade-up block rounded-3xl bg-card p-5 shadow-sm transition-transform active:scale-[0.99]"
+                      className="animate-fade-up block rounded-3xl bg-card p-5 shadow-sm transition-transform active:scale-[0.99] desktop:h-full desktop:border desktop:border-border/70 desktop:p-6 desktop:hover:-translate-y-1"
                       style={{ animationDelay: `${delay}ms` }}
                     >
                       <h3 lang={lang} className="font-serif text-xl text-card-foreground">{copy.title}</h3>
@@ -294,6 +318,7 @@ export function LearnIndex({ articles }: { articles: LearnArticle[] }) {
             </ul>
           </section>
         ))}
+        </div>
       </div>
       {activeArticle && activeCopy ? (
         // Phones: the card fills the screen with the same 1rem margin on every
@@ -318,11 +343,11 @@ export function LearnIndex({ articles }: { articles: LearnArticle[] }) {
             }}
             className={
               closing
-                ? "animate-learn-card-out relative z-10 flex h-full w-full max-w-md flex-col overflow-hidden rounded-3xl bg-card shadow-2xl sm:h-auto sm:max-h-[88vh]"
-                : "animate-learn-card-in relative z-10 flex h-full w-full max-w-md flex-col overflow-hidden rounded-3xl bg-card shadow-2xl sm:h-auto sm:max-h-[88vh]"
+                ? "animate-learn-card-out relative z-10 flex h-full w-full max-w-md flex-col overflow-hidden rounded-3xl bg-card shadow-2xl sm:h-auto sm:max-h-[88vh] desktop:max-w-2xl"
+                : "animate-learn-card-in relative z-10 flex h-full w-full max-w-md flex-col overflow-hidden rounded-3xl bg-card shadow-2xl sm:h-auto sm:max-h-[88vh] desktop:max-w-2xl"
             }
           >
-            <div className="shrink-0 border-b border-border px-5 py-4">
+            <div className="shrink-0 border-b border-border px-5 py-4 desktop:px-8 desktop:py-6">
               <button
                 type="button"
                 onClick={closeOverlay}
@@ -334,19 +359,19 @@ export function LearnIndex({ articles }: { articles: LearnArticle[] }) {
               <p className="text-xs font-semibold tracking-wide text-primary uppercase">
                 {t[LEARN_CATEGORY_COPY[activeArticle.category].title]}
               </p>
-              <h2 lang={activeLang} className="mt-1 pr-10 font-serif text-2xl text-card-foreground">{activeCopy.title}</h2>
+              <h2 lang={activeLang} className="mt-1 pr-10 font-serif text-2xl text-card-foreground desktop:text-3xl">{activeCopy.title}</h2>
               <p className="mt-1 text-xs text-muted-foreground">
                 {t.learnReviewed}: {formatIsoUtc(activeArticle.reviewedAt, locale, { day: "numeric", month: "long", year: "numeric" })}
               </p>
               {activeLang ? <Badge className="mt-2">{t.learnEnglishOnly}</Badge> : null}
             </div>
             {/* Keyed so the scroll position resets when a related article replaces the current one. */}
-            <div key={activeArticle.slug} className="min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain px-5 py-4">
-              <p lang={activeLang} className="text-sm leading-relaxed text-muted-foreground">{activeCopy.summary}</p>
+            <div key={activeArticle.slug} className="min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain px-5 py-4 desktop:px-8 desktop:py-6">
+              <p lang={activeLang} className="text-sm leading-relaxed text-muted-foreground desktop:text-base">{activeCopy.summary}</p>
               {activeCopy.sections.map((section) => (
-                <section key={section.heading} lang={activeLang} className="rounded-3xl bg-background p-4">
-                  <h3 className="font-serif text-lg text-card-foreground">{section.heading}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{section.body}</p>
+                <section key={section.heading} lang={activeLang} className="rounded-3xl bg-background p-4 desktop:p-5">
+                  <h3 className="font-serif text-lg text-card-foreground desktop:text-xl">{section.heading}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground desktop:text-base">{section.body}</p>
                 </section>
               ))}
               <p lang={activeLang} className="rounded-3xl border border-primary/20 bg-primary/8 p-4 text-sm leading-relaxed text-muted-foreground">
@@ -435,9 +460,11 @@ function CategoryChip({
       onClick={onClick}
       className={cn(
         "shrink-0 rounded-full border-2 px-3.5 py-1.5 text-sm font-medium whitespace-nowrap transition-all active:scale-95",
+        // Desktop: a row in the side column's list, not a chip.
+        "desktop:rounded-xl desktop:border-0 desktop:px-3 desktop:py-2 desktop:text-left desktop:whitespace-normal desktop:active:scale-100",
         active
           ? "border-primary bg-primary text-primary-foreground shadow-sm"
-          : "border-border bg-background text-muted-foreground",
+          : "border-border bg-background text-muted-foreground desktop:bg-transparent desktop:hover:bg-muted desktop:hover:text-foreground",
       )}
     >
       {children}

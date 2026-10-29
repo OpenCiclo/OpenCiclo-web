@@ -48,7 +48,7 @@ Cursor: also see the short AGENTS.md at the repo root. Do not edit apps/web/AGEN
 - Local stack: `docker compose up --build` from repo root. `APP_URL` is `http://localhost:3000`. Bind is `127.0.0.1:3000`.
 - Do not document or reintroduce Tailscale / serve tunnels. Public access is Vercel.
 - Docker image copies `content/` into the runner so `/help` can `readFileSync` markdown (also `outputFileTracingIncludes` in `next.config.ts`).
-- `/dev-seasons` is a playground; `notFound()` in production. Hide tab bar on `/dev-*`, `/help`, and `/console`.
+- `/dev-seasons` is a playground; `notFound()` in production. Hide the tab bar and the desktop header on `/dev-*`, `/help`, `/contact`, and `/console` (`hidesAppChrome` in `lib/client/app-chrome.ts`).
 - Next CSP: relax `unsafe-eval` + `ws:` only when `NODE_ENV !== production`.
 
 ## Python library map
@@ -100,7 +100,11 @@ apps/web/lib/learn/content/      Learn library shipped in code, one file per cat
 apps/web/lib/learn/catalog.ts    Merge shipped + learn_articles; public list is published only
 apps/web/lib/i18n.ts             all UI chrome + Learn is separate; Help is markdown
 apps/web/lib/brand/sea-mark.ts   brand mark geometry (still + moving sea). `npm run icons` regenerates icon.svg, favicon.ico and the Android icons from it. Notes: docs/brand/logo.md
-apps/web/components/boot-splash.tsx  loading screen with the moving mark until `ready`; an inline script in the root layouts shows and animates it before hydration
+apps/web/components/boot-splash.tsx  loading screen with the moving mark until `ready`; an inline script in the root layouts shows and animates it before hydration. The web skips it on the public site (`SITE_PATHS_WITHOUT_SPLASH`: `/`, `/contact`, `/help`) unless `/` is the installed app or app.*
+apps/web/lib/client/desktop.ts   useIsDesktop() and DESKTOP_QUERY, the JS side of the `desktop:` CSS variant. See "Desktop web"
+apps/web/components/desktop-header.tsx  desktop web navigation, in place of the tab bar
+apps/web/components/cycle-dashboard.tsx  Calendar + Patterns: one tab each on a phone, side by side on the desktop
+apps/web/components/patterns/patterns-content.tsx  the Patterns tab body (forecast, stats, notes, tips)
 apps/web/content/help/           Help markdown (canonical)
 apps/web/app/**/*.android.tsx    Android routes (static export). See "Android app"
 apps/web/lib/app-target.ts       IS_ANDROID_APP (build-time flag), apiUrl() for every client /api call
@@ -117,6 +121,13 @@ Phase heuristic (`phaseAtDate` / `cycleOverview`): flow today → menstrual obse
 Inner seasons: winter=menstrual, spring=follicular, summer=ovulation, fall=luteal. Overlay: `season-guide-overlay.tsx`. Setting: visualSeasons. Hidden for now: `VISUAL_SEASONS_AVAILABLE` is false, so the Settings switch is hidden and the context reports visualSeasons=false even if `ciclo.visualSeasons` is "true". Keep the stored value; flip the flag to bring it back.
 
 Tab bar: every tab change, tapped or dragged, is a real `router.push` (Android Back walks WebView history). Screens slide as a carousel through React `<ViewTransition>` in `AppShell` (class `tab-slide`, CSS in `globals.css`). The tab bar sets `data-tab-slide` on `<html>` in the commit that swaps screens; AppShell's `onEnter` skips the arriving screen's entrance animations (fade-up) while it slides. While the selection is dragged, the screens follow the finger linearly, moving the way it does (the next tab comes in from the side the finger leaves; `SCREEN_FLOW`). `components/tab-ghosts.tsx` draws inert copies (ghosts) of the other tab screens out of sight, one per idle moment; a drag moves the real screen and the ghosts beside it as one strip, with no navigation until the finger lifts, and then the route goes to the tab the selection snapped to under its ghost (a swap: no slide; the view transition React still starts ends at once, `data-tab-swap`). Inside a ghost `useIsGhost()` is true: a ghost must never navigate, read the address or take browser events (see CalendarScreen, InstallPrompt), and AppShell drops its <ViewTransition>. Until the ghosts are drawn (the first moments after the app opens), a drag moves only the selection, and the screens slide on release as for a tap. The selection keeps its own springs and threshold. A drag can start on any tab or in a margin around the bar, and also while the screens are still landing; the bar keeps its gestures (`touch-action: none`), so a vertical swipe on it does not scroll the page. React renders a popstate synchronously with no view transition, so Back keeps the fade-up. Respect `prefers-reduced-motion`. No swipe on screen content; only the tab bar drags.
+
+Desktop web: windows at least 64rem (1024px) wide get their own layout. Phones and narrower windows keep the phone layout unchanged, and so does the Android app on any screen (its root layout sets `data-target="android"` on `<html>`). Style it with the `desktop:` variant (`globals.css`): no JS, right from the first paint. `useIsDesktop()` (`lib/client/desktop.ts`; false on the server and during hydration) is only for what CSS cannot do, which components to mount.
+
+- The web root layout mounts `PhoneTabBar` (the tab bar, phone layout only) and `DesktopHeader` (CSS shows it on the desktop): a sticky header like the landing's, with Calendar, Learn and Settings as a pill group whose selection is the tab bar's rose bubble.
+- Calendar holds Patterns: `CycleDashboard` shows the calendar with Patterns beside it on both `/app` and `/patterns`, and the calendar column sticks while Patterns scrolls. Its overlays (day sheet, symptom filter, forecast info) portal to `<body>`: the sticky column is a stacking context. Bottom sheets open as dialogs in the middle of the window (`.sheet-dialog`).
+- `AppShell` takes `size` for the desktop width: narrow (forms), reading (Learn articles, diary, privacy), wide (dashboards). Learn: filters in a sticky side column, cards in two columns, no compact bar. Settings: two columns.
+- Nothing slides between screens on the desktop. On a phone the tab bar opens its strip of ghosts only when the screen spans the window, so on a tablet or a phone on its side the screens beside it never show.
 
 Intermenstrual bleeding is a symptom, never a period start.
 

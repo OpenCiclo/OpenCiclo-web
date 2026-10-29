@@ -3,11 +3,9 @@
 
 "use client";
 
-import { Suspense } from "react";
-
 import { useCiclo } from "@/lib/client/ciclo-context";
 import { AppShell } from "@/components/app-shell";
-import { CalendarScreen } from "@/components/calendar/calendar-screen";
+import { CycleDashboard } from "@/components/cycle-dashboard";
 import { WelcomeScreen } from "@/components/welcome-screen";
 
 export function HomeView() {
@@ -23,10 +21,8 @@ export function HomeView() {
     );
   }
   return (
-    <AppShell>
-      <Suspense fallback={<p className="text-sm text-muted-foreground">…</p>}>
-        <CalendarScreen />
-      </Suspense>
+    <AppShell size="wide">
+      <CycleDashboard tab="calendar" />
     </AppShell>
   );
 }

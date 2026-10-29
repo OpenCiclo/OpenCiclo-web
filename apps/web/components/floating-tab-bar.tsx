@@ -9,6 +9,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { BookOpen, CalendarDays, LineChart, Settings } from "lucide-react";
 
+import { hidesAppChrome } from "@/lib/client/app-chrome";
 import { useCiclo } from "@/lib/client/ciclo-context";
 import { SlideMotion } from "@/lib/client/screen-carousel";
 import { SelectionMotion, dragFrame, labelScale } from "@/lib/client/tab-drag";
@@ -45,16 +46,6 @@ const MAX_LAND_SPEED = 8;
 
 function tabIndex(pathname: string) {
   return TABS.findIndex(({ href }) => pathname === href || pathname.startsWith(`${href}/`));
-}
-
-function hidesTabBar(pathname: string) {
-  return (
-    pathname === "/" ||
-    pathname.startsWith("/dev-") ||
-    pathname.startsWith("/help") ||
-    pathname.startsWith("/contact") ||
-    pathname.startsWith("/console")
-  );
 }
 
 function prefersReducedMotion() {
@@ -152,7 +143,7 @@ export function FloatingTabBar() {
   const router = useRouter();
   const activeIndex = tabIndex(pathname);
   const bubbleIndex = Math.max(0, activeIndex);
-  const hidden = !wallet || hidesTabBar(pathname);
+  const hidden = !wallet || hidesAppChrome(pathname);
 
   const bubbleRef = useRef<HTMLSpanElement>(null);
   const labelRefs = useRef<(HTMLSpanElement | null)[]>([]);
@@ -214,12 +205,16 @@ export function FloatingTabBar() {
   function openStrip(): boolean {
     const real = screenTabRef.current;
     if (real < 0) return false;
+    // In a window wider than the screen (a tablet, a phone on its side), the
+    // screens beside it would show next to it, not out of sight.
+    const width = shownScreen()?.offsetWidth ?? 0;
+    if (width < document.documentElement.clientWidth - 1) return false;
     let low = real;
     let high = real;
     while (low > 0 && ghostOf(low - 1)) low -= 1;
     while (high < TABS.length - 1 && ghostOf(high + 1)) high += 1;
     if (low === high) return false;
-    stripRef.current = { low, high, width: shownScreen()?.offsetWidth ?? window.innerWidth, landing: null };
+    stripRef.current = { low, high, width, landing: null };
     stripMotion().place(real);
     return true;
   }
@@ -306,6 +301,8 @@ export function FloatingTabBar() {
       stripMotionRef.current?.stop();
       setSwapping(false);
       layerScreen(false);
+      // Gone (the window grew into the desktop layout): screens swap in place.
+      delete document.documentElement.dataset.tabSlide;
     },
     [],
   );

@@ -17,15 +17,16 @@ export function WelcomeScreen() {
   const [retrying, setRetrying] = useState(false);
 
   return (
-    <div className="flex flex-col gap-6 pt-8">
+    <div className="flex flex-col gap-6 pt-8 desktop:pt-12">
       <div className="flex items-center justify-between gap-4">
-        <h1 className="flex items-center gap-2 font-serif text-xl tracking-tight">
+        <h1 className="flex items-center gap-2 font-serif text-xl tracking-tight desktop:text-4xl">
           <BrandMark />
           {t.appName}
         </h1>
+        {/* The desktop header has the language switch. */}
         <button
           type="button"
-          className="inline-flex shrink-0 items-center rounded-full border border-border px-3 py-1.5 text-xs font-semibold text-muted-foreground transition-colors hover:bg-muted"
+          className="inline-flex shrink-0 items-center rounded-full border border-border px-3 py-1.5 text-xs font-semibold text-muted-foreground transition-colors hover:bg-muted desktop:hidden"
           onClick={() => setLocale(otherLocale(locale))}
         >
           {locale === "es" ? "EN" : "ES"}
@@ -52,7 +53,7 @@ export function WelcomeScreen() {
         </Card>
       ) : null}
       <div>
-        <p className="text-lg text-muted-foreground">{t.tagline}</p>
+        <p className="text-lg text-muted-foreground desktop:text-xl">{t.tagline}</p>
         <p className="mt-3 text-sm text-muted-foreground">{t.welcomeCta}</p>
       </div>
       <Card className="border-primary/20 bg-primary/5 p-4 text-sm leading-6 text-muted-foreground">

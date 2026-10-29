@@ -1,5 +1,19 @@
 @import "tailwindcss";
 
+/*
+ * The desktop web layout: a wide window, and never the Android app (its root
+ * layout sets data-target="android" on <html>), which keeps the phone layout
+ * on any screen. Phones and narrower windows get the phone layout, unchanged.
+ * Keep the width in step with DESKTOP_QUERY in lib/client/desktop.ts.
+ */
+@custom-variant desktop {
+  @media (width >= 64rem) {
+    &:where(:root:not([data-target="android"]) *) {
+      @slot;
+    }
+  }
+}
+
 @theme inline {
   --font-sans: var(--font-nunito), ui-sans-serif, system-ui, sans-serif;
   --font-serif: var(--font-fraunces), ui-serif, Georgia, serif;
@@ -771,6 +785,22 @@
 
 .season-fall .season-particle:nth-child(even) {
   background: rgb(210 91 52 / 0.8);
+}
+
+/* In the desktop layout the phone's bottom sheets (the day, the symptom
+   filter) open as dialogs in the middle of the window, like Learn's cards. */
+@media (prefers-reduced-motion: no-preference) {
+  .sheet-dialog.animate-sheet-up {
+    @variant desktop {
+      animation-name: learn-card-in;
+    }
+  }
+
+  .sheet-dialog.animate-sheet-down {
+    @variant desktop {
+      animation-name: learn-card-out;
+    }
+  }
 }
 
 /* Boot splash (components/boot-splash.tsx). Hidden unless its inline script ran,

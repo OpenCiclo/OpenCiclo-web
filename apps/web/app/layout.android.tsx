@@ -43,7 +43,7 @@ export const viewport: Viewport = {
 
 export default function AndroidRootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="es" suppressHydrationWarning className={`${fraunces.variable} ${nunito.variable} h-full antialiased`}>
+    <html lang="es" data-target="android" suppressHydrationWarning className={`${fraunces.variable} ${nunito.variable} h-full antialiased`}>
       <head>
         <meta httpEquiv="Content-Security-Policy" content={csp} />
       </head>
