@@ -15,6 +15,7 @@ import {
   MAILBOX_PENDING_MIN_RESPONSE_MS,
   MAILBOX_SEND_MAX_PER_HOUR,
   mailboxRegisterAction,
+  parseMailboxEmail,
   parseMailLocale,
 } from "@/lib/server/mailbox";
 import { mailTransportConfigured, sendMailboxCode } from "@/lib/server/mail";
@@ -25,12 +26,16 @@ export async function POST(request: Request) {
   if (error || !account) return error;
 
   const body = (await request.json()) as Record<string, unknown>;
-  const email = typeof body.email === "string" ? body.email.trim().toLowerCase() : "";
+  // Checked before any lookup, so the answer depends only on the input.
+  const email = parseMailboxEmail(body.email);
+  if (!email) {
+    return jsonError("Invalid email", 400);
+  }
   const wrappedSecret = typeof body.wrappedSecret === "string" ? body.wrappedSecret : "";
   const wrapNonce = typeof body.wrapNonce === "string" ? body.wrapNonce : "";
   const wrapSalt = typeof body.wrapSalt === "string" ? body.wrapSalt : "";
   const wrapParams = body.wrapParams;
-  if (!email.includes("@") || !wrappedSecret || !wrapNonce || !wrapSalt || !wrapParams) {
+  if (!wrappedSecret || !wrapNonce || !wrapSalt || !wrapParams) {
     return jsonError("Incomplete kit", 400);
   }
 
