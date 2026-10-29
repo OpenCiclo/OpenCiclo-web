@@ -43,16 +43,6 @@ function prefersReducedMotion() {
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
-function viewTransitionRunning() {
-  try {
-    return document.documentElement.matches(":active-view-transition");
-  } catch {
-    // The browser does not know the selector, so it has no view transitions
-    // with classes either.
-    return false;
-  }
-}
-
 /**
  * Tells the screen carousel (the `tab-slide` view transition on AppShell, see
  * globals.css) which way to slide, or to swap screens in place when the route
@@ -60,22 +50,12 @@ function viewTransitionRunning() {
  * screens, before the browser starts animating them.
  *
  * Back and Forward get no view transition (React renders a popstate
- * synchronously), so those screens keep their usual entrance animations.
+ * synchronously), so the attribute does nothing there.
  */
 function setSlideDirection(from: number, to: number) {
   const root = document.documentElement;
-  const slides = from >= 0 && to >= 0 && from !== to && !prefersReducedMotion() && viewTransitionRunning();
-  if (!slides) {
-    delete root.dataset.tabSlide;
-    return;
-  }
-  root.dataset.tabSlide = to > from ? "next" : "prev";
-  // The arriving screen slides in whole, so its own entrance animations
-  // (fade-up and friends) would play on top of the slide. Skip them to the end.
-  const screen = document.getElementById("main-content");
-  for (const animation of screen?.getAnimations({ subtree: true }) ?? []) {
-    if (Number.isFinite(animation.effect?.getComputedTiming().endTime)) animation.finish();
-  }
+  if (from >= 0 && to >= 0 && from !== to) root.dataset.tabSlide = to > from ? "next" : "prev";
+  else delete root.dataset.tabSlide;
 }
 
 type Press = {
