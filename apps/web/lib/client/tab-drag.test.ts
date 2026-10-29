@@ -4,12 +4,15 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  SWEEP_PAUSE_MS,
+  SWEEP_SPEED,
   SWITCH_AT,
   dragFrame,
   labelScale,
   resist,
   screenPull,
   stepSpring,
+  stoppedOnTab,
   stretchScale,
   type Spring,
 } from "@/lib/client/tab-drag";
@@ -79,6 +82,16 @@ describe("tab bar drag", () => {
     // It gives less and less, and never leaves more than a quarter of the screen.
     expect(Math.abs(screenPull(1.6, 1))).toBeLessThan(2 * Math.abs(screenPull(1.3, 1)));
     expect(Math.abs(screenPull(5, 1))).toBeLessThanOrEqual(0.25);
+  });
+
+  it("changes screens where the finger stops, not on every tab a sweep passes", () => {
+    // Slow enough to be stopping on this tab.
+    expect(stoppedOnTab(1, 0)).toBe(true);
+    // Sweeping past it, still moving.
+    expect(stoppedOnTab(SWEEP_SPEED + 2, 0)).toBe(false);
+    expect(stoppedOnTab(-(SWEEP_SPEED + 2), 0)).toBe(false);
+    // The last move was fast, but the finger has not moved since: it stopped.
+    expect(stoppedOnTab(SWEEP_SPEED + 2, SWEEP_PAUSE_MS)).toBe(true);
   });
 
   it("springs to the target with a small overshoot", () => {

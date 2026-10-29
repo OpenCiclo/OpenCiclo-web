@@ -5,6 +5,7 @@
 // along while the selection is dragged (see FloatingTabBar). AppShell clips it.
 
 let shown: HTMLElement | null = null;
+let onShow: (() => void) | null = null;
 
 /**
  * Marks `screen` as the one on display. The cleanup runs when the screen
@@ -12,6 +13,8 @@ let shown: HTMLElement | null = null;
  */
 export function showScreen(screen: HTMLElement): () => void {
   shown = screen;
+  // A screen can arrive mid-drag: it must be moved before it is first painted.
+  onShow?.();
   return () => {
     if (shown === screen) shown = null;
     screen.style.transform = "";
@@ -20,4 +23,12 @@ export function showScreen(screen: HTMLElement): () => void {
 
 export function shownScreen(): HTMLElement | null {
   return shown;
+}
+
+/** Calls `callback` each time a screen comes on display. */
+export function watchScreens(callback: () => void): () => void {
+  onShow = callback;
+  return () => {
+    if (onShow === callback) onShow = null;
+  };
 }

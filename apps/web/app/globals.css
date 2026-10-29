@@ -441,7 +441,8 @@
  * nothing (without it a phone drops to about 30 fps). Only then: it would
  * make fixed sheets inside the screen sit against the screen, not the window.
  */
-:root[data-tab-follow] .tab-screen {
+:root[data-tab-follow] .tab-screen,
+:root[data-tab-follow] .tab-label {
   will-change: transform;
 }
 

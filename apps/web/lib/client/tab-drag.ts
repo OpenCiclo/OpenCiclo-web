@@ -78,16 +78,18 @@ export function labelScale(scale: { x: number; y: number }): { x: number; y: num
   return { x: 1 + 1.25 * (scale.x - 1), y: 1 + 0.5 * (scale.y - 1) };
 }
 
-/** Share of the screen width the screen moves per tab the selection moves, before resistance. */
-const SCREEN_GAIN = 0.6;
+/** Share of the screen width the screen moves per tab the finger moves, before resistance. */
+const SCREEN_GAIN = 0.5;
 /** Farthest the screen follows the selection, as a share of its width. */
 const SCREEN_LIMIT = 0.25;
 
 /**
  * How far the screen of tab `screenTab` moves, as a share of its width, while
- * the selection sits at `position`. It moves the other way, the way a carousel
- * does: pulling the selection toward the next tab drags the screen left, where
- * the next screen will push it out. It gives less and less the farther it goes.
+ * the finger is over `position` (in tabs). It moves the other way, the way a
+ * carousel does: pulling toward the next tab drags the screen left, where the
+ * next screen will push it out. It gives less and less the farther it goes.
+ * It follows the finger, not the selection, so it does not jump when the
+ * selection snaps to the next tab.
  */
 export function screenPull(position: number, screenTab: number): number {
   return -resist((position - screenTab) * SCREEN_GAIN, SCREEN_LIMIT);
@@ -101,19 +103,25 @@ const STRETCH_RATIO = 0.45;
 const SPEED_STRETCH = 0.06;
 const MAX_SPEED_STRETCH = 0.6;
 const STEP = 1 / 240;
+/** Longest frame the springs step through: after a slow frame they catch up instead of lagging behind. */
+const MAX_FRAME = 0.05;
 
-type Paint = (position: number, scale: { x: number; y: number }) => void;
+type Paint = (position: number, scale: { x: number; y: number }, screen: number) => void;
 
 /**
- * Moves the selection with springs, one animation frame at a time, and hands
- * each frame to `paint`. With reduced motion it jumps instead and never
- * stretches.
+ * Moves the selection, and the screen behind it, with springs, one animation
+ * frame at a time, and hands each frame to `paint`. The screen offset is a
+ * share of its width (see `screenPull`). With reduced motion the selection
+ * jumps instead, never stretches, and the screen stays put.
  */
 export class SelectionMotion {
   private position: Spring = { value: 0, velocity: 0 };
   private stretch: Spring = { value: 0, velocity: 0 };
+  private screen: Spring = { value: 0, velocity: 0 };
   private target = 0;
   private stretchTarget = 0;
+  private screenTarget = 0;
+  private scale = { x: 1, y: 1 };
   private frame = 0;
   private last = 0;
 
@@ -128,22 +136,25 @@ export class SelectionMotion {
     return Math.round(this.position.value);
   }
 
-  /** Where the selection is now, in tabs, springs included. */
-  get current(): number {
-    return this.position.value;
+  /** How far the screen is moved now, springs included. */
+  get screenOffset(): number {
+    return this.screen.value;
   }
 
-  /** Puts the selection on tab `index` without animating. */
+  /** Puts the selection on tab `index`, and the screen in place, without animating. */
   place(index: number): void {
     this.stop();
     this.target = index;
     this.stretchTarget = 0;
+    this.screenTarget = 0;
     this.position = { value: index, velocity: 0 };
     this.stretch = { value: 0, velocity: 0 };
-    this.draw(index, { x: 1, y: 1 });
+    this.screen = { value: 0, velocity: 0 };
+    this.scale = { x: 1, y: 1 };
+    this.draw();
   }
 
-  /** Springs the selection to tab `index`. */
+  /** Springs the selection to tab `index`, and the screen back in place. */
   settle(index: number): void {
     if (this.reducedMotion()) {
       this.place(index);
@@ -151,20 +162,34 @@ export class SelectionMotion {
     }
     this.target = index;
     this.stretchTarget = 0;
+    this.screenTarget = 0;
     this.run();
   }
 
-  /** Follows a finger (see `dragFrame`). */
-  follow(frame: DragFrame): void {
+  /** Follows a finger (see `dragFrame`), with the screen heading for `screen`. */
+  follow(frame: DragFrame, screen: number): void {
     if (this.reducedMotion()) {
       this.stop();
       this.position = { value: frame.position, velocity: 0 };
-      this.draw(frame.position, { x: 1, y: 1 });
+      this.draw();
       return;
     }
     this.target = frame.position;
     this.stretchTarget = frame.stretch;
+    this.screenTarget = screen;
     this.run();
+  }
+
+  /** Another screen is on display: it starts at `offset`, at rest, and stays there until told otherwise. */
+  rebaseScreen(offset: number): void {
+    this.screen = { value: offset, velocity: 0 };
+    this.screenTarget = offset;
+    this.draw();
+  }
+
+  /** Paints the current frame again, for a screen that just appeared. */
+  redraw(): void {
+    this.draw();
   }
 
   stop(): void {
@@ -179,33 +204,56 @@ export class SelectionMotion {
   }
 
   private tick = (now: number): void => {
-    const elapsed = Math.min(0.032, Math.max(0, (now - this.last) / 1000));
+    const elapsed = Math.min(MAX_FRAME, Math.max(0, (now - this.last) / 1000));
     this.last = now;
     const steps = Math.max(1, Math.round(elapsed / STEP));
     for (let step = 0; step < steps; step++) {
       stepSpring(this.position, this.target, elapsed / steps, POSITION_STIFFNESS, POSITION_RATIO);
       stepSpring(this.stretch, this.stretchTarget, elapsed / steps, STRETCH_STIFFNESS, STRETCH_RATIO);
+      // The screen has the selection's spring, so it lands with the same little bounce.
+      stepSpring(this.screen, this.screenTarget, elapsed / steps, POSITION_STIFFNESS, POSITION_RATIO);
     }
     const resting =
       Math.abs(this.position.value - this.target) < 0.0005 &&
       Math.abs(this.position.velocity) < 0.005 &&
       Math.abs(this.stretch.value - this.stretchTarget) < 0.0005 &&
-      Math.abs(this.stretch.velocity) < 0.005;
+      Math.abs(this.stretch.velocity) < 0.005 &&
+      Math.abs(this.screen.value - this.screenTarget) < 0.0005 &&
+      Math.abs(this.screen.velocity) < 0.005;
     if (resting) {
       this.position = { value: this.target, velocity: 0 };
       this.stretch = { value: this.stretchTarget, velocity: 0 };
+      this.screen = { value: this.screenTarget, velocity: 0 };
     }
     const speed = Math.min(MAX_SPEED_STRETCH, Math.abs(this.position.velocity) * SPEED_STRETCH);
-    this.draw(this.position.value, stretchScale(this.stretch.value + speed));
+    this.scale = stretchScale(this.stretch.value + speed);
+    this.draw();
     this.frame = resting ? 0 : requestAnimationFrame(this.tick);
   };
 
   // A spring that overshoots the first or last tab gives way like a drag
   // against the edge, so the selection never leaves the bar.
-  private draw(position: number, scale: { x: number; y: number }): void {
+  private draw(): void {
+    const position = this.position.value;
+    const scale = this.reducedMotion() ? { x: 1, y: 1 } : this.scale;
+    const screen = this.reducedMotion() ? 0 : this.screen.value;
     const last = this.count - 1;
-    if (position < 0) this.paint(resist(position, EDGE_LIMIT), scale);
-    else if (position > last) this.paint(last + resist(position - last, EDGE_LIMIT), scale);
-    else this.paint(position, scale);
+    if (position < 0) this.paint(resist(position, EDGE_LIMIT), scale, screen);
+    else if (position > last) this.paint(last + resist(position - last, EDGE_LIMIT), scale, screen);
+    else this.paint(position, scale, screen);
   }
+}
+
+/** Tabs per second above which the finger is sweeping past tabs rather than stopping on one. */
+export const SWEEP_SPEED = 3.5;
+/** A finger that has not moved for this long has stopped. */
+export const SWEEP_PAUSE_MS = 60;
+
+/**
+ * Whether the route should follow the selection now. Not while the finger
+ * sweeps past tabs: every screen on the way would be drawn and slide in turn
+ * (each slide waits for the one before), and the finger is already elsewhere.
+ */
+export function stoppedOnTab(speed: number, sinceMoveMs: number): boolean {
+  return Math.abs(speed) < SWEEP_SPEED || sinceMoveMs >= SWEEP_PAUSE_MS;
 }
