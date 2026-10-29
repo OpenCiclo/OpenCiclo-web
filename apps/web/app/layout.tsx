@@ -1,5 +1,4 @@
 import type { Metadata, Viewport } from "next";
-import { Fraunces, Nunito } from "next/font/google";
 
 import { CicloProvider } from "@/lib/client/ciclo-context";
 import { FloatingTabBar } from "@/components/floating-tab-bar";
@@ -7,19 +6,8 @@ import { RegisterSw } from "@/components/register-sw";
 import { StandaloneHomeRedirect } from "@/components/standalone-home-redirect";
 import { ThemeClass } from "@/components/theme-class";
 import { themeBootScript } from "@/lib/client/color-scheme";
+import { fraunces, nunito } from "./fonts";
 import "./globals.css";
-
-const fraunces = Fraunces({
-  subsets: ["latin"],
-  variable: "--font-fraunces",
-  display: "swap",
-});
-
-const nunito = Nunito({
-  subsets: ["latin"],
-  variable: "--font-nunito",
-  display: "swap",
-});
 
 export const metadata: Metadata = {
   title: "Ciclo",
