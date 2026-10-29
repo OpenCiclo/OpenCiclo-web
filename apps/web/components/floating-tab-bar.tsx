@@ -380,10 +380,7 @@ export function FloatingTabBar() {
       pair.progress = slideProgress(press.finger, pair.from, pair.direction);
       if (pair.slides) {
         setSlides(pair.slides, pair.progress);
-        if (pair.progress >= 1) {
-          press.slidThrough += 1;
-          completePair(pair);
-        }
+        if (pair.progress >= 1) slidThrough(press, pair);
       } else {
         moveScreen(-pair.direction * Math.min(pair.progress, WAIT_LIMIT));
       }
@@ -418,6 +415,14 @@ export function FloatingTabBar() {
     navigateTo(to);
   }
 
+  /** The finger reached the next screen: it is the one on display now, and the drag goes on from it. */
+  function slidThrough(press: Press, pair: Pair) {
+    press.slidThrough += 1;
+    completePair(pair);
+    // The finger may be still, or already past this screen: decide now, not on its next move.
+    slideScreens(press);
+  }
+
   // The view transition for a drag started: take its slides over.
   function adoptSlides() {
     const pair = pairRef.current;
@@ -427,7 +432,12 @@ export function FloatingTabBar() {
     pair.slides = slides;
     if (pair.reverting) pair.progress = 0;
     setSlides(slides, pair.progress);
-    if (!pressRef.current && !pair.reverting) landPair(pair, pair.landing ?? pair.from);
+    const press = pressRef.current;
+    if (!press) {
+      if (!pair.reverting) landPair(pair, pair.landing ?? pair.from);
+    } else if (!pair.reverting && pair.progress >= 1) {
+      slidThrough(press, pair);
+    }
   }
 
   /** The new screen is all the way in: the transition ends there. */
