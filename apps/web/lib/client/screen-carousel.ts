@@ -62,8 +62,23 @@ export function rewindSlides(slides: Animation[]): void {
  * and to catch up gently when the next screen shows up late.
  */
 const FOLLOW_STIFFNESS = 2400;
+/**
+ * Softer when the screens are far from the finger, as when a drag starts on
+ * another tab and they have a screen or two to cover: they get there with the
+ * selection, instead of snapping across.
+ */
+const CATCH_UP_STIFFNESS = 420;
+/** Distances, in screens, over which following turns into catching up. */
+const CATCH_UP_FROM = 0.15;
+const CATCH_UP_FULL = 0.6;
 /** Softer, once the finger lifts: the screens carry on at its speed and slow down to a stop. */
 const LAND_STIFFNESS = 340;
+
+/** Stiffness for screens `distance` screens away from the finger (see CATCH_UP_STIFFNESS). */
+export function followStiffness(distance: number): number {
+  const far = Math.min(1, Math.max(0, (distance - CATCH_UP_FROM) / (CATCH_UP_FULL - CATCH_UP_FROM)));
+  return FOLLOW_STIFFNESS + (CATCH_UP_STIFFNESS - FOLLOW_STIFFNESS) * far;
+}
 const STEP = 1 / 240;
 const MAX_FRAME = 0.05;
 
@@ -75,7 +90,6 @@ const MAX_FRAME = 0.05;
 export class SlideMotion {
   private spring: Spring = { value: 0, velocity: 0 };
   private target = 0;
-  private stiffness = FOLLOW_STIFFNESS;
   private frame = 0;
   private last = 0;
   private landed: (() => void) | null = null;
@@ -102,7 +116,6 @@ export class SlideMotion {
 
   /** Follows the finger to `progress`. */
   follow(progress: number): void {
-    this.stiffness = FOLLOW_STIFFNESS;
     this.target = progress;
     this.landed = null;
     this.run();
@@ -110,7 +123,6 @@ export class SlideMotion {
 
   /** The finger let go moving at `velocity` (progress per second): carry on to `progress`, then `done`. */
   land(progress: number, velocity: number, done: () => void): void {
-    this.stiffness = LAND_STIFFNESS;
     this.target = progress;
     this.spring.velocity = velocity;
     this.side = Math.sign(this.spring.value - progress);
@@ -133,7 +145,10 @@ export class SlideMotion {
     const elapsed = Math.min(MAX_FRAME, Math.max(0, (now - this.last) / 1000));
     this.last = now;
     const steps = Math.max(1, Math.round(elapsed / STEP));
-    for (let step = 0; step < steps; step++) stepSpring(this.spring, this.target, elapsed / steps, this.stiffness, 1);
+    for (let step = 0; step < steps; step++) {
+      const stiffness = this.landed ? LAND_STIFFNESS : followStiffness(Math.abs(this.target - this.spring.value));
+      stepSpring(this.spring, this.target, elapsed / steps, stiffness, 1);
+    }
     // Landing, it stops on the screen instead of going past it.
     const arrived = this.landed !== null && Math.sign(this.spring.value - this.target) !== this.side;
     const resting =
