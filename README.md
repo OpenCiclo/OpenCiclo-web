@@ -157,6 +157,8 @@ Apache License 2.0. See [LICENSE](LICENSE) and [NOTICE](NOTICE).
 
 Commercial use, modification, self-hosting, and integration into other projects are permitted under that license. Preserve Apache-2.0 notices.
 
+The license does not cover the names OpenCiclo and Ciclo or the round-sea logo. The logo files are not under Apache-2.0. A fork must use its own name and logo before it is shared or run for other people. See [TRADEMARKS.md](TRADEMARKS.md).
+
 ## Limitations
 
 - V0 baselines are not personalized hierarchical models.
