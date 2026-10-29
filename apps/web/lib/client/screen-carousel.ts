@@ -8,6 +8,8 @@
 // screens (the `tab-slide` animations, see globals.css) is paused: its
 // progress comes from the finger instead of the clock.
 
+import { type Spring, stepSpring } from "@/lib/client/tab-drag";
+
 /**
  * How far along a drag from tab `from` toward the tab on its `direction` side
  * the finger is, from 0 (still on `from`) to 1 (on the next tab). Linear: the
@@ -55,19 +57,91 @@ export function rewindSlides(slides: Animation[]): void {
 }
 
 /**
- * Eases from `from` to `to` over `ms`, slowing down at the end, with no
- * bounce. Calls `frame` with each value and `done` once there. Returns a
- * function that stops it.
+ * Stiffness of the spring that keeps the screens with the finger: critically
+ * damped, it trails by about 20 ms, enough to smooth out uneven touch events
+ * and to catch up gently when the next screen shows up late.
  */
-export function tween(from: number, to: number, ms: number, frame: (value: number) => void, done: () => void): () => void {
-  const start = performance.now();
-  let id = 0;
-  const step = (now: number) => {
-    const t = Math.min(1, (now - start) / ms);
-    frame(from + (to - from) * (1 - (1 - t) ** 3));
-    if (t < 1) id = requestAnimationFrame(step);
-    else done();
+const FOLLOW_STIFFNESS = 2400;
+/** Softer, once the finger lifts: the screens carry on at its speed and slow down to a stop. */
+const LAND_STIFFNESS = 260;
+const STEP = 1 / 240;
+const MAX_FRAME = 0.05;
+
+/**
+ * Slide progress (0 to 1, see `setSlides`) on a critically damped spring, one
+ * animation frame at a time: it never bounces. `paint` gets each frame,
+ * clamped to 0..1.
+ */
+export class SlideMotion {
+  private spring: Spring = { value: 0, velocity: 0 };
+  private target = 0;
+  private stiffness = FOLLOW_STIFFNESS;
+  private frame = 0;
+  private last = 0;
+  private landed: (() => void) | null = null;
+  /** Which side of the target a landing started from. */
+  private side = 0;
+
+  constructor(private readonly paint: (progress: number) => void) {}
+
+  get progress(): number {
+    return Math.min(1, Math.max(0, this.spring.value));
+  }
+
+  /** Starts at `progress`, still. */
+  place(progress: number): void {
+    this.stop();
+    this.spring = { value: progress, velocity: 0 };
+    this.target = progress;
+    this.landed = null;
+    this.paint(this.progress);
+  }
+
+  /** Follows the finger to `progress`. */
+  follow(progress: number): void {
+    this.stiffness = FOLLOW_STIFFNESS;
+    this.target = progress;
+    this.landed = null;
+    this.run();
+  }
+
+  /** The finger let go moving at `velocity` (progress per second): carry on to `progress`, then `done`. */
+  land(progress: number, velocity: number, done: () => void): void {
+    this.stiffness = LAND_STIFFNESS;
+    this.target = progress;
+    this.spring.velocity = velocity;
+    this.side = Math.sign(this.spring.value - progress);
+    this.landed = done;
+    this.run();
+  }
+
+  stop(): void {
+    if (this.frame) cancelAnimationFrame(this.frame);
+    this.frame = 0;
+  }
+
+  private run(): void {
+    if (this.frame) return;
+    this.last = performance.now();
+    this.frame = requestAnimationFrame(this.tick);
+  }
+
+  private tick = (now: number): void => {
+    const elapsed = Math.min(MAX_FRAME, Math.max(0, (now - this.last) / 1000));
+    this.last = now;
+    const steps = Math.max(1, Math.round(elapsed / STEP));
+    for (let step = 0; step < steps; step++) stepSpring(this.spring, this.target, elapsed / steps, this.stiffness, 1);
+    // Landing, it stops on the screen instead of going past it.
+    const arrived = this.landed !== null && Math.sign(this.spring.value - this.target) !== this.side;
+    const resting =
+      arrived || (Math.abs(this.spring.value - this.target) < 0.001 && Math.abs(this.spring.velocity) < 0.01);
+    if (resting) this.spring = { value: this.target, velocity: 0 };
+    this.frame = resting ? 0 : requestAnimationFrame(this.tick);
+    this.paint(this.progress);
+    if (resting && this.landed) {
+      const done = this.landed;
+      this.landed = null;
+      done();
+    }
   };
-  id = requestAnimationFrame(step);
-  return () => cancelAnimationFrame(id);
 }

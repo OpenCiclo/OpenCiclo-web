@@ -10,7 +10,14 @@ import { usePathname, useRouter } from "next/navigation";
 import { BookOpen, CalendarDays, LineChart, Settings } from "lucide-react";
 
 import { useCiclo } from "@/lib/client/ciclo-context";
-import { finishSlides, rewindSlides, setSlides, slideProgress, takeSlides, tween } from "@/lib/client/screen-carousel";
+import {
+  SlideMotion,
+  finishSlides,
+  rewindSlides,
+  setSlides,
+  slideProgress,
+  takeSlides,
+} from "@/lib/client/screen-carousel";
 import { SWEEP_SPEED, SelectionMotion, dragFrame, labelScale, stoppedOnTab } from "@/lib/client/tab-drag";
 import { shownScreen, watchSlides } from "@/lib/client/tab-screen";
 import { cn } from "@/lib/utils";
@@ -26,14 +33,18 @@ const TABS = [
 const DRAG_SLOP = 8;
 /** How long after a drag a click still belongs to it. */
 const CLICK_AFTER_DRAG_MS = 500;
-/** How far the old screen follows the finger, as a share of its width, while the next one is still being drawn. */
-const WAIT_LIMIT = 0.35;
+/**
+ * How far the old screen follows the finger, as a share of its width, while
+ * the next one is still being drawn: a little, so no gap opens beside it.
+ * Once the next one is there, both catch up with the finger.
+ */
+const WAIT_LIMIT = 0.06;
 /** A finger this far (in tabs) back past where the drag started turns it around. */
 const TURN_BACK = 0.08;
 /** How far (in tabs) the finger leaves a screen before the next one is brought in. */
 const LEAVE_AT = 0.05;
-/** How long the screens take to finish a whole screen's slide once the finger lifts. */
-const LAND_MS = 320;
+/** Fastest the screens carry on after the finger lifts, in screens per second. */
+const MAX_LAND_SPEED = 8;
 /** How long going back to the first screen may take before the slides are put away anyway. */
 const REVERT_WAIT_MS = 600;
 
@@ -175,7 +186,6 @@ type Pair = {
   reverting: boolean;
   afterRevert: (() => void) | null;
   revertTimer: number;
-  stopTween: (() => void) | null;
 };
 
 export function FloatingTabBar() {
@@ -202,6 +212,7 @@ export function FloatingTabBar() {
   // it is between, and how far the screen on display is moved by hand.
   const followRef = useRef(false);
   const pairRef = useRef<Pair | null>(null);
+  const slideMotionRef = useRef<SlideMotion | null>(null);
   const offsetRef = useRef(0);
   // Frame watch for a finger that sweeps past tabs (see `followRoute`).
   const sweepFrameRef = useRef(0);
@@ -232,6 +243,23 @@ export function FloatingTabBar() {
     return motionRef.current;
   }
 
+  // The screens, on a spring that follows the finger (see SlideMotion): the
+  // slides once they are there, and until then the screen on display.
+  function slideMotion() {
+    slideMotionRef.current ??= new SlideMotion((progress) => {
+      const pair = pairRef.current;
+      if (!pair || pair.reverting) return;
+      if (!pair.slides) {
+        moveScreen(-pair.direction * progress);
+        return;
+      }
+      setSlides(pair.slides, progress);
+      const press = pressRef.current;
+      if (press && progress >= 1 && pair.progress >= 1) slidThrough(press, pair);
+    });
+    return slideMotionRef.current;
+  }
+
   /** Moves the screen on display by hand: only while the next one is still being drawn. */
   function moveScreen(offset: number) {
     offsetRef.current = offset;
@@ -246,6 +274,7 @@ export function FloatingTabBar() {
       unwatch();
       cancelAnimationFrame(sweepFrameRef.current);
       motionRef.current?.stop();
+      slideMotionRef.current?.stop();
       const pair = pairRef.current;
       if (pair?.slides) finishSlides(pair.slides);
       pairRef.current = null;
@@ -386,12 +415,7 @@ export function FloatingTabBar() {
         return;
       }
       pair.progress = slideProgress(finger, pair.from, pair.direction);
-      if (pair.slides) {
-        setSlides(pair.slides, pair.progress);
-        if (pair.progress >= 1) slidThrough(press, pair);
-      } else {
-        moveScreen(-pair.direction * Math.min(pair.progress, WAIT_LIMIT));
-      }
+      slideMotion().follow(pair.slides ? pair.progress : Math.min(pair.progress, WAIT_LIMIT));
       return;
     }
     const from = screenTabRef.current;
@@ -427,9 +451,10 @@ export function FloatingTabBar() {
       reverting: false,
       afterRevert: null,
       revertTimer: 0,
-      stopTween: null,
     };
-    moveScreen(-direction * Math.min(pairRef.current.progress, WAIT_LIMIT));
+    // From where the screen already is, following the finger.
+    slideMotion().place(Math.abs(away));
+    slideMotion().follow(Math.min(pairRef.current.progress, WAIT_LIMIT));
     navigateTo(to);
   }
 
@@ -448,19 +473,19 @@ export function FloatingTabBar() {
     const slides = takeSlides();
     if (!slides) return;
     pair.slides = slides;
-    if (pair.reverting) pair.progress = 0;
-    setSlides(slides, pair.progress);
-    const press = pressRef.current;
-    if (!press) {
-      if (!pair.reverting) landPair(pair, pair.landing ?? pair.from);
-    } else if (!pair.reverting && pair.progress >= 1) {
-      slidThrough(press, pair);
+    if (pair.reverting) {
+      setSlides(slides, 0);
+      return;
     }
+    // Where the old screen's picture was taken; from there both catch up with the finger.
+    setSlides(slides, slideMotion().progress);
+    if (pressRef.current) slideMotion().follow(pair.progress);
+    else landPair(pair, pair.landing ?? pair.from, 0);
   }
 
   /** The new screen is all the way in: the transition ends there. */
   function completePair(pair: Pair) {
-    pair.stopTween?.();
+    slideMotionRef.current?.stop();
     if (pair.slides) finishSlides(pair.slides);
     if (pairRef.current === pair) pairRef.current = null;
     setSlideStart(null);
@@ -468,7 +493,7 @@ export function FloatingTabBar() {
 
   /** Puts the slides away wherever they are (another navigation took over). */
   function dropPair(pair: Pair) {
-    pair.stopTween?.();
+    slideMotionRef.current?.stop();
     window.clearTimeout(pair.revertTimer);
     if (pair.slides) finishSlides(pair.slides);
     if (pairRef.current === pair) pairRef.current = null;
@@ -476,8 +501,7 @@ export function FloatingTabBar() {
 
   /** Slides back to the screen the drag started from, and takes the route back there. */
   function revertPair(pair: Pair, then: (() => void) | null) {
-    pair.stopTween?.();
-    pair.stopTween = null;
+    slideMotionRef.current?.stop();
     pair.reverting = true;
     pair.afterRevert = then;
     pair.progress = 0;
@@ -501,36 +525,28 @@ export function FloatingTabBar() {
     pair.afterRevert?.();
   }
 
-  /** The finger let go on tab `target`: the screens slide on, or back, to it. */
-  function landPair(pair: Pair, target: number) {
+  /**
+   * The finger let go on tab `target`, moving at `speed` (tabs per second,
+   * toward `to` when positive): the screens carry on at that speed, slowing
+   * down, on or back to it.
+   */
+  function landPair(pair: Pair, target: number, speed: number) {
     if (!pair.slides) {
       pair.landing = target;
       return;
     }
-    const slides = pair.slides;
     const onward = (target - pair.from) * pair.direction > 0;
-    const end = onward ? 1 : 0;
-    pair.stopTween?.();
-    pair.stopTween = tween(
-      pair.progress,
-      end,
-      Math.max(80, LAND_MS * Math.abs(end - pair.progress)),
-      (progress) => {
-        pair.progress = progress;
-        setSlides(slides, progress);
-      },
-      () => {
-        pair.stopTween = null;
-        if (onward) {
-          completePair(pair);
-          // Let go past the next tab: on to that one, as a tap would.
-          if (target !== pair.to) navigateTo(target);
-          else layerScreen(false);
-        } else {
-          revertPair(pair, target !== pair.from ? () => navigateTo(target) : null);
-        }
-      },
-    );
+    const velocity = Math.max(-MAX_LAND_SPEED, Math.min(MAX_LAND_SPEED, speed));
+    slideMotion().land(onward ? 1 : 0, velocity, () => {
+      if (onward) {
+        completePair(pair);
+        // Let go past the next tab: on to that one, as a tap would.
+        if (target !== pair.to) navigateTo(target);
+        else layerScreen(false);
+      } else {
+        revertPair(pair, target !== pair.from ? () => navigateTo(target) : null);
+      }
+    });
   }
 
   function onPointerMove(event: PointerEvent<HTMLDivElement>) {
@@ -585,7 +601,7 @@ export function FloatingTabBar() {
     const target = press.held;
     const pair = pairRef.current;
     if (!pair) navigateTo(target);
-    else if (!pair.reverting) landPair(pair, target);
+    else if (!pair.reverting) landPair(pair, target, press.speed * pair.direction);
     else if (target !== pair.from) pair.afterRevert = () => navigateTo(target);
     motion().settle(target);
     setHeld({ index: target, down: false, pathname });
