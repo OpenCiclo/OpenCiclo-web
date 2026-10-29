@@ -89,10 +89,16 @@ export function FloatingTabBar() {
   const litIndex = held?.pathname === pathname ? held.index : activeIndex;
 
   function motion() {
-    motionRef.current ??= new SelectionMotion((position, scale) => {
-      const bubble = bubbleRef.current;
-      if (bubble) bubble.style.transform = `translateX(${position * 100}%) scale(${scale.x}, ${scale.y})`;
-    }, prefersReducedMotion);
+    motionRef.current ??= new SelectionMotion(
+      TABS.length,
+      (position, scale) => {
+        const bubble = bubbleRef.current;
+        if (!bubble) return;
+        // Fixed decimals: tiny values would otherwise print as 1e-7.
+        bubble.style.transform = `translateX(${(position * 100).toFixed(3)}%) scale(${scale.x.toFixed(4)}, ${scale.y.toFixed(4)})`;
+      },
+      prefersReducedMotion,
+    );
     return motionRef.current;
   }
 
