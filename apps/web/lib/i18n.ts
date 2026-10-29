@@ -211,6 +211,7 @@ const es = {
   logout: "Cerrar sesión en este dispositivo",
   errorGeneric: "Algo falló. Inténtalo de nuevo.",
   invalidPhrase: "Frase no válida.",
+  noAccountForPhrase: "No hay ninguna cuenta con esa frase. Revisa las 12 palabras o crea una cuenta nueva.",
   wordMismatch: "Esa palabra no coincide.",
   privacyTitle: "Privacidad",
   welcomeCta: "Empieza en el navegador. Las fechas se cifran antes de salir del dispositivo.",
@@ -218,6 +219,9 @@ const es = {
   restoreFailedBody:
     "Puede ser la conexión o el servidor. Tu acceso sigue guardado en este dispositivo y tus datos no se han tocado.",
   restoreRetry: "Reintentar",
+  restoreNoAccountTitle: "La frase guardada no abre ninguna cuenta",
+  restoreNoAccountBody:
+    "Este dispositivo guarda una frase que ya no tiene cuenta, quizá porque la borraste desde otro dispositivo. Entra con otra frase o crea una cuenta nueva.",
   deviceMode: "Solo en este dispositivo",
   deviceModeHint:
     "Sin cuenta ni servidor. El diario se guarda cifrado en este móvil y no sale de él. Guardas 12 palabras por si la app no puede abrirlo sola. Si pierdes el móvil, solo te salva un export.",
@@ -782,6 +786,7 @@ const en = {
   logout: "Sign out on this device",
   errorGeneric: "Something went wrong. Try again.",
   invalidPhrase: "Invalid phrase.",
+  noAccountForPhrase: "No account uses this phrase. Check the 12 words, or create a new account.",
   wordMismatch: "That word does not match.",
   privacyTitle: "Privacy",
   welcomeCta: "Start in the browser. Dates are encrypted before they leave the device.",
@@ -789,6 +794,9 @@ const en = {
   restoreFailedBody:
     "It may be your connection or our server. Your sign-in is still saved on this device and your data was not touched.",
   restoreRetry: "Try again",
+  restoreNoAccountTitle: "The saved phrase opens no account",
+  restoreNoAccountBody:
+    "This device keeps a phrase that no longer has an account, maybe because you deleted it on another device. Sign in with another phrase or create a new account.",
   deviceMode: "Only on this device",
   deviceModeHint:
     "No account, no server. The diary is saved encrypted on this phone and never leaves it. You keep 12 words in case the app cannot open it on its own. If you lose the phone, only an export saves it.",
