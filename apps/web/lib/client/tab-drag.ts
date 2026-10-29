@@ -74,7 +74,7 @@ export function stretchScale(stretch: number): { x: number; y: number } {
 }
 
 const POSITION_STIFFNESS = 420;
-const POSITION_RATIO = 0.7;
+const POSITION_RATIO = 0.65;
 const STRETCH_STIFFNESS = 300;
 const STRETCH_RATIO = 0.45;
 /** Speed, in tabs per second, adds this much stretch: the selection smears as it flies. */
@@ -98,6 +98,7 @@ export class SelectionMotion {
   private last = 0;
 
   constructor(
+    private readonly count: number,
     private readonly paint: Paint,
     private readonly reducedMotion: () => boolean,
   ) {}
@@ -114,7 +115,7 @@ export class SelectionMotion {
     this.stretchTarget = 0;
     this.position = { value: index, velocity: 0 };
     this.stretch = { value: 0, velocity: 0 };
-    this.paint(index, { x: 1, y: 1 });
+    this.draw(index, { x: 1, y: 1 });
   }
 
   /** Springs the selection to tab `index`. */
@@ -133,7 +134,7 @@ export class SelectionMotion {
     if (this.reducedMotion()) {
       this.stop();
       this.position = { value: frame.position, velocity: 0 };
-      this.paint(frame.position, { x: 1, y: 1 });
+      this.draw(frame.position, { x: 1, y: 1 });
       return;
     }
     this.target = frame.position;
@@ -170,7 +171,16 @@ export class SelectionMotion {
       this.stretch = { value: this.stretchTarget, velocity: 0 };
     }
     const speed = Math.min(MAX_SPEED_STRETCH, Math.abs(this.position.velocity) * SPEED_STRETCH);
-    this.paint(this.position.value, stretchScale(this.stretch.value + speed));
+    this.draw(this.position.value, stretchScale(this.stretch.value + speed));
     this.frame = resting ? 0 : requestAnimationFrame(this.tick);
   };
+
+  // A spring that overshoots the first or last tab gives way like a drag
+  // against the edge, so the selection never leaves the bar.
+  private draw(position: number, scale: { x: number; y: number }): void {
+    const last = this.count - 1;
+    if (position < 0) this.paint(resist(position, EDGE_LIMIT), scale);
+    else if (position > last) this.paint(last + resist(position - last, EDGE_LIMIT), scale);
+    else this.paint(position, scale);
+  }
 }
