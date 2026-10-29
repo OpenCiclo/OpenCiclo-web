@@ -404,8 +404,88 @@
   animation: grow-x 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
+/* Before scripts load. Then FloatingTabBar moves it with springs. */
 .tab-bubble {
-  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  transform: translateX(calc(var(--tab-index, 0) * 100%));
+  will-change: transform;
+}
+
+/*
+ * Screen carousel. AppShell is a <ViewTransition> that tags the leaving and
+ * arriving screens with the `tab-slide` class. When the route moves between
+ * tabs, the tab bar sets data-tab-slide on <html> to "next" (the new tab is to
+ * the right) or "prev". Otherwise the screens swap in place.
+ */
+.tab-bar {
+  view-transition-name: tab-bar;
+}
+
+::view-transition-group(tab-bar) {
+  z-index: 1;
+  animation: none;
+}
+
+::view-transition-old(tab-bar) {
+  display: none;
+}
+
+::view-transition-new(tab-bar) {
+  animation: none;
+}
+
+::view-transition-group(.tab-slide) {
+  overflow: clip;
+}
+
+::view-transition-old(.tab-slide),
+::view-transition-new(.tab-slide) {
+  animation: none;
+}
+
+:root:not([data-tab-slide])::view-transition-old(.tab-slide) {
+  display: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  :root[data-tab-slide="next"]::view-transition-old(.tab-slide) {
+    animation: tab-slide-out-left 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  :root[data-tab-slide="next"]::view-transition-new(.tab-slide) {
+    animation: tab-slide-in-right 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  :root[data-tab-slide="prev"]::view-transition-old(.tab-slide) {
+    animation: tab-slide-out-right 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  :root[data-tab-slide="prev"]::view-transition-new(.tab-slide) {
+    animation: tab-slide-in-left 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+}
+
+@keyframes tab-slide-out-left {
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+@keyframes tab-slide-in-right {
+  from {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes tab-slide-out-right {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes tab-slide-in-left {
+  from {
+    transform: translateX(-100%);
+  }
 }
 
 .cycle-season-card {
@@ -650,8 +730,8 @@
     animation: none;
   }
 
-  .tab-bubble {
-    transition: none;
+  :root::view-transition-old(.tab-slide) {
+    display: none;
   }
 
   .cycle-season-card {

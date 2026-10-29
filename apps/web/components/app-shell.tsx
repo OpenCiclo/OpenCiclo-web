@@ -3,25 +3,31 @@
 
 "use client";
 
+import { ViewTransition } from "react";
+
 import { useCiclo } from "@/lib/client/ciclo-context";
 import { cn } from "@/lib/utils";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const { t, wallet } = useCiclo();
 
+  // Screens enter and leave as a carousel when the route moves between tabs.
+  // The tab bar picks the direction; see `tab-slide` in globals.css.
   return (
-    <div className="mx-auto flex min-h-dvh w-full max-w-md flex-col bg-background">
-      <main id="main-content" className="flex-1 px-5 pt-6 pb-8">
-        {children}
-      </main>
-      <p
-        className={cn(
-          "mt-auto border-t border-border px-4 pt-3 text-center text-xs text-muted-foreground",
-          wallet ? "pb-28" : "pb-6",
-        )}
-      >
-        {t.disclaimer}
-      </p>
-    </div>
+    <ViewTransition enter="tab-slide" exit="tab-slide" default="none">
+      <div className="mx-auto flex min-h-dvh w-full max-w-md flex-col bg-background">
+        <main id="main-content" className="flex-1 px-5 pt-6 pb-8">
+          {children}
+        </main>
+        <p
+          className={cn(
+            "mt-auto border-t border-border px-4 pt-3 text-center text-xs text-muted-foreground",
+            wallet ? "pb-28" : "pb-6",
+          )}
+        >
+          {t.disclaimer}
+        </p>
+      </div>
+    </ViewTransition>
   );
 }
