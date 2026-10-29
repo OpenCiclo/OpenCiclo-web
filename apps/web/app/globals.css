@@ -415,7 +415,31 @@
  * arriving screens with the `tab-slide` class. When the route moves between
  * tabs, the tab bar sets data-tab-slide on <html> to "next" (the new tab is to
  * the right) or "prev". Otherwise the screens swap in place.
+ *
+ * A drag of the tab bar selection moves the screen with it, and changes
+ * screens with the finger still down. Then the tab bar also sets
+ * data-tab-drag, and --tab-slide-out / --tab-slide-in say how far the drag
+ * already moved the old and the new screen, so the slide picks up from there
+ * and ends with a spring (a damped spring sampled as linear()).
  */
+:root {
+  --tab-slide-duration: 0.4s;
+  --tab-slide-easing: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+:root[data-tab-drag] {
+  --tab-slide-duration: 0.6s;
+  --tab-slide-easing: linear(
+    0, 0.195, 0.374, 0.532, 0.667, 0.779, 0.868, 0.937, 0.987, 1.023, 1.046, 1.06, 1.065, 1.066, 1.062, 1.057,
+    1.049, 1.042, 1.034, 1.027, 1.02, 1.015, 1.01, 1.006, 1.003, 1.001, 1, 0.999, 0.998, 0.998, 1
+  );
+}
+
+/* Nothing scrolls sideways into the gap a pulled screen leaves. */
+:root[data-tab-pull] {
+  overflow-x: clip;
+}
+
 .tab-bar {
   view-transition-name: tab-bar;
 }
@@ -448,43 +472,43 @@
 
 @media (prefers-reduced-motion: no-preference) {
   :root[data-tab-slide="next"]::view-transition-old(.tab-slide) {
-    animation: tab-slide-out-left 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation: tab-slide-out-left var(--tab-slide-duration) var(--tab-slide-easing) both;
   }
 
   :root[data-tab-slide="next"]::view-transition-new(.tab-slide) {
-    animation: tab-slide-in-right 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation: tab-slide-in-right var(--tab-slide-duration) var(--tab-slide-easing) both;
   }
 
   :root[data-tab-slide="prev"]::view-transition-old(.tab-slide) {
-    animation: tab-slide-out-right 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation: tab-slide-out-right var(--tab-slide-duration) var(--tab-slide-easing) both;
   }
 
   :root[data-tab-slide="prev"]::view-transition-new(.tab-slide) {
-    animation: tab-slide-in-left 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation: tab-slide-in-left var(--tab-slide-duration) var(--tab-slide-easing) both;
   }
 }
 
 @keyframes tab-slide-out-left {
   to {
-    transform: translateX(-100%);
+    transform: translateX(calc(-100% + var(--tab-slide-out, 0%)));
   }
 }
 
 @keyframes tab-slide-in-right {
   from {
-    transform: translateX(100%);
+    transform: translateX(calc(100% - var(--tab-slide-in, 0%)));
   }
 }
 
 @keyframes tab-slide-out-right {
   to {
-    transform: translateX(100%);
+    transform: translateX(calc(100% - var(--tab-slide-out, 0%)));
   }
 }
 
 @keyframes tab-slide-in-left {
   from {
-    transform: translateX(-100%);
+    transform: translateX(calc(-100% + var(--tab-slide-in, 0%)));
   }
 }
 
