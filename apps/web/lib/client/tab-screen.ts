@@ -54,14 +54,22 @@ export function ghostOf(tab: number): HTMLElement | undefined {
 }
 
 // While a drag lands on a ghost and the route follows, the real screens swap
-// in place, under the ghost: no slide, and no view transition at all.
+// in place, under the ghost: no slide, and the view transition React still
+// starts for the new screen ends at once.
 let swapping = false;
 const swapListeners = new Set<() => void>();
 
 export function setSwapping(on: boolean): void {
   if (swapping === on) return;
   swapping = on;
+  // The view transition the swap still sets off ends at once (see globals.css).
+  if (on) document.documentElement.dataset.tabSwap = "";
   for (const listener of swapListeners) listener();
+}
+
+/** The next screen change is not a swap: its view transition animates again. */
+export function endSwapTransition(): void {
+  delete document.documentElement.dataset.tabSwap;
 }
 
 export function subscribeSwapping(listener: () => void): () => void {
