@@ -145,8 +145,9 @@ type Press = {
   finger: number;
   speed: number;
   movedAt: number;
-  /** Animation frames drawn since the last move. */
+  /** Animation frames drawn since the last move, and when that move was handled. */
   stillFrames: number;
+  handledAt: number;
 };
 
 export function FloatingTabBar() {
@@ -275,6 +276,7 @@ export function FloatingTabBar() {
       speed: 0,
       movedAt: event.timeStamp,
       stillFrames: 0,
+      handledAt: performance.now(),
     };
     // Now, before the finger moves, so the layer is ready when the screen does.
     if (!prefersReducedMotion()) layerScreen(true);
@@ -303,7 +305,7 @@ export function FloatingTabBar() {
       stopSweepWatch();
       return;
     }
-    if (stoppedOnTab(press.speed, press.stillFrames)) {
+    if (stoppedOnTab(press.speed, press.stillFrames, performance.now() - press.handledAt)) {
       navigateTo(press.held);
       return;
     }
@@ -341,6 +343,7 @@ export function FloatingTabBar() {
     press.finger = finger;
     press.movedAt = event.timeStamp;
     press.stillFrames = 0;
+    press.handledAt = performance.now();
     const frame = dragFrame(press.start, finger - press.start, press.held, TABS.length);
     if (frame.held !== press.held) {
       press.held = frame.held;
