@@ -79,26 +79,36 @@ function setSlideStart(drag: { pulled: number; waiting: number } | null) {
   }
 }
 
-/** The label under the selection stretches and wobbles with it, like gum. */
-function paintLabels(labels: (HTMLSpanElement | null)[], position: number, scale: { x: number; y: number }) {
+/**
+ * The label under the selection stretches and wobbles with it, like gum, and
+ * leans after it so it stays inside. Both fade out halfway to the next tab,
+ * where the next label takes over, so neither jumps.
+ */
+function paintLabels(
+  labels: (HTMLSpanElement | null)[],
+  position: number,
+  scale: { x: number; y: number },
+  tabWidth: number,
+) {
   const under = Math.round(position);
-  const gum = labelScale(scale);
-  const stretched = Math.abs(gum.x - 1) > 0.0005 || Math.abs(gum.y - 1) > 0.0005;
+  const away = position - under;
+  const weight = 1 - 2 * Math.abs(away);
+  const gum = labelScale({ x: 1 + weight * (scale.x - 1), y: 1 + weight * (scale.y - 1) });
+  const lean = away * weight * tabWidth;
+  const moved = Math.abs(gum.x - 1) > 0.0005 || Math.abs(gum.y - 1) > 0.0005 || Math.abs(lean) > 0.05;
   labels.forEach((label, index) => {
     if (!label) return;
-    label.style.transform = stretched && index === under ? `scale(${gum.x.toFixed(4)}, ${gum.y.toFixed(4)})` : "";
+    label.style.transform =
+      moved && index === under
+        ? `translateX(${lean.toFixed(2)}px) scale(${gum.x.toFixed(4)}, ${gum.y.toFixed(4)})`
+        : "";
   });
 }
 
-/** Moves the screen on display by `offset`, a share of its width. */
+/** Moves the content of the screen on display by `offset`, a share of its width. */
 function paintScreen(offset: number) {
-  const moved = Math.abs(offset) > 0.0005;
-  const root = document.documentElement;
-  // Nothing may scroll sideways into the gap the screen leaves.
-  if (moved) root.dataset.tabPull = "";
-  else delete root.dataset.tabPull;
   const screen = shownScreen();
-  if (screen) screen.style.transform = moved ? `translateX(${(offset * 100).toFixed(3)}%)` : "";
+  if (screen) screen.style.transform = Math.abs(offset) > 0.0005 ? `translateX(${(offset * 100).toFixed(3)}%)` : "";
 }
 
 type Press = {
@@ -149,9 +159,11 @@ export function FloatingTabBar() {
       (position, scale) => {
         const bubble = bubbleRef.current;
         if (!bubble) return;
+        // Read before writing anything, so it does not force a layout.
+        const tabWidth = bubble.offsetWidth;
         // Fixed decimals: tiny values would otherwise print as 1e-7.
         bubble.style.transform = `translateX(${(position * 100).toFixed(3)}%) scale(${scale.x.toFixed(4)}, ${scale.y.toFixed(4)})`;
-        paintLabels(labelRefs.current, position, scale);
+        paintLabels(labelRefs.current, position, scale, tabWidth);
         const screenTab = screenTabRef.current;
         screenOffsetRef.current = followRef.current && screenTab >= 0 ? screenPull(position, screenTab) : 0;
         paintScreen(screenOffsetRef.current);
