@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Launch screen before Android 12: the brand mark centred on the page background.
+     splash_mark is a 108dp-style layer whose disc spans 72 of 108 units, so 240dp
+     here gives the same 160dp disc as the Android 12+ splash. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@color/brand_background" />
+    <item
+        android:width="240dp"
+        android:height="240dp"
+        android:drawable="@drawable/splash_mark"
+        android:gravity="center" />
+</layer-list>

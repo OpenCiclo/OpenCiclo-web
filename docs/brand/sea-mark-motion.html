@@ -1,0 +1,235 @@
+<!doctype html>
+<!--
+  "En movimiento": the design file for the moving Ciclo mark. Open it in a browser.
+  The Mar redondo numbers match apps/web/lib/brand/sea-mark.ts, which is the source
+  of truth for the shipped mark. Notes: docs/brand/logo.md.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sea mark · in motion</title>
+<style>
+  :root {
+    --page: #f4f5f7;
+    --card: #ffffff;
+    --line: #e3e5e8;
+    --ink: #1e1f22;
+    --muted: #5f646a;
+    --ground: #f9fafb;
+    --dark: #101214;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --page: #0c0d0f;
+      --card: #17191c;
+      --line: #2a2d31;
+      --ink: #eef0f2;
+      --muted: #a3a8ae;
+      --ground: #f9fafb;
+      color-scheme: dark;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--page);
+    color: var(--ink);
+    font: 15px/1.5 ui-sans-serif, system-ui, sans-serif;
+  }
+  main { max-width: 1200px; margin: 0 auto; padding: 48px 16px 64px; display: grid; gap: 32px; }
+  header { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px; }
+  .eyebrow { margin: 0 0 8px; font-size: 13px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+  h1 { margin: 0; font: 400 clamp(36px, 6vw, 52px)/1.1 Georgia, ui-serif, serif; letter-spacing: -0.01em; }
+  h2 { margin: 0 0 16px; font-size: 15px; font-weight: 700; }
+  .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 32px; }
+  @media (max-width: 860px) { .layout { grid-template-columns: minmax(0, 1fr); } }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 20px; padding: 24px; }
+  .stage { display: grid; place-items: center; aspect-ratio: 1; border-radius: 28px; padding: 12%; background: var(--ground); border: 1px solid var(--line); }
+  .stage svg { width: 100%; height: auto; }
+  .side { display: grid; gap: 16px; align-content: start; }
+  .row { display: flex; flex-wrap: wrap; align-items: center; gap: 24px; }
+  .tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+  @media (max-width: 520px) { .tiles { grid-template-columns: minmax(0, 1fr); } }
+  .tile { display: flex; align-items: center; gap: 16px; padding: 16px; border-radius: 14px; border: 1px solid var(--line); }
+  .bar { display: flex; align-items: center; gap: 10px; height: 56px; padding: 0 16px; border-radius: 14px; border: 1px solid var(--line); font: 20px Georgia, ui-serif, serif; }
+  .controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px 24px; }
+  label { display: grid; gap: 6px; font-size: 13px; font-weight: 600; color: var(--muted); }
+  label span { display: flex; justify-content: space-between; }
+  output { font-variant-numeric: tabular-nums; color: var(--ink); }
+  input[type="range"], select { width: 100%; min-height: 32px; accent-color: #24272a; font: inherit; }
+  button {
+    display: inline-flex; align-items: center; gap: 8px; height: 44px; padding: 0 20px;
+    border: 1px solid var(--line); border-radius: 999px; background: var(--card); color: var(--ink);
+    font: 700 15px ui-sans-serif, system-ui, sans-serif; cursor: pointer;
+  }
+  button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid #5b8def; outline-offset: 2px; }
+  .note { margin: 0; font-size: 13px; color: var(--muted); }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <div>
+      <p class="eyebrow">Ciclo · brand mark · <span id="shape-name">Mar redondo</span></p>
+      <h1>In motion</h1>
+    </div>
+    <button type="button" id="toggle" aria-pressed="false">Pause</button>
+  </header>
+
+  <div class="layout">
+    <div class="stage">
+      <svg viewBox="0 0 32 32" role="img" aria-label="The Ciclo mark: waves run clockwise along the rim of the sea">
+        <circle cx="16" cy="16" r="16" fill="#24272a"></circle>
+        <path class="sea" fill="#fcfcfc"></path>
+      </svg>
+    </div>
+
+    <div class="side">
+      <section class="card">
+        <h2>Sizes</h2>
+        <div class="row">
+          <svg viewBox="0 0 32 32" width="128" height="128" aria-hidden="true"><circle cx="16" cy="16" r="16" fill="#24272a"></circle><path class="sea" fill="#fcfcfc"></path></svg>
+          <svg viewBox="0 0 32 32" width="64" height="64" aria-hidden="true"><circle cx="16" cy="16" r="16" fill="#24272a"></circle><path class="sea" fill="#fcfcfc"></path></svg>
+          <svg viewBox="0 0 32 32" width="32" height="32" aria-hidden="true"><circle cx="16" cy="16" r="16" fill="#24272a"></circle><path class="sea" fill="#fcfcfc"></path></svg>
+          <svg viewBox="0 0 32 32" width="16" height="16" aria-hidden="true"><circle cx="16" cy="16" r="16" fill="#24272a"></circle><path class="sea" fill="#fcfcfc"></path></svg>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Dark pages and app colors</h2>
+        <div class="tiles">
+          <div class="tile" style="background: #101214">
+            <svg viewBox="0 0 32 32" width="64" height="64" aria-hidden="true"><circle cx="16" cy="16" r="16" fill="#e6e8ea"></circle><path class="sea" fill="#101214"></path></svg>
+            <svg viewBox="0 0 32 32" width="32" height="32" aria-hidden="true"><circle cx="16" cy="16" r="16" fill="#e6e8ea"></circle><path class="sea" fill="#101214"></path></svg>
+          </div>
+          <div class="tile" style="background: #f9fafb">
+            <svg viewBox="0 0 32 32" width="64" height="64" aria-hidden="true"><circle cx="16" cy="16" r="16" fill="#de667a"></circle><path class="sea" fill="#fffaf9"></path></svg>
+            <svg viewBox="0 0 32 32" width="32" height="32" aria-hidden="true"><circle cx="16" cy="16" r="16" fill="#de667a"></circle><path class="sea" fill="#fffaf9"></path></svg>
+          </div>
+          <div class="tile" style="background: #101214">
+            <svg viewBox="0 0 32 32" width="64" height="64" aria-hidden="true"><circle cx="16" cy="16" r="16" fill="#a14a57"></circle><path class="sea" fill="#fffaf9"></path></svg>
+            <svg viewBox="0 0 32 32" width="32" height="32" aria-hidden="true"><circle cx="16" cy="16" r="16" fill="#a14a57"></circle><path class="sea" fill="#fffaf9"></path></svg>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>In the header</h2>
+        <div class="tiles" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr))">
+          <div class="bar" style="background: #f9fafb; color: #1e1f22">
+            <svg viewBox="0 0 32 32" width="32" height="32" aria-hidden="true"><circle cx="16" cy="16" r="16" fill="#24272a"></circle><path class="sea" fill="#fcfcfc"></path></svg>
+            Ciclo
+          </div>
+          <div class="bar" style="background: #101214; color: #eef0f2">
+            <svg viewBox="0 0 32 32" width="32" height="32" aria-hidden="true"><circle cx="16" cy="16" r="16" fill="#e6e8ea"></circle><path class="sea" fill="#101214"></path></svg>
+            Ciclo
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <section class="card">
+    <h2>Controls</h2>
+    <div class="controls">
+      <label>Shape
+        <select id="shape">
+          <option value="mar">Mar redondo (shipped)</option>
+          <option value="gota">Gota densa</option>
+        </select>
+      </label>
+      <label><span>Wave height <output id="height-out">1</output></span>
+        <input type="range" id="height" min="0" max="2" step="0.05" value="1">
+      </label>
+      <label><span>Speed <output id="speed-out">1</output></span>
+        <input type="range" id="speed" min="0.2" max="3" step="0.1" value="1">
+      </label>
+      <label><span>Density <output id="density-out">0.6</output></span>
+        <input type="range" id="density" min="0" max="1" step="0.05" value="0.6">
+      </label>
+    </div>
+    <p class="note" id="reduced" hidden>Your system asks for reduced motion, so the mark starts paused.</p>
+  </section>
+</main>
+
+<script>
+  // Mar redondo is the shipped shape (apps/web/lib/brand/sea-mark.ts).
+  const SHAPES = {
+    mar: { name: "Mar redondo", R: 5.8, still: [{ k: 2, a: 0.022, ph: 1 }, { k: 3, a: 0.034, ph: 2.3 }, { k: 4, a: 0.024, ph: 0.6 }, { k: 5, a: 0.016, ph: 4.1 }] },
+    gota: { name: "Gota densa", R: 5.6, still: [{ k: 2, a: 0.075, ph: 0.6 }, { k: 3, a: 0.05, ph: 2.2 }, { k: 5, a: 0.018, ph: 4 }] },
+  };
+
+  // Same model as seaMarkPath(): the still shape breathes, surface waves run
+  // clockwise with deep-water dispersion, density damps short waves.
+  function seaPath(shape, t, motion) {
+    const TAU = Math.PI * 2, N = 64;
+    const surface = [{ k: 3, a: 0.022, ph: 2.1 }, { k: 4, a: 0.02, ph: 0.4 }, { k: 6, a: 0.01, ph: 4.4 }, { k: 8, a: 0.004, ph: 1.3 }];
+    const pace = motion.speed * (1 - 0.4 * motion.density);
+    const waves = shape.still.map((w, j) => ({ k: w.k, a: w.a * (1 + 0.15 * Math.sin(0.5 * pace * t + 1.3 * j + w.ph)), ph: w.ph, steep: 0 }));
+    for (const w of surface) {
+      const a = w.a * motion.height * Math.exp((-motion.density * Math.max(0, w.k - 3)) / 6);
+      waves.push({ k: w.k, a, ph: w.ph + 1.35 * pace * Math.sqrt(w.k) * t, steep: Math.min(0.6, a * w.k) });
+    }
+    const fold = waves.reduce((sum, w) => sum + w.steep, 0);
+    const g = fold > 0.8 ? 0.8 / fold : 1;
+    const pts = [];
+    for (let i = 0; i < N; i++) {
+      const u = (TAU * i) / N;
+      let dr = 0, dth = 0;
+      for (const w of waves) {
+        const x = w.k * u - w.ph;
+        dr += w.a * Math.cos(x);
+        dth -= (g * w.steep * Math.sin(x)) / w.k;
+      }
+      const r = shape.R * (1 + dr);
+      pts.push([16 + r * Math.cos(u + dth), 16 + r * Math.sin(u + dth)]);
+    }
+    const f = (n) => Math.round(n * 100) / 100;
+    let d = `M${f(pts[0][0])} ${f(pts[0][1])}`;
+    for (let i = 0; i < N; i++) {
+      const p0 = pts[(i + N - 1) % N], p1 = pts[i], p2 = pts[(i + 1) % N], p3 = pts[(i + 2) % N];
+      d += "C" + [p1[0] + (p2[0] - p0[0]) / 6, p1[1] + (p2[1] - p0[1]) / 6, p2[0] - (p3[0] - p1[0]) / 6, p2[1] - (p3[1] - p1[1]) / 6, p2[0], p2[1]].map(f).join(" ");
+    }
+    return d + "Z";
+  }
+
+  const seas = document.querySelectorAll(".sea");
+  const $ = (id) => document.getElementById(id);
+  const toggle = $("toggle");
+  const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let paused = reduced;
+  let t = 0;
+  let last = null;
+  $("reduced").hidden = !reduced;
+
+  for (const id of ["height", "speed", "density"]) {
+    $(id).addEventListener("input", () => { $(`${id}-out`).textContent = $(id).value; draw(); });
+  }
+  $("shape").addEventListener("change", () => { $("shape-name").textContent = SHAPES[$("shape").value].name; draw(); });
+  toggle.addEventListener("click", () => { paused = !paused; syncButton(); });
+
+  function syncButton() {
+    toggle.textContent = paused ? "Play" : "Pause";
+    toggle.setAttribute("aria-pressed", String(paused));
+  }
+
+  function draw() {
+    const d = seaPath(SHAPES[$("shape").value], t, { height: +$("height").value, speed: +$("speed").value, density: +$("density").value });
+    seas.forEach((path) => path.setAttribute("d", d));
+  }
+
+  function frame(now) {
+    if (last !== null && !paused) t += Math.min(0.1, (now - last) / 1000);
+    last = now;
+    draw();
+    requestAnimationFrame(frame);
+  }
+
+  syncButton();
+  draw();
+  requestAnimationFrame(frame);
+</script>
+</body>
+</html>

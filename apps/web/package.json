@@ -8,7 +8,8 @@
     "build:android": "dotenv -v CICLO_TARGET=android -- next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "vitest run"
+    "test": "vitest run",
+    "icons": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/brand-icons.mjs"
   },
   "dependencies": {
     "@capacitor/core": "8.5.3",
