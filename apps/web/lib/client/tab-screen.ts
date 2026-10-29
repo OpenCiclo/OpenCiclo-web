@@ -37,3 +37,40 @@ export function watchSlides(callback: () => void): () => void {
     if (onSlides === callback) onSlides = null;
   };
 }
+
+// Copies of the other tab screens (see TabGhosts), by tab, for a drag to slide in.
+const ghosts = new Map<number, HTMLElement>();
+
+/** Registers the ghost of tab `tab`, until the cleanup. */
+export function showGhost(tab: number, ghost: HTMLElement): () => void {
+  ghosts.set(tab, ghost);
+  return () => {
+    if (ghosts.get(tab) === ghost) ghosts.delete(tab);
+  };
+}
+
+export function ghostOf(tab: number): HTMLElement | undefined {
+  return ghosts.get(tab);
+}
+
+// While a drag lands on a ghost and the route follows, the real screens swap
+// in place, under the ghost: no slide, and no view transition at all.
+let swapping = false;
+const swapListeners = new Set<() => void>();
+
+export function setSwapping(on: boolean): void {
+  if (swapping === on) return;
+  swapping = on;
+  for (const listener of swapListeners) listener();
+}
+
+export function subscribeSwapping(listener: () => void): () => void {
+  swapListeners.add(listener);
+  return () => {
+    swapListeners.delete(listener);
+  };
+}
+
+export function isSwapping(): boolean {
+  return swapping;
+}

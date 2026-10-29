@@ -19,8 +19,9 @@ import {
   takeSlides,
 } from "@/lib/client/screen-carousel";
 import { SWEEP_SPEED, SelectionMotion, dragFrame, labelScale, stoppedOnTab } from "@/lib/client/tab-drag";
-import { shownScreen, watchSlides } from "@/lib/client/tab-screen";
+import { ghostOf, setSwapping, shownScreen, watchSlides } from "@/lib/client/tab-screen";
 import { cn } from "@/lib/utils";
+import { TabGhosts } from "@/components/tab-ghosts";
 
 const TABS = [
   { href: "/app", icon: CalendarDays },
@@ -137,6 +138,13 @@ function layerScreen(on: boolean) {
   else delete root.dataset.tabFollow;
 }
 
+/** Plays a screen's entrance animations (fade-up and friends) to the end: it arrives whole. */
+function skipEntrance(screen: HTMLElement | null) {
+  for (const animation of screen?.getAnimations({ subtree: true }) ?? []) {
+    if (Number.isFinite(animation.effect?.getComputedTiming().endTime)) animation.finish();
+  }
+}
+
 /** React starts the next screen only once the running slide ends: hurry it along. */
 function hurrySlides() {
   for (const animation of document.getAnimations()) {
@@ -165,6 +173,8 @@ type Press = {
   slidThrough: number;
   /** How far, in tabs, the finger had moved when the drag took hold. */
   slop: number;
+  /** This drag moves a strip of already drawn screens (see `openStrip`). */
+  strip: boolean;
 };
 
 /**
@@ -216,6 +226,15 @@ export function FloatingTabBar() {
   const offsetRef = useRef(0);
   // Frame watch for a finger that sweeps past tabs (see `followRoute`).
   const sweepFrameRef = useRef(0);
+  // The strip a drag moves once the other tabs have ghosts (see TabGhosts):
+  // the real screen and the ghosts beside it, `low` to `high`, drawn
+  // already, so nothing is drawn mid-drag and the route only changes when
+  // the finger lifts. `width` is a screen's, in pixels.
+  const stripRef = useRef<{ low: number; high: number; width: number } | null>(null);
+  const stripMotionRef = useRef<SlideMotion | null>(null);
+  // The tab a strip landed on while the route follows under its ghost, and
+  // where to go on from there if the finger let go past the strip.
+  const swapRef = useRef<{ to: number; then: number } | null>(null);
   // The tab the selection holds during a drag, lit whatever the route is (the
   // route runs ahead, to the screen the finger heads for). After the finger
   // lifts it stays lit until the route gets there, or moves anywhere else:
@@ -236,7 +255,9 @@ export function FloatingTabBar() {
         bubble.style.transform = `translateX(${(position * 100).toFixed(3)}%) scale(${scale.x.toFixed(4)}, ${scale.y.toFixed(4)})`;
         paintLabels(labelRefs.current, position, scale, tabWidth);
         // At rest the springs land exactly on a tab.
-        if (!pressRef.current && !pairRef.current && Number.isInteger(position)) layerScreen(false);
+        if (!pressRef.current && !pairRef.current && !stripRef.current && Number.isInteger(position)) {
+          layerScreen(false);
+        }
       },
       prefersReducedMotion,
     );
@@ -260,6 +281,85 @@ export function FloatingTabBar() {
     return slideMotionRef.current;
   }
 
+  function stripMotion() {
+    stripMotionRef.current ??= new SlideMotion((position) => paintStrip(position), TABS.length - 1);
+    return stripMotionRef.current;
+  }
+
+  /**
+   * Opens a strip around the current tab, as far as ghosts go on each side,
+   * with the screens beside it painted just out of sight, ready. False when
+   * there are no ghosts yet (the app just opened): the drag then brings each
+   * screen in by navigating to it.
+   */
+  function openStrip(): boolean {
+    const real = screenTabRef.current;
+    if (real < 0) return false;
+    let low = real;
+    let high = real;
+    while (low > 0 && ghostOf(low - 1)) low -= 1;
+    while (high < TABS.length - 1 && ghostOf(high + 1)) high += 1;
+    if (low === high) return false;
+    stripRef.current = { low, high, width: shownScreen()?.offsetWidth ?? window.innerWidth };
+    stripMotion().place(real);
+    return true;
+  }
+
+  /** Lays the strip out with the finger over `position` (in tabs): each screen a screen's width from the next. */
+  function paintStrip(position: number) {
+    const strip = stripRef.current;
+    if (!strip) return;
+    const real = screenTabRef.current;
+    moveScreen(real - position);
+    for (let tab = strip.low; tab <= strip.high; tab++) {
+      const ghost = tab === real ? undefined : ghostOf(tab);
+      if (!ghost) continue;
+      const at = tab - position;
+      const shown = Math.abs(at) < 1.001;
+      ghost.style.visibility = shown ? "visible" : "";
+      ghost.style.willChange = shown ? "transform" : "";
+      ghost.style.transform = shown ? `translateX(${(at * strip.width).toFixed(1)}px)` : "";
+    }
+  }
+
+  /** Puts every ghost back out of sight and the real screen in place. */
+  function closeStrip() {
+    stripMotionRef.current?.stop();
+    stripRef.current = null;
+    moveScreen(0);
+    for (let tab = 0; tab < TABS.length; tab++) {
+      const ghost = ghostOf(tab);
+      if (!ghost) continue;
+      ghost.style.visibility = "";
+      ghost.style.willChange = "";
+      ghost.style.transform = "";
+    }
+  }
+
+  /**
+   * The finger let go on tab `target` moving at `speed` (tabs per second):
+   * the strip carries on to it and stops. On another tab, its ghost now fills
+   * the screen; the route goes there under it, with no slide (see the swap in
+   * the route effect). Back on the same tab, nothing navigates at all.
+   */
+  function landStrip(target: number, speed: number) {
+    const strip = stripRef.current;
+    if (!strip) return;
+    const stop = Math.min(strip.high, Math.max(strip.low, target));
+    const velocity = Math.max(-MAX_LAND_SPEED, Math.min(MAX_LAND_SPEED, speed));
+    stripMotion().land(stop, velocity, () => {
+      if (stop === screenTabRef.current) {
+        closeStrip();
+        if (target !== stop) navigateTo(target);
+        else layerScreen(false);
+        return;
+      }
+      swapRef.current = { to: stop, then: target };
+      setSwapping(true);
+      navigateTo(stop);
+    });
+  }
+
   /** Moves the screen on display by hand: only while the next one is still being drawn. */
   function moveScreen(offset: number) {
     offsetRef.current = offset;
@@ -267,6 +367,19 @@ export function FloatingTabBar() {
   }
 
   const onSlidesStarted = useEffectEvent(() => adoptSlides());
+  // The real screen is in place under the ghost that showed it, at the top
+  // and with its entrance played, as the ghost had it: swap them.
+  const onSwapLanded = useEffectEvent((swap: { to: number; then: number }) => {
+    window.scrollTo(0, 0);
+    skipEntrance(shownScreen());
+    closeStrip();
+    setSwapping(false);
+    if (!pressRef.current) layerScreen(false);
+    if (swap.then !== swap.to) navigateTo(swap.then);
+  });
+  const onRouteMoved = useEffectEvent(() => {
+    if (stripRef.current) closeStrip();
+  });
 
   useEffect(() => {
     const unwatch = watchSlides(() => onSlidesStarted());
@@ -275,6 +388,8 @@ export function FloatingTabBar() {
       cancelAnimationFrame(sweepFrameRef.current);
       motionRef.current?.stop();
       slideMotionRef.current?.stop();
+      stripMotionRef.current?.stop();
+      setSwapping(false);
       const pair = pairRef.current;
       if (pair?.slides) finishSlides(pair.slides);
       pairRef.current = null;
@@ -288,7 +403,13 @@ export function FloatingTabBar() {
     setSlideDirection(from, to);
     screenTabRef.current = to;
     const pair = pairRef.current;
-    if (pair?.reverting && to === pair.from) {
+    const swap = swapRef.current;
+    if (swap && to === swap.to) {
+      swapRef.current = null;
+      dragNavigationRef.current = false;
+      setSlideStart(null);
+      onSwapLanded(swap);
+    } else if (pair?.reverting && to === pair.from) {
       // Back on the screen the drag started from: it is the real one again.
       endRevert(pair);
     } else if (pair && to === pair.to && dragNavigationRef.current) {
@@ -309,6 +430,7 @@ export function FloatingTabBar() {
       setSlideStart(null);
       routeTabRef.current = to;
       if (pair) dropPair(pair);
+      onRouteMoved();
     }
     lastTabRef.current = to;
   }, [pathname]);
@@ -336,7 +458,7 @@ export function FloatingTabBar() {
     swallowClicksUntilRef.current = 0;
     if (!event.isPrimary || event.button !== 0 || activeIndex < 0) return;
     // The screens are still landing from the last drag.
-    if (pairRef.current) return;
+    if (pairRef.current || stripRef.current || swapRef.current) return;
     const tab = (event.target as Element).closest<HTMLElement>("[data-tab]");
     const pressed = Number(tab?.dataset.tab ?? -1);
     // Only the selection can be picked up. Any other tab is a plain link.
@@ -356,9 +478,14 @@ export function FloatingTabBar() {
       handledAt: performance.now(),
       slidThrough: 0,
       slop: 0,
+      strip: false,
     };
-    // Now, before the finger moves, so the layer is ready when the screen does.
-    if (!prefersReducedMotion()) layerScreen(true);
+    // Now, before the finger moves, so the layer and the screens beside are
+    // ready when it does.
+    if (!prefersReducedMotion()) {
+      layerScreen(true);
+      pressRef.current.strip = openStrip();
+    }
   }
 
   function stopSweepWatch() {
@@ -558,6 +685,7 @@ export function FloatingTabBar() {
       if (Math.abs(dy) > DRAG_SLOP && Math.abs(dy) > Math.abs(dx)) {
         // Vertical: the page scrolls (touch-action: pan-y), the bar stays put.
         pressRef.current = null;
+        if (press.strip) closeStrip();
         layerScreen(false);
         return;
       }
@@ -580,7 +708,9 @@ export function FloatingTabBar() {
       press.held = frame.held;
       setHeld({ index: frame.held, down: true, pathname });
     }
-    if (followRef.current) slideScreens(press);
+    const strip = stripRef.current;
+    if (press.strip && strip) stripMotion().follow(Math.min(strip.high, Math.max(strip.low, finger - press.slop)));
+    else if (followRef.current) slideScreens(press);
     else followRoute(press);
     motion().follow(frame);
   }
@@ -593,6 +723,7 @@ export function FloatingTabBar() {
     if (!press || event.pointerId !== press.pointerId) return;
     pressRef.current = null;
     if (!press.dragging) {
+      if (press.strip) closeStrip();
       layerScreen(false);
       return;
     }
@@ -600,7 +731,8 @@ export function FloatingTabBar() {
     stopSweepWatch();
     const target = press.held;
     const pair = pairRef.current;
-    if (!pair) navigateTo(target);
+    if (press.strip) landStrip(target, press.speed);
+    else if (!pair) navigateTo(target);
     else if (!pair.reverting) landPair(pair, target, press.speed * pair.direction);
     else if (target !== pair.from) pair.afterRevert = () => navigateTo(target);
     motion().settle(target);
@@ -616,7 +748,8 @@ export function FloatingTabBar() {
   }
 
   return (
-    <nav className="tab-bar fixed inset-x-0 bottom-0 z-40 mx-auto w-full max-w-md pb-[env(safe-area-inset-bottom)]">
+    <>
+      <nav className="tab-bar fixed inset-x-0 bottom-0 z-40 mx-auto w-full max-w-md pb-[env(safe-area-inset-bottom)]">
       <div className="mx-4 mb-4 rounded-full border border-border bg-card/90 p-1.5 shadow-lg backdrop-blur-md">
         <div
           className="relative grid touch-pan-y grid-cols-4 select-none [-webkit-touch-callout:none]"
@@ -664,5 +797,7 @@ export function FloatingTabBar() {
         </div>
       </div>
     </nav>
+      <TabGhosts current={activeIndex} count={TABS.length} />
+    </>
   );
 }

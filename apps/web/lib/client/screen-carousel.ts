@@ -68,9 +68,9 @@ const STEP = 1 / 240;
 const MAX_FRAME = 0.05;
 
 /**
- * Slide progress (0 to 1, see `setSlides`) on a critically damped spring, one
- * animation frame at a time: it never bounces. `paint` gets each frame,
- * clamped to 0..1.
+ * Slide progress (0 to 1, see `setSlides`), or a position along the tabs, on
+ * a critically damped spring, one animation frame at a time: it never
+ * bounces. `paint` gets each frame, clamped to 0..`max`.
  */
 export class SlideMotion {
   private spring: Spring = { value: 0, velocity: 0 };
@@ -82,10 +82,13 @@ export class SlideMotion {
   /** Which side of the target a landing started from. */
   private side = 0;
 
-  constructor(private readonly paint: (progress: number) => void) {}
+  constructor(
+    private readonly paint: (progress: number) => void,
+    private readonly max = 1,
+  ) {}
 
   get progress(): number {
-    return Math.min(1, Math.max(0, this.spring.value));
+    return Math.min(this.max, Math.max(0, this.spring.value));
   }
 
   /** Starts at `progress`, still. */
