@@ -435,11 +435,6 @@
   );
 }
 
-/* Nothing scrolls sideways into the gap a pulled screen leaves. */
-:root[data-tab-pull] {
-  overflow-x: clip;
-}
-
 .tab-bar {
   view-transition-name: tab-bar;
 }
