@@ -443,6 +443,21 @@
   will-change: transform;
 }
 
+/*
+ * Ghosts of the other tabs (see TabGhosts): fixed over the page and under the
+ * tab bar, not painted until a drag of the selection shows one beside the
+ * real screen. The tab bar moves them.
+ */
+.tab-ghost {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  overflow: hidden;
+  visibility: hidden;
+  pointer-events: none;
+  contain: strict;
+}
+
 .tab-bar {
   view-transition-name: tab-bar;
 }
