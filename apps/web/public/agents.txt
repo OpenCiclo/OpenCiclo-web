@@ -86,6 +86,7 @@ apps/web/lib/forecast/           TS port of shrinkage + Laplace; must match Pyth
 apps/web/lib/cycle/phases.ts     observed vs estimated phase heuristic (NOT the forecast engine)
 apps/web/lib/cycle/season-guide.ts  inner-season copy EN/ES
 apps/web/lib/client/ciclo-context.tsx  wallet + diary in memory
+apps/web/lib/features.ts         flags for built but hidden features
 apps/web/lib/crypto/wallet.ts    BIP39, HKDF, Ed25519, AES-GCM
 apps/web/lib/learn/articles.ts   Learn types, categories, copy fallback helpers (client-safe)
 apps/web/lib/learn/content/      Learn library shipped in code, one file per category. Server-only: pass articles to client components as props
@@ -98,7 +99,7 @@ Diary schema currently v6: period starts, daily flow/mucus/symptoms/notes, forec
 
 Phase heuristic (`phaseAtDate` / `cycleOverview`): flow today → menstrual observed; else calendar windows from last start + expected bleed length + ovulation window 16–10 days before next start. Independent of `predict()`. If forecastingEnabled is false, do not show estimated follicular/ovulation/luteal.
 
-Inner seasons: winter=menstrual, spring=follicular, summer=ovulation, fall=luteal. Overlay: `season-guide-overlay.tsx`. Setting: visualSeasons.
+Inner seasons: winter=menstrual, spring=follicular, summer=ovulation, fall=luteal. Overlay: `season-guide-overlay.tsx`. Setting: visualSeasons. Hidden for now: `VISUAL_SEASONS_AVAILABLE` is false, so the Settings switch is hidden and the context reports visualSeasons=false even if `ciclo.visualSeasons` is "true". Keep the stored value; flip the flag to bring it back.
 
 Intermenstrual bleeding is a symptom, never a period start.
 

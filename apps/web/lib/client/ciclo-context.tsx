@@ -45,6 +45,7 @@ import {
 import { syncPoolIfDue } from "@/lib/pool-sync";
 import { DIARY_SCHEMA_VERSION, emptyDiary, parseDiary, type Diary } from "@/lib/diary";
 import { mergeDiaryEdits } from "@/lib/diary-merge";
+import { VISUAL_SEASONS_AVAILABLE } from "@/lib/features";
 import { messages, type Locale } from "@/lib/i18n";
 import { COLOR_SCHEME_KEY, parseColorScheme, type ColorScheme } from "@/lib/client/color-scheme";
 import {
@@ -337,7 +338,7 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
       wallet,
       diary,
       locale,
-      visualSeasons,
+      visualSeasons: VISUAL_SEASONS_AVAILABLE && visualSeasons,
       lunarPhasesEnabled,
       lunarPhasesVisible,
       weekStartsOn,
