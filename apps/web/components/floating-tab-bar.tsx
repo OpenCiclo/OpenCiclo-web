@@ -51,6 +51,12 @@ const WAIT_LIMIT = 0.06;
 const TURN_BACK = 0.08;
 /** How far (in tabs) the finger leaves a screen before the next one is brought in. */
 const LEAVE_AT = 0.05;
+/**
+ * Trial: the screens move the way the finger does, so the next tab comes in
+ * from the side the finger leaves. -1 is a carousel (against the finger), +1
+ * is this.
+ */
+const SCREEN_FLOW = 1;
 /** Fastest the screens carry on after the finger lifts, in screens per second. */
 const MAX_LAND_SPEED = 8;
 /** How long going back to the first screen may take before the slides are put away anyway. */
@@ -321,11 +327,11 @@ export function FloatingTabBar() {
     const strip = stripRef.current;
     if (!strip) return;
     const real = screenTabRef.current;
-    moveScreen(real - position);
+    moveScreen(-SCREEN_FLOW * (real - position));
     for (let tab = strip.low; tab <= strip.high; tab++) {
       const ghost = tab === real ? undefined : ghostOf(tab);
       if (!ghost) continue;
-      const at = tab - position;
+      const at = -SCREEN_FLOW * (tab - position);
       const shown = Math.abs(at) < 1.001;
       ghost.style.visibility = shown ? "visible" : "";
       ghost.style.willChange = shown ? "transform" : "";
