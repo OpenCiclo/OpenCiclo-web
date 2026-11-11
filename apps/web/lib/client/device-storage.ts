@@ -3,6 +3,7 @@
 
 import { registerPlugin } from "@capacitor/core";
 
+import { androidPhraseStore } from "@/lib/client/phrase-store";
 import { deviceVaultBackend, type DeviceVaultPlugin } from "@/lib/device-vault";
 
 // Android only. Load it with `import()` behind IS_ANDROID_APP so the web never
@@ -10,3 +11,6 @@ import { deviceVaultBackend, type DeviceVaultPlugin } from "@/lib/device-vault";
 export const deviceVault = registerPlugin<DeviceVaultPlugin>("DeviceVault");
 
 export const deviceBackend = deviceVaultBackend(deviceVault);
+
+/** "Keep me signed in" for hosted accounts in the app: Keystore, not WebView storage. */
+export const hostedPhraseStore = androidPhraseStore(deviceVault, { local: localStorage, session: sessionStorage });

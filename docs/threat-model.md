@@ -50,7 +50,7 @@ Process memory on a shared computer is still in scope for the user (shoulder sur
 | Password manager | Phrase or password stored by the browser | Same as any site; user can decline; never sent to OpenCiclo as a login API |
 | Wrapped kit in localStorage | Offline brute-force of the password | PBKDF2 600k; kit is still ciphertext |
 | XSS | Script reads keys in memory | Strict CSP, no third-party scripts, no analytics |
-| Persist unlock (`localStorage` mnemonic) | Device access or XSS can open the diary after the tab is closed | Off by unchecking “Keep me signed in”; sessionStorage only then; cleared on sign-out; documented in Help |
+| Persist unlock (`localStorage` mnemonic, web) | Device access or XSS can open the diary after the tab is closed | Off by unchecking “Keep me signed in”; sessionStorage only then; cleared on sign-out; documented in Help. The Android app uses Keystore instead (below) |
 | Research join | Re-identify contributors | No `account_id` / pubkey on pool rows; no mapping table |
 | Recovery mailbox | Email ↔ account link | Optional; HMAC lookup; documented as PII |
 | Challenge replay | Stolen login | Short-lived nonces, one-use |
@@ -72,6 +72,7 @@ The app runs the web code in a WebView (Capacitor), so every row above still app
 | --- | --- | --- |
 | Lost or stolen unlocked phone (on-device mode) | Diary read on the device | Optional app lock: the Keystore key that seals the phrase needs a fingerprint or screen-lock check on every use; the diary leaves memory after 30 s in the background; `FLAG_SECURE` while the lock is on |
 | File extraction (root, forensic copy) | Offline attack on the diary file | File is the same AES-256-GCM blob as the hosted vault; the phrase file is sealed by a non-exportable Keystore key (StrongBox when available) |
+| Hosted account kept signed in | Phrase read from a copy of the app's files | Sealed by its own non-exportable Keystore key in `files/hosted-phrase.bin`, never in WebView storage; memory only when “Keep me signed in” is off; deleted on sign-out. A phrase stored by an older version is sealed on the next start, read back, then deleted from `localStorage` (WebView may keep the old bytes until it compacts). No fingerprint check: anyone using the unlocked phone can open the diary, as in a browser |
 | Cloud backup or device transfer | Phrase or diary copied off the phone | `allowBackup="false"` and data extraction rules exclude all app data |
 | Logcat | Phrase, emails, or vault bodies in system logs | Capacitor `loggingBehavior: "none"` in every build; the native plugin never logs |
 | Wrong phrase on an on-device diary | Empty hosted account created by mistake | Phrase unlock opens the device file and never signs in to a host while an on-device diary exists |

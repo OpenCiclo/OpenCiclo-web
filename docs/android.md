@@ -36,6 +36,16 @@ The app is served from `https://localhost` on the phone. The API lives on the Ci
 - The Android build bakes the host from `CICLO_API_BASE`. It defaults to `http://localhost:3000`, the local stack. Release builds must pass the production origin, for example `CICLO_API_BASE=https://www.openciclo.com`.
 - `CapacitorHttp` sends `fetch` through Android's HTTP stack with the app's own cookie store. The session cookie stays `httpOnly` and `SameSite=Lax`. The server needs no CORS headers.
 
+## Keep me signed in (hosted accounts)
+
+On the web, "Keep me signed in" leaves the 12-word phrase in `localStorage`. In the app it never touches WebView storage.
+
+- **Where it goes.** `lib/client/phrase-store.ts` picks the store: `browserPhraseStore` on the web, `androidPhraseStore` in the app. The app seals the phrase with AES-GCM under its own Keystore key (`ciclo-hosted-phrase-v1`, StrongBox when available) in `files/hosted-phrase.bin`. That is separate from the on-device diary's phrase, so signing out never touches an on-device diary.
+- **No app lock.** The key needs no fingerprint, like a browser that keeps you signed in. What changes is that a copy of the app's files no longer holds the phrase: the key cannot leave the phone.
+- **Off.** With the box unchecked, the phrase stays in memory only. Closing the app signs out.
+- **Older versions.** They kept the phrase in `localStorage`. The first start after the update seals it, reads it back, and only then deletes the plaintext. If Keystore fails, the plaintext stays and the next start tries again. WebView's storage engine may keep the deleted bytes on disk until it compacts its files.
+- **Failures.** If Keystore cannot seal the phrase, the person stays signed in and the next start asks for the phrase; there is no plaintext fallback. If it cannot open the file, the start screen shows and the file stays until the next sign-in replaces it. Sign-out fails if the sealed phrase may still be there.
+
 ## Back button
 
 `MainActivity` asks the page first (`window.cicloBack`, `lib/client/android-back.ts`):
@@ -95,7 +105,7 @@ The app talks to one host only. An account that lives on production is not on th
 
 ## Security notes
 
-- `allowBackup="false"` and `data_extraction_rules.xml` keep all app data out of Google backups and device transfers. WebView storage can hold the recovery phrase.
+- `allowBackup="false"` and `data_extraction_rules.xml` keep all app data out of Google backups and device transfers. The sealed phrase files are useless without this phone's Keystore, and older app versions kept a hosted phrase in WebView storage.
 - Debug builds may use plain http, but only to `localhost` (`android/app/src/debug`). Release builds use Android's default: https only.
 - The only runtime permission is the camera, for the phrase QR scanner. It is declared with `required="false"`, so phones without a camera can still install the app and type the phrase. A web feature that needs a device permission (camera, microphone, location) only works if the manifest declares it; otherwise Android denies it without asking.
 - WebView debugging is on in debug builds only (Capacitor's default).
@@ -107,11 +117,9 @@ The app talks to one host only. An account that lives on production is not on th
 
 - A full reload always lands on the start screen. Capacitor serves the root `index.html` for any path without a file extension.
 - Edge-to-edge layout still uses Capacitor defaults.
-- Hosted accounts in the app still keep "Keep me signed in" in WebView `localStorage`, as on the web. Only on-device diaries use Keystore.
 - The web build emits Capacitor as a lazy chunk (Turbopack keeps dynamic imports). The web never requests it.
 
 ## Roadmap
 
-1. **Hosted phrase in Keystore.** Move the persisted phrase of hosted accounts from WebView storage to the Keystore seal used by on-device mode.
-2. **Android polish.** Safe areas.
-3. **Google Play.** Release signing, the health apps declaration, the Data safety form, and the privacy policy.
+1. **Android polish.** Safe areas.
+2. **Google Play.** Release signing, the health apps declaration, the Data safety form, and the privacy policy.
