@@ -10,7 +10,7 @@ The browser still creates a 12-word phrase in the background. Your password **wr
 - Sign-in on a new device: same email and password. If this browser does not have the kit yet, the app downloads the **encrypted** kit (rate-limited). The password unwraps it locally. Day to day you do not need to open your inbox.
 - **Creating** the account is different: Ciclo sends a 6-digit code to that inbox once. Without the code, nobody can claim your address. The code does not unwrap the phrase, reset the password, or open the diary.
 - The browser can save the password like any other site.
-- **Keep me signed in** (on by default) stores the unlock secret on this device so you do not type the password every visit. Sign out clears it. Anyone with this browser profile can open the diary until then.
+- **Keep me signed in** (on by default) stores the unlock secret on this device so you do not type the password every visit. Sign out clears it. Anyone with this browser profile can open the diary until then. In the Android app the secret is sealed by a key in the phone's secure hardware (Android Keystore), so a copy of the app's files does not reveal it; anyone using the unlocked phone can still open the diary.
 - You can **change the password** in Settings while signed in. That re-wraps the same phrase. It does not re-encrypt the diary, and it is not a reset by email.
 
 If you forget the password **and** you never saved the phrase, the hosted diary cannot be recovered. That is intentional.

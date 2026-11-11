@@ -25,7 +25,13 @@ export type DeviceVaultPlugin = {
   writeDiary(options: { data: string }): Promise<void>;
   readPhrase(options: AuthPrompt): Promise<{ phrase: string }>;
   storePhrase(options: AuthPrompt & { phrase: string; requireAuth: boolean }): Promise<void>;
+  /** Deletes the device diary and its phrase. Leaves the hosted phrase below alone. */
   clear(): Promise<void>;
+  /** The phrase of a hosted account kept signed in, sealed by its own Keystore key. See lib/client/phrase-store.ts. */
+  storeHostedPhrase(options: { phrase: string }): Promise<void>;
+  /** No `phrase` when none is kept. Rejects when Keystore cannot open the file. */
+  readHostedPhrase(): Promise<{ phrase?: string }>;
+  clearHostedPhrase(): Promise<void>;
   setSecureScreen(options: { enabled: boolean }): Promise<void>;
   shareFile(options: { filename: string; data: string; mimeType: string }): Promise<void>;
 };

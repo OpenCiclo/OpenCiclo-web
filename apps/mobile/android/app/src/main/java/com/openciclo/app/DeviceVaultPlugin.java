@@ -48,6 +48,9 @@ import javax.crypto.spec.GCMParameterSpec;
  * Keystore and cannot be exported. With the app lock on, that key only works right
  * after a fingerprint or screen-lock check.
  *
+ * It also keeps the phrase of a hosted account that chose "Keep me signed in", in its
+ * own file under its own Keystore key, so that phrase never sits in WebView storage.
+ *
  * Files live in the app's private storage, which data_extraction_rules.xml keeps out of
  * backups. Never log the phrase, file contents, or exception details from crypto calls.
  */
@@ -57,8 +60,10 @@ public class DeviceVaultPlugin extends Plugin {
     private static final String KEYSTORE = "AndroidKeyStore";
     private static final String KEY_PLAIN = "ciclo-device-phrase-v1";
     private static final String KEY_AUTH = "ciclo-device-phrase-auth-v1";
+    private static final String KEY_HOSTED = "ciclo-hosted-phrase-v1";
     private static final String DIARY_FILE = "device-diary.json";
     private static final String PHRASE_FILE = "device-phrase.bin";
+    private static final String HOSTED_PHRASE_FILE = "hosted-phrase.bin";
     private static final String EXPORT_DIR = "exports";
     private static final byte PHRASE_FORMAT = 1;
     private static final byte MODE_PLAIN = 0;
@@ -69,6 +74,31 @@ public class DeviceVaultPlugin extends Plugin {
 
     private interface CipherAction {
         void run(Cipher cipher) throws GeneralSecurityException, IOException;
+    }
+
+    /** A phrase file: format byte, mode byte, IV length, IV, AES-GCM ciphertext. */
+    private static final class SealedPhrase {
+        final byte mode;
+        final byte[] iv;
+        final byte[] sealed;
+
+        private SealedPhrase(byte mode, byte[] iv, byte[] sealed) {
+            this.mode = mode;
+            this.iv = iv;
+            this.sealed = sealed;
+        }
+
+        /** Throws GeneralSecurityException for an unknown format, a RuntimeException for a truncated file. */
+        static SealedPhrase parse(byte[] raw) throws GeneralSecurityException {
+            ByteBuffer buffer = ByteBuffer.wrap(raw);
+            if (buffer.get() != PHRASE_FORMAT) throw new GeneralSecurityException("Unknown phrase format");
+            byte mode = buffer.get();
+            byte[] iv = new byte[buffer.get()];
+            buffer.get(iv);
+            byte[] sealed = new byte[buffer.remaining()];
+            buffer.get(sealed);
+            return new SealedPhrase(mode, iv, sealed);
+        }
     }
 
     @Override
@@ -138,7 +168,7 @@ public class DeviceVaultPlugin extends Plugin {
                 Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
                 cipher.init(Cipher.ENCRYPT_MODE, freshKey(KEY_AUTH, true));
                 authenticate(call, cipher, (authorized) -> {
-                    writePhrase(MODE_AUTH, authorized.getIV(), authorized.doFinal(plain));
+                    writePhrase(PHRASE_FILE, MODE_AUTH, authorized.getIV(), authorized.doFinal(plain));
                     deleteKey(KEY_PLAIN);
                     call.resolve();
                 });
@@ -146,7 +176,7 @@ public class DeviceVaultPlugin extends Plugin {
             }
             Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
             cipher.init(Cipher.ENCRYPT_MODE, freshKey(KEY_PLAIN, false));
-            writePhrase(MODE_PLAIN, cipher.getIV(), cipher.doFinal(plain));
+            writePhrase(PHRASE_FILE, MODE_PLAIN, cipher.getIV(), cipher.doFinal(plain));
             deleteKey(KEY_AUTH);
             call.resolve();
         } catch (GeneralSecurityException | IOException | ProviderException e) {
@@ -162,16 +192,10 @@ public class DeviceVaultPlugin extends Plugin {
                 call.reject("No phrase on this device", "NO_PHRASE");
                 return;
             }
-            ByteBuffer buffer = ByteBuffer.wrap(raw);
-            if (buffer.get() != PHRASE_FORMAT) {
-                call.reject("Unknown phrase format", "KEY_ERROR");
-                return;
-            }
-            byte mode = buffer.get();
-            byte[] iv = new byte[buffer.get()];
-            buffer.get(iv);
-            byte[] sealed = new byte[buffer.remaining()];
-            buffer.get(sealed);
+            SealedPhrase file = SealedPhrase.parse(raw);
+            byte mode = file.mode;
+            byte[] iv = file.iv;
+            byte[] sealed = file.sealed;
 
             SecretKey key = existingKey(mode == MODE_AUTH ? KEY_AUTH : KEY_PLAIN);
             if (key == null) {
@@ -211,6 +235,69 @@ public class DeviceVaultPlugin extends Plugin {
         deleteKey(KEY_AUTH);
         if (readOrNullQuietly(DIARY_FILE) != null) {
             call.reject("Could not delete the device diary", "IO_ERROR");
+            return;
+        }
+        call.resolve();
+    }
+
+    /**
+     * Seals the phrase of a hosted account kept signed in. There is no app lock here: like a
+     * browser that keeps you signed in, the app opens the diary on start. The point is that the
+     * phrase is never stored in plaintext: a copy of the app's files is useless off this phone.
+     */
+    @PluginMethod
+    public void storeHostedPhrase(PluginCall call) {
+        String phrase = call.getString("phrase");
+        if (phrase == null || phrase.isEmpty()) {
+            call.reject("Missing phrase", "INVALID_ARGUMENT");
+            return;
+        }
+        try {
+            Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
+            cipher.init(Cipher.ENCRYPT_MODE, freshKey(KEY_HOSTED, false));
+            byte[] sealed = cipher.doFinal(phrase.getBytes(StandardCharsets.UTF_8));
+            writePhrase(HOSTED_PHRASE_FILE, MODE_PLAIN, cipher.getIV(), sealed);
+            call.resolve();
+        } catch (GeneralSecurityException | IOException | ProviderException e) {
+            call.reject("Could not protect the phrase", "KEY_ERROR");
+        }
+    }
+
+    /** Resolves with no phrase when none is kept. */
+    @PluginMethod
+    public void readHostedPhrase(PluginCall call) {
+        try {
+            byte[] raw = readOrNull(HOSTED_PHRASE_FILE);
+            JSObject result = new JSObject();
+            if (raw == null) {
+                call.resolve(result);
+                return;
+            }
+            SealedPhrase file = SealedPhrase.parse(raw);
+            if (file.mode != MODE_PLAIN) throw new GeneralSecurityException("Unexpected mode");
+            SecretKey key = existingKey(KEY_HOSTED);
+            if (key == null) {
+                call.reject("The key for this phrase is gone", "KEY_MISSING");
+                return;
+            }
+            Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
+            cipher.init(Cipher.DECRYPT_MODE, key, new GCMParameterSpec(GCM_TAG_BITS, file.iv));
+            result.put("phrase", new String(cipher.doFinal(file.sealed), StandardCharsets.UTF_8));
+            call.resolve(result);
+        } catch (GeneralSecurityException | IOException | RuntimeException e) {
+            // RuntimeException covers a truncated file (BufferUnderflowException) and Keystore ProviderExceptions.
+            call.reject("Could not open the phrase", "KEY_ERROR");
+        }
+    }
+
+    /** Deletes the hosted account's sealed phrase and its key. Sign-out and account deletion call it. */
+    @PluginMethod
+    public void clearHostedPhrase(PluginCall call) {
+        AtomicFile file = atomic(HOSTED_PHRASE_FILE);
+        file.delete();
+        deleteKey(KEY_HOSTED);
+        if (file.getBaseFile().exists()) {
+            call.reject("Could not delete the phrase", "IO_ERROR");
             return;
         }
         call.resolve();
@@ -355,10 +442,10 @@ public class DeviceVaultPlugin extends Plugin {
         }
     }
 
-    private void writePhrase(byte mode, byte[] iv, byte[] sealed) throws IOException {
+    private void writePhrase(String name, byte mode, byte[] iv, byte[] sealed) throws IOException {
         ByteBuffer buffer = ByteBuffer.allocate(3 + iv.length + sealed.length);
         buffer.put(PHRASE_FORMAT).put(mode).put((byte) iv.length).put(iv).put(sealed);
-        write(PHRASE_FILE, buffer.array());
+        write(name, buffer.array());
     }
 
     private AtomicFile atomic(String name) {
