@@ -25,6 +25,7 @@ Web app notes: [apps/web/README.md](apps/web/README.md). Do not add Clerk, Auth0
 - Type hints on public functions.
 - Ruff for lint and format (line length 100).
 - Do not add a dependency unless you can state why it is required.
+- The web app's crypto packages (`@noble/ed25519`, `@noble/hashes`, `@scure/bip39`) are pinned to exact versions. Upgrade them in their own commit, a week or so after a release, and read their lockfile diff in review. CI, Docker and Vercel install with `npm ci`, so a lockfile that disagrees with `package.json` fails the build.
 - Do not introduce neural networks, transformers, or other deep learning.
 
 ## Documentation voice
