@@ -787,6 +787,12 @@
   background: rgb(210 91 52 / 0.8);
 }
 
+/* While the calendar card is swiped to turn the month (see useMonthSwipe), the
+   day or button the finger first came down on does not stay pressed in. */
+[data-month-swiping] button:active {
+  scale: none;
+}
+
 /* In the desktop layout the phone's bottom sheets (the day, the symptom
    filter) open as dialogs in the middle of the window, like Learn's cards. */
 @media (prefers-reduced-motion: no-preference) {
