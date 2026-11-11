@@ -33,6 +33,8 @@ import {
   toggleFavoriteSymptom,
   toggleLoggedSymptom,
 } from "@/lib/symptoms/selection";
+import { IS_ANDROID_APP } from "@/lib/app-target";
+import { useSheetDrag } from "@/lib/client/use-sheet-drag";
 import { lunarDayInfo } from "@/lib/lunar/phases";
 import { cn } from "@/lib/utils";
 import { MoonPhaseIcon, moonPhaseText } from "@/components/calendar/moon-phase-icon";
@@ -148,6 +150,16 @@ export function DaySheet({
 
   const closing = Boolean(iso) && !open;
   const busy = saving || closing;
+  // In the Android app the sheet has a handle and closes when dragged down by
+  // its top. The web keeps the plain sheet (a dialog on the desktop).
+  const { sheetRef, handleProps } = useSheetDrag({
+    enabled: IS_ANDROID_APP && !busy,
+    onDismiss: () => {
+      if (busy) return false;
+      onClose();
+      return true;
+    },
+  });
 
   useEffect(() => {
     if (!iso || open) return;
@@ -254,6 +266,7 @@ export function DaySheet({
         )}
       />
       <div
+        ref={sheetRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
@@ -266,58 +279,69 @@ export function DaySheet({
           closing ? "animate-sheet-down" : "animate-sheet-up",
         )}
       >
-        <div className="flex items-start justify-between gap-3 px-5 pt-5 pb-3 min-[360px]:px-6">
-          <div className="flex min-w-0 items-start gap-2">
-            {view === "more" ? (
-              <button
-                type="button"
-                onClick={() => setView("quick")}
-                disabled={busy}
-                aria-label={t.backToQuickSymptoms}
-                className="flex size-9 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground transition-transform active:scale-90"
-              >
-                <ArrowLeft className="size-5" aria-hidden />
-              </button>
-            ) : null}
-            <div className="min-w-0">
+        {/* The handle and the title row: drag them down to close the sheet (Android). */}
+        <div {...handleProps} className={IS_ANDROID_APP ? "touch-none select-none" : undefined}>
+          {IS_ANDROID_APP ? (
+            <div aria-hidden className="mx-auto mt-2.5 h-1 w-9 rounded-full bg-muted-foreground/30" />
+          ) : null}
+          <div
+            className={cn(
+              "flex items-start justify-between gap-3 px-5 pb-3 min-[360px]:px-6",
+              IS_ANDROID_APP ? "pt-2.5" : "pt-5",
+            )}
+          >
+            <div className="flex min-w-0 items-start gap-2">
               {view === "more" ? (
-                <>
-                  <p
-                    id={titleId}
-                    className="font-serif text-xl leading-tight text-card-foreground capitalize text-balance desktop:normal-case desktop:first-letter:uppercase"
-                  >
-                    {t.moreSymptoms}
-                  </p>
-                  <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1">
-                    <p className="text-sm text-muted-foreground">{dateLabel}</p>
-                    {moonInfo && moonLabel ? <MoonPhaseLine info={moonInfo} label={moonLabel} /> : null}
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                <button
+                  type="button"
+                  onClick={() => setView("quick")}
+                  disabled={busy}
+                  aria-label={t.backToQuickSymptoms}
+                  className="flex size-9 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground transition-transform active:scale-90"
+                >
+                  <ArrowLeft className="size-5" aria-hidden />
+                </button>
+              ) : null}
+              <div className="min-w-0">
+                {view === "more" ? (
+                  <>
                     <p
                       id={titleId}
                       className="font-serif text-xl leading-tight text-card-foreground capitalize text-balance desktop:normal-case desktop:first-letter:uppercase"
                     >
-                      {dateLabel}
+                      {t.moreSymptoms}
                     </p>
-                    {moonInfo && moonLabel ? <MoonPhaseLine info={moonInfo} label={moonLabel} /> : null}
-                  </div>
-                  <p className="text-sm text-muted-foreground">{t.howFeeling}</p>
-                </>
-              )}
+                    <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1">
+                      <p className="text-sm text-muted-foreground">{dateLabel}</p>
+                      {moonInfo && moonLabel ? <MoonPhaseLine info={moonInfo} label={moonLabel} /> : null}
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                      <p
+                        id={titleId}
+                        className="font-serif text-xl leading-tight text-card-foreground capitalize text-balance desktop:normal-case desktop:first-letter:uppercase"
+                      >
+                        {dateLabel}
+                      </p>
+                      {moonInfo && moonLabel ? <MoonPhaseLine info={moonInfo} label={moonLabel} /> : null}
+                    </div>
+                    <p className="text-sm text-muted-foreground">{t.howFeeling}</p>
+                  </>
+                )}
+              </div>
             </div>
+            <button
+              type="button"
+              onClick={requestClose}
+              disabled={busy}
+              aria-label={t.close}
+              className="flex size-9 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground transition-transform active:scale-90"
+            >
+              <X className="size-5" />
+            </button>
           </div>
-          <button
-            type="button"
-            onClick={requestClose}
-            disabled={busy}
-            aria-label={t.close}
-            className="flex size-9 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground transition-transform active:scale-90"
-          >
-            <X className="size-5" />
-          </button>
         </div>
 
         <div className="flex-1 overflow-y-auto overscroll-contain px-5 pb-2 min-[360px]:px-6">

@@ -28,7 +28,9 @@ import {
 import { formatIsoUtc } from "@/lib/format-date";
 import type { Locale, Messages } from "@/lib/i18n";
 import { useCiclo, useTodayIso } from "@/lib/client/ciclo-context";
+import { IS_ANDROID_APP } from "@/lib/app-target";
 import { useIsGhost } from "@/lib/client/ghost";
+import { useMonthSwipe } from "@/lib/client/use-month-swipe";
 import { lunarDayInfo } from "@/lib/lunar/phases";
 import { symptomColor, symptomLabel, symptomMeta } from "@/lib/symptoms/catalog";
 import { matchingFilterSymptoms } from "@/lib/symptoms/filter";
@@ -74,6 +76,9 @@ export function CalendarScreen() {
   const [month, setMonth] = useState(
     () => (deepLinkDate ? deepLinkDate.getUTCMonth() + 1 : todayDate.getUTCMonth() + 1),
   );
+  // The month a swipe brought in: its days were already on display beside the
+  // last one, so they do not pop in again.
+  const [swipedTo, setSwipedTo] = useState<string | null>(null);
   const [sheetOpen, setSheetOpen] = useState(() => Boolean(deepLinkDay));
   const [activeIso, setActiveIso] = useState<string | null>(() => deepLinkDay);
   const [saving, setSaving] = useState(false);
@@ -84,6 +89,7 @@ export function CalendarScreen() {
   if (deepLinkDay !== linkedDay) {
     setLinkedDay(deepLinkDay);
     if (deepLinkDay && deepLinkDate) {
+      setSwipedTo(null);
       setYear(deepLinkDate.getUTCFullYear());
       setMonth(deepLinkDate.getUTCMonth() + 1);
       setError(null);
@@ -108,7 +114,6 @@ export function CalendarScreen() {
   );
   const mostLikelyStart = overview.forecastingEnabled ? overview.nextPeriodDate : null;
   const filtersActive = activeFilters.length > 0;
-  const cells = monthCells(year, month, weekStartsOn);
   const labels = weekdayLabels(locale, weekStartsOn);
   const monthTitle = formatIsoUtc(new Date(Date.UTC(year, month - 1, 1)).toISOString().slice(0, 10), locale, {
     month: "long",
@@ -124,10 +129,30 @@ export function CalendarScreen() {
   const filterLabel = filtersActive ? filterActiveLabel : filterIdleLabel;
 
   function shiftMonth(delta: number) {
-    const next = new Date(Date.UTC(year, month - 1 + delta, 1));
-    setYear(next.getUTCFullYear());
-    setMonth(next.getUTCMonth() + 1);
+    const next = shiftedMonth(year, month, delta);
+    setSwipedTo(null);
+    setYear(next.year);
+    setMonth(next.month);
   }
+
+  // In the Android app a sideways swipe on the calendar card turns the month
+  // too. The web keeps the buttons only. Ghosts are only looked at.
+  const { open: monthSwipeOpen, zoneRef, viewportRef, stripRef, zoneProps } = useMonthSwipe({
+    enabled: IS_ANDROID_APP && !ghost,
+    onTurn: (step) => {
+      const next = shiftedMonth(year, month, step);
+      setSwipedTo(monthKey(next.year, next.month));
+      setYear(next.year);
+      setMonth(next.month);
+    },
+  });
+  const panels: MonthPanel[] = monthSwipeOpen
+    ? [
+        { role: "prev", ...shiftedMonth(year, month, -1) },
+        { role: "current", year, month },
+        { role: "next", ...shiftedMonth(year, month, 1) },
+      ]
+    : [{ role: "current", year, month }];
 
   function openDay(iso: string) {
     if (!isEditableDiaryDate(iso, today)) return;
@@ -216,7 +241,13 @@ export function CalendarScreen() {
       />
 
       <section
-        className="animate-fade-up rounded-3xl bg-card p-4 shadow-sm desktop:mt-2 desktop:border desktop:border-border/70 desktop:p-6"
+        ref={zoneRef}
+        {...zoneProps}
+        className={cn(
+          "animate-fade-up rounded-3xl bg-card p-4 shadow-sm desktop:mt-2 desktop:border desktop:border-border/70 desktop:p-6",
+          // Vertical drags still scroll the page; sideways ones turn the month.
+          IS_ANDROID_APP && "[touch-action:pan-y_pinch-zoom]",
+        )}
         style={{ animationDelay: "120ms" }}
       >
         <div className="mb-3 flex flex-col gap-2 px-1 desktop:mb-5 desktop:flex-row desktop:items-center desktop:justify-between">
@@ -293,47 +324,65 @@ export function CalendarScreen() {
             </div>
           ))}
         </div>
-        <div
-          key={`${year}-${month}`}
-          className={cn(
-            "grid grid-cols-7 transition-[row-gap] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none",
-            filtersActive || showMoonBand ? "gap-y-2" : "gap-y-1",
-          )}
-        >
-          {cells.map((iso, index) => {
-            if (!iso) return <div key={`empty-${index}`} />;
-            const log = diary.days[iso];
-            const editable = isEditableDiaryDate(iso, today);
-            const filterMatches = matchingFilterSymptoms(log, activeFilters);
-            return (
-              <DayCell
-                key={iso}
-                iso={iso}
-                day={Number(iso.slice(8, 10))}
-                log={log}
-                isToday={iso === today}
-                isFuture={!editable}
-                possibleStart={overview.forecastingEnabled && possibleStarts.has(iso)}
-                mostLikelyStart={overview.forecastingEnabled && mostLikelyStart === iso}
-                estimatedFertile={
-                  overview.forecastingEnabled &&
-                  isEstimatedFertileDate(iso, diary.periodStarts, overview.nextPeriodDate)
-                }
-                estimatedBleeding={
-                  overview.forecastingEnabled &&
-                  isEstimatedBleedingDate(iso, overview.expectedBleedingWindow)
-                }
-                filtersActive={filtersActive}
-                filterMatches={filterMatches}
-                showMoon={showMoonBand}
-                index={index}
-                locale={locale}
-                t={t}
-                customSymptoms={diary.customSymptoms}
-                onClick={() => openDay(iso)}
-              />
-            );
-          })}
+        {/* Spans the card, so the months beside slide in and out at its edges. */}
+        <div ref={viewportRef} className="-mx-4 desktop:mx-0">
+          <div ref={stripRef} className="relative">
+            {panels.map((panel) => {
+              const key = monthKey(panel.year, panel.month);
+              const current = panel.role === "current";
+              return (
+                <div
+                  key={key}
+                  data-month-panel={panel.role}
+                  aria-hidden={current ? undefined : true}
+                  inert={!current}
+                  className={cn(
+                    "grid grid-cols-7 px-4 transition-[row-gap] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none desktop:px-0",
+                    filtersActive || showMoonBand ? "gap-y-2" : "gap-y-1",
+                    !current && "absolute inset-x-0 top-0",
+                    panel.role === "prev" && "-translate-x-full",
+                    panel.role === "next" && "translate-x-full",
+                  )}
+                >
+                  {monthCells(panel.year, panel.month, weekStartsOn).map((iso, index) => {
+                    if (!iso) return <div key={`empty-${index}`} />;
+                    const log = diary.days[iso];
+                    const editable = isEditableDiaryDate(iso, today);
+                    const filterMatches = matchingFilterSymptoms(log, activeFilters);
+                    return (
+                      <DayCell
+                        key={iso}
+                        iso={iso}
+                        day={Number(iso.slice(8, 10))}
+                        log={log}
+                        isToday={iso === today}
+                        isFuture={!editable}
+                        possibleStart={overview.forecastingEnabled && possibleStarts.has(iso)}
+                        mostLikelyStart={overview.forecastingEnabled && mostLikelyStart === iso}
+                        estimatedFertile={
+                          overview.forecastingEnabled &&
+                          isEstimatedFertileDate(iso, diary.periodStarts, overview.nextPeriodDate)
+                        }
+                        estimatedBleeding={
+                          overview.forecastingEnabled &&
+                          isEstimatedBleedingDate(iso, overview.expectedBleedingWindow)
+                        }
+                        filtersActive={filtersActive}
+                        filterMatches={filterMatches}
+                        showMoon={showMoonBand}
+                        index={index}
+                        entrance={current && key !== swipedTo}
+                        locale={locale}
+                        t={t}
+                        customSymptoms={diary.customSymptoms}
+                        onClick={() => openDay(iso)}
+                      />
+                    );
+                  })}
+                </div>
+              );
+            })}
+          </div>
         </div>
       </section>
 
@@ -429,6 +478,7 @@ function DayCell({
   filterMatches,
   showMoon,
   index,
+  entrance,
   locale,
   t,
   customSymptoms,
@@ -447,6 +497,8 @@ function DayCell({
   filterMatches: SymptomId[];
   showMoon: boolean;
   index: number;
+  /** Pops in when it appears. Not in a month that slid in already drawn. */
+  entrance: boolean;
   locale: Locale;
   t: Messages;
   customSymptoms: CustomSymptomDefinition[];
@@ -517,7 +569,8 @@ function DayCell({
         aria-disabled={isFuture}
         aria-label={markers.join(", ")}
         className={cn(
-          "animate-pop-in relative flex size-10 flex-col items-center justify-center rounded-full text-sm font-medium desktop:size-12 desktop:text-base",
+          "relative flex size-10 flex-col items-center justify-center rounded-full text-sm font-medium desktop:size-12 desktop:text-base",
+          entrance && "animate-pop-in",
           isFuture ? "cursor-default" : "transition-transform active:scale-90",
           bleedFill ??
             (observedFertile
@@ -582,6 +635,17 @@ function DayCell({
       </span>
     </div>
   );
+}
+
+type MonthPanel = { role: "prev" | "current" | "next"; year: number; month: number };
+
+function monthKey(year: number, month: number): string {
+  return `${year}-${month}`;
+}
+
+function shiftedMonth(year: number, month: number, delta: number): { year: number; month: number } {
+  const next = new Date(Date.UTC(year, month - 1 + delta, 1));
+  return { year: next.getUTCFullYear(), month: next.getUTCMonth() + 1 };
 }
 
 function NavButton({
