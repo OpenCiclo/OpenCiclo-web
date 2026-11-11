@@ -10,7 +10,7 @@ Ciclo cannot reset your password or your 12-word phrase. If both are gone, the h
 
 You can change the wrap password in Settings while you are signed in. That only replaces the wrapped copy of the phrase. The diary blob stays the same.
 
-**Keep me signed in** stores the unlock secret in this browser until you sign out. That is a device convenience, not a server session that can decrypt the diary.
+**Keep me signed in** stores the unlock secret in this browser until you sign out. That is a device convenience, not a server session that can decrypt the diary. The Android app keeps it sealed by Android Keystore instead of browser storage. Unchecked, the app keeps it in memory only, so closing the app signs you out.
 
 If Ciclo cannot reach the server when it opens (no connection, or a server error), it keeps that secret and shows **Try again**. It does not show an empty diary while it waits, so nothing can be saved over your real one.
 

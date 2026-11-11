@@ -38,15 +38,13 @@ import {
   TIME_ZONE_KEY,
   VISUAL_SEASONS_KEY,
   WEEK_STARTS_ON_KEY,
-  clearStoredMnemonic,
   migrateBrowserStorage,
   parseLunarPhasesEnabled,
   parseLunarPhasesVisible,
   parseVisualSeasons,
   parseWeekStartsOn,
-  readUnlockState,
-  writeStoredMnemonic,
 } from "@/lib/client/storage-migrate";
+import { browserPhraseStore, type PhraseStore } from "@/lib/client/phrase-store";
 import { syncPoolIfDue } from "@/lib/pool-sync";
 import { DIARY_SCHEMA_VERSION, emptyDiary, parseDiary, type Diary } from "@/lib/diary";
 import { mergeDiaryEdits } from "@/lib/diary-merge";
@@ -173,6 +171,13 @@ async function openVault(aesKey: Uint8Array, blob: VaultBlob): Promise<Diary> {
 async function loadDeviceStorage() {
   if (!IS_ANDROID_APP) throw new Error("On-device storage is Android-only");
   return import("@/lib/client/device-storage");
+}
+
+// Where a hosted account's phrase is kept between starts: browser storage on the
+// web, Android Keystore in the app.
+async function phraseStore(): Promise<PhraseStore> {
+  if (!IS_ANDROID_APP) return browserPhraseStore;
+  return (await loadDeviceStorage()).hostedPhraseStore;
 }
 
 function authPrompt(locale: Locale): AuthPrompt {
@@ -337,7 +342,8 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
     async (isCancelled: () => boolean = () => false) => {
       const storedLocale = (localStorage.getItem(LOCALE_KEY) as Locale | null) ?? "es";
       if (IS_ANDROID_APP && (await restoreDeviceDiary(storedLocale, isCancelled))) return;
-      const unlockState = readUnlockState();
+      const store = await phraseStore();
+      const unlockState = await store.read();
       if (!unlockState.mnemonic) {
         if (!isCancelled()) setDiary(emptyDiary(storedLocale));
         return;
@@ -346,7 +352,7 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
       try {
         nextWallet = unlockWallet(unlockState.mnemonic);
       } catch {
-        clearStoredMnemonic();
+        await store.clear().catch(() => undefined);
         if (!isCancelled()) setDiary(emptyDiary(storedLocale));
         return;
       }
@@ -462,7 +468,7 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
       deviceDiaryRef.current = true;
       await device.deviceVault.storePhrase({ ...authPrompt(locale), phrase: nextWallet.mnemonic, requireAuth: false });
       // A phrase left by a hosted session would make the next start sign in too.
-      clearStoredMnemonic();
+      await device.hostedPhraseStore.clear().catch(() => undefined);
       setAppLockAvailable(status.lockAvailable);
       setAppLockEnabled(false);
       await hydrate(nextWallet, locale, device.deviceBackend);
@@ -531,7 +537,7 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
         deviceDiaryRef.current = false;
         setAppLockEnabled(false);
         await device.deviceVault.setSecureScreen({ enabled: false });
-        writeStoredMnemonic(wallet.mnemonic, true);
+        await device.hostedPhraseStore.write(wallet.mnemonic, true);
         await hydrate(wallet, local.locale, hostedVault);
       }),
     [enqueue, hydrate, storageMode, wallet],
@@ -564,7 +570,7 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
           await device.deviceVault.clear().catch(() => undefined);
           throw cause;
         }
-        clearStoredMnemonic();
+        await device.hostedPhraseStore.clear().catch(() => undefined);
         clearLocalKits();
         deviceDiaryRef.current = true;
         setAppLockAvailable(status.lockAvailable);
@@ -597,7 +603,7 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
       } else {
         await loginWithWallet(nextWallet, undefined, persist);
       }
-      writeStoredMnemonic(nextWallet.mnemonic, persist);
+      await (await phraseStore()).write(nextWallet.mnemonic, persist);
       await hydrate(nextWallet, locale, hostedVault);
     },
     [hydrate, locale, unlockDeviceWithPhrase],
@@ -686,7 +692,7 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
         const result = await postRecoveryKit(normalized, kit, locale);
         if (!result.pending) {
           saveLocalKit(normalized, kit);
-          writeStoredMnemonic(nextWallet.mnemonic, persist);
+          await (await phraseStore()).write(nextWallet.mnemonic, persist);
           setPendingSignup(null);
           await hydrate(nextWallet, locale, hostedVault);
           return;
@@ -697,7 +703,7 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
         if (!pendingSignup) throw new InvalidConfirmError();
         await confirmRecoveryCode(code);
         saveLocalKit(pendingSignup.email, pendingSignup.kit);
-        writeStoredMnemonic(pendingSignup.wallet.mnemonic, pendingSignup.persist);
+        await (await phraseStore()).write(pendingSignup.wallet.mnemonic, pendingSignup.persist);
         const nextWallet = pendingSignup.wallet;
         setPendingSignup(null);
         await hydrate(nextWallet, locale, hostedVault);
@@ -759,7 +765,8 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
           await device.deviceVault.setSecureScreen({ enabled: false });
         } else {
           await deleteAccount();
-          clearStoredMnemonic();
+          // The account is gone either way; a phrase left behind only meets "no account" on the next start.
+          await (await phraseStore()).clear().catch(() => undefined);
           clearLocalKits();
         }
         syncedRef.current = null;
@@ -772,7 +779,8 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
         // An on-device diary has no session to end. Settings offers deleting it instead.
         if (storageMode === "device") throw new Error("On-device diaries have no session");
         await logoutSession();
-        clearStoredMnemonic();
+        // Throws if the kept phrase may still be there: signing out must forget it.
+        await (await phraseStore()).clear();
         syncedRef.current = null;
         backendRef.current = null;
         setStorageMode(null);
