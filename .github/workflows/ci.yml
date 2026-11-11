@@ -38,6 +38,10 @@ jobs:
           cache-dependency-path: apps/web/package-lock.json
       - name: Install
         run: npm ci
+      # Checks registry signatures and provenance attestations of every
+      # installed package (docs/threat-model.md, compromised npm package).
+      - name: Verify registry signatures
+        run: npm audit signatures
       - name: Tests
         run: npm test
       - name: Lint
