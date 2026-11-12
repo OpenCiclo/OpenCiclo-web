@@ -1,6 +1,8 @@
 # Calendar phases and “estimated”
 
-On the Calendar home card, Ciclo may show something like **Cycle day 7** and **Follicular · estimated**. The phase name is the claim. The word **estimated** (Spanish UI: **estimada**) is a confidence label, not a second phase.
+On the Calendar home card, Ciclo may show something like **Follicular** with **Chapter 2 of 4 · estimated** above it and **Day 7 · Period in 21 days** below. The phase name is the claim. The word **estimated** (Spanish UI: **estimada**) is a confidence label, not a second phase. The ring beside it is the cycle: one arc per phase, filled up to today.
+
+Tap the card to open your cycle, phase by phase: the days and dates of each phase, what happens inside, how you may feel, what may help, and the next period. On a phone the card grows down the screen; in the Android app you can also drag its handle up to close it. On a computer it opens in the middle of the window.
 
 This page is about **what the app is doing**. For general biology of the cycle, use the **Learn** tab.
 
@@ -42,9 +44,9 @@ If you turn forecasting off, Ciclo only shows a phase when flow is observed.
 
 The most likely start is taken from the full forecast, before days already passed are dropped. The calendar keeps that day marked. It does not move the marker forward.
 
-If that day arrives and you have not logged a new period start, the home card stays on the phase (usually **Luteal · estimated**). On that day it says the period may start today. After it, the card counts days late from that date. It also quotes today's chance from the **initial** forecast. Example: if 10 October was 30%, 11 October 15%, and 12 October 11%, then on 12 October the card says you are 2 days late and that the initial forecast gave today an 11% chance. It does not rebuild the chart so today looks like the new most likely day.
+If that day arrives and you have not logged a new period start, the phase stays **Luteal · estimated**, but the home card switches to the **expected period** (Spanish UI: **Periodo previsto**). On that day it says the period may start today. After it, it counts days late from that date. Open it to see today's chance from the **initial** forecast. Example: if 10 October was 30%, 11 October 15%, and 12 October 11%, then on 12 October the card says you are 2 days late, and the expanded card says the initial forecast gave today an 11% chance. The calendar keeps the most likely day where it was.
 
-Patterns (its own tab on a phone, next to the calendar on a computer) still shows the forecast with past days removed. That chart answers “what is still ahead?” The calendar does not.
+The expanded card also shows the forecast with past days removed, like Patterns (its own tab on a phone, next to the calendar on a computer). That chart answers “what is still ahead?” Logging the first day of bleeding ends the expected-period card and starts a new cycle.
 
 ## Which day is “today”
 
