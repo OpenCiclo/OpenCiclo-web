@@ -6,8 +6,9 @@
 import { useCallback, useRef, useState } from "react";
 import { Info } from "lucide-react";
 
-import { coverageInterval, ForecastChart } from "@/components/forecast-chart";
 import { ForecastInfoDialog } from "@/components/calendar/forecast-info-dialog";
+import { CycleDayCard, dueCardModel, PhaseCard, phaseCardModel } from "@/components/calendar/phase-card";
+import { DueDetails, PhaseDetails } from "@/components/calendar/phase-details";
 import { SeasonGuideOverlay, type SeasonOriginRect } from "@/components/calendar/season-guide-overlay";
 import { SeasonDecor } from "@/components/calendar/season-scene";
 import {
@@ -20,6 +21,7 @@ import {
   type CycleSeason,
 } from "@/lib/cycle/phases";
 import { initialProbabilityLabel, periodTimingChip } from "@/lib/cycle/period-timing";
+import { showsPeriodDue } from "@/lib/cycle/phase-timeline";
 import type { Locale, Messages } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
@@ -44,89 +46,77 @@ export function CycleStatusCard({
   visualSeasons: boolean;
 }) {
   const phase = overview.currentPhase;
-  const observed = phase?.source === "observed";
-  const nextChip = periodTimingChip(overview.nextPeriodInDays, observed === true, t);
-  const initialProbability =
-    !observed &&
-    overview.nextPeriodInDays !== null &&
-    overview.nextPeriodInDays <= 0 &&
-    overview.initialStartProbability !== null
-      ? initialProbabilityLabel(overview.initialStartProbability, t)
-      : null;
 
-  if (phase) {
-    const season = phaseSeason(phase.phase);
+  // The hidden inner-seasons look keeps its own card and guide (VISUAL_SEASONS_AVAILABLE).
+  if (phase && visualSeasons) {
+    const observed = phase.source === "observed";
+    const initialProbability =
+      !observed &&
+      overview.nextPeriodInDays !== null &&
+      overview.nextPeriodInDays <= 0 &&
+      overview.initialStartProbability !== null
+        ? initialProbabilityLabel(overview.initialStartProbability, t)
+        : null;
     return (
       <PhaseStatusCard
         cycleDay={phase.cycleDay}
         initialProbability={initialProbability}
         locale={locale}
-        nextChip={nextChip}
+        nextChip={periodTimingChip(overview.nextPeriodInDays, observed, t)}
         phaseName={phase.phase}
-        season={season}
-        sourceEstimated={phase.source === "estimated"}
+        season={phaseSeason(phase.phase)}
+        sourceEstimated={!observed}
         t={t}
         visualSeasons={visualSeasons}
       />
     );
   }
 
-  if (!isPeriodDueOrOverdue(overview) || !overview.forecast) {
-    if (overview.currentCycleDay === null) return null;
+  // The expected period, once its most likely day has come (before any phase).
+  const dueModel = showsPeriodDue(overview) || isPeriodDueOrOverdue(overview) ? dueCardModel(overview, t) : null;
+  if (dueModel) {
     return (
-      <section
-        className="animate-fade-up relative overflow-hidden rounded-3xl bg-primary p-5 text-primary-foreground shadow-sm"
-        style={{ animationDelay: "60ms" }}
-      >
-        <StatusDecor />
-        <p className="text-sm font-medium opacity-90">
-          {t.cycleDay.replace("{day}", String(overview.currentCycleDay))}
-        </p>
-      </section>
+      <PhaseCard
+        model={dueModel}
+        t={t}
+        details={(howEstimated) => (
+          <DueDetails
+            overview={overview}
+            timeline={dueModel.timeline}
+            day={dueModel.day}
+            today={today}
+            locale={locale}
+            t={t}
+            onHowEstimated={howEstimated}
+          />
+        )}
+      />
     );
   }
 
-  const forecast = overview.forecast;
-  const uncertaintyLabel =
-    forecast.uncertainty === "low"
-      ? t.uncertaintyLow
-      : forecast.uncertainty === "medium"
-        ? t.uncertaintyMedium
-        : t.uncertaintyHigh;
-  const interval = coverageInterval(forecast.dailyProbabilities, 0.8);
+  const phaseModel = phaseCardModel(overview, t);
+  if (phaseModel) {
+    return (
+      <PhaseCard
+        model={phaseModel}
+        t={t}
+        details={(howEstimated) => (
+          <PhaseDetails
+            overview={overview}
+            timeline={phaseModel.timeline}
+            phase={phaseModel.phase}
+            day={phaseModel.day}
+            locale={locale}
+            t={t}
+            onHowEstimated={howEstimated}
+          />
+        )}
+      />
+    );
+  }
 
-  return (
-    <section
-      className="animate-fade-up relative overflow-hidden rounded-3xl bg-primary p-5 text-primary-foreground shadow-sm"
-      style={{ animationDelay: "60ms" }}
-    >
-      <StatusDecor />
-      <p className="font-serif text-2xl text-balance">{t.periodDueTitle}</p>
-      <p className="mt-1.5 max-w-prose text-sm leading-relaxed text-pretty opacity-90">
-        {t.periodDueBody}
-      </p>
-      {nextChip ? (
-        <p className="mt-3 inline-flex items-center rounded-full bg-primary-foreground/15 px-3 py-1 text-xs font-semibold">
-          {nextChip}
-        </p>
-      ) : null}
-      <p className="mt-2 text-xs font-semibold opacity-80">
-        {t.periodDueUncertainty.replace("{level}", uncertaintyLabel)}
-      </p>
-      <div className="relative mt-4">
-        <ForecastChart
-          daily={forecast.dailyProbabilities}
-          mostLikelyDate={forecast.mostLikelyDate}
-          interval={interval}
-          referenceDate={today}
-          locale={locale}
-          t={t}
-          tone="onPrimary"
-          compact
-        />
-      </div>
-    </section>
-  );
+  if (overview.currentCycleDay === null) return null;
+  return <CycleDayCard day={overview.currentCycleDay} t={t} />;
 }
 
 function PhaseStatusCard({

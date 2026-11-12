@@ -8,11 +8,14 @@ import { useMemo, useState } from "react";
 import { CycleStatusCard } from "@/components/calendar/cycle-status-card";
 import {
   CYCLE_PHASES,
+  cycleOverview,
   phaseSeason,
   type CycleOverview,
   type CyclePhase,
   type PhaseSource,
 } from "@/lib/cycle/phases";
+import { addDaysIso, parseDiary } from "@/lib/diary";
+import { daysBetween } from "@/lib/forecast/math";
 import { messages, type Locale } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
@@ -32,6 +35,21 @@ const EMPTY_DURATION = {
   range: { min: 4, max: 6 },
   source: "history" as const,
 };
+
+const PLAYGROUND_TODAY = "2026-08-23";
+
+function diaryWithStarts(starts: string[]) {
+  const days = Object.fromEntries(starts.map((iso) => [iso, { flow: "medium", symptoms: {} }]));
+  return parseDiary({ schemaVersion: 3, locale: "en", periodStarts: starts, days });
+}
+
+/** A regular 28-day history whose most likely next start was `lateDays` before today (0: today). */
+function dueOverview(lateDays: number): CycleOverview {
+  const probe = diaryWithStarts(["2026-05-01", "2026-05-29", "2026-06-26"]);
+  const length = daysBetween("2026-06-26", cycleOverview(probe, "2026-07-01").nextPeriodDate ?? "2026-07-24");
+  const last = addDaysIso(PLAYGROUND_TODAY, -(length + lateDays));
+  return cycleOverview(diaryWithStarts([addDaysIso(last, -56), addDaysIso(last, -28), last]), PLAYGROUND_TODAY);
+}
 
 function previewOverview(phase: CyclePhase, source: PhaseSource): CycleOverview {
   const sample = PHASE_SAMPLES[phase];
@@ -62,12 +80,19 @@ function previewOverview(phase: CyclePhase, source: PhaseSource): CycleOverview 
 export function SeasonPlayground() {
   const [locale, setLocale] = useState<Locale>("es");
   const [source, setSource] = useState<PhaseSource>("estimated");
-  const [visualSeasons, setVisualSeasons] = useState(true);
+  const [visualSeasons, setVisualSeasons] = useState(false);
   const t = messages[locale];
 
   const overviews = useMemo(
     () => CYCLE_PHASES.map((phase) => ({ phase, overview: previewOverview(phase, source) })),
     [source],
+  );
+  const dueOverviews = useMemo(
+    () => [
+      { key: "due today", overview: dueOverview(0) },
+      { key: "3 days late", overview: dueOverview(3) },
+    ],
+    [],
   );
 
   return (
@@ -78,7 +103,7 @@ export function SeasonPlayground() {
             <p className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
               Playground
             </p>
-            <h1 className="mt-1 font-serif text-3xl">Season cards</h1>
+            <h1 className="mt-1 font-serif text-3xl">Phase cards</h1>
             <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground text-pretty">
               All four cycle seasons with the live <code className="font-mono text-xs">CycleStatusCard</code>.
               Edit <code className="font-mono text-xs">cycle-status-card.tsx</code> or{" "}
@@ -126,7 +151,7 @@ export function SeasonPlayground() {
                 </p>
                 <CycleStatusCard
                   overview={overview}
-                  today="2026-08-23"
+                  today={PLAYGROUND_TODAY}
                   locale={locale}
                   t={t}
                   visualSeasons={visualSeasons}
@@ -134,6 +159,20 @@ export function SeasonPlayground() {
               </div>
             );
           })}
+          {dueOverviews.map(({ key, overview }) => (
+            <div key={key} className="mx-auto w-full max-w-md">
+              <p className="mb-2 text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+                expected period · {key}
+              </p>
+              <CycleStatusCard
+                overview={overview}
+                today={PLAYGROUND_TODAY}
+                locale={locale}
+                t={t}
+                visualSeasons={visualSeasons}
+              />
+            </div>
+          ))}
         </div>
       </div>
     </div>
