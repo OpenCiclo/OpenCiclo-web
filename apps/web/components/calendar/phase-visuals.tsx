@@ -3,6 +3,7 @@
 
 "use client";
 
+import { useLayoutEffect, useRef, type RefObject } from "react";
 import { Droplet, Leaf, Sparkles, Sprout, type LucideIcon } from "lucide-react";
 
 import type { CyclePhase } from "@/lib/cycle/phases";
@@ -38,6 +39,24 @@ const PHASE_ICON: Record<CyclePhase, LucideIcon> = {
   ovulation: Sparkles,
   luteal: Leaf,
 };
+
+/** The endless motions of the card (globals.css). Entrances are left alone. */
+const LOOPS = new Set(["phase-spin", "phase-glow", "phase-float", "phase-beat", "phase-halo"]);
+
+/**
+ * Puts every endless motion under `root` on the page's clock, so two copies of
+ * the card (the one above the calendar and its expanded view) move as one:
+ * opening or closing swaps them with nothing jumping.
+ */
+function useSharedClock(root: RefObject<HTMLElement | null>) {
+  useLayoutEffect(() => {
+    const element = root.current;
+    if (!element || typeof element.getAnimations !== "function") return;
+    for (const animation of element.getAnimations({ subtree: true })) {
+      if (animation instanceof CSSAnimation && LOOPS.has(animation.animationName)) animation.startTime = 0;
+    }
+  }, [root]);
+}
 
 /** A phase's tint over the card: `amount` percent of its ink. */
 export function phaseTint(phase: CyclePhase, amount: number): string {
@@ -100,9 +119,11 @@ export function PhaseRing({
       })
     : [];
   const glyphDelay = FILL_START_MS + Math.max(0, current) * FILL_PAST_MS + FILL_NOW_MS - 200;
+  const rootRef = useRef<HTMLDivElement>(null);
+  useSharedClock(rootRef);
 
   return (
-    <div className="relative shrink-0" style={{ width: SIZE, height: SIZE }} aria-hidden>
+    <div ref={rootRef} className="relative shrink-0" style={{ width: SIZE, height: SIZE }} aria-hidden>
       <svg width={SIZE} height={SIZE} viewBox={`0 0 ${SIZE} ${SIZE}`} className="absolute inset-0 overflow-visible">
         <g className={animate ? "phase-ring-in" : undefined}>
           <g transform={`rotate(-90 ${SIZE / 2} ${SIZE / 2})`}>
@@ -179,18 +200,30 @@ export function PhaseAura({
   /** Bigger light, for the expanded card. */
   wide?: boolean;
 }) {
+  const rootRef = useRef<HTMLDivElement>(null);
+  useSharedClock(rootRef);
   return (
-    <div aria-hidden className={cn("pointer-events-none absolute inset-0 z-0", animate && "phase-aura-in")}>
+    <div ref={rootRef} aria-hidden className={cn("pointer-events-none absolute inset-0 z-0", animate && "phase-aura-in")}>
+      {/* Grows with the card as it opens and is back to size when it has closed (same length as the close). */}
       <div
-        className="absolute transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]"
-        style={{ left: -13, top: -15, width: 128, height: 128, transform: wide ? "scale(1.7)" : undefined }}
+        className="absolute will-change-transform"
+        style={{
+          left: -13,
+          top: -15,
+          width: 128,
+          height: 128,
+          transform: wide ? "scale(1.7)" : "scale(1)",
+          transition: wide
+            ? "transform 0.7s cubic-bezier(0.22, 1, 0.36, 1)"
+            : "transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
+        }}
       >
         <div
           className="phase-glow size-full rounded-full blur-[30px]"
           style={{ background: PHASE_AURA[phase], opacity: "var(--aura-glow)" }}
         />
       </div>
-      <div className="phase-spin absolute" style={{ left: 51, top: 49, width: 0, height: 0 }}>
+      <div className="phase-spin absolute will-change-transform" style={{ left: 51, top: 49, width: 0, height: 0 }}>
         <div
           className="absolute size-[76px] rounded-full blur-[26px]"
           style={{ left: 24, top: -40, background: PHASE_AURA[next], opacity: "var(--aura-blob)" }}

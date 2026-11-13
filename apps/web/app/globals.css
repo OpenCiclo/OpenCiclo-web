@@ -915,9 +915,10 @@
   }
 }
 
+/* A transform, not the width: it runs while the card opens, and must not lay the page out every frame. */
 @keyframes phase-bar-grow {
   from {
-    width: 0;
+    transform: scaleX(0);
   }
 }
 
@@ -968,6 +969,7 @@
 }
 
 .phase-bar-grow {
+  transform-origin: left;
   animation-name: phase-bar-grow;
   animation-duration: 0.6s;
   animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1);
