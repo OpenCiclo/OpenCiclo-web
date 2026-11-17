@@ -1,13 +1,67 @@
 // Copyright © 2026 Emma Flora Harbison & Luis Rey Sánchez
 // SPDX-License-Identifier: Apache-2.0
 
-export type Locale = "es" | "en";
+// The languages of the UI, as BCP 47 tags (they go straight to Intl and `lang`).
+// Spanish and English live in this file and ship with every page; the others
+// are in lib/locales/<tag>.ts and load when chosen (lib/locales/registry.ts).
+export const LOCALES = ["es", "en", "pt-BR", "fr", "de", "it", "nl", "pl", "ca", "ca-valencia", "eu", "gl"] as const;
+export type Locale = (typeof LOCALES)[number];
+/** The two languages bundled with every page, and the fallbacks for copy not translated yet. */
+export type BaseLocale = "es" | "en";
+
+/** Each language's name in that language, for the language menu. */
+export const LOCALE_NAMES: Record<Locale, string> = {
+  es: "Español",
+  en: "English",
+  "pt-BR": "Português (Brasil)",
+  fr: "Français",
+  de: "Deutsch",
+  it: "Italiano",
+  nl: "Nederlands",
+  pl: "Polski",
+  ca: "Català",
+  "ca-valencia": "Valencià",
+  eu: "Euskara",
+  gl: "Galego",
+};
+
+/** Two letters for the compact language switch (welcome screen, headers). */
+export const LOCALE_SHORT: Record<Locale, string> = {
+  es: "ES",
+  en: "EN",
+  "pt-BR": "PT",
+  fr: "FR",
+  de: "DE",
+  it: "IT",
+  nl: "NL",
+  pl: "PL",
+  ca: "CA",
+  "ca-valencia": "VA",
+  eu: "EU",
+  gl: "GL",
+};
+
+export function isLocale(value: unknown): value is Locale {
+  return typeof value === "string" && (LOCALES as readonly string[]).includes(value);
+}
+
+/**
+ * The language to show for copy that exists only in Spanish and English (Learn
+ * articles, Help links, the operator console). Catalan, Valencian, Basque and
+ * Galician readers get Spanish; everyone else gets English.
+ */
+export function contentLocale(locale: Locale): BaseLocale {
+  if (locale === "en") return "en";
+  return locale === "es" || locale === "ca" || locale === "ca-valencia" || locale === "eu" || locale === "gl"
+    ? "es"
+    : "en";
+}
 
 const es = {
   appName: "Ciclo",
   tagline: "Pronósticos de ciclo, en tu dispositivo.",
   disclaimer:
-    "Ciclo pronostica ciclos. Los pronósticos pueden fallar. No es un dispositivo médico ni un método anticonceptivo.",
+    "Ciclo pronostica ciclos. Los pronósticos pueden fallar. No es un dispositivo médico, ni un sistema de diagnóstico, ni un método anticonceptivo.",
   createAccount: "Crear cuenta",
   haveAccount: "Ya tengo cuenta",
   recommended: "Recomendado",
@@ -162,11 +216,13 @@ const es = {
   expectedToStart: "Se esperaba que tu periodo empezara...",
   cycleLength: "Duración de ciclo",
   days: "días",
+  day: "día",
   uncertainty: "Incertidumbre",
   uncertaintyLow: "baja",
   uncertaintyMedium: "media",
   uncertaintyHigh: "alta",
-  within: "En los próximos",
+  withinDaysOne: "En el próximo día",
+  withinDaysOther: "En los próximos {n} días",
   ofPoint: "alrededor de la fecha",
   fromToday: "Desde hoy",
   aroundLikely: "Alrededor de la fecha más probable",
@@ -214,6 +270,15 @@ const es = {
   noAccountForPhrase: "No hay ninguna cuenta con esa frase. Revisa las 12 palabras o crea una cuenta nueva.",
   wordMismatch: "Esa palabra no coincide.",
   privacyTitle: "Privacidad",
+  privacyBody1:
+    "Las fechas se cifran en el navegador con AES-GCM. El servidor guarda solo ciphertext. Puedes usar correo y contraseña o el modo super privado con 12 palabras.",
+  privacyBody2:
+    "Ciclo no puede resetear tu contraseña ni tu frase. Si las pierdes, el diario alojado se pierde. Eso protege tu privacidad: nadie — ni nosotras — puede leer tu diario en el servidor.",
+  privacyBody3:
+    "Con correo y contraseña, entras en cualquier dispositivo con el mismo par. La contraseña desenvuelve tu llave aquí; no hace falta abrir el correo para entrar.",
+  privacyBody4:
+    "Los síntomas, el flujo, el moco cervical y las notas breves del día se quedan dentro del diario cifrado. El servidor no añade columnas de salud. El pool anónimo solo recibe duraciones de ciclo (números enteros); las notas nunca se envían ni se analizan.",
+  privacyBody5: "El pool de investigación no guarda un mapa de tu cuenta al identificador anónimo.",
   welcomeCta: "Empieza en el navegador. Las fechas se cifran antes de salir del dispositivo.",
   restoreFailedTitle: "No pudimos abrir tu diario",
   restoreFailedBody:
@@ -241,7 +306,13 @@ const es = {
     "Sube tu diario cifrado. Después lo abres en cualquier dispositivo con tu frase de 12 palabras, y se borra la copia de este móvil.",
   moveToHostedConfirm:
     "Tu diario se subirá cifrado a la nube y se borrará la copia de este móvil. Desde entonces entras con tu frase de 12 palabras. ¿Continuar?",
-  moveToHostedDone: "Tu diario ya está en la nube.",
+  moveToHostedDone:
+    "Tu diario ya está en la nube. Si quieres entrar también con correo y contraseña, añádelos en «Añadir correo y contraseña».",
+  addEmailTitle: "Añadir correo y contraseña",
+  addEmailHint:
+    "Para entrar en cualquier dispositivo con correo y contraseña, además de con tu frase. Te enviaremos un código para confirmar el correo. La contraseña cifra tu frase aquí: no la podemos resetear.",
+  addEmailSubmit: "Enviar código",
+  addEmailDone: "Listo: ya puedes entrar con tu correo y contraseña.",
   moveToDeviceHint:
     "Guarda tu diario cifrado en este móvil y borra tu cuenta del servidor, también el acceso con correo y contraseña.",
   moveToDeviceConfirm:
@@ -587,6 +658,7 @@ const es = {
   learnNoResults: "No hay artículos que coincidan con tu búsqueda.",
   learnRelated: "Artículos relacionados",
   learnEnglishOnly: "Solo en inglés por ahora",
+  learnSpanishOnly: "Solo en español por ahora",
   learnCategoryCycle: "Lo básico del ciclo",
   learnCategoryCycleDescription: "Cómo funciona el ciclo menstrual, fase a fase.",
   learnCategoryPeriods: "Periodos",
@@ -807,11 +879,13 @@ const en = {
   expectedToStart: "Your period was expected to start...",
   cycleLength: "Cycle length",
   days: "days",
+  day: "day",
   uncertainty: "Uncertainty",
   uncertaintyLow: "low",
   uncertaintyMedium: "medium",
   uncertaintyHigh: "high",
-  within: "Within the next",
+  withinDaysOne: "Within the next day",
+  withinDaysOther: "Within the next {n} days",
   ofPoint: "around the point date",
   fromToday: "From today",
   aroundLikely: "Around the likely date",
@@ -859,6 +933,15 @@ const en = {
   noAccountForPhrase: "No account uses this phrase. Check the 12 words, or create a new account.",
   wordMismatch: "That word does not match.",
   privacyTitle: "Privacy",
+  privacyBody1:
+    "Dates are encrypted in the browser with AES-GCM. The server stores ciphertext only. You can use email and password or super private mode with 12 words.",
+  privacyBody2:
+    "Ciclo cannot reset your password or phrase. If you lose them, the hosted diary is gone. That protects your privacy: nobody — including us — can read your diary on the server.",
+  privacyBody3:
+    "With email and password, you sign in on any device with the same pair. The password unwraps your key here; you do not need to open your inbox to sign in.",
+  privacyBody4:
+    "Symptoms, flow, cervical mucus, and short day notes stay inside the encrypted diary. The server does not add health columns. The anonymous pool only receives cycle lengths (whole numbers); notes are never uploaded or analyzed.",
+  privacyBody5: "The research pool does not store a map from your account to the anonymous id.",
   welcomeCta: "Start in the browser. Dates are encrypted before they leave the device.",
   restoreFailedTitle: "We couldn't open your diary",
   restoreFailedBody:
@@ -886,7 +969,13 @@ const en = {
     "Uploads your encrypted diary. You then open it on any device with your 12-word phrase, and the copy on this phone is deleted.",
   moveToHostedConfirm:
     "Your diary will be uploaded encrypted and the copy on this phone deleted. From then on you sign in with your 12-word phrase. Continue?",
-  moveToHostedDone: "Your diary is now in the cloud.",
+  moveToHostedDone:
+    "Your diary is now in the cloud. To sign in with an email and password too, add them under “Add email and password”.",
+  addEmailTitle: "Add email and password",
+  addEmailHint:
+    "To sign in on any device with an email and password, as well as your phrase. We will send a code to confirm the email. The password encrypts your phrase here: we cannot reset it.",
+  addEmailSubmit: "Send code",
+  addEmailDone: "Done: you can now sign in with your email and password.",
   moveToDeviceHint:
     "Saves your encrypted diary on this phone and deletes your account on the server, including email and password sign-in.",
   moveToDeviceConfirm:
@@ -1229,6 +1318,7 @@ const en = {
   learnNoResults: "No articles match your search.",
   learnRelated: "Related articles",
   learnEnglishOnly: "English only for now",
+  learnSpanishOnly: "Spanish only for now",
   learnCategoryCycle: "Cycle basics",
   learnCategoryCycleDescription: "How the menstrual cycle works, phase by phase.",
   learnCategoryPeriods: "Periods",
@@ -1292,8 +1382,23 @@ const en = {
 
 export type Messages = typeof en;
 
-export const messages: Record<Locale, Messages> = { es, en };
+/**
+ * The bundled languages only. For any language use `messagesFor` or
+ * `useLocaleMessages` (lib/locales/registry.ts), which load the others.
+ */
+export const messages: Record<BaseLocale, Messages> = { es, en };
 
-export function otherLocale(locale: Locale): Locale {
-  return locale === "es" ? "en" : "es";
+/** True when `n` takes the singular in `locale` (1 in most languages; also 0 in French). */
+function isSingular(locale: Locale, n: unknown): boolean {
+  return typeof n === "number" && Number.isInteger(n) && new Intl.PluralRules(locale).select(n) === "one";
+}
+
+/** "day" or "days" after the value `n` (a number, or any other value shown, which reads as plural). */
+export function daysUnit(t: Messages, locale: Locale, n: unknown): string {
+  return isSingular(locale, n) ? t.day : t.days;
+}
+
+/** "Within the next day" / "Within the next {n} days". */
+export function withinDays(t: Messages, locale: Locale, n: number): string {
+  return isSingular(locale, n) ? t.withinDaysOne : t.withinDaysOther.replace("{n}", String(n));
 }

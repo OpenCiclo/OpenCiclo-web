@@ -8,7 +8,7 @@ export function formatIsoUtc(
   locale: Locale,
   options: Intl.DateTimeFormatOptions,
 ): string {
-  return new Intl.DateTimeFormat(locale === "es" ? "es" : "en", {
+  return new Intl.DateTimeFormat(locale, {
     ...options,
     timeZone: "UTC",
   }).format(new Date(`${iso}T00:00:00Z`));
