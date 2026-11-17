@@ -62,7 +62,7 @@ function reveal(index: number): CSSProperties {
 }
 
 function dayRange(start: string, end: string, locale: Locale): string {
-  const formatter = new Intl.DateTimeFormat(locale === "es" ? "es" : "en", {
+  const formatter = new Intl.DateTimeFormat(locale, {
     day: "numeric",
     month: "short",
     timeZone: "UTC",

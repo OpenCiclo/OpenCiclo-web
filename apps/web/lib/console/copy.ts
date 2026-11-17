@@ -1,7 +1,7 @@
 // Copyright © 2026 Emma Flora Harbison & Luis Rey Sánchez
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Locale } from "@/lib/i18n";
+import { contentLocale, type BaseLocale, type Locale } from "@/lib/i18n";
 
 const COPY = {
   es: {
@@ -130,8 +130,9 @@ const COPY = {
   },
 } as const;
 
-export type ConsoleCopy = (typeof COPY)[Locale];
+// The operator console stays in Spanish and English.
+export type ConsoleCopy = (typeof COPY)[BaseLocale];
 
 export function consoleCopy(locale: Locale): ConsoleCopy {
-  return COPY[locale];
+  return COPY[contentLocale(locale)];
 }

@@ -50,7 +50,9 @@ import { syncPoolIfDue } from "@/lib/pool-sync";
 import { DIARY_SCHEMA_VERSION, emptyDiary, parseDiary, type Diary } from "@/lib/diary";
 import { mergeDiaryEdits } from "@/lib/diary-merge";
 import { VISUAL_SEASONS_AVAILABLE } from "@/lib/features";
-import { messages, type Locale } from "@/lib/i18n";
+import { isLocale, type Locale, type Messages } from "@/lib/i18n";
+import { loadLocale, messagesFor } from "@/lib/locales/registry";
+import { useLocaleMessages } from "@/lib/locales/use-locale-messages";
 import { COLOR_SCHEME_KEY, parseColorScheme, type ColorScheme } from "@/lib/client/color-scheme";
 import {
   TIME_ZONE_AUTO,
@@ -74,7 +76,7 @@ type CicloContextValue = {
   weekStartsOn: 0 | 1;
   timeZone: TimeZoneSetting;
   colorScheme: ColorScheme;
-  t: (typeof messages)["es"];
+  t: Messages;
   error: string | null;
   /** The phrase kept on this device could not sign in (offline, server error). It is still stored. */
   restoreFailed: boolean;
@@ -115,6 +117,17 @@ type CicloContextValue = {
   createEmailAccount: (email: string, password: string, options?: PersistOptions) => Promise<void>;
   confirmEmailAccount: (code: string) => Promise<void>;
   resendEmailCode: () => Promise<void>;
+  /**
+   * Hosted account with no email sign-in (a phrase account, or one moved back from
+   * this device): wraps the phrase with `password` and mails a 6-digit code to
+   * `email`. The sign-in works once `confirmEmailSignIn` takes the code.
+   */
+  addEmailSignIn: (email: string, password: string) => Promise<{ pending: boolean }>;
+  /** The address waiting for its code while an email sign-in is being added. */
+  pendingEmailSignIn: string | null;
+  confirmEmailSignIn: (code: string) => Promise<void>;
+  resendEmailSignInCode: () => Promise<void>;
+  cancelEmailSignIn: () => void;
   unlockWithPassword: (email: string, password: string, options?: PersistOptions) => Promise<void>;
   changePassword: (email: string, currentPassword: string, nextPassword: string) => Promise<void>;
   persistDiary: (next: Diary) => Promise<void>;
@@ -200,7 +213,8 @@ function assertOnline(backend: VaultBackend | null) {
 }
 
 function authPrompt(locale: Locale): AuthPrompt {
-  return { title: messages[locale].appLockPromptTitle, subtitle: messages[locale].appLockPromptSubtitle };
+  const t = messagesFor(locale);
+  return { title: t.appLockPromptTitle, subtitle: t.appLockPromptSubtitle };
 }
 
 // With the app lock on, an on-device diary closes again after the app has been
@@ -221,6 +235,7 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
   const [restoreFailed, setRestoreFailed] = useState(false);
   const [restoreNoAccount, setRestoreNoAccount] = useState(false);
   const [pendingSignup, setPendingSignup] = useState<PendingEmailSignup | null>(null);
+  const [pendingEmailSignIn, setPendingEmailSignIn] = useState<{ email: string; kit: WrappedKit } | null>(null);
   const [storageMode, setStorageMode] = useState<StorageMode | null>(null);
   const [deviceLocked, setDeviceLocked] = useState(false);
   const [appLockAvailable, setAppLockAvailable] = useState(false);
@@ -236,7 +251,11 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
   const deviceDiaryRef = useRef(false);
 
   const locale = diary.locale;
-  const t = messages[locale];
+  // Spanish and English are always there; another language loads on first use.
+  const t = useLocaleMessages(locale);
+  useEffect(() => {
+    document.documentElement.lang = locale;
+  }, [locale]);
 
   // Loads and decrypts the vault before touching state. The wallet is set only
   // once the real diary is in memory: an unlocked wallet next to an empty diary
@@ -310,6 +329,8 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
     ) => {
       const vault = await backend.load();
       const loaded = vault.blob ? await openVault(nextWallet.aesKey, vault.blob) : emptyDiary(fallbackLocale);
+      // The diary may be in another language than the last one on this device.
+      await loadLocale(loaded.locale).catch(() => undefined);
       if (isCancelled()) return;
       backendRef.current = backend;
       syncedRef.current = { diary: loaded, version: vault.version };
@@ -406,7 +427,10 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
   // never dropped on the host's word alone.
   const restoreStoredSession = useCallback(
     async (isCancelled: () => boolean = () => false) => {
-      const storedLocale = (localStorage.getItem(LOCALE_KEY) as Locale | null) ?? "es";
+      const rawLocale = localStorage.getItem(LOCALE_KEY);
+      const storedLocale: Locale = isLocale(rawLocale) ? rawLocale : "es";
+      // Under the splash, so the first screen is already in that language.
+      await loadLocale(storedLocale).catch(() => undefined);
       if (IS_ANDROID_APP && (await restoreDeviceDiary(storedLocale, isCancelled))) return;
       const store = await phraseStore();
       const unlockState = await store.read();
@@ -746,12 +770,17 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
       moveToDevice,
       setLocale: (nextLocale) => {
         localStorage.setItem(LOCALE_KEY, nextLocale);
-        // Offline the language changes on screen only: the copy is never saved.
-        if (wallet && !offline) {
-          void persistDiary({ ...diary, locale: nextLocale });
-        } else {
-          setDiary({ ...diary, locale: nextLocale });
-        }
+        // Load the language first, so the screen changes in one step.
+        void loadLocale(nextLocale)
+          .catch(() => undefined)
+          .then(() => {
+            // Offline the language changes on screen only: the copy is never saved.
+            if (wallet && !offline) {
+              void persistDiary({ ...shownDiaryRef.current, locale: nextLocale });
+            } else {
+              setDiary((current) => ({ ...current, locale: nextLocale }));
+            }
+          });
       },
       setVisualSeasons: (enabled) => {
         localStorage.setItem(VISUAL_SEASONS_KEY, String(enabled));
@@ -839,6 +868,34 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
           throw new InvalidCredentialsError();
         }
       },
+      addEmailSignIn: async (email, password) => {
+        if (!wallet || storageMode !== "hosted") throw new Error("No hosted diary is open");
+        assertOnline(backendRef.current);
+        const normalized = normalizeEmail(email);
+        const kit = await wrapMnemonic(wallet.mnemonic, password);
+        const result = await postRecoveryKit(normalized, kit, locale);
+        if (result.pending) {
+          setPendingEmailSignIn({ email: normalized, kit });
+          return { pending: true };
+        }
+        // Already this account's verified address: the new kit replaced the old one.
+        saveLocalKit(normalized, kit);
+        await persistDiary({ ...shownDiaryRef.current, recoveryEmailSet: true });
+        return { pending: false };
+      },
+      pendingEmailSignIn: pendingEmailSignIn?.email ?? null,
+      confirmEmailSignIn: async (code) => {
+        if (!pendingEmailSignIn) throw new InvalidConfirmError();
+        await confirmRecoveryCode(code);
+        saveLocalKit(pendingEmailSignIn.email, pendingEmailSignIn.kit);
+        setPendingEmailSignIn(null);
+        await persistDiary({ ...shownDiaryRef.current, recoveryEmailSet: true });
+      },
+      resendEmailSignInCode: async () => {
+        if (!pendingEmailSignIn) throw new InvalidConfirmError();
+        await postRecoveryKit(pendingEmailSignIn.email, pendingEmailSignIn.kit, locale);
+      },
+      cancelEmailSignIn: () => setPendingEmailSignIn(null),
       changePassword: async (email, currentPassword, nextPassword) => {
         if (!wallet) throw new Error("Locked");
         assertOnline(backendRef.current);
@@ -928,6 +985,7 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
       timeZone,
       colorScheme,
       pendingSignup,
+      pendingEmailSignIn,
       persistDiary,
       ready,
       restoreFailed,

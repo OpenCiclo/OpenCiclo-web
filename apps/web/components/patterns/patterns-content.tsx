@@ -9,6 +9,7 @@ import { CalendarDays, ChevronRight, Droplet, Lightbulb, PenLine, RotateCcw } fr
 
 import { useCiclo, useTodayIso } from "@/lib/client/ciclo-context";
 import { formatIsoUtc } from "@/lib/format-date";
+import { daysUnit } from "@/lib/i18n";
 import { patternStats } from "@/lib/patterns/stats";
 import { findSymptomMeta, symptomLabel } from "@/lib/symptoms/catalog";
 import { buildTipContext } from "@/lib/tips/context";
@@ -90,14 +91,14 @@ export function PatternsContent() {
             <div className="grid grid-cols-2 gap-3">
             <StatTile
               value={stats.avgCycleLength ?? "—"}
-              unit={t.days}
+              unit={daysUnit(t, locale, stats.avgCycleLength)}
               label={t.avgCycleLength}
               icon={<RotateCcw className="size-4" />}
               tone="primary"
             />
             <StatTile
               value={stats.avgPeriodLength ?? "—"}
-              unit={t.days}
+              unit={daysUnit(t, locale, stats.avgPeriodLength)}
               label={t.avgPeriodLength}
               icon={<Droplet className="size-4" />}
               tone="bleed"
@@ -112,7 +113,7 @@ export function PatternsContent() {
             {stats.forecastingEnabled ? (
               <StatTile
                 value={periodStat.value}
-                unit={t.days}
+                unit={daysUnit(t, locale, periodStat.value)}
                 label={periodStat.label}
                 icon={<CalendarDays className="size-4" />}
                 tone="accent"

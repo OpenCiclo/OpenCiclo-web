@@ -13,12 +13,12 @@ import { useCiclo } from "@/lib/client/ciclo-context";
 import { useIsDesktop } from "@/lib/client/desktop";
 import { useIsGhost } from "@/lib/client/ghost";
 import { formatIsoUtc } from "@/lib/format-date";
-import { marketingCopy } from "@/lib/marketing/copy";
+import { marketingCopy } from "@/lib/locales/registry";
 import {
   LEARN_CATEGORIES,
   LEARN_CATEGORY_COPY,
   articleCopy,
-  hasArticleCopy,
+  articleLang,
   relatedArticles,
   type LearnArticle,
   type LearnCategory,
@@ -53,7 +53,7 @@ export function LearnIndex({ articles }: { articles: LearnArticle[] }) {
     [activeSlug, articles],
   );
   const activeCopy = activeArticle ? articleCopy(activeArticle, locale) : null;
-  const activeLang = activeArticle && !hasArticleCopy(activeArticle, locale) ? "en" : undefined;
+  const activeLang = activeArticle ? articleLang(activeArticle, locale) : undefined;
   const activeRelated = useMemo(
     () => (activeArticle ? relatedArticles(activeArticle, articles) : []),
     [activeArticle, articles],
@@ -295,7 +295,7 @@ export function LearnIndex({ articles }: { articles: LearnArticle[] }) {
             <ul className="flex flex-col gap-3 desktop:grid desktop:grid-cols-2 desktop:gap-4">
               {group.articles.map((article, index) => {
                 const copy = articleCopy(article, locale);
-                const lang = hasArticleCopy(article, locale) ? undefined : "en";
+                const lang = articleLang(article, locale);
                 const delay = 60 + Math.min(group.firstCard + index, 6) * 50;
                 return (
                   <li key={article.slug}>
@@ -363,7 +363,7 @@ export function LearnIndex({ articles }: { articles: LearnArticle[] }) {
               <p className="mt-1 text-xs text-muted-foreground">
                 {t.learnReviewed}: {formatIsoUtc(activeArticle.reviewedAt, locale, { day: "numeric", month: "long", year: "numeric" })}
               </p>
-              {activeLang ? <Badge className="mt-2">{t.learnEnglishOnly}</Badge> : null}
+              {activeLang ? <Badge className="mt-2">{activeLang === "es" ? t.learnSpanishOnly : t.learnEnglishOnly}</Badge> : null}
             </div>
             {/* Keyed so the scroll position resets when a related article replaces the current one. */}
             <div key={activeArticle.slug} className="min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain px-5 py-4 desktop:px-8 desktop:py-6">
@@ -401,7 +401,7 @@ export function LearnIndex({ articles }: { articles: LearnArticle[] }) {
                             event.preventDefault();
                             setActiveSlug(related.slug);
                           }}
-                          lang={hasArticleCopy(related, locale) ? undefined : "en"}
+                          lang={articleLang(related, locale)}
                           className="block rounded-3xl bg-background p-4 font-serif text-base text-card-foreground transition-transform active:scale-[0.99]"
                         >
                           {articleCopy(related, locale).title}

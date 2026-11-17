@@ -42,9 +42,10 @@ import {
 } from "@/lib/diary";
 import { formatIsoUtc } from "@/lib/format-date";
 import { VISUAL_SEASONS_AVAILABLE } from "@/lib/features";
-import { messages, type Locale } from "@/lib/i18n";
+import { daysUnit, messages, type Locale } from "@/lib/i18n";
+import { marketingCopy } from "@/lib/locales/registry";
 import { useCiclo } from "@/lib/client/ciclo-context";
-import { LEARN_CATEGORY_COPY, articleCopy, hasArticleCopy, type LearnArticle } from "@/lib/learn/articles";
+import { LEARN_CATEGORY_COPY, articleCopy, articleLang, type LearnArticle } from "@/lib/learn/articles";
 import { lunarDayInfo } from "@/lib/lunar/phases";
 import { patternStats } from "@/lib/patterns/stats";
 import { buildTipContext } from "@/lib/tips/context";
@@ -82,10 +83,7 @@ function buildSampleDiary(locale: Locale, today: string): Diary {
   days[lastStart] = {
     flow: "medium",
     symptoms: { cramps: "moderate" },
-    note:
-      locale === "es"
-        ? "Día tranquilo. Menos cólicos que el mes pasado."
-        : "Calm day. Fewer cramps than last month.",
+    note: marketingCopy(locale).demo.sampleNote,
   };
   return { ...base, periodStarts, days };
 }
@@ -115,8 +113,7 @@ const TIP_TONE = {
 type Tab = "calendar" | "patterns" | "learn" | "settings";
 
 export function AppDemo({ locale, learnArticles }: { locale: Locale; learnArticles: LearnArticle[] }) {
-  const t = messages[locale];
-  const { weekStartsOn } = useCiclo();
+  const { t, weekStartsOn } = useCiclo();
   const today = useMemo(() => todayIsoUtc(), []);
   const sample = useMemo(() => buildSampleDiary(locale, today), [locale, today]);
   const [overrides, setOverrides] = useState<Record<string, DayLog>>({});
@@ -220,7 +217,7 @@ export function AppDemo({ locale, learnArticles }: { locale: Locale; learnArticl
     <div
       className="relative mx-auto flex w-full max-w-[300px] flex-col rounded-[2.5rem] border-2 border-foreground/90 bg-foreground/90 p-1.5 shadow-2xl"
       role="group"
-      aria-label={locale === "es" ? "Demo interactiva de la app" : "Interactive app demo"}
+      aria-label={marketingCopy(locale).demo.ariaLabel}
     >
       <div
         aria-hidden
@@ -582,7 +579,7 @@ function CalendarTab({
           <Sparkles className="size-3 shrink-0 text-primary" aria-hidden />
           <span className="capitalize">{formatIsoUtc(selected, locale, { month: "long", day: "numeric" })}</span>
           {selectedInfo ? <span>· {selectedInfo}</span> : null}
-          <span className="ml-auto shrink-0 text-primary">{locale === "es" ? "Editar" : "Edit"}</span>
+          <span className="ml-auto shrink-0 text-primary">{marketingCopy(locale).demo.edit}</span>
         </button>
       ) : null}
     </div>
@@ -612,14 +609,14 @@ function PatternsTab({
       <div className="grid grid-cols-2 gap-2">
         <StatTile
           value={stats.avgCycleLength ?? "—"}
-          unit={t.days}
+          unit={daysUnit(t, locale, stats.avgCycleLength)}
           label={t.avgCycleLength}
           icon={<RotateCcw className="size-3.5" />}
           tone="primary"
         />
         <StatTile
           value={stats.avgPeriodLength ?? "—"}
-          unit={t.days}
+          unit={daysUnit(t, locale, stats.avgPeriodLength)}
           label={t.avgPeriodLength}
           icon={<Droplet className="size-3.5" />}
           tone="bleed"
@@ -634,7 +631,7 @@ function PatternsTab({
         {stats.forecastingEnabled ? (
           <StatTile
             value={periodStat.value}
-            unit={t.days}
+            unit={daysUnit(t, locale, periodStat.value)}
             label={periodStat.label}
             icon={<CalendarDays className="size-3.5" />}
             tone="accent"
@@ -747,14 +744,12 @@ function LearnTab({ t, locale, articles }: { t: Messages; locale: Locale; articl
       <div>
         <p className="font-serif text-base text-foreground">{t.learn}</p>
         <p className="text-[10px] leading-relaxed text-muted-foreground text-pretty">
-          {locale === "es"
-            ? "Guías breves con fuentes citadas. Educación, no diagnóstico."
-            : "Short, source-cited guides. Education, not diagnosis."}
+          {marketingCopy(locale).demo.learnIntro}
         </p>
       </div>
       {articles.map((article) => {
         const copy = articleCopy(article, locale);
-        const lang = hasArticleCopy(article, locale) ? undefined : "en";
+        const lang = articleLang(article, locale);
         return (
           <div key={article.slug} className="rounded-2xl bg-card p-3 shadow-sm">
             <span className="inline-flex rounded-full bg-secondary px-2 py-0.5 text-[8px] font-semibold text-secondary-foreground uppercase">
@@ -763,7 +758,7 @@ function LearnTab({ t, locale, articles }: { t: Messages; locale: Locale; articl
             <p lang={lang} className="mt-1.5 font-serif text-[13px] leading-tight text-card-foreground">{copy.title}</p>
             <p lang={lang} className="mt-1 text-[10px] leading-relaxed text-muted-foreground text-pretty">{copy.summary}</p>
             <span className="mt-1.5 inline-flex items-center gap-0.5 text-[10px] font-semibold text-primary">
-              {locale === "es" ? "Leer" : "Read"}
+              {marketingCopy(locale).demo.read}
               <ChevronRight className="size-3" aria-hidden />
             </span>
           </div>
@@ -833,9 +828,7 @@ function SettingsTab({
 
       <div className="rounded-2xl border border-primary/20 bg-primary/5 p-3">
         <p className="text-[9px] leading-relaxed text-muted-foreground text-pretty">
-          {locale === "es"
-            ? "Tu diario se cifra en tu dispositivo. Exporta o importa tus datos cuando quieras."
-            : "Your diary is encrypted on your device. Export or import your data whenever you want."}
+          {marketingCopy(locale).demo.settingsNote}
         </p>
       </div>
     </div>
