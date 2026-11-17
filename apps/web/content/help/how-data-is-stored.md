@@ -14,6 +14,8 @@ You can change the wrap password in Settings while you are signed in. That only 
 
 If Ciclo cannot reach the server when it opens (no connection, or a server error), it keeps that secret and shows **Try again**. It does not show an empty diary while it waits, so nothing can be saved over your real one.
 
+In the Android app, with **Keep me signed in** on, Ciclo also keeps a copy of your diary on the phone, encrypted the same way as on the server. Without a connection it opens that copy so you can look through it, and says when it was last saved. You cannot change anything until the connection comes back, then the app loads the diary from the server again. Signing out deletes the copy.
+
 ## What happens on save
 
 1. You are signed in. The browser already holds a key derived from your 12-word phrase.

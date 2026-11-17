@@ -56,6 +56,7 @@ export function CalendarScreen() {
     lunarPhasesVisible,
     setLunarPhasesVisible,
     weekStartsOn,
+    offline,
   } = useCiclo();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -190,7 +191,7 @@ export function CalendarScreen() {
   }
 
   async function saveDay(log: DayLog) {
-    if (!activeIso || !isEditableDiaryDate(activeIso, today)) return;
+    if (offline || !activeIso || !isEditableDiaryDate(activeIso, today)) return;
     try {
       setSaving(true);
       await persistDiary(upsertDay(diary, activeIso, log));
@@ -207,6 +208,7 @@ export function CalendarScreen() {
     favoriteSymptomIds: SymptomId[],
     customSymptoms: CustomSymptomDefinition[],
   ) {
+    if (offline) return;
     try {
       setSaving(true);
       await persistDiary({ ...diary, favoriteSymptomIds, customSymptoms });
@@ -442,6 +444,7 @@ export function CalendarScreen() {
         onClose={closeSheet}
         onExited={handleSheetExited}
         onSave={(log) => saveDay(log)}
+        readOnly={offline !== null}
         lunarPhasesEnabled={lunarPhasesEnabled}
         onUpdateSymptomPreferences={updateSymptomPreferences}
       />

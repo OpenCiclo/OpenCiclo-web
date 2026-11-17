@@ -15,6 +15,7 @@ import { VISUAL_SEASONS_AVAILABLE } from "@/lib/features";
 import { otherLocale } from "@/lib/i18n";
 import { AppShell } from "@/components/app-shell";
 import { InstallPrompt } from "@/components/install-prompt";
+import { OfflineNotice } from "@/components/offline-notice";
 import { PhraseQrCode } from "@/components/phrase-qr-code";
 import { SavePhraseForm } from "@/components/save-phrase-form";
 import { TimeZoneSelect } from "@/components/time-zone-select";
@@ -72,8 +73,11 @@ export default function SettingsPage() {
     setAppLock,
     moveToHosted,
     moveToDevice,
+    offline,
   } = useCiclo();
   const onDevice = storageMode === "device";
+  // The offline copy is open (Android): what saves the diary or needs the host is off.
+  const readOnly = offline !== null;
   const [storageBusy, setStorageBusy] = useState(false);
   const router = useRouter();
   const fileRef = useRef<HTMLInputElement>(null);
@@ -116,6 +120,7 @@ export default function SettingsPage() {
     <AppShell size="wide">
       {/* Same size and font as the section titles on Patterns ("Forecast"). */}
       <h1 className="mb-3 font-serif text-xl text-foreground desktop:mb-8 desktop:text-4xl desktop:tracking-tight">{t.settings}</h1>
+      <OfflineNotice className="mb-4" />
       {/* Desktop: preferences on the left; storage, backup, research and the account on the right. */}
       <div className="desktop:grid desktop:grid-cols-2 desktop:items-start desktop:gap-6">
       <div>
@@ -160,10 +165,11 @@ export default function SettingsPage() {
             role="switch"
             aria-describedby="forecasting-enabled-hint"
             checked={diary.forecastingEnabled !== false}
+            disabled={readOnly}
             onChange={(event) => {
               void persistDiary({ ...diary, forecastingEnabled: event.target.checked });
             }}
-            className="h-7 w-12 shrink-0 cursor-pointer appearance-none rounded-full bg-muted-foreground/30 p-1 transition-colors before:block before:size-5 before:rounded-full before:bg-white before:shadow-sm before:transition-transform checked:bg-primary checked:before:translate-x-5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+            className={SWITCH_CLASS}
           />
         </label>
         <label
@@ -295,7 +301,7 @@ export default function SettingsPage() {
               <p className="text-xs text-muted-foreground">{t.moveToDeviceHint}</p>
               <Button
                 variant="outline"
-                disabled={storageBusy}
+                disabled={storageBusy || readOnly}
                 onClick={() => {
                   if (!window.confirm(t.moveToDeviceConfirm)) return;
                   void runStorageAction(moveToDevice, t.moveToDeviceDone);
@@ -384,7 +390,7 @@ export default function SettingsPage() {
               showLabel={t.showPassword}
               hideLabel={t.hidePassword}
             />
-            <Button type="submit" disabled={passwordBusy}>
+            <Button type="submit" disabled={passwordBusy || readOnly}>
               {t.changePassword}
             </Button>
           </form>
@@ -421,7 +427,7 @@ export default function SettingsPage() {
             }
           }}
         />
-        <Button type="button" variant="outline" onClick={() => fileRef.current?.click()}>
+        <Button type="button" variant="outline" disabled={readOnly} onClick={() => fileRef.current?.click()}>
           {t.importData}
         </Button>
         <p className="text-xs text-muted-foreground">{t.importHint}</p>
@@ -433,6 +439,7 @@ export default function SettingsPage() {
                 .replace("{starts}", String(importPreview.starts))}
             </p>
             <Button
+              disabled={readOnly}
               onClick={async () => {
                 try {
                   const incoming = parseImportedFile(importPreview.raw);
@@ -520,6 +527,7 @@ export default function SettingsPage() {
                 type="checkbox"
                 className="mt-1"
                 checked
+                disabled={readOnly}
                 onChange={async () => {
                   try {
                     await disablePoolOptIn();
@@ -548,7 +556,7 @@ export default function SettingsPage() {
                 type="checkbox"
                 className="mt-1"
                 checked={false}
-                disabled={!researchOk}
+                disabled={!researchOk || readOnly}
                 onChange={async (event) => {
                   if (!event.target.checked) return;
                   try {
@@ -566,13 +574,17 @@ export default function SettingsPage() {
       </Card>
       <Card className="mt-4 flex flex-col gap-3 rounded-3xl">
         {onDevice ? null : (
-          <Button variant="outline" onClick={() => void signOut().then(() => router.push("/app"))}>
+          <Button
+            variant="outline"
+            disabled={readOnly}
+            onClick={() => void signOut().then(() => router.push("/app"))}
+          >
             {t.logout}
           </Button>
         )}
         <Button
           variant="destructive"
-          disabled={storageBusy}
+          disabled={storageBusy || readOnly}
           onClick={async () => {
             if (!window.confirm(onDevice ? t.deleteDeviceConfirm : t.deleteConfirm)) return;
             await wipe();

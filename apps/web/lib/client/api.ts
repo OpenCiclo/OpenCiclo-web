@@ -103,6 +103,11 @@ export async function putVault(blob: VaultBlob, baseVersion: number): Promise<Pu
  */
 export type VaultBackend = {
   mode: StorageMode;
+  /**
+   * Set only on the offline copy of a hosted diary (lib/hosted-copy.ts): `save`
+   * always throws, and this is when the copy was last in step with the host.
+   */
+  readOnlySince?: string;
   load: () => Promise<{ blob: VaultBlob | null; version: number }>;
   save: (blob: VaultBlob, baseVersion: number) => Promise<PutVaultResult>;
 };

@@ -18,6 +18,7 @@ import {
   type VaultBlob,
 } from "@/lib/client/api";
 import type { AuthPrompt } from "@/lib/device-vault";
+import { OfflineError, offlineBackend, type HostedCopyStore } from "@/lib/hosted-copy";
 import { mergeDiaries } from "@/lib/diary-io";
 import {
   InvalidConfirmError,
@@ -83,6 +84,12 @@ type CicloContextValue = {
    */
   restoreNoAccount: boolean;
   retryRestore: () => Promise<void>;
+  /**
+   * Android, hosted account kept signed in: the host could not be reached at start,
+   * so the diary on screen is the copy kept on this device, read-only. `savedAt` is
+   * when that copy was last in step with the host. `retryRestore` tries the host again.
+   */
+  offline: { savedAt: string } | null;
   /** Where the open diary lives. Null while nothing is open. */
   storageMode: StorageMode | null;
   /** Android: this install keeps an on-device diary that is not open (app lock, or the phrase is needed). */
@@ -180,6 +187,18 @@ async function phraseStore(): Promise<PhraseStore> {
   return (await loadDeviceStorage()).hostedPhraseStore;
 }
 
+// Android only: the sealed copy of a hosted diary, for reading without a connection.
+async function hostedCopyStore(): Promise<HostedCopyStore | null> {
+  if (!IS_ANDROID_APP) return null;
+  return (await loadDeviceStorage()).hostedCopyStore;
+}
+
+// The offline copy is read-only: nothing that writes the diary or acts on the
+// account runs on top of it, since the host may hold newer edits.
+function assertOnline(backend: VaultBackend | null) {
+  if (backend?.readOnlySince) throw new OfflineError();
+}
+
 function authPrompt(locale: Locale): AuthPrompt {
   return { title: messages[locale].appLockPromptTitle, subtitle: messages[locale].appLockPromptSubtitle };
 }
@@ -206,8 +225,12 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
   const [deviceLocked, setDeviceLocked] = useState(false);
   const [appLockAvailable, setAppLockAvailable] = useState(false);
   const [appLockEnabled, setAppLockEnabled] = useState(false);
+  const [offline, setOffline] = useState<{ savedAt: string } | null>(null);
   // Where the open diary is loaded from and saved to.
   const backendRef = useRef<VaultBackend | null>(null);
+  // Android, hosted account with "Keep me signed in": keep a sealed copy of the
+  // diary on the device, in step with the host, to read it without a connection.
+  const keepCopyRef = useRef(false);
   // Android: this install keeps its diary on the device. A phrase then opens that
   // file and never signs in to a host, which would create an empty account there.
   const deviceDiaryRef = useRef(false);
@@ -230,6 +253,25 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
   }, [diary]);
   // One save at a time on this device.
   const saveQueueRef = useRef<Promise<unknown>>(Promise.resolve());
+  // One retry of the stored session at a time (the button, a reconnect, the app returning to the front).
+  const retryRef = useRef<Promise<void> | null>(null);
+
+  // Writes the offline copy after a load from or a save to the host. Best effort:
+  // the host has the diary either way.
+  const keepCopy = useCallback(async (blob: VaultBlob, version: number) => {
+    if (!keepCopyRef.current) return;
+    const store = await hostedCopyStore();
+    await store?.write({ blob, version, savedAt: new Date().toISOString() }).catch(() => undefined);
+  }, []);
+
+  // Whether the open hosted diary keeps an offline copy. Without one, any copy
+  // left on the device (another account, an earlier session) is deleted.
+  const keepCopies = useCallback(async (keep: boolean) => {
+    keepCopyRef.current = IS_ANDROID_APP && keep;
+    if (keepCopyRef.current) return;
+    const store = await hostedCopyStore().catch(() => null);
+    await store?.clear().catch(() => undefined);
+  }, []);
 
   // Saves `local` on top of the synced version. If another device saved first
   // (409), merges its edits in and tries again. Returns what was stored.
@@ -239,9 +281,11 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
     if (!synced || !backend) throw new Error("Locked");
     let candidate = local;
     for (let attempt = 0; attempt < MAX_SAVE_ATTEMPTS; attempt += 1) {
-      const result = await backend.save(await sealDiary(aesKey, candidate), synced.version);
+      const blob = await sealDiary(aesKey, candidate);
+      const result = await backend.save(blob, synced.version);
       if (result.ok) {
         syncedRef.current = { diary: candidate, version: result.version };
+        if (backend === hostedVault) await keepCopy(blob, result.version);
         return candidate;
       }
       const remote = result.current.ciphertext
@@ -252,7 +296,7 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
       syncedRef.current = synced;
     }
     throw new Error("Could not save: the diary keeps changing on another device");
-  }, []);
+  }, [keepCopy]);
 
   // Loads and decrypts the vault before touching state. The wallet is set only
   // once the real diary is in memory: an unlocked wallet next to an empty diary
@@ -270,12 +314,14 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
       backendRef.current = backend;
       syncedRef.current = { diary: loaded, version: vault.version };
       setStorageMode(backend.mode);
+      setOffline(backend.readOnlySince ? { savedAt: backend.readOnlySince } : null);
       setDiary(loaded);
       setWallet(nextWallet);
       setRestoreFailed(false);
       setRestoreNoAccount(false);
       setDeviceLocked(false);
-      if (!loaded.poolOptIn) return;
+      if (backend === hostedVault && vault.blob) await keepCopy(vault.blob, vault.version);
+      if (!loaded.poolOptIn || backend.readOnlySince) return;
       try {
         const withPool = await syncPoolIfDue(loaded);
         if (isCancelled() || withPool.poolLastSyncedAt === loaded.poolLastSyncedAt) return;
@@ -285,7 +331,27 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
         // The pool is optional; the next save retries it.
       }
     },
-    [saveMerged],
+    [keepCopy, saveMerged],
+  );
+
+  // Android: opens the copy of the hosted diary kept on this device, read-only,
+  // when the host cannot be reached at start. False when there is no copy this
+  // phrase opens.
+  const openOfflineCopy = useCallback(
+    async (nextWallet: Wallet, fallbackLocale: Locale, isCancelled: () => boolean): Promise<boolean> => {
+      const store = await hostedCopyStore().catch(() => null);
+      const copy = await store?.read();
+      if (!store || !copy) return false;
+      try {
+        await hydrate(nextWallet, fallbackLocale, offlineBackend(copy), isCancelled);
+        return true;
+      } catch {
+        // Another account's copy, or a damaged one. The host still has the diary.
+        await store.clear().catch(() => undefined);
+        return false;
+      }
+    },
+    [hydrate],
   );
 
   // Opens this install's on-device diary with the phrase sealed in Keystore.
@@ -356,20 +422,55 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
         if (!isCancelled()) setDiary(emptyDiary(storedLocale));
         return;
       }
+      // A phrase kept between starts is "Keep me signed in": the diary keeps an offline copy.
+      keepCopyRef.current = IS_ANDROID_APP && unlockState.persist;
       try {
         await loginWithWallet(nextWallet, undefined, unlockState.persistCookie);
         await hydrate(nextWallet, storedLocale, hostedVault, isCancelled);
       } catch (cause) {
         if (isCancelled()) return;
+        const noAccount = cause instanceof AccountNotFoundError;
+        // No connection, or the host is down: the copy on this device opens read-only.
+        // Never when the host has no account: a diary deleted elsewhere does not come back.
+        if (!noAccount && keepCopyRef.current && (await openOfflineCopy(nextWallet, storedLocale, isCancelled))) {
+          return;
+        }
+        if (isCancelled()) return;
+        backendRef.current = null;
+        syncedRef.current = null;
+        setStorageMode(null);
+        setOffline(null);
         setWallet(null);
         setDiary(emptyDiary(storedLocale));
-        const noAccount = cause instanceof AccountNotFoundError;
         setRestoreNoAccount(noAccount);
         setRestoreFailed(!noAccount);
       }
     },
-    [hydrate, restoreDeviceDiary],
+    [hydrate, openOfflineCopy, restoreDeviceDiary],
   );
+
+  const retryRestore = useCallback(() => {
+    retryRef.current ??= restoreStoredSession().finally(() => {
+      retryRef.current = null;
+    });
+    return retryRef.current;
+  }, [restoreStoredSession]);
+
+  // While the offline copy is on screen, try the host again when the connection
+  // comes back or the app returns to the front.
+  useEffect(() => {
+    if (!offline) return;
+    const retry = () => {
+      if (document.visibilityState === "hidden" || !navigator.onLine) return;
+      void retryRestore();
+    };
+    window.addEventListener("online", retry);
+    document.addEventListener("visibilitychange", retry);
+    return () => {
+      window.removeEventListener("online", retry);
+      document.removeEventListener("visibilitychange", retry);
+    };
+  }, [offline, retryRestore]);
 
   useEffect(() => {
     let cancelled = false;
@@ -405,6 +506,7 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
       const shown = shownDiaryRef.current;
       const run = async () => {
         if (!wallet || !syncedRef.current) throw new Error("Locked");
+        assertOnline(backendRef.current);
         // Re-apply that edit on top of anything saved since the caller rendered.
         let local = mergeDiaryEdits(shown, parseDiary(next), syncedRef.current.diary);
         if (local.poolOptIn) {
@@ -469,11 +571,12 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
       await device.deviceVault.storePhrase({ ...authPrompt(locale), phrase: nextWallet.mnemonic, requireAuth: false });
       // A phrase left by a hosted session would make the next start sign in too.
       await device.hostedPhraseStore.clear().catch(() => undefined);
+      await keepCopies(false);
       setAppLockAvailable(status.lockAvailable);
       setAppLockEnabled(false);
       await hydrate(nextWallet, locale, device.deviceBackend);
     },
-    [hydrate, locale],
+    [hydrate, keepCopies, locale],
   );
 
   const setAppLock = useCallback(
@@ -538,9 +641,10 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
         setAppLockEnabled(false);
         await device.deviceVault.setSecureScreen({ enabled: false });
         await device.hostedPhraseStore.write(wallet.mnemonic, true);
+        await keepCopies(true);
         await hydrate(wallet, local.locale, hostedVault);
       }),
-    [enqueue, hydrate, storageMode, wallet],
+    [enqueue, hydrate, keepCopies, storageMode, wallet],
   );
 
   // The hosted account is deleted only once the device holds the diary. If the
@@ -552,6 +656,8 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
         if (!IS_ANDROID_APP || !wallet || storageMode !== "hosted" || !synced) {
           throw new Error("No hosted diary is open");
         }
+        // The copy may be older than the host's diary, and the move deletes the account.
+        assertOnline(backendRef.current);
         const device = await loadDeviceStorage();
         const status = await device.deviceVault.status();
         if (status.hasDiary) throw new Error("This device already has a diary");
@@ -571,13 +677,14 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
           throw cause;
         }
         await device.hostedPhraseStore.clear().catch(() => undefined);
+        await keepCopies(false);
         clearLocalKits();
         deviceDiaryRef.current = true;
         setAppLockAvailable(status.lockAvailable);
         setAppLockEnabled(false);
         await hydrate(wallet, local.locale, device.deviceBackend);
       }),
-    [enqueue, hydrate, storageMode, wallet],
+    [enqueue, hydrate, keepCopies, storageMode, wallet],
   );
 
   const unlock = useCallback(
@@ -604,9 +711,10 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
         await loginWithWallet(nextWallet, undefined, persist);
       }
       await (await phraseStore()).write(nextWallet.mnemonic, persist);
+      await keepCopies(persist);
       await hydrate(nextWallet, locale, hostedVault);
     },
-    [hydrate, locale, unlockDeviceWithPhrase],
+    [hydrate, keepCopies, locale, unlockDeviceWithPhrase],
   );
 
   const value = useMemo<CicloContextValue>(
@@ -626,7 +734,8 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
       setError,
       restoreFailed,
       restoreNoAccount,
-      retryRestore: () => restoreStoredSession(),
+      retryRestore,
+      offline,
       storageMode,
       deviceLocked,
       appLockAvailable,
@@ -637,7 +746,8 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
       moveToDevice,
       setLocale: (nextLocale) => {
         localStorage.setItem(LOCALE_KEY, nextLocale);
-        if (wallet) {
+        // Offline the language changes on screen only: the copy is never saved.
+        if (wallet && !offline) {
           void persistDiary({ ...diary, locale: nextLocale });
         } else {
           setDiary({ ...diary, locale: nextLocale });
@@ -693,6 +803,7 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
         if (!result.pending) {
           saveLocalKit(normalized, kit);
           await (await phraseStore()).write(nextWallet.mnemonic, persist);
+          await keepCopies(persist);
           setPendingSignup(null);
           await hydrate(nextWallet, locale, hostedVault);
           return;
@@ -704,6 +815,7 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
         await confirmRecoveryCode(code);
         saveLocalKit(pendingSignup.email, pendingSignup.kit);
         await (await phraseStore()).write(pendingSignup.wallet.mnemonic, pendingSignup.persist);
+        await keepCopies(pendingSignup.persist);
         const nextWallet = pendingSignup.wallet;
         setPendingSignup(null);
         await hydrate(nextWallet, locale, hostedVault);
@@ -729,6 +841,7 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
       },
       changePassword: async (email, currentPassword, nextPassword) => {
         if (!wallet) throw new Error("Locked");
+        assertOnline(backendRef.current);
         const normalized = normalizeEmail(email);
         let kit = loadLocalKit(normalized);
         if (!kit) {
@@ -757,6 +870,7 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
         });
       },
       wipe: async () => {
+        assertOnline(backendRef.current);
         if (storageMode === "device") {
           const device = await loadDeviceStorage();
           await device.deviceVault.clear();
@@ -767,23 +881,29 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
           await deleteAccount();
           // The account is gone either way; a phrase left behind only meets "no account" on the next start.
           await (await phraseStore()).clear().catch(() => undefined);
+          await keepCopies(false);
           clearLocalKits();
         }
         syncedRef.current = null;
         backendRef.current = null;
         setStorageMode(null);
+        setOffline(null);
         setWallet(null);
         setDiary(emptyDiary(locale));
       },
       signOut: async () => {
         // An on-device diary has no session to end. Settings offers deleting it instead.
         if (storageMode === "device") throw new Error("On-device diaries have no session");
+        assertOnline(backendRef.current);
         await logoutSession();
         // Throws if the kept phrase may still be there: signing out must forget it.
         await (await phraseStore()).clear();
+        // Without the phrase the copy cannot be opened; it goes all the same.
+        await keepCopies(false);
         syncedRef.current = null;
         backendRef.current = null;
         setStorageMode(null);
+        setOffline(null);
         setWallet(null);
       },
     }),
@@ -795,9 +915,11 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
       diary,
       error,
       hydrate,
+      keepCopies,
       locale,
       moveToDevice,
       moveToHosted,
+      offline,
       setAppLock,
       storageMode,
       lunarPhasesEnabled,
@@ -810,7 +932,7 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
       ready,
       restoreFailed,
       restoreNoAccount,
-      restoreStoredSession,
+      retryRestore,
       t,
       unlock,
       visualSeasons,
