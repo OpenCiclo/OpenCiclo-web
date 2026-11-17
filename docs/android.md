@@ -46,6 +46,18 @@ On the web, "Keep me signed in" leaves the 12-word phrase in `localStorage`. In 
 - **Older versions.** They kept the phrase in `localStorage`. The first start after the update seals it, reads it back, and only then deletes the plaintext. If Keystore fails, the plaintext stays and the next start tries again. WebView's storage engine may keep the deleted bytes on disk until it compacts its files.
 - **Failures.** If Keystore cannot seal the phrase, the person stays signed in and the next start asks for the phrase; there is no plaintext fallback. If it cannot open the file, the start screen shows and the file stays until the next sign-in replaces it. Sign-out fails if the sealed phrase may still be there.
 
+## Offline copy (hosted accounts)
+
+With "Keep me signed in" on, the app keeps a copy of the hosted diary on the phone, so it can still show it without a connection. Reading only: nothing can be saved until the host answers again.
+
+- **What it is.** `files/hosted-diary-copy.json` (`lib/hosted-copy.ts`, `readHostedCopy` / `writeHostedCopy` / `clearHostedCopy` in `DeviceVaultPlugin.java`, `AtomicFile`). It holds the same sealed blob the host stores, the host's vault version, and when it was last in step with the host. It opens only with the phrase sealed in Keystore. It is not a device diary: `status()` and `readDiary()` never look at it.
+- **When it is written.** After every load from the host and every successful save (`hydrate` and `saveMerged` in `ciclo-context.tsx`). Best effort: a failed write never fails the save.
+- **When it opens.** At start, if signing in or loading the vault fails for any reason but "no account" (no connection, server error, Neon down). A copy the phrase cannot decrypt (another account, damaged) is deleted and the start screen shows **Try again**, as before.
+- **Read-only.** It opens through `offlineBackend()`, whose `save` throws `OfflineError`, and the context sets `offline`. `persistDiary`, moving to the device, password change, sign-out, and account delete refuse while it is open: the host may hold newer edits, and moving to the device would delete the account after copying an old diary. The UI shows `OfflineNotice` on Calendar, Patterns, and Settings, and the day sheet opens read-only. Changing the language while offline changes the screen only.
+- **Back online.** The `online` event, the app returning to the front, or **Try again** run the normal sign-in again (one at a time). The host's diary replaces the copy and editing comes back. Nothing was edited offline, so there is nothing to merge.
+- **When it is deleted.** Sign-out, account delete, moving to the device, creating a device diary, and any sign-in without "Keep me signed in". A host that answers "no account" leaves it in place (like the phrase) but never shows it.
+- **Not on the web.** The browser keeps no copy of the diary.
+
 ## Back button
 
 `MainActivity` asks the page first (`window.cicloBack`, `lib/client/android-back.ts`):

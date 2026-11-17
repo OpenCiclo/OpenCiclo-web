@@ -5,6 +5,7 @@ import { registerPlugin } from "@capacitor/core";
 
 import { androidPhraseStore } from "@/lib/client/phrase-store";
 import { deviceVaultBackend, type DeviceVaultPlugin } from "@/lib/device-vault";
+import { androidHostedCopyStore } from "@/lib/hosted-copy";
 
 // Android only. Load it with `import()` behind IS_ANDROID_APP so the web never
 // loads Capacitor. The plugin is DeviceVaultPlugin.java in apps/mobile.
@@ -14,3 +15,6 @@ export const deviceBackend = deviceVaultBackend(deviceVault);
 
 /** "Keep me signed in" for hosted accounts in the app: Keystore, not WebView storage. */
 export const hostedPhraseStore = androidPhraseStore(deviceVault, { local: localStorage, session: sessionStorage });
+
+/** The sealed copy of a hosted diary that opens read-only without a connection. */
+export const hostedCopyStore = androidHostedCopyStore(deviceVault);
