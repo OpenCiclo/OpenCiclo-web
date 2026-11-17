@@ -8,6 +8,7 @@ import { initialChartWindow, untruncatedDaily } from "@/lib/cycle/initial-chart"
 import { cycleOverview } from "@/lib/cycle/phases";
 import { initialProbabilityLabel, periodTimingChip } from "@/lib/cycle/period-timing";
 import { daysBetween } from "@/lib/forecast/math";
+import { daysUnit, withinDays } from "@/lib/i18n";
 import type { DailyProbability } from "@/lib/forecast/types";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -17,7 +18,7 @@ const NEXT_WINDOWS = ["1", "2", "3", "5", "7"] as const;
 const AROUND_WINDOWS = ["1", "2", "3", "5"] as const;
 
 function formatDate(iso: string, locale: string) {
-  return new Intl.DateTimeFormat(locale === "es" ? "es" : "en", {
+  return new Intl.DateTimeFormat(locale, {
     weekday: "short",
     day: "numeric",
     month: "short",
@@ -97,11 +98,11 @@ export function ForecastCard() {
         ) : null}
         <div className="mt-3 flex flex-wrap items-center gap-2">
           <Badge>
-            {t.cycleLength}: {cycleLengthDays} {t.days}
+            {t.cycleLength}: {cycleLengthDays} {daysUnit(t, locale, cycleLengthDays)}
           </Badge>
           {overview.expectedPeriodLength ? (
             <Badge>
-              {t.expectedPeriodLength}: {overview.expectedPeriodLength} {t.days}
+              {t.expectedPeriodLength}: {overview.expectedPeriodLength} {daysUnit(t, locale, overview.expectedPeriodLength)}
             </Badge>
           ) : null}
         </div>
@@ -146,7 +147,7 @@ export function ForecastCard() {
                   return (
                     <Stat
                       key={`next-${window}`}
-                      label={`${t.within} ${window} ${t.days}`}
+                      label={withinDays(t, locale, Number(window))}
                       value={percent(value)}
                     />
                   );

@@ -8,8 +8,9 @@ import { useState, type ReactNode } from "react";
 import { ArrowUpRight } from "lucide-react";
 
 import { useCiclo } from "@/lib/client/ciclo-context";
-import { otherLocale } from "@/lib/i18n";
-import { marketingCopy, MARKETING_LINKS } from "@/lib/marketing/copy";
+import { marketingCopy } from "@/lib/locales/registry";
+import { MARKETING_LINKS } from "@/lib/marketing/copy";
+import { LanguageSelect } from "@/components/language-select";
 import { BrandMark } from "@/components/brand-mark";
 import { ColorSchemeSwitcher } from "@/components/color-scheme-switcher";
 
@@ -47,7 +48,7 @@ function NavLink({
 }
 
 export function MarketingShell({ children }: { children: ReactNode }) {
-  const { locale, setLocale, t } = useCiclo();
+  const { locale, t } = useCiclo();
   const copy = marketingCopy(locale);
   const [menuOpen, setMenuOpen] = useState(false);
   const schemeSwitcher = <ColorSchemeSwitcher />;
@@ -63,15 +64,7 @@ export function MarketingShell({ children }: { children: ReactNode }) {
             className="flex items-center gap-2 lg:hidden"
             aria-expanded={menuOpen}
             aria-controls="mobile-menu"
-            aria-label={
-              menuOpen
-                ? locale === "es"
-                  ? "Cerrar menú"
-                  : "Close menu"
-                : locale === "es"
-                  ? "Abrir menú"
-                  : "Open menu"
-            }
+            aria-label={menuOpen ? copy.menu.close : copy.menu.open}
           >
             <BrandMark />
             <span className="font-serif text-xl tracking-tight">{copy.brand}</span>
@@ -97,14 +90,7 @@ export function MarketingShell({ children }: { children: ReactNode }) {
           <div className="flex items-center gap-2">
             {/* Below sm the row is too narrow for the switcher; it moves into the menu. */}
             <div className="hidden sm:block">{schemeSwitcher}</div>
-            <button
-              type="button"
-              onClick={() => setLocale(otherLocale(locale))}
-              className="rounded-full border border-border px-3 py-1.5 text-xs font-semibold text-muted-foreground transition-colors hover:text-foreground"
-              aria-label={locale === "es" ? "Switch to English" : "Cambiar a Español"}
-            >
-              {copy.langToggle}
-            </button>
+            <LanguageSelect compact />
             <Link
               href={MARKETING_LINKS.app}
               className="inline-flex min-h-9 items-center justify-center gap-1 rounded-xl bg-primary px-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 sm:px-4"

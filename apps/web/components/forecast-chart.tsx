@@ -47,7 +47,7 @@ export function ForecastChart({
   const points = daily.filter((item) => item.date >= start && item.date <= end).slice(0, DAY_COUNT);
   const longFormatter = useMemo(
     () =>
-      new Intl.DateTimeFormat(locale === "es" ? "es" : "en", {
+      new Intl.DateTimeFormat(locale, {
         weekday: "short",
         day: "numeric",
         month: "short",

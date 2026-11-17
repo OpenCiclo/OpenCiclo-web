@@ -16,7 +16,7 @@ import {
 } from "@/lib/cycle/phases";
 import { addDaysIso, parseDiary } from "@/lib/diary";
 import { daysBetween } from "@/lib/forecast/math";
-import { messages, type Locale } from "@/lib/i18n";
+import { messages, type BaseLocale } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 const PHASE_SAMPLES: Record<CyclePhase, { cycleDay: number; nextPeriodInDays: number }> = {
@@ -78,7 +78,7 @@ function previewOverview(phase: CyclePhase, source: PhaseSource): CycleOverview 
 }
 
 export function SeasonPlayground() {
-  const [locale, setLocale] = useState<Locale>("es");
+  const [locale, setLocale] = useState<BaseLocale>("es");
   const [source, setSource] = useState<PhaseSource>("estimated");
   const [visualSeasons, setVisualSeasons] = useState(false);
   const t = messages[locale];
