@@ -38,6 +38,8 @@ Settings → **Where your diary is stored** shows where it is now. Pick the othe
 
 Either way, the old copy is deleted only after the new one is saved.
 
+After **In the Ciclo cloud** you sign in with the 12-word phrase. To sign in with an email and password again, use **Settings → Add email and password**; the email has to be confirmed with a new 6-digit code.
+
 ## Delete
 
 Settings → **Delete the diary on this device** removes the diary, the encrypted phrase, and the Keystore keys. It cannot be undone.

@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { CYCLE_SEASONS, type CycleSeason } from "@/lib/cycle/phases";
-import type { Locale } from "@/lib/i18n";
+import { contentLocale, type BaseLocale, type Locale } from "@/lib/i18n";
 
 export type SeasonGuideCopy = {
   meaning: string;
@@ -11,7 +11,8 @@ export type SeasonGuideCopy = {
   dont: string[];
 };
 
-const GUIDES: Record<CycleSeason, Record<Locale, SeasonGuideCopy>> = {
+// Spanish and English only (the inner seasons are hidden for now); other languages read one of them.
+const GUIDES: Record<CycleSeason, Record<BaseLocale, SeasonGuideCopy>> = {
   winter: {
     es: {
       meaning:
@@ -151,7 +152,7 @@ const GUIDES: Record<CycleSeason, Record<Locale, SeasonGuideCopy>> = {
 };
 
 export function seasonGuide(season: CycleSeason, locale: Locale): SeasonGuideCopy {
-  return GUIDES[season][locale];
+  return GUIDES[season][contentLocale(locale)];
 }
 
 export function seasonGuideComplete(): boolean {

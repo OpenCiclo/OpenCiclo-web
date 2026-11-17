@@ -9,7 +9,8 @@ import { BookOpen, CalendarDays, Settings } from "lucide-react";
 
 import { hidesAppChrome } from "@/lib/client/app-chrome";
 import { useCiclo } from "@/lib/client/ciclo-context";
-import { otherLocale, type Messages } from "@/lib/i18n";
+import { type Messages } from "@/lib/i18n";
+import { LanguageSelect } from "@/components/language-select";
 import { cn } from "@/lib/utils";
 import { BrandMark } from "@/components/brand-mark";
 import { ColorSchemeSwitcher } from "@/components/color-scheme-switcher";
@@ -32,7 +33,7 @@ function isActive(pathname: string, paths: string[]) {
  * the tab bar's rose bubble. CSS shows it only in the `desktop` layout.
  */
 export function DesktopHeader() {
-  const { t, locale, setLocale, wallet } = useCiclo();
+  const { t, wallet } = useCiclo();
   const pathname = usePathname();
   if (hidesAppChrome(pathname)) return null;
 
@@ -71,14 +72,7 @@ export function DesktopHeader() {
         )}
         <div className="flex items-center gap-2 justify-self-end">
           <ColorSchemeSwitcher />
-          <button
-            type="button"
-            onClick={() => setLocale(otherLocale(locale))}
-            className="rounded-full border border-border px-3 py-1.5 text-xs font-semibold text-muted-foreground transition-colors hover:text-foreground"
-            aria-label={locale === "es" ? "Switch to English" : "Cambiar a Español"}
-          >
-            {locale === "es" ? "EN" : "ES"}
-          </button>
+          <LanguageSelect compact />
         </div>
       </div>
     </header>

@@ -7,7 +7,7 @@ import Link from "next/link";
 import { ArrowUpRight, Info, MessageCircle } from "lucide-react";
 
 import { useCiclo } from "@/lib/client/ciclo-context";
-import { marketingCopy } from "@/lib/marketing/copy";
+import { marketingCopy } from "@/lib/locales/registry";
 import { Reveal } from "@/components/marketing/reveal";
 import { GithubMark } from "@/components/marketing/github-mark";
 

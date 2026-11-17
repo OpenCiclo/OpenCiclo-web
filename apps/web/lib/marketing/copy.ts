@@ -1,7 +1,9 @@
 // Copyright © 2026 Emma Flora Harbison & Luis Rey Sánchez
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Locale } from "@/lib/i18n";
+// The landing's copy in Spanish and English. Other languages live in
+// lib/locales/<tag>.ts; read any language with `marketingCopy` from
+// lib/locales/registry.ts. Translations keep every `href`, `icon` and `key`.
 
 export const MARKETING_LINKS = {
   app: "/app",
@@ -23,10 +25,14 @@ export type MarketingCopy = {
   brand: string;
   nav: NavItem[];
   openApp: string;
-  langToggle: string;
+  /** Labels for the menu button on narrow screens. */
+  menu: { open: string; close: string };
   hero: {
     eyebrow: string;
     title: string;
+    /** The big title: this prefix stays, and the lines after it are typed one by one. */
+    titlePrefix: string;
+    titleLines: string[];
     subtitle: string;
     subtitleShort: string;
     disclaimer: string;
@@ -89,9 +95,18 @@ export type MarketingCopy = {
     otherTitle: string;
     otherLinks: NavItem[];
   };
+  /** The phone-shaped app demo on the landing. */
+  demo: {
+    ariaLabel: string;
+    sampleNote: string;
+    edit: string;
+    learnIntro: string;
+    read: string;
+    settingsNote: string;
+  };
 };
 
-const es: MarketingCopy = {
+export const esMarketing: MarketingCopy = {
   brand: "OpenCiclo",
   nav: [
     { label: "Cómo funciona", href: "#como-funciona" },
@@ -102,10 +117,12 @@ const es: MarketingCopy = {
     { label: "Contacto", href: "/contact" },
   ],
   openApp: "Abrir la app",
-  langToggle: "EN",
+  menu: { open: "Abrir menú", close: "Cerrar menú" },
   hero: {
     eyebrow: "Código abierto · Privado por diseño",
     title: "Tu ciclo, en tu dispositivo.",
+    titlePrefix: "Tu ciclo,",
+    titleLines: ["en tu dispositivo.", "privado.", "bajo tu control.", "tuyo."],
     subtitle:
       "OpenCiclo sigue y pronostica tu ciclo menstrual mientras cifra tu diario en tu propio navegador. Sin anuncios, sin rastreo, sin vender tus datos.",
     subtitleShort: "Sigue y pronostica tu ciclo con el diario cifrado en tu navegador. Sin anuncios ni rastreo.",
@@ -277,9 +294,17 @@ const es: MarketingCopy = {
       { label: "Aprender sobre el ciclo", href: "/learn" },
     ],
   },
+  demo: {
+    ariaLabel: "Demo interactiva de la app",
+    sampleNote: "Día tranquilo. Menos cólicos que el mes pasado.",
+    edit: "Editar",
+    learnIntro: "Guías breves con fuentes citadas. Educación, no diagnóstico.",
+    read: "Leer",
+    settingsNote: "Tu diario se cifra en tu dispositivo. Exporta o importa tus datos cuando quieras.",
+  },
 };
 
-const en: MarketingCopy = {
+export const enMarketing: MarketingCopy = {
   brand: "OpenCiclo",
   nav: [
     { label: "How it works", href: "#como-funciona" },
@@ -290,10 +315,12 @@ const en: MarketingCopy = {
     { label: "Contact", href: "/contact" },
   ],
   openApp: "Open the app",
-  langToggle: "ES",
+  menu: { open: "Open menu", close: "Close menu" },
   hero: {
     eyebrow: "Open source · Private by design",
     title: "Your cycle, on your device.",
+    titlePrefix: "Your cycle,",
+    titleLines: ["on your device.", "private.", "under your control.", "yours."],
     subtitle:
       "OpenCiclo tracks and forecasts your menstrual cycle while encrypting your diary right in your browser. No ads, no tracking, no selling your data.",
     subtitleShort: "Track and forecast your cycle with your diary encrypted in your browser. No ads, no tracking.",
@@ -465,8 +492,12 @@ const en: MarketingCopy = {
       { label: "Learn about the cycle", href: "/learn" },
     ],
   },
+  demo: {
+    ariaLabel: "Interactive app demo",
+    sampleNote: "Calm day. Fewer cramps than last month.",
+    edit: "Edit",
+    learnIntro: "Short, source-cited guides. Education, not diagnosis.",
+    read: "Read",
+    settingsNote: "Your diary is encrypted on your device. Export or import your data whenever you want.",
+  },
 };
-
-export function marketingCopy(locale: Locale): MarketingCopy {
-  return locale === "en" ? en : es;
-}

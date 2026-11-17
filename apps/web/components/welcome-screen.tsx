@@ -8,10 +8,10 @@ import { BrandMark } from "@/components/brand-mark";
 import { InstallPrompt } from "@/components/install-prompt";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { otherLocale } from "@/lib/i18n";
+import { LanguageSelect } from "@/components/language-select";
 
 export function WelcomeScreen() {
-  const { t, locale, setLocale, restoreFailed, restoreNoAccount, retryRestore } = useCiclo();
+  const { t, restoreFailed, restoreNoAccount, retryRestore } = useCiclo();
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [retrying, setRetrying] = useState(false);
@@ -24,13 +24,7 @@ export function WelcomeScreen() {
           {t.appName}
         </h1>
         {/* The desktop header has the language switch. */}
-        <button
-          type="button"
-          className="inline-flex shrink-0 items-center rounded-full border border-border px-3 py-1.5 text-xs font-semibold text-muted-foreground transition-colors hover:bg-muted desktop:hidden"
-          onClick={() => setLocale(otherLocale(locale))}
-        >
-          {locale === "es" ? "EN" : "ES"}
-        </button>
+        <LanguageSelect compact className="desktop:hidden" />
       </div>
       {restoreFailed ? (
         <Card role="alert" className="flex flex-col gap-3 border-destructive/30 bg-destructive/5 p-4">

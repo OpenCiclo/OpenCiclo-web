@@ -8,7 +8,7 @@ import Link from "next/link";
 import { AppShell } from "@/components/app-shell";
 import { Badge } from "@/components/ui/badge";
 import { useCiclo } from "@/lib/client/ciclo-context";
-import { LEARN_CATEGORY_COPY, articleCopy, hasArticleCopy, type LearnArticle } from "@/lib/learn/articles";
+import { LEARN_CATEGORY_COPY, articleCopy, articleLang, type LearnArticle } from "@/lib/learn/articles";
 import { formatIsoUtc } from "@/lib/format-date";
 
 export function LearnArticleView({ article, related }: { article: LearnArticle | null; related: LearnArticle[] }) {
@@ -23,7 +23,7 @@ export function LearnArticleView({ article, related }: { article: LearnArticle |
     );
   }
   const copy = articleCopy(article, locale);
-  const lang = hasArticleCopy(article, locale) ? undefined : "en";
+  const lang = articleLang(article, locale);
 
   return (
     <AppShell size="reading">
@@ -39,7 +39,7 @@ export function LearnArticleView({ article, related }: { article: LearnArticle |
           <p className="mt-2 text-sm text-muted-foreground">
             {t.learnReviewed}: {formatIsoUtc(article.reviewedAt, locale, { day: "numeric", month: "long", year: "numeric" })}
           </p>
-          {lang ? <Badge className="mt-2">{t.learnEnglishOnly}</Badge> : null}
+          {lang ? <Badge className="mt-2">{lang === "es" ? t.learnSpanishOnly : t.learnEnglishOnly}</Badge> : null}
         </header>
         <p lang={lang} className="text-sm leading-relaxed text-muted-foreground desktop:text-lg desktop:text-pretty">{copy.summary}</p>
         {copy.sections.map((section) => (
@@ -71,7 +71,7 @@ export function LearnArticleView({ article, related }: { article: LearnArticle |
                 <li key={item.slug}>
                   <Link
                     href={`/learn/${item.slug}`}
-                    lang={hasArticleCopy(item, locale) ? undefined : "en"}
+                    lang={articleLang(item, locale)}
                     className="block rounded-3xl bg-card p-4 font-serif text-base text-card-foreground shadow-sm transition-transform active:scale-[0.99] desktop:h-full desktop:border desktop:border-border/70 desktop:p-5 desktop:hover:-translate-y-0.5"
                   >
                     {articleCopy(item, locale).title}

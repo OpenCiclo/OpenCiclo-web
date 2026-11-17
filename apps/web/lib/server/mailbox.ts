@@ -8,6 +8,7 @@ import { sha256 } from "@noble/hashes/sha2.js";
 
 import { bytesToHex, hexToBytes, utf8ToBytes } from "@/lib/crypto/bytes";
 import { requireSecret } from "@/lib/server/env";
+import { isLocale, type Locale } from "@/lib/i18n";
 
 export const MAILBOX_CODE_TTL_MS = 15 * 60 * 1000;
 export const MAILBOX_CODE_MAX_ATTEMPTS = 5;
@@ -82,8 +83,8 @@ export function parseMailboxCode(raw: unknown): string | null {
   return digits;
 }
 
-export function parseMailLocale(raw: unknown): "es" | "en" {
-  return raw === "en" ? "en" : "es";
+export function parseMailLocale(raw: unknown): Locale {
+  return isLocale(raw) ? raw : "es";
 }
 
 // The longest address SMTP can deliver to (RFC 5321).
