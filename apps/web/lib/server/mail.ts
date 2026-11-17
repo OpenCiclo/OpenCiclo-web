@@ -5,6 +5,7 @@ import nodemailer from "nodemailer";
 import { Resend } from "resend";
 
 import { mailFrom } from "@/lib/server/env";
+import { mailCopy } from "@/lib/locales/registry";
 import { confirmationEmail, type MailLocale } from "@/lib/server/mailbox-email";
 
 export function mailTransportConfigured(): boolean {
@@ -42,6 +43,6 @@ export async function sendMail(to: string, subject: string, text: string, html?:
 }
 
 export async function sendMailboxCode(to: string, code: string, locale: MailLocale): Promise<void> {
-  const message = confirmationEmail(locale, code);
+  const message = confirmationEmail(await mailCopy(locale), locale, code);
   await sendMail(to, message.subject, message.text, message.html);
 }

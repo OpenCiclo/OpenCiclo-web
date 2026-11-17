@@ -12,9 +12,10 @@ import { storeBrowserPassword } from "@/lib/client/credentials";
 import { saveFile } from "@/lib/client/save-file";
 import { diaryToCsv, diaryToJson, mergeDiaries, parseImportedFile, previewImport } from "@/lib/diary-io";
 import { VISUAL_SEASONS_AVAILABLE } from "@/lib/features";
-import { otherLocale } from "@/lib/i18n";
 import { AppShell } from "@/components/app-shell";
+import { AddEmailSignIn } from "@/components/add-email-sign-in";
 import { InstallPrompt } from "@/components/install-prompt";
+import { LanguageSelect } from "@/components/language-select";
 import { OfflineNotice } from "@/components/offline-notice";
 import { PhraseQrCode } from "@/components/phrase-qr-code";
 import { SavePhraseForm } from "@/components/save-phrase-form";
@@ -50,7 +51,6 @@ export default function SettingsPage() {
   const {
     t,
     locale,
-    setLocale,
     visualSeasons,
     setVisualSeasons,
     lunarPhasesEnabled,
@@ -129,9 +129,10 @@ export default function SettingsPage() {
       <div className="desktop:grid desktop:grid-cols-2 desktop:items-start desktop:gap-6">
       <div>
       <Card className="flex flex-col gap-3 rounded-3xl">
-        <Button variant="secondary" onClick={() => setLocale(otherLocale(locale))}>
-          {t.language}: {locale.toUpperCase()}
-        </Button>
+        <div>
+          <p className="text-sm font-semibold text-card-foreground">{t.language}</p>
+          <LanguageSelect className="mt-2" />
+        </div>
         <label
           htmlFor="visual-seasons"
           hidden={!VISUAL_SEASONS_AVAILABLE}
@@ -395,7 +396,12 @@ export default function SettingsPage() {
             </Button>
           </form>
         </SettingsDisclosure>
-      ) : null}
+      ) : onDevice ? null : (
+        // A hosted account with no email sign-in: a phrase account, or one moved back from this device.
+        <SettingsDisclosure title={t.addEmailTitle}>
+          <AddEmailSignIn disabled={readOnly} onDone={setMessage} />
+        </SettingsDisclosure>
+      )}
       <SettingsDisclosure title={t.backupTitle}>
         <Button
           variant="outline"
@@ -512,7 +518,7 @@ export default function SettingsPage() {
               <p className="text-sm text-muted-foreground">
                 {t.poolLastSync.replace(
                   "{date}",
-                  new Intl.DateTimeFormat(locale === "es" ? "es" : "en", {
+                  new Intl.DateTimeFormat(locale, {
                     day: "numeric",
                     month: "long",
                     year: "numeric",

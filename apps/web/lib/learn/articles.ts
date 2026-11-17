@@ -1,7 +1,7 @@
 // Copyright © 2026 Emma Flora Harbison & Luis Rey Sánchez
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Locale, Messages } from "@/lib/i18n";
+import { contentLocale, type BaseLocale, type Locale, type Messages } from "@/lib/i18n";
 
 export const LEARN_CATEGORIES = [
   "cycle",
@@ -76,12 +76,25 @@ export type LearnArticle = {
   en: LearnArticleCopy;
 };
 
+/**
+ * The language an article shows in for `locale`. Articles exist in English and
+ * often Spanish; other languages fall back to Spanish or English (`contentLocale`).
+ */
+export function articleCopyLocale(article: LearnArticle, locale: Locale): BaseLocale {
+  return contentLocale(locale) === "es" && article.es ? "es" : "en";
+}
+
 export function hasArticleCopy(article: LearnArticle, locale: Locale): boolean {
-  return Boolean(article[locale]);
+  return articleCopyLocale(article, locale) === locale;
+}
+
+/** `lang` for the article's text: set only when it is not in the UI language. */
+export function articleLang(article: LearnArticle, locale: Locale): BaseLocale | undefined {
+  return hasArticleCopy(article, locale) ? undefined : articleCopyLocale(article, locale);
 }
 
 export function articleCopy(article: LearnArticle, locale: Locale): LearnArticleCopy {
-  return article[locale] ?? article.en;
+  return article[articleCopyLocale(article, locale)] ?? article.en;
 }
 
 export function relatedArticles(article: LearnArticle, articles: LearnArticle[]): LearnArticle[] {

@@ -1,7 +1,7 @@
 // Copyright © 2026 Emma Flora Harbison & Luis Rey Sánchez
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Locale } from "@/lib/i18n";
+import { isLocale, type Locale } from "@/lib/i18n";
 import { cycleLengths } from "@/lib/forecast/math";
 import {
   BUILT_IN_SYMPTOM_IDS,
@@ -277,7 +277,7 @@ export function parseDiary(raw: string | object): Diary {
     schemaVersion: DIARY_SCHEMA_VERSION,
     periodStarts: derived.length > 0 ? derived : [...periodStarts].sort(),
     days: withStarts,
-    locale: parsed.locale === "en" ? "en" : "es",
+    locale: isLocale(parsed.locale) ? parsed.locale : "es",
     ...pool,
     recoveryEmailSet: Boolean(parsed.recoveryEmailSet),
     favoriteSymptomIds,
@@ -316,7 +316,7 @@ export function monthCells(year: number, month: number, weekStartsOn: 0 | 1): (s
 }
 
 export function weekdayLabels(locale: Locale, weekStartsOn: 0 | 1): string[] {
-  const formatter = new Intl.DateTimeFormat(locale === "es" ? "es" : "en", { weekday: "narrow" });
+  const formatter = new Intl.DateTimeFormat(locale, { weekday: "narrow" });
   const sunday = Date.UTC(2026, 7, 9);
   const labels: string[] = [];
   for (let i = 0; i < 7; i += 1) {

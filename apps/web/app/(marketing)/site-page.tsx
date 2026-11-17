@@ -19,8 +19,9 @@ import {
 } from "lucide-react";
 
 import { useCiclo } from "@/lib/client/ciclo-context";
-import { marketingCopy, MARKETING_LINKS } from "@/lib/marketing/copy";
-import { articleCopy, hasArticleCopy, type LearnArticle } from "@/lib/learn/articles";
+import { marketingCopy } from "@/lib/locales/registry";
+import { MARKETING_LINKS } from "@/lib/marketing/copy";
+import { articleCopy, articleLang, type LearnArticle } from "@/lib/learn/articles";
 import { Reveal } from "@/components/marketing/reveal";
 import { AppDemo } from "@/components/marketing/app-demo";
 import { GithubMark } from "@/components/marketing/github-mark";
@@ -60,14 +61,10 @@ export function SitePage({ featured }: { featured: LearnArticle[] }) {
               {copy.hero.eyebrow}
             </span>
             <h1 className="flex min-h-[5.9rem] w-full flex-col font-serif text-[2.4rem] leading-[1.12] tracking-tight sm:min-h-[8.4rem] sm:text-6xl sm:leading-[1.05]">
-              <span className="block">{locale === "es" ? "Tu ciclo," : "Your cycle,"}</span>
+              <span className="block">{copy.hero.titlePrefix}</span>
               <TypewriterTitle
-                prefix={locale === "es" ? "Tu ciclo," : "Your cycle,"}
-                lines={
-                  locale === "es"
-                    ? ["en tu dispositivo.", "privado.", "bajo tu control.", "tuyo."]
-                    : ["on your device.", "private.", "under your control.", "yours."]
-                }
+                prefix={copy.hero.titlePrefix}
+                lines={copy.hero.titleLines}
               />
             </h1>
             <p className="max-w-xl text-base leading-relaxed text-pretty text-muted-foreground sm:text-lg">
@@ -213,7 +210,7 @@ export function SitePage({ featured }: { featured: LearnArticle[] }) {
           <div className="mt-10 grid gap-4 md:grid-cols-3">
             {featured.map((article, index) => {
               const article_copy = articleCopy(article, locale);
-              const article_lang = hasArticleCopy(article, locale) ? undefined : "en";
+              const article_lang = articleLang(article, locale);
               return (
                 <Reveal key={article.slug} delay={index * 70} as="div">
                   <Link
