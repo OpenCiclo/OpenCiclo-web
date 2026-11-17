@@ -121,6 +121,10 @@ export default function SettingsPage() {
       {/* Same size and font as the section titles on Patterns ("Forecast"). */}
       <h1 className="mb-3 font-serif text-xl text-foreground desktop:mb-8 desktop:text-4xl desktop:tracking-tight">{t.settings}</h1>
       <OfflineNotice className="mb-4" />
+      {/* What cannot be undone comes first: no reset of the phrase or password, or no copy off this phone. */}
+      <Card className="mb-4 rounded-3xl border-primary/20 bg-primary/5 p-4 text-sm leading-6 text-muted-foreground desktop:mb-6">
+        {onDevice ? t.deviceStorageHint : t.noResetHint}
+      </Card>
       {/* Desktop: preferences on the left; storage, backup, research and the account on the right. */}
       <div className="desktop:grid desktop:grid-cols-2 desktop:items-start desktop:gap-6">
       <div>
@@ -250,68 +254,64 @@ export default function SettingsPage() {
       </Card>
       <InstallPrompt mode="settings" />
       </div>
-      <div>
-      <Card className="mt-4 rounded-3xl border-primary/20 bg-primary/5 p-4 text-sm leading-6 text-muted-foreground desktop:mt-0">
-        {onDevice ? t.deviceStorageHint : t.noResetHint}
-      </Card>
+      {/* Desktop: the column's first card lines up with the preferences card. */}
+      <div className="desktop:[&>:first-child]:mt-0">
       {IS_ANDROID_APP ? (
-        <Card className="mt-4 flex flex-col gap-3 rounded-3xl">
-          <h2 className="font-medium">{t.storageTitle}</h2>
-          <p className="text-sm text-muted-foreground">{onDevice ? t.storageDevice : t.storageHosted}</p>
+        <SettingsDisclosure title={t.storageTitle}>
+          {/* The current place is the selected option; picking the other one moves the diary. */}
+          <select
+            id="storage-mode"
+            aria-label={t.storageTitle}
+            aria-describedby="storage-mode-hint"
+            value={onDevice ? "device" : "hosted"}
+            disabled={storageBusy || readOnly}
+            onChange={(event) => {
+              if (event.target.value === "hosted" && onDevice) {
+                if (!window.confirm(t.moveToHostedConfirm)) return;
+                void runStorageAction(moveToHosted, t.moveToHostedDone);
+              } else if (event.target.value === "device" && !onDevice) {
+                if (!window.confirm(t.moveToDeviceConfirm)) return;
+                void runStorageAction(moveToDevice, t.moveToDeviceDone);
+              }
+            }}
+            className="flex min-h-11 w-full rounded-xl border border-input bg-background px-3 py-2 text-base disabled:opacity-50 md:text-sm"
+          >
+            <option value="hosted">{t.storageOptionHosted}</option>
+            <option value="device">{t.storageOptionDevice}</option>
+          </select>
+          <p id="storage-mode-hint" className="text-xs leading-relaxed text-muted-foreground">
+            <span className="font-semibold text-card-foreground">
+              {t.storageIfYouChoose.replace("{option}", onDevice ? t.storageOptionHosted : t.storageOptionDevice)}
+            </span>{" "}
+            {onDevice ? t.moveToHostedHint : t.moveToDeviceHint}
+          </p>
           {onDevice ? (
-            <>
-              <label
-                htmlFor="app-lock"
-                className="flex cursor-pointer items-center justify-between gap-4 rounded-2xl bg-muted/60 p-3"
-              >
-                <div className="min-w-0">
-                  <p className="text-sm font-semibold text-card-foreground">{t.appLock}</p>
-                  <p id="app-lock-hint" className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
-                    {appLockAvailable || appLockEnabled ? t.appLockHint : t.appLockUnavailable}
-                  </p>
-                </div>
-                <input
-                  id="app-lock"
-                  type="checkbox"
-                  role="switch"
-                  aria-describedby="app-lock-hint"
-                  checked={appLockEnabled}
-                  disabled={storageBusy || (!appLockAvailable && !appLockEnabled)}
-                  onChange={(event) => {
-                    const enabled = event.target.checked;
-                    void runStorageAction(() => setAppLock(enabled));
-                  }}
-                  className={SWITCH_CLASS}
-                />
-              </label>
-              <p className="text-xs text-muted-foreground">{t.moveToHostedHint}</p>
-              <Button
-                variant="outline"
-                disabled={storageBusy}
-                onClick={() => {
-                  if (!window.confirm(t.moveToHostedConfirm)) return;
-                  void runStorageAction(moveToHosted, t.moveToHostedDone);
+            <label
+              htmlFor="app-lock"
+              className="flex cursor-pointer items-center justify-between gap-4 rounded-2xl bg-muted/60 p-3"
+            >
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-card-foreground">{t.appLock}</p>
+                <p id="app-lock-hint" className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
+                  {appLockAvailable || appLockEnabled ? t.appLockHint : t.appLockUnavailable}
+                </p>
+              </div>
+              <input
+                id="app-lock"
+                type="checkbox"
+                role="switch"
+                aria-describedby="app-lock-hint"
+                checked={appLockEnabled}
+                disabled={storageBusy || (!appLockAvailable && !appLockEnabled)}
+                onChange={(event) => {
+                  const enabled = event.target.checked;
+                  void runStorageAction(() => setAppLock(enabled));
                 }}
-              >
-                {t.moveToHosted}
-              </Button>
-            </>
-          ) : (
-            <>
-              <p className="text-xs text-muted-foreground">{t.moveToDeviceHint}</p>
-              <Button
-                variant="outline"
-                disabled={storageBusy || readOnly}
-                onClick={() => {
-                  if (!window.confirm(t.moveToDeviceConfirm)) return;
-                  void runStorageAction(moveToDevice, t.moveToDeviceDone);
-                }}
-              >
-                {t.moveToDevice}
-              </Button>
-            </>
-          )}
-        </Card>
+                className={SWITCH_CLASS}
+              />
+            </label>
+          ) : null}
+        </SettingsDisclosure>
       ) : null}
       {canChangePassword ? (
         <SettingsDisclosure title={t.changePassword}>
@@ -501,8 +501,7 @@ export default function SettingsPage() {
           </div>
         ) : null}
       </SettingsDisclosure>
-      <Card className="mt-4 flex flex-col gap-3 rounded-3xl">
-        <h2 className="font-medium">{t.researchTitle}</h2>
+      <SettingsDisclosure title={t.researchTitle}>
         <p className="text-sm text-muted-foreground">{t.researchBenefit}</p>
         <p className="text-sm text-muted-foreground">{t.researchBody}</p>
         <p className="text-sm text-muted-foreground">{t.researchMonthly}</p>
@@ -571,7 +570,7 @@ export default function SettingsPage() {
             </label>
           </>
         )}
-      </Card>
+      </SettingsDisclosure>
       <Card className="mt-4 flex flex-col gap-3 rounded-3xl">
         {onDevice ? null : (
           <Button
