@@ -5,7 +5,18 @@
 
 import { useEffect, useId, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
-import { ArrowLeft, Check, ChevronRight, CloudOff, Droplet, PenLine, Sparkles, Trash2, X } from "lucide-react";
+import {
+  ArrowLeft,
+  CalendarClock,
+  Check,
+  ChevronRight,
+  CloudOff,
+  Droplet,
+  PenLine,
+  Sparkles,
+  Trash2,
+  X,
+} from "lucide-react";
 
 import {
   FLOW_LEVELS,
@@ -37,7 +48,7 @@ import { IS_ANDROID_APP } from "@/lib/app-target";
 import { useSheetDrag } from "@/lib/client/use-sheet-drag";
 import { lunarDayInfo } from "@/lib/lunar/phases";
 import { cn } from "@/lib/utils";
-import { MoonPhaseIcon, moonPhaseText } from "@/components/calendar/moon-phase-icon";
+import { MoonPhaseIcon, moonPhaseName, moonPhaseText } from "@/components/calendar/moon-phase-icon";
 import { MoreSymptomsView } from "@/components/calendar/more-symptoms-view";
 import { SymptomChip } from "@/components/calendar/symptom-chip";
 import { Textarea } from "@/components/ui/input";
@@ -87,6 +98,23 @@ function MoonPhaseLine({
   );
 }
 
+/** The body of a future day's sheet: its moon phase, large. */
+function FutureDayMoon({ info, t }: { info: ReturnType<typeof lunarDayInfo>; t: Messages }) {
+  const name = moonPhaseName(info, t);
+  return (
+    <section className="flex items-center gap-4 rounded-3xl bg-muted/60 p-4 my-2">
+      <MoonPhaseIcon info={info} label={moonPhaseText(info, t)} className="size-16" />
+      <div className="min-w-0">
+        <p className="text-xs font-bold tracking-wide text-muted-foreground uppercase">{t.moonPhaseTitle}</p>
+        <p className="mt-0.5 font-serif text-xl leading-tight text-card-foreground">{name}</p>
+        <p className="text-sm text-muted-foreground">
+          {t.moonIllumination.replace("{percent}", String(info.percent))}
+        </p>
+      </div>
+    </section>
+  );
+}
+
 function prefersReducedMotion() {
   return typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
@@ -103,6 +131,7 @@ export function DaySheet({
   error,
   lunarPhasesEnabled,
   readOnly = false,
+  future = false,
   onClose,
   onExited,
   onSave,
@@ -120,6 +149,8 @@ export function DaySheet({
   lunarPhasesEnabled: boolean;
   /** The offline copy is open (Android): the day shows, but nothing can be changed or saved. */
   readOnly?: boolean;
+  /** A day after today: nothing to log yet, so the sheet shows its moon phase only. */
+  future?: boolean;
   onClose: () => void;
   onExited: () => void;
   onSave: (log: DayLog) => void | Promise<void>;
@@ -161,7 +192,7 @@ export function DaySheet({
   const closing = Boolean(iso) && !open;
   const busy = saving || closing;
   // Controls that change the day. Moving around the sheet only waits for `busy`.
-  const locked = busy || readOnly;
+  const locked = busy || readOnly || future;
   // In the Android app the sheet has a handle and closes when dragged down by
   // its top. The web keeps the plain sheet (a dialog on the desktop).
   const { sheetRef, handleProps } = useSheetDrag({
@@ -337,9 +368,10 @@ export function DaySheet({
                       >
                         {dateLabel}
                       </p>
-                      {moonInfo && moonLabel ? <MoonPhaseLine info={moonInfo} label={moonLabel} /> : null}
+                      {/* A future day shows its moon large in the body instead. */}
+                      {moonInfo && moonLabel && !future ? <MoonPhaseLine info={moonInfo} label={moonLabel} /> : null}
                     </div>
-                    <p className="text-sm text-muted-foreground">{t.howFeeling}</p>
+                    <p className="text-sm text-muted-foreground">{future ? t.futureDay : t.howFeeling}</p>
                   </>
                 )}
               </div>
@@ -357,7 +389,9 @@ export function DaySheet({
         </div>
 
         <div className="flex-1 overflow-y-auto overscroll-contain px-5 pb-2 min-[360px]:px-6">
-          {view === "quick" ? (
+          {future ? (
+            moonInfo ? <FutureDayMoon info={moonInfo} t={t} /> : null
+          ) : view === "quick" ? (
             <>
           <Section title={t.dayNote} icon={<PenLine className="size-4 text-primary" />}>
             <Textarea
@@ -489,7 +523,12 @@ export function DaySheet({
         </div>
 
         <div className="flex items-center gap-3 border-t border-border bg-card px-5 py-4 min-[360px]:px-6">
-          {readOnly ? (
+          {future ? (
+            <p className="flex flex-1 items-center gap-2 text-sm text-muted-foreground">
+              <CalendarClock className="size-4 shrink-0" aria-hidden />
+              {t.futureDayHint}
+            </p>
+          ) : readOnly ? (
             <p className="flex flex-1 items-center gap-2 text-sm text-muted-foreground">
               <CloudOff className="size-4 shrink-0" aria-hidden />
               {t.offlineDayHint}

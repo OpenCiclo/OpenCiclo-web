@@ -155,8 +155,14 @@ export function CalendarScreen() {
       ]
     : [{ role: "current", year, month }];
 
+  // Today and past days open to log them. A future day opens too when moon
+  // phases are on: its sheet shows the moon only.
+  function canOpenDay(iso: string) {
+    return isEditableDiaryDate(iso, today) || lunarPhasesEnabled;
+  }
+
   function openDay(iso: string) {
-    if (!isEditableDiaryDate(iso, today)) return;
+    if (!canOpenDay(iso)) return;
     setError(null);
     setActiveIso(iso);
     setSheetOpen(true);
@@ -359,6 +365,7 @@ export function CalendarScreen() {
                         log={log}
                         isToday={iso === today}
                         isFuture={!editable}
+                        openable={canOpenDay(iso)}
                         possibleStart={overview.forecastingEnabled && possibleStarts.has(iso)}
                         mostLikelyStart={overview.forecastingEnabled && mostLikelyStart === iso}
                         estimatedFertile={
@@ -445,6 +452,7 @@ export function CalendarScreen() {
         onExited={handleSheetExited}
         onSave={(log) => saveDay(log)}
         readOnly={offline !== null}
+        future={activeIso !== null && !isEditableDiaryDate(activeIso, today)}
         lunarPhasesEnabled={lunarPhasesEnabled}
         onUpdateSymptomPreferences={updateSymptomPreferences}
       />
@@ -473,6 +481,7 @@ function DayCell({
   log,
   isToday,
   isFuture,
+  openable,
   possibleStart,
   mostLikelyStart,
   estimatedFertile,
@@ -492,6 +501,8 @@ function DayCell({
   log: DayLog | undefined;
   isToday: boolean;
   isFuture: boolean;
+  /** Opens a sheet on tap: a day to log, or a future day's moon phase. */
+  openable: boolean;
   possibleStart: boolean;
   mostLikelyStart: boolean;
   estimatedFertile: boolean;
@@ -534,7 +545,7 @@ function DayCell({
 
   const markers = [
     formatIsoUtc(iso, locale, { month: "long", day: "numeric" }),
-    isFuture ? t.futureDayDisabled : null,
+    isFuture ? (openable ? t.futureDay : t.futureDayDisabled) : null,
     moonLabel,
     bleeding ? t.legendBleeding : null,
     observedFertile ? t.legendFertile : null,
@@ -568,13 +579,13 @@ function DayCell({
       <button
         type="button"
         onClick={onClick}
-        disabled={isFuture}
-        aria-disabled={isFuture}
+        disabled={!openable}
+        aria-disabled={!openable}
         aria-label={markers.join(", ")}
         className={cn(
           "relative flex size-10 flex-col items-center justify-center rounded-full text-sm font-medium desktop:size-12 desktop:text-base",
           entrance && "animate-pop-in",
-          isFuture ? "cursor-default" : "transition-transform active:scale-90",
+          openable ? "transition-transform active:scale-90" : "cursor-default",
           bleedFill ??
             (observedFertile
               ? "bg-fertile text-fertile-foreground"
@@ -585,7 +596,7 @@ function DayCell({
                   : estimatedFertile
                     ? "bg-fertile/20 text-fertile-foreground ring-1 ring-inset ring-fertile/50"
                     : isFuture
-                      ? "text-muted-foreground/50"
+                      ? cn("text-muted-foreground/50", openable && "hover:bg-muted")
                       : "text-card-foreground hover:bg-muted"),
           !bleeding && estimatedBleeding && (mostLikelyStart || possibleStart)
             ? "border-[3px] border-dotted border-bleed"
