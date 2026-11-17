@@ -15,7 +15,7 @@ You still get a 12-word phrase. Write it down. The app asks for it only when it 
 
 ## Lock with fingerprint or PIN
 
-Settings → Where your diary is saved. With the lock on:
+Settings → Where your diary is stored. With the lock on:
 
 - Ciclo asks for your fingerprint or screen lock when it opens, and again after 30 seconds in the background.
 - The key that holds the phrase only works right after that check.
@@ -31,8 +31,10 @@ The export file is **not** encrypted. Keep it somewhere private.
 
 ## Moving between the phone and the cloud
 
-- **Save to the cloud** uploads the encrypted diary as a 12-word account, then deletes the copy on the phone. If that phrase already had a hosted diary, the two are combined.
-- **Keep only on this device** (from a hosted account) saves the diary on the phone, then deletes the hosted account, including email sign-in.
+Settings → **Where your diary is stored** shows where it is now. Pick the other option to move it, and confirm:
+
+- **In the Ciclo cloud** uploads the encrypted diary as a 12-word account, then deletes the copy on the phone. If that phrase already had a hosted diary, the two are combined.
+- **Only on this device** (from a hosted account) saves the diary on the phone, then deletes the hosted account, including email sign-in.
 
 Either way, the old copy is deleted only after the new one is saved.
 

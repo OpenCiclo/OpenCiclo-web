@@ -234,15 +234,14 @@ const es = {
   deviceStorageHint:
     "Tu diario solo está en este móvil, cifrado. No hay copia en ningún servidor. Si pierdes el móvil o desinstalas la app, se pierde salvo que tengas un export. Exporta de vez en cuando.",
   storageTitle: "Dónde se guarda tu diario",
-  storageDevice: "Solo en este dispositivo, cifrado.",
-  storageHosted: "En la nube de Ciclo, cifrado. Solo tú puedes leerlo.",
-  moveToHosted: "Guardar en la nube",
+  storageOptionHosted: "En la nube de Ciclo",
+  storageOptionDevice: "Solo en este dispositivo",
+  storageIfYouChoose: "Si eliges «{option}»:",
   moveToHostedHint:
     "Sube tu diario cifrado. Después lo abres en cualquier dispositivo con tu frase de 12 palabras, y se borra la copia de este móvil.",
   moveToHostedConfirm:
     "Tu diario se subirá cifrado a la nube y se borrará la copia de este móvil. Desde entonces entras con tu frase de 12 palabras. ¿Continuar?",
   moveToHostedDone: "Tu diario ya está en la nube.",
-  moveToDevice: "Guardar solo en este dispositivo",
   moveToDeviceHint:
     "Guarda tu diario cifrado en este móvil y borra tu cuenta del servidor, también el acceso con correo y contraseña.",
   moveToDeviceConfirm:
@@ -879,16 +878,15 @@ const en = {
     "These 12 words open your diary if the app cannot do it on its own. Ciclo keeps them encrypted on this phone, but write them down somewhere safe.",
   deviceStorageHint:
     "Your diary is only on this phone, encrypted. There is no copy on any server. If you lose the phone or uninstall the app, it is gone unless you have an export. Export now and then.",
-  storageTitle: "Where your diary is saved",
-  storageDevice: "Only on this device, encrypted.",
-  storageHosted: "In the Ciclo cloud, encrypted. Only you can read it.",
-  moveToHosted: "Save to the cloud",
+  storageTitle: "Where your diary is stored",
+  storageOptionHosted: "In the Ciclo cloud",
+  storageOptionDevice: "Only on this device",
+  storageIfYouChoose: "If you choose “{option}”:",
   moveToHostedHint:
     "Uploads your encrypted diary. You then open it on any device with your 12-word phrase, and the copy on this phone is deleted.",
   moveToHostedConfirm:
     "Your diary will be uploaded encrypted and the copy on this phone deleted. From then on you sign in with your 12-word phrase. Continue?",
   moveToHostedDone: "Your diary is now in the cloud.",
-  moveToDevice: "Keep only on this device",
   moveToDeviceHint:
     "Saves your encrypted diary on this phone and deletes your account on the server, including email and password sign-in.",
   moveToDeviceConfirm:
