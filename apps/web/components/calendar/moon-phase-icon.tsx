@@ -16,9 +16,13 @@ const MOON_PHASE_LABEL_KEYS: Record<MoonPhaseId, keyof Messages> = {
   waningCrescent: "moonPhaseWaningCrescent",
 };
 
+/** The phase's name alone ("Full moon"). */
+export function moonPhaseName(info: LunarDayInfo, t: Messages): string {
+  return String(t[MOON_PHASE_LABEL_KEYS[info.phaseId]]);
+}
+
 export function moonPhaseText(info: LunarDayInfo, t: Messages): string {
-  const phaseName = String(t[MOON_PHASE_LABEL_KEYS[info.phaseId]]);
-  return t.moonPhaseLabel.replace("{phase}", phaseName).replace("{percent}", String(info.percent));
+  return t.moonPhaseLabel.replace("{phase}", moonPhaseName(info, t)).replace("{percent}", String(info.percent));
 }
 
 /**
