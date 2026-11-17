@@ -15,6 +15,10 @@ The browser still creates a 12-word phrase in the background. Your password **wr
 
 If you forget the password **and** you never saved the phrase, the hosted diary cannot be recovered. That is intentional.
 
+### Adding an email to a 12-word account
+
+A hosted account with no email sign-in can get one in **Settings → Add email and password**. That covers a super private account, and one that went to **Only on this device** and came back to the cloud (moving to the device deletes the account, email included). Type the email and a new password, then the 6-digit code Ciclo sends to that inbox. The code is always required: an address is never saved until its owner confirms it. After that, you can sign in with the email and password or with the phrase, and **Change password** appears in Settings.
+
 ## Super private mode (12 words, no email)
 
 You hold the phrase. There is no mailbox row. We cannot show the phrase again if you lose it.
