@@ -64,6 +64,9 @@ public class DeviceVaultPlugin extends Plugin {
     private static final String DIARY_FILE = "device-diary.json";
     private static final String PHRASE_FILE = "device-phrase.bin";
     private static final String HOSTED_PHRASE_FILE = "hosted-phrase.bin";
+    // The hosted diary as last seen on the host (still sealed), for reading without a connection.
+    // Never a device diary: status() and readDiary() do not look at it.
+    private static final String HOSTED_COPY_FILE = "hosted-diary-copy.json";
     private static final String EXPORT_DIR = "exports";
     private static final byte PHRASE_FORMAT = 1;
     private static final byte MODE_PLAIN = 0;
@@ -298,6 +301,48 @@ public class DeviceVaultPlugin extends Plugin {
         deleteKey(KEY_HOSTED);
         if (file.getBaseFile().exists()) {
             call.reject("Could not delete the phrase", "IO_ERROR");
+            return;
+        }
+        call.resolve();
+    }
+
+    /**
+     * The offline copy of a hosted account's diary: the same sealed blob the host stores, so it
+     * opens only with the account's phrase. Resolves with no data when there is none.
+     */
+    @PluginMethod
+    public void readHostedCopy(PluginCall call) {
+        try {
+            byte[] bytes = readOrNull(HOSTED_COPY_FILE);
+            JSObject result = new JSObject();
+            if (bytes != null) result.put("data", new String(bytes, StandardCharsets.UTF_8));
+            call.resolve(result);
+        } catch (IOException e) {
+            call.reject("Could not read the offline copy", "IO_ERROR");
+        }
+    }
+
+    @PluginMethod
+    public void writeHostedCopy(PluginCall call) {
+        String data = call.getString("data");
+        if (data == null || data.isEmpty()) {
+            call.reject("Nothing to save", "INVALID_ARGUMENT");
+            return;
+        }
+        try {
+            write(HOSTED_COPY_FILE, data.getBytes(StandardCharsets.UTF_8));
+            call.resolve();
+        } catch (IOException e) {
+            call.reject("Could not save the offline copy", "IO_ERROR");
+        }
+    }
+
+    @PluginMethod
+    public void clearHostedCopy(PluginCall call) {
+        AtomicFile file = atomic(HOSTED_COPY_FILE);
+        file.delete();
+        if (file.getBaseFile().exists()) {
+            call.reject("Could not delete the offline copy", "IO_ERROR");
             return;
         }
         call.resolve();

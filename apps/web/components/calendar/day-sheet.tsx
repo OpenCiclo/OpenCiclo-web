@@ -5,7 +5,7 @@
 
 import { useEffect, useId, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
-import { ArrowLeft, Check, ChevronRight, Droplet, PenLine, Sparkles, Trash2, X } from "lucide-react";
+import { ArrowLeft, Check, ChevronRight, CloudOff, Droplet, PenLine, Sparkles, Trash2, X } from "lucide-react";
 
 import {
   FLOW_LEVELS,
@@ -102,6 +102,7 @@ export function DaySheet({
   saving,
   error,
   lunarPhasesEnabled,
+  readOnly = false,
   onClose,
   onExited,
   onSave,
@@ -117,6 +118,8 @@ export function DaySheet({
   saving: boolean;
   error: string | null;
   lunarPhasesEnabled: boolean;
+  /** The offline copy is open (Android): the day shows, but nothing can be changed or saved. */
+  readOnly?: boolean;
   onClose: () => void;
   onExited: () => void;
   onSave: (log: DayLog) => void | Promise<void>;
@@ -130,6 +133,7 @@ export function DaySheet({
     log ? { ...log, symptoms: { ...log.symptoms }, note: log.note } : emptyDayLog(),
   );
   const [draftForIso, setDraftForIso] = useState<string | null>(iso);
+  const [draftReadOnly, setDraftReadOnly] = useState(readOnly);
   const [view, setView] = useState<"quick" | "more">("quick");
   const catalog = useMemo(() => resolveSymptomCatalog(customSymptoms), [customSymptoms]);
   const visibleCatalog = useMemo(() => visibleSymptomCatalog(customSymptoms), [customSymptoms]);
@@ -147,9 +151,17 @@ export function DaySheet({
     setDraft(log ? { ...log, symptoms: { ...log.symptoms }, note: log.note } : emptyDayLog());
     setView("quick");
   }
+  // Back online with the sheet open: the day may have changed on the host, so
+  // editing starts from the day as loaded now, not from the old copy.
+  if (readOnly !== draftReadOnly) {
+    setDraftReadOnly(readOnly);
+    setDraft(log ? { ...log, symptoms: { ...log.symptoms }, note: log.note } : emptyDayLog());
+  }
 
   const closing = Boolean(iso) && !open;
   const busy = saving || closing;
+  // Controls that change the day. Moving around the sheet only waits for `busy`.
+  const locked = busy || readOnly;
   // In the Android app the sheet has a handle and closes when dragged down by
   // its top. The web keeps the plain sheet (a dialog on the desktop).
   const { sheetRef, handleProps } = useSheetDrag({
@@ -352,6 +364,7 @@ export function DaySheet({
               value={draft.note ?? ""}
               maxLength={MAX_DAILY_NOTE_LENGTH}
               disabled={busy}
+              readOnly={readOnly}
               placeholder={t.dayNotePlaceholder}
               aria-label={t.dayNote}
               onChange={(event) => {
@@ -377,7 +390,7 @@ export function DaySheet({
                     key={level}
                     type="button"
                     aria-pressed={active}
-                    disabled={busy}
+                    disabled={locked}
                     onClick={() => toggleFlow(level)}
                     className={cn(
                       "flex flex-col items-center gap-1.5 rounded-2xl border-2 py-3 transition-all active:scale-95",
@@ -418,7 +431,7 @@ export function DaySheet({
                     key={level}
                     type="button"
                     aria-pressed={active}
-                    disabled={busy}
+                    disabled={locked}
                     onClick={() => toggleMucus(level)}
                     className={cn(
                       "flex flex-col items-start rounded-2xl border-2 px-3 py-2.5 text-left transition-all active:scale-95",
@@ -443,7 +456,7 @@ export function DaySheet({
                   item={item}
                   active={Boolean(draft.symptoms[item.id])}
                   favorite={favoriteSymptomIds.includes(item.id)}
-                  disabled={busy}
+                  disabled={locked}
                   t={t}
                   onToggle={() => toggleSymptom(item.id)}
                 />
@@ -465,37 +478,46 @@ export function DaySheet({
               catalog={visibleCatalog}
               selected={draft.symptoms}
               favorites={favoriteSymptomIds}
-              disabled={busy}
+              disabled={locked}
               t={t}
               onToggle={toggleSymptom}
               onToggleFavorite={toggleFavorite}
-              onCreateCustom={createCustomSymptom}
-              onDeleteCustom={deleteCustomSymptom}
+              onCreateCustom={readOnly ? undefined : createCustomSymptom}
+              onDeleteCustom={readOnly ? undefined : deleteCustomSymptom}
             />
           )}
         </div>
 
         <div className="flex items-center gap-3 border-t border-border bg-card px-5 py-4 min-[360px]:px-6">
-          {hadData ? (
-            <button
-              type="button"
-              disabled={busy}
-              onClick={() => void onSave(emptyDayLog())}
-              className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-muted text-muted-foreground transition-transform active:scale-90"
-              aria-label={t.clearDay}
-            >
-              <Trash2 className="size-5" />
-            </button>
-          ) : null}
-          <button
-            type="button"
-            disabled={busy}
-            onClick={() => void onSave(hasData ? draft : emptyDayLog())}
-            className="flex flex-1 items-center justify-center gap-2 rounded-2xl bg-primary py-3.5 text-base font-semibold text-primary-foreground shadow-sm transition-transform active:scale-[0.98]"
-          >
-            <Check className="size-5" />
-            {saving ? t.saving : t.saveEntry}
-          </button>
+          {readOnly ? (
+            <p className="flex flex-1 items-center gap-2 text-sm text-muted-foreground">
+              <CloudOff className="size-4 shrink-0" aria-hidden />
+              {t.offlineDayHint}
+            </p>
+          ) : (
+            <>
+              {hadData ? (
+                <button
+                  type="button"
+                  disabled={busy}
+                  onClick={() => void onSave(emptyDayLog())}
+                  className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-muted text-muted-foreground transition-transform active:scale-90"
+                  aria-label={t.clearDay}
+                >
+                  <Trash2 className="size-5" />
+                </button>
+              ) : null}
+              <button
+                type="button"
+                disabled={busy}
+                onClick={() => void onSave(hasData ? draft : emptyDayLog())}
+                className="flex flex-1 items-center justify-center gap-2 rounded-2xl bg-primary py-3.5 text-base font-semibold text-primary-foreground shadow-sm transition-transform active:scale-[0.98]"
+              >
+                <Check className="size-5" />
+                {saving ? t.saving : t.saveEntry}
+              </button>
+            </>
+          )}
         </div>
         {error ? <p className="px-5 pb-4 text-sm text-destructive min-[360px]:px-6">{error}</p> : null}
       </div>

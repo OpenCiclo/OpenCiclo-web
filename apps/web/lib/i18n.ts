@@ -219,6 +219,10 @@ const es = {
   restoreFailedBody:
     "Puede ser la conexión o el servidor. Tu acceso sigue guardado en este dispositivo y tus datos no se han tocado.",
   restoreRetry: "Reintentar",
+  offlineTitle: "Sin conexión",
+  offlineBody:
+    "Estás viendo la copia guardada en este móvil el {date}. Puedes consultarla, pero no guardar cambios hasta que vuelva la conexión.",
+  offlineDayHint: "Sin conexión: puedes ver este día, pero no cambiarlo.",
   restoreNoAccountTitle: "La frase guardada no abre ninguna cuenta",
   restoreNoAccountBody:
     "Este dispositivo guarda una frase que ya no tiene cuenta, quizá porque la borraste desde otro dispositivo. Entra con otra frase o crea una cuenta nueva.",
@@ -857,6 +861,10 @@ const en = {
   restoreFailedBody:
     "It may be your connection or our server. Your sign-in is still saved on this device and your data was not touched.",
   restoreRetry: "Try again",
+  offlineTitle: "Offline",
+  offlineBody:
+    "You're viewing the copy saved on this phone on {date}. You can look through it, but changes can't be saved until you're back online.",
+  offlineDayHint: "Offline: you can view this day but not change it.",
   restoreNoAccountTitle: "The saved phrase opens no account",
   restoreNoAccountBody:
     "This device keeps a phrase that no longer has an account, maybe because you deleted it on another device. Sign in with another phrase or create a new account.",

@@ -21,7 +21,8 @@ This is a living document for the Python engine and the V1 web app. It is not a 
 
 ```text
 Browser memory     — plaintext diary, keys, forecast
-Browser storage    — encrypted vault cache, wrapped kit, optional persisted mnemonic, “already contributed”
+Browser storage    — wrapped kit, optional persisted mnemonic, “already contributed”
+Android app files  — sealed phrases, on-device diary, offline copy of a hosted diary (all ciphertext)
 User network       — ciphertext, signatures, email lookup fetch, optional length list
 OpenCiclo host / Neon   — ciphertext, pubkey, HMAC(email), anonymous pool rows
 ```
@@ -73,6 +74,7 @@ The app runs the web code in a WebView (Capacitor), so every row above still app
 | Lost or stolen unlocked phone (on-device mode) | Diary read on the device | Optional app lock: the Keystore key that seals the phrase needs a fingerprint or screen-lock check on every use; the diary leaves memory after 30 s in the background; `FLAG_SECURE` while the lock is on |
 | File extraction (root, forensic copy) | Offline attack on the diary file | File is the same AES-256-GCM blob as the hosted vault; the phrase file is sealed by a non-exportable Keystore key (StrongBox when available) |
 | Hosted account kept signed in | Phrase read from a copy of the app's files | Sealed by its own non-exportable Keystore key in `files/hosted-phrase.bin`, never in WebView storage; memory only when “Keep me signed in” is off; deleted on sign-out. A phrase stored by an older version is sealed on the next start, read back, then deleted from `localStorage` (WebView may keep the old bytes until it compacts). No fingerprint check: anyone using the unlocked phone can open the diary, as in a browser |
+| Offline copy of a hosted diary | Diary read from a copy of the app's files; an old copy saved over newer edits | Only while “Keep me signed in” is on. `files/hosted-diary-copy.json` holds the same AES-256-GCM blob the host stores, and it opens only with the phrase sealed in Keystore. Read-only: its backend throws on every save, and moving to the device, password change, sign-out, and account delete refuse while it is open. Never opened when the host answers “no account”. Deleted on sign-out, account delete, moving to the device, and a sign-in without “Keep me signed in”. Same exposure as signing in today: anyone using the unlocked phone can open it |
 | Cloud backup or device transfer | Phrase or diary copied off the phone | `allowBackup="false"` and data extraction rules exclude all app data |
 | Logcat | Phrase, emails, or vault bodies in system logs | Capacitor `loggingBehavior: "none"` in every build; the native plugin never logs |
 | Wrong phrase on an on-device diary | Empty hosted account created by mistake | Phrase unlock opens the device file and never signs in to a host while an on-device diary exists |

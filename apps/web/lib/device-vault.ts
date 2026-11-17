@@ -32,6 +32,10 @@ export type DeviceVaultPlugin = {
   /** No `phrase` when none is kept. Rejects when Keystore cannot open the file. */
   readHostedPhrase(): Promise<{ phrase?: string }>;
   clearHostedPhrase(): Promise<void>;
+  /** The offline copy of a hosted diary. See lib/hosted-copy.ts. No `data` when there is none. */
+  readHostedCopy(): Promise<{ data?: string }>;
+  writeHostedCopy(options: { data: string }): Promise<void>;
+  clearHostedCopy(): Promise<void>;
   setSecureScreen(options: { enabled: boolean }): Promise<void>;
   shareFile(options: { filename: string; data: string; mimeType: string }): Promise<void>;
 };
