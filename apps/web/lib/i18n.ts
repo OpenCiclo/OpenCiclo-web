@@ -303,6 +303,10 @@ const es = {
   tapToLog: "Toca un día para registrar cómo te sientes",
   clickToLog: "Haz clic en un día para registrar cómo te sientes",
   futureDayDisabled: "Los días futuros no se pueden editar",
+  futureDay: "Día futuro",
+  futureDayHint: "Podrás anotar este día cuando llegue.",
+  moonPhaseTitle: "Fase lunar",
+  moonIllumination: "{percent}% iluminada",
   periodDueTitle: "Tu menstruación debería llegar pronto",
   periodDueBody:
     "El día más probable ya llegó o pasó, y aún no hay sangrado registrado. El gráfico muestra la probabilidad diaria. Es una estimación; no confirma que el periodo haya empezado.",
@@ -942,6 +946,10 @@ const en = {
   tapToLog: "Tap any day to log how you feel",
   clickToLog: "Click any day to log how you feel",
   futureDayDisabled: "Future days cannot be edited",
+  futureDay: "Future day",
+  futureDayHint: "You can log this day once it comes.",
+  moonPhaseTitle: "Moon phase",
+  moonIllumination: "{percent}% illuminated",
   periodDueTitle: "Your period should arrive soon",
   periodDueBody:
     "The most likely start day is here or has passed, and no bleeding is logged yet. The chart shows the daily probability. This is an estimate and does not mean your period has started.",
