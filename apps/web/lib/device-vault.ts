@@ -84,6 +84,9 @@ export function deviceVaultBackend(plugin: Pick<DeviceVaultPlugin, "readDiary" |
     load,
     save: async (blob, baseVersion): Promise<PutVaultResult> => {
       const current = await load();
+      // The file this diary was saved to is gone (deleted by a move or a wipe).
+      // Reporting it as an empty diary would make the merge drop every day.
+      if (!current.blob && baseVersion > 0) throw new Error("The device diary is gone");
       if (current.version !== baseVersion) {
         return {
           ok: false,

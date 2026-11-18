@@ -1,7 +1,7 @@
 // Copyright © 2026 Emma Flora Harbison & Luis Rey Sánchez
 // SPDX-License-Identifier: Apache-2.0
 
-import { and, eq, sql } from "drizzle-orm";
+import { and, eq, lte, sql } from "drizzle-orm";
 import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 
 import type * as schema from "@/lib/db/schema";
@@ -21,6 +21,11 @@ export type VaultWriteResult =
  * caller gets the current blob back to merge. Without it (clients from before
  * versioning), the write is unconditional, as before, but still bumps the
  * version so newer clients notice it.
+ *
+ * Either way it never lands over a diary stored with a newer format
+ * (`schemaVersion`): an app build that does not know that format would have
+ * dropped what it cannot read. The caller gets the current blob back instead,
+ * which that build then shows read-only (lib/diary.ts, `NewerDiaryError`).
  */
 export async function writeVault(
   db: Db,
@@ -28,6 +33,7 @@ export async function writeVault(
   blob: VaultBlob,
   baseVersion: number | null,
 ): Promise<VaultWriteResult> {
+  const notOlder = lte(accounts.schemaVersion, blob.schemaVersion);
   const updated = await db
     .update(accounts)
     .set({
@@ -39,8 +45,8 @@ export async function writeVault(
     })
     .where(
       baseVersion === null
-        ? eq(accounts.id, accountId)
-        : and(eq(accounts.id, accountId), eq(accounts.vaultVersion, baseVersion)),
+        ? and(eq(accounts.id, accountId), notOlder)
+        : and(eq(accounts.id, accountId), eq(accounts.vaultVersion, baseVersion), notOlder),
     )
     .returning({ version: accounts.vaultVersion });
   if (updated[0]) return { ok: true, version: updated[0].version };
@@ -57,6 +63,32 @@ export async function writeVault(
     .limit(1);
   if (!rows[0]) throw new Error("Account not found");
   return { ok: false, current: rows[0] };
+}
+
+/**
+ * Deletes the account (its mailbox, pending code and activity rows go with it,
+ * ON DELETE CASCADE). With `baseVersion`, only while the vault is still at that
+ * version: "changed" means another device saved since, and nothing was deleted.
+ * "gone" means the row was already deleted, by an earlier request whose answer
+ * may have been lost: never report that as "changed", because the app removes
+ * its own copy of the diary on "changed".
+ */
+export async function deleteAccountRow(
+  db: Db,
+  accountId: string,
+  baseVersion: number | null,
+): Promise<"deleted" | "changed" | "gone"> {
+  const deleted = await db
+    .delete(accounts)
+    .where(
+      baseVersion === null
+        ? eq(accounts.id, accountId)
+        : and(eq(accounts.id, accountId), eq(accounts.vaultVersion, baseVersion)),
+    )
+    .returning({ id: accounts.id });
+  if (deleted.length > 0) return "deleted";
+  const still = await db.select({ id: accounts.id }).from(accounts).where(eq(accounts.id, accountId)).limit(1);
+  return still[0] ? "changed" : "gone";
 }
 
 export function parseBaseVersion(value: unknown): number | null | "invalid" {

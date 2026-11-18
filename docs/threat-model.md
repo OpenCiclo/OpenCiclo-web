@@ -79,7 +79,9 @@ The app runs the web code in a WebView (Capacitor), so every row above still app
 | Logcat | Phrase, emails, or vault bodies in system logs | Capacitor `loggingBehavior: "none"` in every build; the native plugin never logs |
 | Wrong phrase on an on-device diary | Empty hosted account created by mistake | Phrase unlock opens the device file and never signs in to a host while an on-device diary exists |
 | Damaged diary file | Next save overwrites it with an empty diary | Decoding throws instead of reading as empty; writes are atomic (`AtomicFile`) |
-| Moving between device and host | Data loss half-way | The old copy is deleted only after the new one is saved; moving to the device rolls back if the account delete fails |
+| Moving between device and host | Data loss half-way | The old copy is deleted only after the new one is saved. Moving to the device copies the host's latest diary and deletes the account only at that version; the device copy is removed again only if the host clearly refused the delete, never when its answer was lost |
+| Old app build opens a newer diary | It drops what it does not know and saves the rest over the newer diary, for every device | Every new field or value bumps `DIARY_SCHEMA_VERSION`; an older build opens a newer diary read-only and asks for an update; the host never stores a save with an older format version than the one it holds; `MIN_ANDROID_VERSION_CODE` can retire old builds (426) |
+| Hostile or broken recovery kit | A huge PBKDF2 count freezes the phone; a tiny one weakens the wrap | The client accepts only PBKDF2-SHA-256 with 100k–3M iterations from a kit |
 | Plaintext export | Diary readable in the chosen share target | User-initiated only; cached export deleted on next export and on app start |
 | Lost phone, no export (on-device mode) | Permanent data loss | Honest UX in onboarding and Settings; export through the share sheet |
 

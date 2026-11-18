@@ -12,6 +12,7 @@ import {
   useCiclo,
 } from "@/lib/client/ciclo-context";
 import { storeBrowserPassword } from "@/lib/client/credentials";
+import { UpdateRequiredError } from "@/lib/client/http";
 import { Button } from "@/components/ui/button";
 import { Input, PasswordInput } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -35,6 +36,7 @@ export function AddEmailSignIn({ disabled, onDone }: { disabled: boolean; onDone
     if (cause instanceof MailNotConfiguredError) return t.mailNotConfigured;
     if (cause instanceof RateLimitedError) return t.tooManyEmailCodes;
     if (cause instanceof InvalidConfirmError) return t.verifyEmailInvalid;
+    if (cause instanceof UpdateRequiredError) return t.updateNeededAction;
     return t.errorGeneric;
   }
 

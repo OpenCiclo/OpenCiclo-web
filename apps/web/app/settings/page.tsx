@@ -5,18 +5,22 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ChevronDown } from "lucide-react";
 
-import { IS_ANDROID_APP } from "@/lib/app-target";
+import { IS_ANDROID_APP, apiHostLabel } from "@/lib/app-target";
+import { VaultChangedError } from "@/lib/client/api";
 import { InvalidCredentialsError, useCiclo } from "@/lib/client/ciclo-context";
+import { UpdateRequiredError } from "@/lib/client/http";
 import { lastEmail } from "@/lib/client/kit-store";
 import { storeBrowserPassword } from "@/lib/client/credentials";
 import { saveFile } from "@/lib/client/save-file";
-import { diaryToCsv, diaryToJson, mergeDiaries, parseImportedFile, previewImport } from "@/lib/diary-io";
+import { NewerDiaryError } from "@/lib/diary";
+import { diaryToCsv, mergeDiaries, parseImportedFile, previewImport } from "@/lib/diary-io";
 import { VISUAL_SEASONS_AVAILABLE } from "@/lib/features";
 import { AppShell } from "@/components/app-shell";
 import { AddEmailSignIn } from "@/components/add-email-sign-in";
 import { InstallPrompt } from "@/components/install-prompt";
 import { LanguageSelect } from "@/components/language-select";
 import { OfflineNotice } from "@/components/offline-notice";
+import { UpdateNotice } from "@/components/update-notice";
 import { PhraseQrCode } from "@/components/phrase-qr-code";
 import { SavePhraseForm } from "@/components/save-phrase-form";
 import { TimeZoneSelect } from "@/components/time-zone-select";
@@ -74,10 +78,15 @@ export default function SettingsPage() {
     moveToHosted,
     moveToDevice,
     offline,
+    readOnly,
+    diaryNewer,
+    exportDiaryJson,
   } = useCiclo();
   const onDevice = storageMode === "device";
-  // The offline copy is open (Android): what saves the diary or needs the host is off.
-  const readOnly = offline !== null;
+  // `readOnly`: the offline copy is open (Android), or this build must be updated
+  // to save the diary. Either way what saves the diary is off. Signing out and
+  // deleting the account only need the host, so only the offline copy stops them.
+  const offlineCopy = offline !== null;
   const [storageBusy, setStorageBusy] = useState(false);
   const router = useRouter();
   const fileRef = useRef<HTMLInputElement>(null);
@@ -92,14 +101,21 @@ export default function SettingsPage() {
   const [showPhrase, setShowPhrase] = useState(false);
   const canChangePassword = !onDevice && (diary.recoveryEmailSet || Boolean(lastEmail()));
 
-  async function runStorageAction(action: () => Promise<void>, done?: string) {
+  // `action` may return the message to show when it is done.
+  async function runStorageAction(action: () => Promise<string | void>) {
     setStorageBusy(true);
     setMessage(null);
     try {
-      await action();
+      const done = await action();
       if (done) setMessage(done);
-    } catch {
-      setMessage(t.errorGeneric);
+    } catch (cause) {
+      setMessage(
+        cause instanceof UpdateRequiredError
+          ? t.updateNeededAction
+          : cause instanceof VaultChangedError
+            ? t.moveChangedElsewhere
+            : t.errorGeneric,
+      );
     } finally {
       setStorageBusy(false);
     }
@@ -120,6 +136,7 @@ export default function SettingsPage() {
     <AppShell size="wide">
       {/* Same size and font as the section titles on Patterns ("Forecast"). */}
       <h1 className="mb-3 font-serif text-xl text-foreground desktop:mb-8 desktop:text-4xl desktop:tracking-tight">{t.settings}</h1>
+      <UpdateNotice className="mb-4" />
       <OfflineNotice className="mb-4" />
       {/* What cannot be undone comes first: no reset of the phrase or password, or no copy off this phone. */}
       <Card className="mb-4 rounded-3xl border-primary/20 bg-primary/5 p-4 text-sm leading-6 text-muted-foreground desktop:mb-6">
@@ -269,10 +286,18 @@ export default function SettingsPage() {
             onChange={(event) => {
               if (event.target.value === "hosted" && onDevice) {
                 if (!window.confirm(t.moveToHostedConfirm)) return;
-                void runStorageAction(moveToHosted, t.moveToHostedDone);
+                void runStorageAction(async () => {
+                  await moveToHosted();
+                  return t.moveToHostedDone;
+                });
               } else if (event.target.value === "device" && !onDevice) {
                 if (!window.confirm(t.moveToDeviceConfirm)) return;
-                void runStorageAction(moveToDevice, t.moveToDeviceDone);
+                void runStorageAction(async () => {
+                  const { hostedDeleted } = await moveToDevice();
+                  return hostedDeleted === "confirmed"
+                    ? t.moveToDeviceDone
+                    : t.moveToDeviceUnconfirmed.replace("{site}", apiHostLabel());
+                });
               }
             }}
             className="flex min-h-11 w-full rounded-xl border border-input bg-background px-3 py-2 text-base disabled:opacity-50 md:text-sm"
@@ -339,7 +364,13 @@ export default function SettingsPage() {
                   setMessage(t.changePasswordOk);
                 })
                 .catch((cause) => {
-                  setMessage(cause instanceof InvalidCredentialsError ? t.invalidCredentials : t.errorGeneric);
+                  setMessage(
+                    cause instanceof UpdateRequiredError
+                      ? t.updateNeededAction
+                      : cause instanceof InvalidCredentialsError
+                        ? t.invalidCredentials
+                        : t.errorGeneric,
+                  );
                 })
                 .finally(() => {
                   setPasswordBusy(false);
@@ -403,13 +434,19 @@ export default function SettingsPage() {
         </SettingsDisclosure>
       )}
       <SettingsDisclosure title={t.backupTitle}>
+        {/* A diary from a newer build exports as stored (exportDiaryJson): nothing this
+            build cannot read is lost. CSV can only hold what this build reads, so it is off then. */}
         <Button
           variant="outline"
-          onClick={() => void saveFile("ciclo-diary.json", diaryToJson(diary), "application/json")}
+          onClick={() => void saveFile("ciclo-diary.json", exportDiaryJson(), "application/json")}
         >
           {t.exportJson}
         </Button>
-        <Button variant="outline" onClick={() => void saveFile("ciclo-diary.csv", diaryToCsv(diary), "text/csv")}>
+        <Button
+          variant="outline"
+          disabled={diaryNewer}
+          onClick={() => void saveFile("ciclo-diary.csv", diaryToCsv(diary), "text/csv")}
+        >
           {t.exportCsv}
         </Button>
         <input
@@ -427,9 +464,9 @@ export default function SettingsPage() {
               const preview = previewImport(incoming);
               setImportPreview({ ...preview, raw });
               setMessage(null);
-            } catch {
+            } catch (cause) {
               setImportPreview(null);
-              setMessage(t.importInvalid);
+              setMessage(cause instanceof NewerDiaryError ? t.importNewerFile : t.importInvalid);
             }
           }}
         />
@@ -452,8 +489,14 @@ export default function SettingsPage() {
                   await persistDiary(mergeDiaries(diary, incoming, locale));
                   setImportPreview(null);
                   setMessage(t.importOk);
-                } catch {
-                  setMessage(t.importInvalid);
+                } catch (cause) {
+                  setMessage(
+                    cause instanceof NewerDiaryError
+                      ? t.importNewerFile
+                      : cause instanceof UpdateRequiredError
+                        ? t.updateNeededAction
+                        : t.importInvalid,
+                  );
                 }
               }}
             >
@@ -537,8 +580,8 @@ export default function SettingsPage() {
                   try {
                     await disablePoolOptIn();
                     setResearchOk(false);
-                  } catch {
-                    setMessage(t.errorGeneric);
+                  } catch (cause) {
+                    setMessage(cause instanceof UpdateRequiredError ? t.updateNeededAction : t.errorGeneric);
                   }
                 }}
               />
@@ -566,8 +609,8 @@ export default function SettingsPage() {
                   if (!event.target.checked) return;
                   try {
                     await enablePoolOptIn();
-                  } catch {
-                    setMessage(t.poolNeedCycle);
+                  } catch (cause) {
+                    setMessage(cause instanceof UpdateRequiredError ? t.updateNeededAction : t.poolNeedCycle);
                     event.target.checked = false;
                   }
                 }}
@@ -581,7 +624,7 @@ export default function SettingsPage() {
         {onDevice ? null : (
           <Button
             variant="outline"
-            disabled={readOnly}
+            disabled={offlineCopy}
             onClick={() => void signOut().then(() => router.push("/app"))}
           >
             {t.logout}
@@ -589,11 +632,19 @@ export default function SettingsPage() {
         )}
         <Button
           variant="destructive"
-          disabled={storageBusy || readOnly}
+          disabled={storageBusy || offlineCopy}
           onClick={async () => {
             if (!window.confirm(onDevice ? t.deleteDeviceConfirm : t.deleteConfirm)) return;
-            await wipe();
-            router.push("/app");
+            setStorageBusy(true);
+            setMessage(null);
+            try {
+              await wipe();
+              router.push("/app");
+            } catch {
+              setMessage(t.errorGeneric);
+            } finally {
+              setStorageBusy(false);
+            }
           }}
         >
           {onDevice ? t.deleteDeviceDiary : t.deleteAccount}

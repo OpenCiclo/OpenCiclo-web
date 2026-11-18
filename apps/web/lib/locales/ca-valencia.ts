@@ -108,6 +108,17 @@ const locale: LocaleModule = {
     offlineBody:
       "Estàs veient la còpia guardada en este mòbil ({date}). Pots consultar-la, però no podràs guardar canvis fins que tornes a tindre connexió.",
     offlineDayHint: "Sense connexió: pots veure este dia, però no canviar-lo.",
+    updateBodyNewer: "Una versió més nova de Ciclo ha guardat este diari, així que esta no pot guardar canvis i potser no mostra totes les entrades. Actualitza Ciclo des de Google Play per a continuar editant.",
+    updateBodyOutdated: "Esta versió de Ciclo és massa antiga per a guardar canvis. Actualitza-la des de Google Play per a continuar editant. Encara pots llegir el teu diari.",
+    updateOpenStore: "Obri Google Play",
+    updateBodyWeb: "El teu diari s'ha guardat amb una versió més nova de Ciclo. Torna a carregar la pàgina per a continuar editant.",
+    updateSignInBody: "Esta versió de Ciclo és massa antiga per a obrir el teu compte. Actualitza-la des de Google Play.",
+    updateBodyCopy: "Esta versió de Ciclo és massa antiga per al servidor, així que veus la còpia guardada en este mòbil ({date}). Actualitza-la des de Google Play per a veure les entrades més noves i continuar editant.",
+    updateSignInBodyWeb: "Torna a carregar la pàgina per a tindre la versió més nova de Ciclo i torna a iniciar la sessió.",
+    updateDayHint: "Actualitza Ciclo per a canviar este dia.",
+    updateNeededAction: "Actualitza Ciclo per a fer això.",
+    importNewerFile: "Este fitxer ve d'una versió més nova de Ciclo. Actualitza l'aplicació per a importar-lo.",
+    moveToDeviceUnconfirmed: "El teu diari ara està en este mòbil. No hem pogut confirmar que s'haja esborrat la còpia del servidor de Ciclo. Per a assegurar-te'n, inicia la sessió en {site} i elimina-hi el compte.",
     restoreNoAccountTitle: "La frase guardada no obri cap compte",
     restoreNoAccountBody:
       "Este dispositiu té guardada una frase que ja no té compte, potser perquè el vas esborrar des d'un altre dispositiu. Entra amb una altra frase o crea un compte nou.",

@@ -3,15 +3,16 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
+import { IS_ANDROID_APP, PLAY_STORE_URL } from "@/lib/app-target";
 import { useCiclo } from "@/lib/client/ciclo-context";
 import { BrandMark } from "@/components/brand-mark";
 import { InstallPrompt } from "@/components/install-prompt";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { LanguageSelect } from "@/components/language-select";
 
 export function WelcomeScreen() {
-  const { t, restoreFailed, restoreNoAccount, retryRestore } = useCiclo();
+  const { t, restoreFailed, restoreNoAccount, retryRestore, updateRequired } = useCiclo();
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [retrying, setRetrying] = useState(false);
@@ -26,7 +27,22 @@ export function WelcomeScreen() {
         {/* The desktop header has the language switch. */}
         <LanguageSelect compact className="desktop:hidden" />
       </div>
-      {restoreFailed ? (
+      {/* The host refused this build (426), at start or at a sign-in attempt. Retrying gets the same answer. */}
+      {updateRequired ? (
+        <Card role="alert" className="flex flex-col gap-3 border-destructive/30 bg-destructive/5 p-4">
+          <p className="text-sm font-semibold text-card-foreground">{t.updateTitle}</p>
+          <p className="text-sm leading-6 text-muted-foreground">{t.updateSignInBody}</p>
+          {IS_ANDROID_APP ? (
+            <a href={PLAY_STORE_URL} target="_blank" rel="noreferrer" className={buttonVariants()}>
+              {t.updateOpenStore}
+            </a>
+          ) : (
+            <Button type="button" onClick={() => window.location.reload()}>
+              {t.updateReload}
+            </Button>
+          )}
+        </Card>
+      ) : restoreFailed ? (
         <Card role="alert" className="flex flex-col gap-3 border-destructive/30 bg-destructive/5 p-4">
           <p className="text-sm font-semibold text-card-foreground">{t.restoreFailedTitle}</p>
           <p className="text-sm leading-6 text-muted-foreground">{t.restoreFailedBody}</p>

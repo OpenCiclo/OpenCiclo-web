@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import {
+  DIARY_SCHEMA_VERSION,
+  NewerDiaryError,
   emptyDiary,
   emptyDayLog,
   isEmptyDayLog,
@@ -26,7 +28,8 @@ export type ImportPreview = {
 };
 
 function csvEscape(value: string): string {
-  if (!value.includes(",") && !value.includes('"') && !value.includes("\n")) return value;
+  // Any line break, \r alone included, must be quoted: the reader ends a record on either.
+  if (!/[",\r\n]/.test(value)) return value;
   return `"${value.replaceAll('"', '""')}"`;
 }
 
@@ -60,8 +63,10 @@ export function diaryToJson(diary: Diary): string {
 }
 
 export function diaryToCsv(diary: Diary): string {
+  // schemaVersion (first row only, like customSymptoms) lets a later build's
+  // file be refused by an older build instead of imported with values dropped.
   const header =
-    "date,flow,cervicalMucus,symptoms,cramps,headache,note,periodStart,customSymptoms,favoriteSymptomIds";
+    "date,flow,cervicalMucus,symptoms,cramps,headache,note,periodStart,customSymptoms,favoriteSymptomIds,schemaVersion";
   const dates = new Set([...Object.keys(diary.days), ...diary.periodStarts]);
   const sortedDates = [...dates].sort();
   const rows = sortedDates.map((date, index) => {
@@ -78,18 +83,73 @@ export function diaryToCsv(diary: Diary): string {
       start,
       index === 0 ? JSON.stringify(diary.customSymptoms) : "",
       index === 0 ? diary.favoriteSymptomIds.join(";") : "",
+      index === 0 ? String(DIARY_SCHEMA_VERSION) : "",
     ]
       .map((cell) => csvEscape(String(cell)))
       .join(",");
   });
   if (rows.length === 0) {
     rows.push(
-      ["", "", "", "", "", "", "", "", JSON.stringify(diary.customSymptoms), diary.favoriteSymptomIds.join(";")]
+      [
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        JSON.stringify(diary.customSymptoms),
+        diary.favoriteSymptomIds.join(";"),
+        String(DIARY_SCHEMA_VERSION),
+      ]
         .map((cell) => csvEscape(String(cell)))
         .join(","),
     );
   }
   return `${header}\n${rows.join("\n")}\n`;
+}
+
+// Both readers follow RFC 4180: a quote opens a quoted cell only at the start of
+// a cell (after spaces at most); inside one, "" is a quote and a single quote
+// closes it. A quote in the middle of an unquoted cell (5" tall, from another
+// app) is just a character, so it cannot swallow the rest of the file.
+
+// Splits a CSV text into records. A quoted cell may hold a line break (a note
+// written on two lines), so only a line break outside quotes ends a record.
+function splitCsvRecords(text: string): string[] {
+  const records: string[] = [];
+  let current = "";
+  let quoted = false;
+  let cellStart = true;
+  for (let i = 0; i < text.length; i += 1) {
+    const char = text[i];
+    if (quoted) {
+      current += char;
+      if (char === '"') {
+        if (text[i + 1] === '"') {
+          current += '"';
+          i += 1;
+        } else {
+          quoted = false;
+        }
+      }
+      continue;
+    }
+    if (char === "\n" || char === "\r") {
+      if (char === "\r" && text[i + 1] === "\n") i += 1;
+      records.push(current);
+      current = "";
+      cellStart = true;
+      continue;
+    }
+    current += char;
+    if (char === '"' && cellStart) quoted = true;
+    if (char === ",") cellStart = true;
+    else if (char !== " " && char !== "\t") cellStart = false;
+  }
+  records.push(current);
+  return records;
 }
 
 function splitCsvLine(line: string): string[] {
@@ -107,8 +167,9 @@ function splitCsvLine(line: string): string[] {
       } else {
         current += char;
       }
-    } else if (char === '"') {
+    } else if (char === '"' && current.trim() === "") {
       quoted = true;
+      current = "";
     } else if (char === ",") {
       cells.push(current);
       current = "";
@@ -121,9 +182,16 @@ function splitCsvLine(line: string): string[] {
 }
 
 function parseCsvDiary(text: string): Diary {
-  const lines = text.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+  const lines = splitCsvRecords(text).map((line) => line.trim()).filter(Boolean);
   if (lines.length === 0) throw new Error("Invalid diary");
   const header = splitCsvLine(lines[0]).map((cell) => cell.trim().toLowerCase());
+  const versionColumn = header.indexOf("schemaversion");
+  if (versionColumn >= 0) {
+    for (const line of lines.slice(1)) {
+      const version = Number((splitCsvLine(line)[versionColumn] ?? "").trim());
+      if (Number.isFinite(version) && version > DIARY_SCHEMA_VERSION) throw new NewerDiaryError(version);
+    }
+  }
   const days: Record<string, DayLog> = {};
   const starts: string[] = [];
 

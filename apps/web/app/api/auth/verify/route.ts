@@ -15,7 +15,11 @@ import {
 } from "@/lib/server/vault-limits";
 import { setSessionCookie } from "@/lib/server/session";
 import { recordAccountOpen } from "@/lib/server/account-activity";
+import { rejectOutdatedClient } from "@/lib/server/client-version";
 
+// A plain sign-in is served to every app build: it writes no diary data, and its
+// session is what lets an outdated build still sign out and delete the account.
+// Only creating an account refuses an outdated build (below).
 export async function POST(request: Request) {
   const body = (await request.json()) as {
     pubkeyHash?: string;
@@ -75,6 +79,9 @@ export async function POST(request: Request) {
     if (initialCiphertext === "") {
       return Response.json({ error: "No account for this key", code: NO_ACCOUNT_CODE }, { status: 404 });
     }
+    // A build the host no longer serves could not use the new account anyway.
+    const outdated = rejectOutdatedClient(request);
+    if (outdated) return outdated;
     // Only new accounts count: signing in again is never limited here.
     if (!(await takeRateLimit(db, "account-create", sourceKey(request)))) {
       return tooManyRequests();

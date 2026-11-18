@@ -1,7 +1,7 @@
 // Copyright © 2026 Emma Flora Harbison & Luis Rey Sánchez
 // SPDX-License-Identifier: Apache-2.0
 
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { NO_ACCOUNT_CODE } from "@/lib/auth-codes";
 import { createWallet, signChallenge } from "@/lib/crypto/wallet";
@@ -32,12 +32,13 @@ vi.mock("@/lib/server/account-activity", () => ({ recordAccountOpen: async () =>
 
 const { POST } = await import("@/app/api/auth/verify/route");
 
-function signIn(vault?: { ciphertext: string; nonceVault: string; schemaVersion: number }) {
+function signIn(vault?: { ciphertext: string; nonceVault: string; schemaVersion: number }, client?: string) {
   const wallet = createWallet();
   const nonce = "a1b2c3d4";
   return POST(
     new Request("http://localhost/api/auth/verify", {
       method: "POST",
+      headers: client ? { "x-ciclo-client": client } : {},
       body: JSON.stringify({
         pubkeyHash: wallet.pubkeyHash,
         pubkey: wallet.publicKeyHex,
@@ -79,5 +80,34 @@ describe("POST /api/auth/verify", () => {
     expect(await response.json()).toEqual({ ok: true, created: false });
     expect(state.created).toEqual([]);
     expect(state.sessions).toHaveLength(1);
+  });
+
+  describe("with MIN_ANDROID_VERSION_CODE set", () => {
+    beforeEach(() => {
+      vi.stubEnv("MIN_ANDROID_VERSION_CODE", "5");
+    });
+    afterEach(() => {
+      vi.unstubAllEnvs();
+    });
+
+    it("still signs an outdated build in, so it can sign out and delete the account", async () => {
+      state.exists = true;
+      const response = await signIn(undefined, "android/4");
+      expect(response.status).toBe(200);
+      expect(state.sessions).toHaveLength(1);
+    });
+
+    it("refuses to create an account from an outdated build", async () => {
+      const response = await signIn({ ciphertext: "00ff", nonceVault: "0a0b", schemaVersion: 6 }, "android/4");
+      expect(response.status).toBe(426);
+      expect(state.created).toEqual([]);
+      expect(state.sessions).toEqual([]);
+    });
+
+    it("creates the account for a current build", async () => {
+      const response = await signIn({ ciphertext: "00ff", nonceVault: "0a0b", schemaVersion: 6 }, "android/5");
+      expect(response.status).toBe(200);
+      expect(state.created).toHaveLength(1);
+    });
   });
 });
