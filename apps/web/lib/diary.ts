@@ -14,8 +14,29 @@ import {
   type SymptomId as SymptomIdentifier,
 } from "@/lib/symptoms/definitions";
 
+/**
+ * Version of the diary format this build reads and writes. Bump it whenever a
+ * build would drop or misread something a newer one stores: a new field, or a
+ * new value in any list below (flow, mucus, symptoms, symptom values, custom
+ * symptom categories, UI languages). Builds installed from Google Play stay in
+ * use for months: they open a newer diary read-only instead of saving it back
+ * without what they do not know (see `NewerDiaryError`), and the server refuses
+ * a save older than the stored version. `diary-schema.test.ts` fails until the
+ * bump is made.
+ */
 export const DIARY_SCHEMA_VERSION = 6;
 export const MAX_DAILY_NOTE_LENGTH = 200;
+
+/**
+ * The diary was saved by a newer version of Ciclo. This build would lose what
+ * it does not know if it saved it, so it may only show it read-only.
+ */
+export class NewerDiaryError extends Error {
+  constructor(readonly version: number) {
+    super(`Diary schema ${version} is newer than this build (${DIARY_SCHEMA_VERSION})`);
+    this.name = "NewerDiaryError";
+  }
+}
 
 export const FLOW_LEVELS = ["spotting", "light", "medium", "heavy"] as const;
 export const MUCUS_LEVELS = ["dry", "sticky", "creamy", "watery", "eggwhite"] as const;
@@ -112,6 +133,11 @@ function migrateLegacyIntensity(value: unknown): SymptomValue | undefined {
   if (value === "present") return "present";
   return undefined;
 }
+
+// diary-format:begin
+// Everything from here to "diary-format:end" decides what a stored diary keeps
+// when it is read. lib/diary-schema.test.ts pins a hash of this code: change
+// what is kept (a field, a value, a length) and bump DIARY_SCHEMA_VERSION.
 
 export function sanitizeCustomSymptoms(raw: unknown): CustomSymptomDefinition[] {
   if (!Array.isArray(raw)) return [];
@@ -239,8 +265,37 @@ function parsePoolFields(parsed: Partial<Diary> & Record<string, unknown>) {
   };
 }
 
+/** The format version a stored diary says it was written with, or 0 if it does not say. */
+export function storedSchemaVersion(raw: unknown): number {
+  if (!raw || typeof raw !== "object") return 0;
+  const version = (raw as { schemaVersion?: unknown }).schemaVersion;
+  return typeof version === "number" && Number.isFinite(version) ? version : 0;
+}
+
+/**
+ * Reads a stored diary. Throws `NewerDiaryError` when a newer build wrote it:
+ * everything this build does with a diary (merge, save, import) starts here, so
+ * nothing it does not know can be dropped and saved back.
+ */
 export function parseDiary(raw: string | object): Diary {
-  const parsed = (typeof raw === "string" ? JSON.parse(raw) : raw) as Partial<Diary> & {
+  const parsed = typeof raw === "string" ? (JSON.parse(raw) as unknown) : raw;
+  const version = storedSchemaVersion(parsed);
+  if (version > DIARY_SCHEMA_VERSION) throw new NewerDiaryError(version);
+  return buildDiary(parsed);
+}
+
+/**
+ * Reads a diary from a newer build as far as this build understands it, only to
+ * show it. The result says `DIARY_SCHEMA_VERSION`, so a save made from it by
+ * mistake is still refused by the server, which holds the newer version.
+ */
+export function parseNewerDiaryForDisplay(raw: string | object, fallbackLocale: Locale = "es"): Diary {
+  // A language added after this build keeps the screen in the one already in use.
+  return buildDiary(typeof raw === "string" ? (JSON.parse(raw) as unknown) : raw, fallbackLocale);
+}
+
+function buildDiary(input: unknown, fallbackLocale: Locale = "es"): Diary {
+  const parsed = input as Partial<Diary> & {
     days?: Record<string, unknown>;
   };
   if (!parsed || typeof parsed !== "object") {
@@ -277,7 +332,7 @@ export function parseDiary(raw: string | object): Diary {
     schemaVersion: DIARY_SCHEMA_VERSION,
     periodStarts: derived.length > 0 ? derived : [...periodStarts].sort(),
     days: withStarts,
-    locale: isLocale(parsed.locale) ? parsed.locale : "es",
+    locale: isLocale(parsed.locale) ? parsed.locale : fallbackLocale,
     ...pool,
     recoveryEmailSet: Boolean(parsed.recoveryEmailSet),
     favoriteSymptomIds,
@@ -285,6 +340,8 @@ export function parseDiary(raw: string | object): Diary {
     forecastingEnabled: parsed.forecastingEnabled !== false,
   };
 }
+
+// diary-format:end
 
 export function upsertDay(diary: Diary, iso: string, log: DayLog): Diary {
   const days = { ...diary.days };

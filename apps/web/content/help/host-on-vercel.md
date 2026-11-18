@@ -64,6 +64,7 @@ Day-to-day sign-in is still email + password. The inbox is opened **once** at si
 Optional:
 
 - `CONSOLE_EMAILS` — comma-separated operator emails for `/console`. Compared as HMAC against a **verified** mailbox.
+- `MIN_ANDROID_VERSION_CODE` — the oldest Android app build (its `versionCode`) the API still serves. Older builds get a 426 and ask the person to update. Leave it unset unless you publish the Android app.
 
 Do not put period dates, phrases, or AES keys in env vars or logs.
 

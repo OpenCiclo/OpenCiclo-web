@@ -140,6 +140,10 @@ export function isBuiltInSymptomId(value: unknown): value is BuiltInSymptomId {
   );
 }
 
+// diary-format:begin
+// Which custom symptom ids a stored diary keeps (lib/diary-schema.test.ts pins
+// a hash of this code, like the one in lib/diary.ts).
+
 export function isCustomSymptomId(value: unknown): value is CustomSymptomId {
   return typeof value === "string" && /^custom-[a-zA-Z0-9-]{8,}$/.test(value);
 }
@@ -147,3 +151,5 @@ export function isCustomSymptomId(value: unknown): value is CustomSymptomId {
 export function createCustomSymptomId(): CustomSymptomId {
   return `custom-${globalThis.crypto.randomUUID()}`;
 }
+
+// diary-format:end

@@ -3,7 +3,8 @@ import type { ButtonHTMLAttributes } from "react";
 
 import { cn } from "@/lib/utils";
 
-const buttonVariants = cva(
+/** Also for links that should look like a button (an external link cannot be a <button>). */
+export const buttonVariants = cva(
   "inline-flex items-center justify-center rounded-xl text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 min-h-11 px-4",
   {
     variants: {

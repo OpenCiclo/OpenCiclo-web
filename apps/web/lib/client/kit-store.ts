@@ -1,7 +1,7 @@
 // Copyright © 2026 Emma Flora Harbison & Luis Rey Sánchez
 // SPDX-License-Identifier: Apache-2.0
 
-import { apiUrl } from "@/lib/app-target";
+import { apiFetch } from "@/lib/client/http";
 import type { WrappedKit } from "@/lib/crypto/wrap";
 
 const KITS_KEY = "ciclo.kits";
@@ -89,7 +89,7 @@ export function clearLocalKits() {
 }
 
 export async function fetchRemoteKit(email: string): Promise<WrappedKit> {
-  const response = await fetch(apiUrl("/api/recovery/fetch"), {
+  const response = await apiFetch("/api/recovery/fetch", {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify({ email: normalizeEmail(email) }),

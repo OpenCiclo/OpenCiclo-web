@@ -9,6 +9,7 @@ import { jsonError } from "@/lib/server/env";
 import { hashPoolContributorKey } from "@/lib/server/pool-key";
 import { sourceKey, takeRateLimit, tooManyRequests } from "@/lib/server/rate-limit";
 import { upsertPoolContribution } from "@/lib/server/research-pool";
+import { rejectOutdatedClient } from "@/lib/server/client-version";
 
 function parseCycleLengths(raw: unknown): number[] | null {
   if (!Array.isArray(raw)) return null;
@@ -29,6 +30,8 @@ function parseContributorKey(raw: unknown): string | null {
 }
 
 export async function POST(request: Request) {
+  const outdated = rejectOutdatedClient(request);
+  if (outdated) return outdated;
   const body = (await request.json()) as { contributorKey?: unknown; cycleLengths?: unknown };
   const contributorKeyHash = parseContributorKey(body.contributorKey);
   if (!contributorKeyHash) {
@@ -51,6 +54,8 @@ export async function POST(request: Request) {
 }
 
 export async function DELETE(request: Request) {
+  const outdated = rejectOutdatedClient(request);
+  if (outdated) return outdated;
   const body = (await request.json()) as { contributorKey?: unknown };
   const contributorKeyHash = parseContributorKey(body.contributorKey);
   if (!contributorKeyHash) {

@@ -10,6 +10,7 @@ import {
   CalendarClock,
   Check,
   ChevronRight,
+  CircleArrowUp,
   CloudOff,
   Droplet,
   PenLine,
@@ -131,6 +132,7 @@ export function DaySheet({
   error,
   lunarPhasesEnabled,
   readOnly = false,
+  readOnlyReason = "offline",
   future = false,
   onClose,
   onExited,
@@ -147,8 +149,13 @@ export function DaySheet({
   saving: boolean;
   error: string | null;
   lunarPhasesEnabled: boolean;
-  /** The offline copy is open (Android): the day shows, but nothing can be changed or saved. */
+  /**
+   * The day shows, but nothing can be changed or saved: the offline copy is open
+   * (Android), or this build must be updated to save the diary.
+   */
   readOnly?: boolean;
+  /** Which hint explains `readOnly`. */
+  readOnlyReason?: "offline" | "update";
   /** A day after today: nothing to log yet, so the sheet shows its moon phase only. */
   future?: boolean;
   onClose: () => void;
@@ -530,8 +537,12 @@ export function DaySheet({
             </p>
           ) : readOnly ? (
             <p className="flex flex-1 items-center gap-2 text-sm text-muted-foreground">
-              <CloudOff className="size-4 shrink-0" aria-hidden />
-              {t.offlineDayHint}
+              {readOnlyReason === "update" ? (
+                <CircleArrowUp className="size-4 shrink-0" aria-hidden />
+              ) : (
+                <CloudOff className="size-4 shrink-0" aria-hidden />
+              )}
+              {readOnlyReason === "update" ? t.updateDayHint : t.offlineDayHint}
             </p>
           ) : (
             <>

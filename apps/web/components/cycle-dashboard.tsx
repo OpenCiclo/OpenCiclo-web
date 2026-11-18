@@ -8,6 +8,7 @@ import { Suspense, useLayoutEffect, useRef } from "react";
 import { useIsDesktop } from "@/lib/client/desktop";
 import { CalendarScreen } from "@/components/calendar/calendar-screen";
 import { OfflineNotice } from "@/components/offline-notice";
+import { UpdateNotice } from "@/components/update-notice";
 import { PatternsContent } from "@/components/patterns/patterns-content";
 
 /** Pixels from the top of the window to the calendar when it sticks: the desktop header (4rem) and a gap. */
@@ -47,6 +48,7 @@ export function CycleDashboard({ tab }: { tab: "calendar" | "patterns" }) {
 
   return (
     <>
+      <UpdateNotice className="mb-5" />
       <OfflineNotice className="mb-5" />
       <div className="desktop:grid desktop:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] desktop:items-start desktop:gap-10">
         {tab === "calendar" || desktop ? (

@@ -6,7 +6,14 @@ import { describe, expect, it } from "vitest";
 import { decryptAesGcm, encryptAesGcm } from "./aes";
 import { utf8ToBytes, bytesToUtf8 } from "./bytes";
 import { createWallet, LEGACY_AUTH_MESSAGE_PREFIX, signChallenge, unlockWallet, verifyChallenge } from "./wallet";
-import { unwrapMnemonic, wrapMnemonic } from "./wrap";
+import {
+  MAX_KIT_ITERATIONS,
+  MIN_KIT_ITERATIONS,
+  PBKDF2_ITERATIONS,
+  UnsupportedKitError,
+  unwrapMnemonic,
+  wrapMnemonic,
+} from "./wrap";
 
 describe("wallet crypto", () => {
   it("round-trips mnemonic unlock and challenge signatures", () => {
@@ -60,5 +67,34 @@ describe("wallet crypto", () => {
     const second = await wrapMnemonic(recovered, "new-password");
     expect(await unwrapMnemonic(second, "new-password")).toBe(wallet.mnemonic);
     await expect(unwrapMnemonic(second, "old-password")).rejects.toThrow();
+  });
+
+  it("opens a kit with the iteration count stored in it, so the cost can change later", async () => {
+    const wallet = createWallet();
+    const today = await wrapMnemonic(wallet.mnemonic, "correct horse");
+    expect(today.wrapParams.iterations).toBe(PBKDF2_ITERATIONS);
+    const cheaper = await wrapMnemonic(wallet.mnemonic, "correct horse", MIN_KIT_ITERATIONS);
+    expect(cheaper.wrapParams.iterations).toBe(MIN_KIT_ITERATIONS);
+    expect(await unwrapMnemonic(cheaper, "correct horse")).toBe(wallet.mnemonic);
+    // The count is part of the key: a kit relabelled with another count does not open.
+    await expect(
+      unwrapMnemonic({ ...today, wrapParams: { ...today.wrapParams, iterations: MIN_KIT_ITERATIONS } }, "correct horse"),
+    ).rejects.toThrow();
+  });
+
+  it("refuses kits whose parameters would weaken the wrap or freeze the phone", async () => {
+    const kit = await wrapMnemonic(createWallet().mnemonic, "correct horse", MIN_KIT_ITERATIONS);
+    const variants = [
+      { ...kit.wrapParams, iterations: MIN_KIT_ITERATIONS - 1 },
+      { ...kit.wrapParams, iterations: MAX_KIT_ITERATIONS + 1 },
+      { ...kit.wrapParams, iterations: 600_000.5 },
+      { ...kit.wrapParams, kdf: "argon2id" },
+      { ...kit.wrapParams, hash: "SHA-512" },
+    ];
+    for (const wrapParams of variants) {
+      await expect(
+        unwrapMnemonic({ ...kit, wrapParams: wrapParams as typeof kit.wrapParams }, "correct horse"),
+      ).rejects.toBeInstanceOf(UnsupportedKitError);
+    }
   });
 });

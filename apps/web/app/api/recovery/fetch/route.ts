@@ -9,10 +9,13 @@ import { emailLookup, hashIp, jsonError } from "@/lib/server/env";
 import { mailboxIsFetchable } from "@/lib/server/mailbox";
 import { clientIp, sourceKey, takeRateLimit, tooManyRequests } from "@/lib/server/rate-limit";
 import { decoyKit } from "@/lib/server/recovery-decoy";
+import { rejectOutdatedClient } from "@/lib/server/client-version";
 
 const MAX_PER_HOUR = 5;
 
 export async function POST(request: Request) {
+  const outdated = rejectOutdatedClient(request);
+  if (outdated) return outdated;
   const body = (await request.json()) as { email?: unknown };
   const email = typeof body.email === "string" ? body.email.trim().toLowerCase() : "";
   if (!email.includes("@") || email.length > 320) {

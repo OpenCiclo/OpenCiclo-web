@@ -32,7 +32,9 @@ apps/mobile  cap sync android      →  android/app/src/main/assets/public
 
 The app is served from `https://localhost` on the phone. The API lives on the Ciclo host.
 
-- Client code builds API URLs with `apiUrl()` (`lib/app-target.ts`). On the web the base is empty, so nothing changes there.
+- Client code calls the API through `apiFetch()` (`lib/client/http.ts`), which builds the URL with `apiUrl()` (`lib/app-target.ts`). On the web the base is empty, so nothing changes there.
+- Every request gives up after 20 seconds. Android's native HTTP has no timeout of its own, so a connection that opens and never answers would otherwise leave the app waiting forever. A save that timed out but reached the host shows up as a 409 on the next try and merges.
+- Every request says which client sent it: `x-ciclo-client: android/<versionCode>`. If the host sets `MIN_ANDROID_VERSION_CODE`, it answers older builds with 426. The app then keeps an open hosted diary readable, saves nothing, and shows **Update Ciclo** with a Google Play link.
 - The Android build bakes the host from `CICLO_API_BASE`. It defaults to `http://localhost:3000`, the local stack. Release builds must pass the production origin, for example `CICLO_API_BASE=https://www.openciclo.com`.
 - `CapacitorHttp` sends `fetch` through Android's HTTP stack with the app's own cookie store. The session cookie stays `httpOnly` and `SameSite=Lax`. The server needs no CORS headers.
 
@@ -78,7 +80,7 @@ Sign-in forms (onboarding, unlock) leave with `returnTo()` (`lib/client/back-nav
 - **Files.** `files/device-diary.json` (sealed blob) and `files/device-phrase.bin` (phrase sealed with AES-GCM by a Keystore key), written with `AtomicFile`. A damaged diary file throws instead of reading as empty, so a save never replaces it.
 - **One diary per install.** While a device diary exists, a phrase opens that file and never signs in to a host (that would create an empty hosted account). Creating or moving to a device diary refuses if one exists.
 - **App lock.** Optional, Android 11+. The phrase is re-sealed with a key that needs a fingerprint or screen-lock check on every use. The app also locks after 30 s in the background (`visibilitychange`) and sets `FLAG_SECURE`. If the check is canceled or the key is invalidated (new fingerprint), `DeviceLockGate` offers to retry or to type the phrase on `/unlock`.
-- **Moving.** Device → hosted signs in with the device blob (or merges into an existing hosted diary like an import), then deletes the device files. Hosted → device writes the device files, then deletes the hosted account; if that delete fails, the device files are removed again.
+- **Moving.** Device → hosted creates the account with an empty diary, saves the device diary on top (or merges it into an existing hosted diary like an import), then deletes the device files. Hosted → device (`lib/client/move-to-device.ts`) copies the host's latest diary, then deletes the hosted account only at that version, so a save from another device in the meantime stops the move. If the host refuses the delete, the device files are removed again. If its answer is lost, the device files stay, because the delete may have happened. Settings then says the server copy may still exist and how to delete it.
 - **Export.** `saveFile()` (`lib/client/save-file.ts`) opens the share sheet in the app and downloads on the web. The plaintext export is written to `cache/exports`, cleared on the next export and on app start.
 
 ## Run it on a phone
@@ -124,6 +126,15 @@ The app talks to one host only. An account that lives on production is not on th
 - Capacitor's bridge logging is off in every build (`loggingBehavior: "none"`). With it on, logcat would get every request and response body (emails on the recovery endpoints) and every plugin result, including the phrase from `DeviceVault.readPhrase`. Debug through `chrome://inspect` instead.
 - The app has a Content Security Policy in a meta tag (`layout.android.tsx`), since a static export sends no headers.
 - The launcher icon (adaptive, themed, and bitmaps for Android 7) and the splash screen are the brand mark. The system splash shows the still mark, then the web loading screen draws the same mark at the same size and moves it. `npm run icons` in `apps/web` regenerates them. See `docs/brand/logo.md`.
+
+## Old app builds
+
+A build installed from Google Play can stay in use for months while the web changes every week.
+
+- **Newer diaries.** If a newer build saved the diary (the web, or the app on another phone), an older build opens it read-only and shows **Update Ciclo**. It never saves it back, because it would drop what it does not know. The host refuses such a save too. Any new field or value in the diary needs a new `DIARY_SCHEMA_VERSION` (see `lib/diary-schema.test.ts`).
+- **Recovery kits.** The app reads the PBKDF2 iteration count from each kit (100k to 3M), so the cost for new kits can rise without locking out installed builds.
+- **Backups.** While a diary from a newer build is open, the JSON export writes it exactly as stored, so nothing this build cannot read is lost, and CSV export is off. CSV files now carry a `schemaVersion` column, so an older build refuses a newer CSV as it refuses a newer JSON.
+- **Retiring a build.** Set `MIN_ANDROID_VERSION_CODE` on the host. Builds below it can still sign in, but the vault, recovery and research routes and new sign-ups answer 426, and the app asks for an update. Signing in keeps their session fresh, so sign-out and account deletion keep working. Builds made before the `x-ciclo-client` header existed cannot be retired this way.
 
 ## Known gaps
 

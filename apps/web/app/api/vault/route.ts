@@ -4,6 +4,7 @@
 import { getDb } from "@/lib/db";
 import { jsonError } from "@/lib/server/env";
 import { requireAccount } from "@/lib/server/account";
+import { rejectOutdatedClient } from "@/lib/server/client-version";
 import { parseBaseVersion, writeVault } from "@/lib/server/vault";
 import {
   isValidSchemaVersion,
@@ -13,7 +14,9 @@ import {
 
 export { MAX_VAULT_CIPHERTEXT_LENGTH };
 
-export async function GET() {
+export async function GET(request: Request) {
+  const outdated = rejectOutdatedClient(request);
+  if (outdated) return outdated;
   const { error, account } = await requireAccount();
   if (error || !account) return error;
   return Response.json({
@@ -26,6 +29,8 @@ export async function GET() {
 }
 
 export async function PUT(request: Request) {
+  const outdated = rejectOutdatedClient(request);
+  if (outdated) return outdated;
   const { error, account } = await requireAccount();
   if (error || !account) return error;
   const body = (await request.json()) as {
@@ -56,7 +61,8 @@ export async function PUT(request: Request) {
     baseVersion,
   );
   if (!result.ok) {
-    // Another device saved first. Send its blob so this client can merge and retry.
+    // Another device saved first, or a newer app version wrote the diary. Send
+    // its blob so this client can merge and retry, or show it read-only.
     return Response.json({ error: "Vault changed", ...result.current }, { status: 409 });
   }
   return Response.json({ ok: true, version: result.version });
