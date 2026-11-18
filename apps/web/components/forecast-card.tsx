@@ -8,6 +8,7 @@ import { initialChartWindow, untruncatedDaily } from "@/lib/cycle/initial-chart"
 import { cycleOverview } from "@/lib/cycle/phases";
 import { initialProbabilityLabel, periodTimingChip } from "@/lib/cycle/period-timing";
 import { daysBetween } from "@/lib/forecast/math";
+import { formatForecastDate as formatDate } from "@/lib/format-date";
 import { daysUnit, withinDays } from "@/lib/i18n";
 import type { DailyProbability } from "@/lib/forecast/types";
 import { Badge } from "@/components/ui/badge";
@@ -16,14 +17,6 @@ import { coverageInterval, ForecastChart } from "@/components/forecast-chart";
 
 const NEXT_WINDOWS = ["1", "2", "3", "5", "7"] as const;
 const AROUND_WINDOWS = ["1", "2", "3", "5"] as const;
-
-function formatDate(iso: string, locale: string) {
-  return new Intl.DateTimeFormat(locale, {
-    weekday: "short",
-    day: "numeric",
-    month: "short",
-  }).format(new Date(`${iso}T00:00:00Z`));
-}
 
 function percent(value: number) {
   return `${Math.round(value * 100)}%`;

@@ -51,6 +51,8 @@ The research pool is a separate, off-by-default consent. It sends lengths only. 
 
 Settings can export JSON or CSV after decrypting on the device. Import restores **diary data** into the same or a new account. It does not restore the old keys.
 
+Dates are written as `YYYY-MM-DD`. A date that does not exist on the calendar, such as `2026-02-30` or `2026-13-01`, or a year outside 1900–2999, is skipped on import; the other rows still come in. Only an earlier import could have put such a date in a diary. If yours holds one, Ciclo leaves that day out when it opens the diary, together with any note written on it, and the next save removes it. Earlier versions listed a note on such a day in **Diary** (Spanish UI: **Diario**) and Patterns under the next real date (for example 2 March for 30 February), but no calendar day showed it.
+
 Delete account removes your ciphertext and mailbox row. Research rows that were already uploaded without an account link cannot be found later, so they cannot be deleted on request. That limit is shown before you contribute.
 
 ## The Python library
