@@ -80,7 +80,8 @@ export function recurringSymptoms(diary: Diary, lookback = 6): RecurringSymptom[
     .sort((a, b) => b.cycleCount - a.cycleCount || b.dayCount - a.dayCount);
 }
 
-export function patternStats(diary: Diary, today?: string): PatternStats {
+/** `today` is the person's calendar date (`useTodayIso()`), never a UTC default. */
+export function patternStats(diary: Diary, today: string): PatternStats {
   const overview = cycleOverview(diary, today);
   const cycles = completedCycles(diary);
   const lengths = cycles.map((cycle) => cycle.length);

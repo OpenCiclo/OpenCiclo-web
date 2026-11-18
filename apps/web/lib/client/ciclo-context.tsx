@@ -58,9 +58,9 @@ import {
   TIME_ZONE_AUTO,
   parseTimeZoneSetting,
   resolveTimeZone,
-  todayIsoIn,
   type TimeZoneSetting,
 } from "@/lib/time-zone";
+import { useTodayIn } from "@/lib/client/today";
 
 type UnlockOptions = { create?: boolean; persist?: boolean };
 type PersistOptions = { persist?: boolean };
@@ -1007,10 +1007,13 @@ export function useCiclo() {
   return ctx;
 }
 
-/** Today's YYYY-MM-DD in the zone chosen in Settings (device zone by default). */
+/**
+ * Today's YYYY-MM-DD in the zone chosen in Settings (device zone by default).
+ * Moves on at midnight in that zone and when the app comes back into view.
+ */
 export function useTodayIso(): string {
   const { timeZone } = useCiclo();
-  return todayIsoIn(resolveTimeZone(timeZone));
+  return useTodayIn(resolveTimeZone(timeZone));
 }
 
 export {

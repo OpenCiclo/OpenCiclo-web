@@ -1,7 +1,7 @@
 // Copyright © 2026 Emma Flora Harbison & Luis Rey Sánchez
 // SPDX-License-Identifier: Apache-2.0
 
-import { addDaysIso, todayIsoUtc, type Diary } from "@/lib/diary";
+import { addDaysIso, type Diary } from "@/lib/diary";
 import { mostLikelyLength } from "@/lib/forecast/distribution";
 import { daysBetween } from "@/lib/forecast/math";
 import { predict } from "@/lib/forecast/predict";
@@ -205,7 +205,12 @@ export function isPeriodDueOrOverdue(overview: CycleOverview): boolean {
   );
 }
 
-export function cycleOverview(diary: Diary, today = todayIsoUtc()): CycleOverview {
+/**
+ * `today` is the person's calendar date (`useTodayIso()`, in the zone chosen in
+ * Settings). It is required: a UTC default was a day off for part of every day
+ * outside UTC.
+ */
+export function cycleOverview(diary: Diary, today: string): CycleOverview {
   const runs = periodRuns(diary);
   const periodDuration = estimatePeriodDuration(diary);
   const starts = [...diary.periodStarts].sort();
