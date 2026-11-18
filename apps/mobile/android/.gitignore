@@ -52,10 +52,15 @@ captures/
 # Comment next line if keeping position of elements in Navigation Editor is relevant for you
 .idea/navEditor.xml
 
-# Keystore files
-# Uncomment the following lines if you do not want to check your keystore files in.
-#*.jks
-#*.keystore
+# Keystore files. This repository is public: the upload key and its passwords
+# never go in it (docs/android.md, "Release builds"). The bracket patterns match any
+# letter case, also on case-sensitive clones (Linux, macOS): *.jks, *.keystore,
+# *.p12 and *.pfx (PKCS#12).
+*.[jJ][kK][sS]
+*.[kK][eE][yY][sS][tT][oO][rR][eE]
+*.[pP]12
+*.[pP][fF][xX]
+keystore.properties
 
 # External native build folder generated in Android Studio 2.2 and later
 .externalNativeBuild

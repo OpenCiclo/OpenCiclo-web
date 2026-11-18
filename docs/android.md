@@ -115,6 +115,90 @@ Capacitor 8 uses Gradle 8.14, which does not run on Java 25. Android Studio bund
 
 The app talks to one host only. An account that lives on production is not on the local stack, and signing in there with its phrase creates a new, empty account. To use an existing hosted account, build with `CICLO_API_BASE=https://www.openciclo.com`. Clear the app's data first (`adb shell pm clear com.openciclo.app`), or a phrase saved for the local stack signs in to production on start and creates an empty account there.
 
+## Release builds
+
+A Google Play release is an Android App Bundle (`.aab`) built from a committed tree, for the production host, and signed with the upload key.
+
+### The upload key
+
+Google Play signs what people install with the app signing key, which Google keeps (Play App Signing, on for every new app). We sign each upload with our own upload key. If the upload key is lost or leaks, the account owner can ask Google to reset it on the App integrity page of Play Console; the app signing key never changes.
+
+This repository is public. Create the upload key once, outside it, with the JDK's `keytool` (in the JDK 21 `bin` folder). keytool does not create folders, so make one first:
+
+```bash
+mkdir -p ~/keys
+keytool -genkeypair -v -keystore ~/keys/ciclo-upload.jks -alias ciclo-upload \
+  -keyalg RSA -keysize 4096 -validity 10000
+```
+
+In PowerShell (no `~`, no line continuation):
+
+```powershell
+New-Item -ItemType Directory -Force "$HOME\keys" | Out-Null
+& "$env:JAVA_HOME\bin\keytool.exe" -genkeypair -v -keystore "$HOME\keys\ciclo-upload.jks" -alias ciclo-upload -keyalg RSA -keysize 4096 -validity 10000
+```
+
+keytool writes a PKCS12 keystore whatever the file is called, and a PKCS12 keystore has one password: keytool asks for it once and uses it for the key too. Back up the keystore file and that password (a password manager plus an offline copy). Git ignores `*.jks`, `*.keystore`, `*.p12`, `*.pfx` (in any letter case) and `keystore.properties` anywhere in the tree, as a second line of defense.
+
+Point Gradle at the key with `apps/mobile/android/keystore.properties` (ignored by git):
+
+```properties
+storeFile=C:/Users/you/keys/ciclo-upload.jks
+storePassword=...
+keyAlias=ciclo-upload
+keyPassword=...
+```
+
+- `keyPassword` is the same password as `storePassword` for a key made as above.
+- Use forward slashes on Windows: a backslash is an escape character in a properties file. A relative `storeFile` is read from `apps/mobile/android/`.
+- Instead of the file, a shell or a CI job can set all four of `CICLO_UPLOAD_STORE_FILE`, `CICLO_UPLOAD_STORE_PASSWORD`, `CICLO_UPLOAD_KEY_ALIAS` and `CICLO_UPLOAD_KEY_PASSWORD`. The file wins when both exist.
+- With neither, release builds are unsigned. CI builds them that way; Google Play rejects them.
+- Only release builds read the key. When the file or the variables are incomplete, or the keystore is missing (a backup drive that is not plugged in), the Gradle task `verifyReleaseSigning` fails the release build and says why. Debug builds and Android Studio's Gradle sync carry on.
+
+### The version
+
+`apps/mobile/version.json` is the one place for the version:
+
+```json
+{ "versionCode": 1, "versionName": "1.0.0" }
+```
+
+Gradle reads it, and the Android export passes it to the bundle as `NEXT_PUBLIC_CICLO_VERSION_CODE` and `NEXT_PUBLIC_CICLO_VERSION_NAME`. Raise `versionCode` by one for every upload (Google Play refuses a code it has already seen) and set `versionName` to what people see. Commit the change before building.
+
+### Building
+
+```bash
+cd apps/mobile
+CICLO_API_BASE=https://www.openciclo.com npm run build:release
+```
+
+In PowerShell, clear the variable afterwards, because `$env:` lasts for the whole window and a later `npm run build` there would bake the production host into a development build:
+
+```powershell
+$env:CICLO_API_BASE = "https://www.openciclo.com"; try { npm run build:release } finally { Remove-Item Env:CICLO_API_BASE }
+```
+
+`build:release` refuses to start without `CICLO_API_BASE` in its environment (it never takes it from a `.env` file or a default), with a value that is not https, or with no upload key (or only some of the `CICLO_UPLOAD_*` variables). It warns about uncommitted changes. Then it runs the Android export (`npm run build:android` in `apps/web`), `cap sync android`, and `gradlew bundleRelease`. Upload `android/app/build/outputs/bundle/release/app-release.aab`. The bundle carries the R8 mapping file, so Play Console shows readable stack traces.
+
+### The release guard
+
+`npm run build:android` writes `out-android/build-info.json` with the API host baked into the bundle, the git commit, `versionCode` and `versionName`. It resolves `CICLO_API_BASE` the way `next build` does (the environment, then the `.env` files) and hands `next build` that exact value. `cap sync` copies the file into the app.
+
+Before anything of a release build compiles (`assembleRelease`, `bundleRelease`, `lintVitalRelease`), the Gradle task `verifyReleaseBuildInfo` reads the copy in `app/src/main/assets/public` and fails the build when:
+
+- the file is missing: the export was not made by `npm run build:android`, or never copied in;
+- `apiBase` is not https, or is a local address (`localhost`, `127.0.0.1`, the emulator's `10.0.2.2`, and the like);
+- the commit is not `git rev-parse HEAD`: the export is stale;
+- `versionCode` or `versionName` differ from `version.json`.
+
+Debug builds skip it. It cannot see uncommitted changes, which is why `build:release` warns about them.
+
+### R8
+
+Release builds shrink and obfuscate the Java code (R8) and drop unused resources. The bridge finds plugin classes and their `@PluginMethod` methods by reflection; Capacitor's own R8 rules keep them, so `DeviceVaultPlugin` needs nothing in `proguard-rules.pro`. A new native class that is only reached by reflection needs a keep rule there.
+
+CI builds the release APK unsigned the same way (export for `https://www.openciclo.com`, `cap sync`, `gradlew assembleRelease lintVitalRelease`), so the guard, R8 and lint run on every pull request.
+
 ## Security notes
 
 - `allowBackup="false"` and `data_extraction_rules.xml` keep all app data out of Google backups and device transfers. The sealed phrase files are useless without this phone's Keystore, and older app versions kept a hosted phrase in WebView storage.
