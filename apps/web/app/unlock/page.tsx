@@ -13,10 +13,12 @@ import {
   useCiclo,
 } from "@/lib/client/ciclo-context";
 import { goBack, returnTo } from "@/lib/client/back-navigation";
+import { UpdateRequiredError } from "@/lib/client/http";
 import { useBrowserValue } from "@/lib/client/hooks";
 import { InvalidPhraseError } from "@/lib/crypto/wallet";
 import { unlockDestination } from "@/lib/console/paths";
 import { AppShell } from "@/components/app-shell";
+import { UpdateNotice, updateErrorMessage } from "@/components/update-notice";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -75,6 +77,8 @@ export default function UnlockPage() {
         setError(t.invalidCredentials);
       } else if (cause instanceof RateLimitedError) {
         setError(t.tooManyEmailCodes);
+      } else if (cause instanceof UpdateRequiredError) {
+        setError(updateErrorMessage(cause, t));
       } else {
         setError(t.errorGeneric);
       }
@@ -97,7 +101,9 @@ export default function UnlockPage() {
           ? t.invalidPhrase
           : cause instanceof AccountNotFoundError
             ? t.noAccountForPhrase
-            : t.errorGeneric,
+            : cause instanceof UpdateRequiredError
+              ? updateErrorMessage(cause, t)
+              : t.errorGeneric,
       );
     } finally {
       setBusy(false);
@@ -130,6 +136,7 @@ export default function UnlockPage() {
       <button type="button" className="mb-4 text-sm underline" onClick={() => goBack(router)}>
         {t.back}
       </button>
+      <UpdateNotice className="mb-4" />
       <h1 className="text-2xl font-semibold">{t.unlockTitle}</h1>
       {deviceLocked ? null : <p className="mt-2 text-sm text-muted-foreground">{t.unlockBody}</p>}
       <Card className="mt-4 border-primary/20 bg-primary/5 p-4 text-sm leading-6 text-muted-foreground">

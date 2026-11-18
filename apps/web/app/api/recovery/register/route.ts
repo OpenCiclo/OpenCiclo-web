@@ -21,8 +21,11 @@ import {
 } from "@/lib/server/mailbox";
 import { clientIp, sourceKey, takeRateLimit, tooManyRequests } from "@/lib/server/rate-limit";
 import { mailTransportConfigured, sendMailboxCode } from "@/lib/server/mail";
+import { rejectOutdatedClient } from "@/lib/server/client-version";
 
 export async function POST(request: Request) {
+  const outdated = rejectOutdatedClient(request);
+  if (outdated) return outdated;
   const startedAt = Date.now();
   const { error, account } = await requireAccount();
   if (error || !account) return error;

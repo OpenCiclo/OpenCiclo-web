@@ -14,8 +14,11 @@ import {
   parseMailboxCode,
   pendingIsExpired,
 } from "@/lib/server/mailbox";
+import { rejectOutdatedClient } from "@/lib/server/client-version";
 
 export async function POST(request: Request) {
+  const outdated = rejectOutdatedClient(request);
+  if (outdated) return outdated;
   const { error, account } = await requireAccount();
   if (error || !account) return error;
 

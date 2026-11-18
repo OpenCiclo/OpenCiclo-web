@@ -8,6 +8,8 @@ import { type Wallet } from "@/lib/crypto/wallet";
 import { useBackStep } from "@/lib/client/android-back";
 import { goBack, returnTo } from "@/lib/client/back-navigation";
 import { storeBrowserPassword } from "@/lib/client/credentials";
+import { HttpError } from "@/lib/client/api";
+import { UpdateRequiredError } from "@/lib/client/http";
 import { saveFile } from "@/lib/client/save-file";
 import {
   InvalidConfirmError,
@@ -17,6 +19,7 @@ import {
 } from "@/lib/client/ciclo-context";
 import { maskEmail } from "@/lib/client/kit-store";
 import { AppShell } from "@/components/app-shell";
+import { UpdateNotice, updateErrorMessage } from "@/components/update-notice";
 import { PhraseQrCode } from "@/components/phrase-qr-code";
 import { SavePhraseForm } from "@/components/save-phrase-form";
 import { Button } from "@/components/ui/button";
@@ -75,8 +78,14 @@ export default function OnboardingPage() {
       }
       returnTo(router, "/app");
     } catch (cause) {
-      const message = cause instanceof Error ? cause.message : t.errorGeneric;
-      setError(message);
+      // Never show a raw error message: it is English and meant for developers.
+      setError(
+        cause instanceof UpdateRequiredError
+          ? updateErrorMessage(cause, t)
+          : cause instanceof HttpError && cause.status === 429
+            ? t.tooManyEmailCodes
+            : t.errorGeneric,
+      );
     } finally {
       setBusy(false);
     }
@@ -102,6 +111,7 @@ export default function OnboardingPage() {
     } catch (cause) {
       if (cause instanceof MailNotConfiguredError) setError(t.mailNotConfigured);
       else if (cause instanceof RateLimitedError) setError(t.tooManyEmailCodes);
+      else if (cause instanceof UpdateRequiredError) setError(updateErrorMessage(cause, t));
       else setError(t.errorGeneric);
     } finally {
       setBusy(false);
@@ -117,6 +127,7 @@ export default function OnboardingPage() {
       returnTo(router, "/app");
     } catch (cause) {
       if (cause instanceof InvalidConfirmError) setError(t.verifyEmailInvalid);
+      else if (cause instanceof UpdateRequiredError) setError(updateErrorMessage(cause, t));
       else setError(t.errorGeneric);
     } finally {
       setBusy(false);
@@ -132,6 +143,7 @@ export default function OnboardingPage() {
     } catch (cause) {
       if (cause instanceof MailNotConfiguredError) setError(t.mailNotConfigured);
       else if (cause instanceof RateLimitedError) setError(t.tooManyEmailCodes);
+      else if (cause instanceof UpdateRequiredError) setError(updateErrorMessage(cause, t));
       else setError(t.errorGeneric);
     } finally {
       setBusy(false);
@@ -165,6 +177,8 @@ export default function OnboardingPage() {
       >
         {t.back}
       </button>
+      {/* An on-device diary needs no host: a host refusing this build does not matter there. */}
+      {method === "device" ? null : <UpdateNotice className="mb-4" />}
 
       {method === "choose" ? (
         <>

@@ -6,6 +6,9 @@ import { issueChallenge } from "@/lib/server/auth-challenges";
 import { jsonError } from "@/lib/server/env";
 import { sourceKey, takeRateLimit, tooManyRequests } from "@/lib/server/rate-limit";
 
+// Never refused for an outdated app build (no rejectOutdatedClient): signing in
+// writes no diary data, and the session it leads to is what lets an old build
+// still sign out and delete the account. The vault routes refuse the build.
 export async function POST(request: Request) {
   const body = (await request.json()) as { pubkeyHash?: string };
   const pubkeyHash = body.pubkeyHash?.trim().toLowerCase();

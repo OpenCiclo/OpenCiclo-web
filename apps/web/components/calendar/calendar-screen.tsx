@@ -28,6 +28,7 @@ import {
 import { formatIsoUtc } from "@/lib/format-date";
 import type { Locale, Messages } from "@/lib/i18n";
 import { useCiclo, useTodayIso } from "@/lib/client/ciclo-context";
+import { UpdateRequiredError } from "@/lib/client/http";
 import { IS_ANDROID_APP } from "@/lib/app-target";
 import { useIsGhost } from "@/lib/client/ghost";
 import { useMonthSwipe } from "@/lib/client/use-month-swipe";
@@ -56,7 +57,8 @@ export function CalendarScreen() {
     lunarPhasesVisible,
     setLunarPhasesVisible,
     weekStartsOn,
-    offline,
+    readOnly,
+    updateRequired,
   } = useCiclo();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -197,15 +199,16 @@ export function CalendarScreen() {
   }
 
   async function saveDay(log: DayLog) {
-    if (offline || !activeIso || !isEditableDiaryDate(activeIso, today)) return;
+    if (readOnly || !activeIso || !isEditableDiaryDate(activeIso, today)) return;
     try {
       setSaving(true);
       await persistDiary(upsertDay(diary, activeIso, log));
       setError(null);
       setSaving(false);
       setSheetOpen(false);
-    } catch {
-      setError(t.errorGeneric);
+    } catch (cause) {
+      // An update is needed: the sheet turns read-only and its hint says so.
+      setError(cause instanceof UpdateRequiredError ? null : t.errorGeneric);
       setSaving(false);
     }
   }
@@ -214,7 +217,7 @@ export function CalendarScreen() {
     favoriteSymptomIds: SymptomId[],
     customSymptoms: CustomSymptomDefinition[],
   ) {
-    if (offline) return;
+    if (readOnly) return;
     try {
       setSaving(true);
       await persistDiary({ ...diary, favoriteSymptomIds, customSymptoms });
@@ -222,8 +225,8 @@ export function CalendarScreen() {
         current.filter((id) => !id.startsWith("custom-") || customSymptoms.some((item) => item.id === id)),
       );
       setError(null);
-    } catch {
-      setError(t.errorGeneric);
+    } catch (cause) {
+      setError(cause instanceof UpdateRequiredError ? null : t.errorGeneric);
     } finally {
       setSaving(false);
     }
@@ -451,7 +454,8 @@ export function CalendarScreen() {
         onClose={closeSheet}
         onExited={handleSheetExited}
         onSave={(log) => saveDay(log)}
-        readOnly={offline !== null}
+        readOnly={readOnly}
+        readOnlyReason={updateRequired ? "update" : "offline"}
         future={activeIso !== null && !isEditableDiaryDate(activeIso, today)}
         lunarPhasesEnabled={lunarPhasesEnabled}
         onUpdateSymptomPreferences={updateSymptomPreferences}

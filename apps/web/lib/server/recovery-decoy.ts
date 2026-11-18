@@ -7,7 +7,7 @@ import { entropyToMnemonic } from "@scure/bip39";
 import { wordlist } from "@scure/bip39/wordlists/english.js";
 
 import { bytesToBase64, toBufferSource, utf8ToBytes } from "@/lib/crypto/bytes";
-import type { WrappedKit } from "@/lib/crypto/wrap";
+import { PBKDF2_ITERATIONS, type WrappedKit } from "@/lib/crypto/wrap";
 import { requireSecret } from "@/lib/server/env";
 
 // POST /api/recovery/fetch must not reveal whether an email has a Ciclo
@@ -44,7 +44,8 @@ export async function decoyKit(emailLookup: string): Promise<WrappedKit> {
     wrappedSecret: bytesToBase64(new Uint8Array(sealed)),
     wrapNonce: bytesToBase64(nonce),
     wrapSalt: bytesToBase64(derive("salt", emailLookup).slice(0, 16)),
-    // Same key order as a real kit read back from the jsonb column.
-    wrapParams: { kdf: "pbkdf2-sha256", hash: "SHA-256", iterations: 600_000 },
+    // Same key order as a real kit read back from the jsonb column, and the
+    // count new kits are made with (every kit stored so far uses it).
+    wrapParams: { kdf: "pbkdf2-sha256", hash: "SHA-256", iterations: PBKDF2_ITERATIONS },
   };
 }
