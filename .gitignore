@@ -69,5 +69,12 @@ pnpm-debug.log*
 # Keys and certs
 *.pem
 *.key
+# Android signing keys, in any letter case (case-sensitive clones too): *.jks,
+# *.keystore, *.p12, *.pfx, and the file that points Gradle at the upload key.
+*.[jJ][kK][sS]
+*.[kK][eE][yY][sS][tT][oO][rR][eE]
+*.[pP]12
+*.[pP][fF][xX]
+keystore.properties
 id_rsa
 id_rsa.pub

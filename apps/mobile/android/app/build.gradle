@@ -1,4 +1,61 @@
+import groovy.json.JsonSlurper
+
 apply plugin: 'com.android.application'
+
+// The app version lives in apps/mobile/version.json. The web export copies it into
+// build-info.json, and the release guard below checks that both agree. Raise
+// versionCode for every upload to Google Play.
+def appVersion = new JsonSlurper().parse(rootProject.file('../version.json'))
+if (!(appVersion.versionCode instanceof Integer) || appVersion.versionCode < 1 ||
+    !(appVersion.versionName instanceof String) || !appVersion.versionName.trim()) {
+    throw new GradleException('apps/mobile/version.json needs a positive integer versionCode and a non-empty versionName.')
+}
+
+// Upload key for release builds. From android/keystore.properties (gitignored) or,
+// when that file is missing, from the CICLO_UPLOAD_* environment variables. With
+// neither, release builds stay unsigned, which is what CI builds. Keep the key and
+// its passwords outside this public repository (docs/android.md, "Release builds").
+//
+// Only release builds depend on the key. A half-written config or a keystore on a
+// drive that is not mounted is recorded in uploadKeyProblem here, at configuration,
+// and the verifyReleaseSigning task below fails the release build with it. Debug
+// builds and Android Studio's Gradle sync never fail because of the upload key.
+def uploadKeyFields = [
+    storeFile    : 'CICLO_UPLOAD_STORE_FILE',
+    storePassword: 'CICLO_UPLOAD_STORE_PASSWORD',
+    keyAlias     : 'CICLO_UPLOAD_KEY_ALIAS',
+    keyPassword  : 'CICLO_UPLOAD_KEY_PASSWORD',
+]
+def uploadKey = null        // a complete config whose keystore exists: signs the release
+def uploadKeyProblem = null // why the configured key cannot sign: fails release builds only
+def uploadKeyConfig = null
+def keystorePropertiesFile = rootProject.file('keystore.properties')
+if (keystorePropertiesFile.isFile()) {
+    def properties = new Properties()
+    keystorePropertiesFile.withInputStream { properties.load(it) }
+    uploadKeyConfig = [source: keystorePropertiesFile.path]
+    uploadKeyFields.each { field, variable -> uploadKeyConfig[field] = properties.getProperty(field) }
+    def missing = uploadKeyFields.keySet().findAll { !uploadKeyConfig[it] }
+    if (missing) {
+        uploadKeyProblem = "${keystorePropertiesFile} has no ${missing.join(', ')}."
+    }
+} else if (uploadKeyFields.values().any { System.getenv(it) }) {
+    uploadKeyConfig = [source: 'the CICLO_UPLOAD_* environment variables']
+    uploadKeyFields.each { field, variable -> uploadKeyConfig[field] = System.getenv(variable) }
+    def missing = uploadKeyFields.findAll { field, variable -> !uploadKeyConfig[field] }.values()
+    if (missing) {
+        uploadKeyProblem = "set all four CICLO_UPLOAD_* variables or none. Missing: ${missing.join(', ')}."
+    }
+}
+if (uploadKeyConfig != null && uploadKeyProblem == null) {
+    // A relative storeFile is read from the android/ folder, next to keystore.properties.
+    uploadKeyConfig.storeFile = rootProject.file(uploadKeyConfig.storeFile)
+    if (uploadKeyConfig.storeFile.isFile()) {
+        uploadKey = uploadKeyConfig
+    } else {
+        uploadKeyProblem = "the keystore ${uploadKeyConfig.storeFile} from ${uploadKeyConfig.source} does not exist."
+    }
+}
 
 android {
     namespace = "com.openciclo.app"
@@ -7,8 +64,8 @@ android {
         applicationId "com.openciclo.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "1.0"
+        versionCode = appVersion.versionCode
+        versionName = appVersion.versionName
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
@@ -16,10 +73,26 @@ android {
             ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    signingConfigs {
+        if (uploadKey != null) {
+            release {
+                storeFile = uploadKey.storeFile
+                storePassword = uploadKey.storePassword
+                keyAlias = uploadKey.keyAlias
+                keyPassword = uploadKey.keyPassword
+            }
+        }
+    }
     buildTypes {
         release {
-            minifyEnabled false
+            // R8 shrinks and obfuscates the Java side. Capacitor's consumer rules keep
+            // plugin classes and their @PluginMethod methods (read by reflection).
+            minifyEnabled = true
+            shrinkResources = true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            if (uploadKey != null) {
+                signingConfig = signingConfigs.release
+            }
         }
     }
 }
@@ -46,11 +119,96 @@ dependencies {
 
 apply from: 'capacitor.build.gradle'
 
-try {
-    def servicesJSON = file('google-services.json')
-    if (servicesJSON.text) {
-        apply plugin: 'com.google.gms.google-services'
+// Release guard. A release must ship the web export of the commit being built, made
+// for a real https host, with the version in version.json. `npm run build:android`
+// writes build-info.json into the export and `cap sync` copies it here. Debug builds
+// skip this check. See docs/android.md, "Release builds".
+def buildInfoFile = file('src/main/assets/public/build-info.json')
+def gitHead = providers.exec {
+    commandLine 'git', 'rev-parse', 'HEAD'
+    workingDir rootDir
+    ignoreExitValue = true
+}
+
+static boolean isLocalHost(String host) {
+    def name = (host ?: '').toLowerCase().replaceAll(/^\[|\]$/, '')
+    return name == 'localhost' || name.endsWith('.localhost') || name.startsWith('127.') ||
+        name == '::1' || name == '0.0.0.0' || name == '10.0.2.2'
+}
+
+def verifyReleaseBuildInfo = tasks.register('verifyReleaseBuildInfo') {
+    group = 'verification'
+    description = 'Fails a release build whose bundled web export is missing, local, stale, or of another version.'
+    doLast {
+        def rebuild = 'Rebuild the export and copy it in: CICLO_API_BASE=https://www.openciclo.com npm run build:release ' +
+            '(apps/mobile), or npm run build with CICLO_API_BASE set. See docs/android.md, "Release builds".'
+        if (!buildInfoFile.isFile()) {
+            throw new GradleException("Release guard: ${buildInfoFile} is missing, so the bundled web export was not " +
+                "made by npm run build:android (or was never copied in).\n${rebuild}")
+        }
+        def info
+        try {
+            info = new JsonSlurper().parse(buildInfoFile)
+        } catch (Exception e) {
+            throw new GradleException("Release guard: ${buildInfoFile} is not valid JSON.\n${rebuild}")
+        }
+
+        def problems = []
+        def apiBase = info.apiBase instanceof String ? info.apiBase : ''
+        def apiUri = null
+        try {
+            apiUri = new URI(apiBase)
+        } catch (URISyntaxException ignored) {
+        }
+        if (apiUri?.scheme != 'https' || !apiUri?.host) {
+            problems << "apiBase is \"${apiBase}\", not an https origin. Set CICLO_API_BASE to the production origin."
+        } else if (isLocalHost(apiUri.host)) {
+            problems << "apiBase is \"${apiBase}\", a local address. Set CICLO_API_BASE to the production origin."
+        }
+
+        def headResult = gitHead.result.get()
+        def head = gitHead.standardOutput.asText.get().trim()
+        if (headResult.exitValue != 0 || !head) {
+            problems << 'git rev-parse HEAD failed, so the export cannot be matched to a commit.'
+        } else if (info.commit != head) {
+            problems << "the export was built from commit ${info.commit ?: '(unknown)'}, but HEAD is ${head}."
+        }
+
+        if (info.versionCode != appVersion.versionCode) {
+            problems << "the export has versionCode ${info.versionCode}, version.json has ${appVersion.versionCode}."
+        }
+        if (info.versionName != appVersion.versionName) {
+            problems << "the export has versionName \"${info.versionName}\", version.json has \"${appVersion.versionName}\"."
+        }
+
+        if (problems) {
+            throw new GradleException("Release guard: refusing to package ${buildInfoFile}:\n" +
+                problems.collect { "  - ${it}" }.join('\n') + "\n${rebuild}")
+        }
+        logger.lifecycle("Release guard: OK (${apiBase}, commit ${head.take(12)}, " +
+            "version ${appVersion.versionName} (${appVersion.versionCode}))")
     }
-} catch(Exception e) {
-    logger.info("google-services.json not found, google-services plugin not applied. Push Notifications won't work")
+}
+
+def verifyReleaseSigning = tasks.register('verifyReleaseSigning') {
+    group = 'verification'
+    description = 'Fails a release build whose upload key is configured but incomplete or missing.'
+    doLast {
+        if (uploadKeyProblem != null) {
+            throw new GradleException("Release signing: ${uploadKeyProblem}\nFix android/keystore.properties or the " +
+                'CICLO_UPLOAD_* variables, or remove them all for an unsigned build. See docs/android.md, "Release builds".')
+        }
+        if (uploadKey == null) {
+            logger.warn('Release signing: no keystore.properties and no CICLO_UPLOAD_* variables, so this release is unsigned. ' +
+                'Google Play only accepts a bundle signed with the upload key.')
+        } else {
+            logger.lifecycle("Release signing: the upload key from ${uploadKey.source}")
+        }
+    }
+}
+
+// preReleaseBuild runs before anything of the release variant compiles or packages:
+// assembleRelease, bundleRelease, and lintVitalRelease all wait for both checks.
+tasks.matching { it.name == 'preReleaseBuild' }.configureEach {
+    dependsOn verifyReleaseBuildInfo, verifyReleaseSigning
 }

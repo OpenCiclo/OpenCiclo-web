@@ -5,6 +5,9 @@ on:
     branches: [main, master]
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
   python:
     runs-on: ubuntu-latest
@@ -46,4 +49,56 @@ jobs:
         run: npm test
       - name: Lint
         run: npm run lint
+      # `next typegen` writes the route types (LayoutProps, PageProps) and
+      # next-env.d.ts that a fresh checkout lacks.
+      - name: Type check
+        run: |
+          npx next typegen
+          npx tsc --noEmit -p tsconfig.json
 
+  # Builds the Android app the way a release is built (docs/android.md, "Release
+  # builds"), unsigned: R8, resource shrinking, the release guard, and lint.
+  android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: |
+            apps/web/package-lock.json
+            apps/mobile/package-lock.json
+      # Gradle 8.14 (Capacitor 8) does not run on Java 25.
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: gradle
+      - name: Install (web)
+        working-directory: apps/web
+        run: npm ci
+      - name: Install (mobile)
+        working-directory: apps/mobile
+        run: npm ci
+      - name: Verify registry signatures (mobile)
+        working-directory: apps/mobile
+        run: npm audit signatures
+      - name: Type check (Android routes)
+        working-directory: apps/web
+        env:
+          CICLO_TARGET: android
+        run: |
+          npx next typegen
+          npx tsc --noEmit -p tsconfig.android.json
+      - name: Export the web app for Android
+        working-directory: apps/web
+        env:
+          CICLO_API_BASE: https://www.openciclo.com
+        run: npm run build:android
+      - name: Copy the export into the Android project
+        working-directory: apps/mobile
+        run: npx cap sync android
+      - name: Build the release APK (unsigned) and run lint
+        working-directory: apps/mobile/android
+        run: ./gradlew assembleRelease lintVitalRelease --no-daemon

@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import type { NextConfig } from "next";
 
 const isDev = process.env.NODE_ENV !== "production";
@@ -18,6 +20,8 @@ const csp = [
 // from a phone through `adb reverse tcp:3000 tcp:3000`), so a forgotten value
 // fails closed instead of pointing a dev build at production. Release builds
 // set it to the production origin. Plain http is only allowed for localhost.
+// scripts/build-android.mjs (`npm run build:android`) repeats this default and
+// passes the value explicitly, so build-info.json names the host baked here.
 function androidApiBase(): string {
   const value = process.env.CICLO_API_BASE ?? "http://localhost:3000";
   const url = new URL(value);
@@ -28,10 +32,29 @@ function androidApiBase(): string {
   return value;
 }
 
+// The app version, kept in apps/mobile/version.json. Gradle reads the same file
+// for versionCode/versionName, and scripts/build-android.mjs copies it into
+// out-android/build-info.json for the release guard. `next build` runs in apps/web.
+function androidVersion(): { code: string; name: string } {
+  const file = path.resolve(process.cwd(), "../mobile/version.json");
+  const { versionCode, versionName } = JSON.parse(readFileSync(file, "utf8")) as {
+    versionCode?: unknown;
+    versionName?: unknown;
+  };
+  if (!Number.isInteger(versionCode) || (versionCode as number) < 1) {
+    throw new Error(`${file}: versionCode must be a positive integer`);
+  }
+  if (typeof versionName !== "string" || versionName.trim() === "") {
+    throw new Error(`${file}: versionName must be a non-empty string`);
+  }
+  return { code: String(versionCode), name: versionName };
+}
+
 // The Android app (apps/mobile) wraps a static export of the routes named
 // `page.android.tsx` / `layout.android.tsx`. API routes, marketing, and the
 // console are plain `.tsx`, so they are not routes in this build.
 function androidConfig(): NextConfig {
+  const version = androidVersion();
   return {
     output: "export",
     pageExtensions: ["android.tsx"],
@@ -44,6 +67,8 @@ function androidConfig(): NextConfig {
     env: {
       NEXT_PUBLIC_CICLO_TARGET: "android",
       NEXT_PUBLIC_CICLO_API_BASE: androidApiBase(),
+      NEXT_PUBLIC_CICLO_VERSION_CODE: version.code,
+      NEXT_PUBLIC_CICLO_VERSION_NAME: version.name,
     },
   };
 }
