@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <paths xmlns:android="http://schemas.android.com/apk/res/android">
-    <external-path name="my_images" path="." />
-    <cache-path name="my_cache_images" path="." />
+    <!-- The only files the app shares: DeviceVaultPlugin.shareFile writes an export to
+         cache/exports and hands it to the share sheet through this provider
+         (${applicationId}.fileprovider). Nothing else in the app's storage is reachable. -->
+    <cache-path name="exports" path="exports/" />
 </paths>

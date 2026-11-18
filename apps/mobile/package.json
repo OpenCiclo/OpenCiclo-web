@@ -4,15 +4,16 @@
   "private": true,
   "scripts": {
     "build": "npm --prefix ../web run build:android && cap sync android",
+    "build:release": "node scripts/build-release.mjs",
     "android": "cap run android",
     "open": "cap open android"
   },
   "dependencies": {
-    "@capacitor/android": "8.5.3",
-    "@capacitor/core": "8.5.3"
+    "@capacitor/android": "8.6.2",
+    "@capacitor/core": "8.6.2"
   },
   "devDependencies": {
-    "@capacitor/cli": "8.5.3",
+    "@capacitor/cli": "8.6.2",
     "typescript": "5.9.3"
   }
 }
