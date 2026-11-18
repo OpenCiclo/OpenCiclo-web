@@ -5,7 +5,8 @@ import type { Diary } from "@/lib/diary";
 import { patternStats } from "@/lib/patterns/stats";
 import type { TipContext } from "@/lib/tips/types";
 
-export function buildTipContext(diary: Diary, today?: string): TipContext {
+/** `today` is the person's calendar date (`useTodayIso()`), never a UTC default. */
+export function buildTipContext(diary: Diary, today: string): TipContext {
   const stats = patternStats(diary, today);
   return {
     currentPhase: stats.currentPhase?.phase ?? null,

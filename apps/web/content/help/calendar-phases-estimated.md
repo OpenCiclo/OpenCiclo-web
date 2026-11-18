@@ -50,7 +50,7 @@ The expanded card also shows the forecast with past days removed, like Patterns 
 
 ## Which day is “today”
 
-Ciclo uses the time zone of your phone or computer to decide which day is today. The calendar moves to the next day at midnight on your clock.
+Ciclo uses the time zone of your phone or computer to decide which day is today. The calendar moves to the next day at midnight on your clock. If Ciclo is open at midnight, or you come back to it the next day, it moves on by itself; you do not need to reload. The phase card, the forecast, and the tips in Patterns all count from that same day.
 
 To use a different zone, go to **Settings** → **Time zone** (Spanish UI: **Zona horaria**). **Automatic** follows the device. The choice is saved on that device only.
 

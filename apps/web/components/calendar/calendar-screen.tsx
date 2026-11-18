@@ -8,6 +8,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { ChevronLeft, ChevronRight, Filter, Moon, Plus, Sparkles } from "lucide-react";
 
 import {
+  isCurrentCalendarMonth,
   isEditableDiaryDate,
   isEstimatedBleedingDate,
   isEstimatedFertileDate,
@@ -96,6 +97,17 @@ export function CalendarScreen() {
       setError(null);
       setActiveIso(deepLinkDay);
       setSheetOpen(true);
+    }
+  }
+  // The date moves on at midnight or when the app comes back the next day. If
+  // the calendar was on the old today's month, it follows today into the new one.
+  const [shownToday, setShownToday] = useState(today);
+  if (today !== shownToday) {
+    setShownToday(today);
+    if (isCurrentCalendarMonth(year, month, shownToday) && !isCurrentCalendarMonth(year, month, today)) {
+      setSwipedTo(null);
+      setYear(todayDate.getUTCFullYear());
+      setMonth(todayDate.getUTCMonth() + 1);
     }
   }
   const [filterOpen, setFilterOpen] = useState(false);

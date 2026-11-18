@@ -55,10 +55,35 @@ export type Diary = {
   forecastingEnabled: boolean;
 };
 
-const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
+const ISO_DATE = /^(\d{4})-(\d{2})-(\d{2})$/;
+// A period diary has no business before 1900 or after 2999. The bounds also
+// keep Date.UTC (years 0–99 mean 1900–1999) and year 10000 (no longer
+// YYYY-MM-DD) away from the date math.
+const MIN_DIARY_YEAR = 1900;
+const MAX_DIARY_YEAR = 2999;
 
+function daysInMonth(year: number, month: number): number {
+  if (month === 2) {
+    const leap = (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
+    return leap ? 29 : 28;
+  }
+  return month === 4 || month === 6 || month === 9 || month === 11 ? 30 : 31;
+}
+
+/**
+ * A real calendar day as YYYY-MM-DD. "2026-02-30" and "2026-13-01" are not:
+ * `new Date` would roll the first into 2 March (a day no calendar cell shows)
+ * and turn the second into an Invalid Date that makes Intl throw.
+ */
 export function isIsoDate(value: string): boolean {
-  return ISO_DATE.test(value);
+  const match = ISO_DATE.exec(value);
+  if (!match) return false;
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+  if (year < MIN_DIARY_YEAR || year > MAX_DIARY_YEAR) return false;
+  if (month < 1 || month > 12) return false;
+  return day >= 1 && day <= daysInMonth(year, month);
 }
 
 export function toIsoDate(year: number, month: number, day: number): string {
@@ -71,6 +96,12 @@ export function addDaysIso(iso: string, delta: number): string {
   return date.toISOString().slice(0, 10);
 }
 
+/**
+ * The calendar date in UTC, which is not the person's "today" (west of UTC it
+ * turns over in the evening). In the app use `useTodayIso()`, which reads the
+ * zone chosen in Settings. Only the landing demo uses this, so the server and
+ * the browser render the same day.
+ */
 export function todayIsoUtc(now = new Date()): string {
   return now.toISOString().slice(0, 10);
 }
@@ -316,7 +347,9 @@ export function monthCells(year: number, month: number, weekStartsOn: 0 | 1): (s
 }
 
 export function weekdayLabels(locale: Locale, weekStartsOn: 0 | 1): string[] {
-  const formatter = new Intl.DateTimeFormat(locale, { weekday: "narrow" });
+  // The days below are UTC midnights: read them in UTC, or west of UTC every
+  // label is the day before (a Monday-first header would start with Sunday).
+  const formatter = new Intl.DateTimeFormat(locale, { weekday: "narrow", timeZone: "UTC" });
   const sunday = Date.UTC(2026, 7, 9);
   const labels: string[] = [];
   for (let i = 0; i < 7; i += 1) {

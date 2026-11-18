@@ -69,6 +69,8 @@ cd apps/web
 npm test
 ```
 
+The tests run in the America/New_York time zone (set in `vitest.config.mts`), so a date shown a day early west of UTC fails here instead of on someone's phone. To try another zone, run `TZ=Pacific/Kiritimati npx vitest run`. Git Bash on Windows does not pass `TZ` to Node: use `TEST_TZ=Pacific/Kiritimati npx vitest run` there, or `$env:TZ` in PowerShell. A misspelt zone stops the run instead of quietly testing in UTC.
+
 Parity vectors come from `python scripts/generate_forecast_parity.py` at the repo root. The TypeScript engine must match Python. Do not mix Utah/Creighton into `released_model.json`.
 
 ## Studies

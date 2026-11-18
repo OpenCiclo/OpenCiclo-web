@@ -45,7 +45,7 @@ export function PatternsContent() {
   const [activeEntry, setActiveEntry] = useState<JournalEntry | null>(null);
   const [closing, setClosing] = useState(false);
   const stats = useMemo(() => patternStats(diary, today), [diary, today]);
-  const tips = useMemo(() => selectTips(buildTipContext(diary), t), [diary, t]);
+  const tips = useMemo(() => selectTips(buildTipContext(diary, today), t), [diary, today, t]);
   const allNotes = useMemo(
     () => listJournalEntries(diary, stats.nextPeriodDate),
     [diary, stats.nextPeriodDate],

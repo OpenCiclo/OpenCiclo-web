@@ -1,6 +1,7 @@
 // Copyright © 2026 Emma Flora Harbison & Luis Rey Sánchez
 // SPDX-License-Identifier: Apache-2.0
 
+import { isIsoDate } from "@/lib/diary";
 import {
   normalizeLearnCategory,
   type LearnArticle,
@@ -101,8 +102,12 @@ export function parseLearnSources(value: unknown): LearnSource[] | null {
   return sources;
 }
 
+/**
+ * A real calendar day as YYYY-MM-DD. The article pages format it with
+ * formatIsoUtc, which throws on "2026-13-01" and shows "2026-02-30" as 2 March.
+ */
 export function isReviewedAt(value: string): boolean {
-  return /^\d{4}-\d{2}-\d{2}$/.test(value);
+  return isIsoDate(value);
 }
 
 function copyIsPublishable(copy: LearnArticleCopy): boolean {
@@ -139,7 +144,11 @@ export function catalogEntryToArticle(entry: CatalogDbEntry): LearnArticle {
   };
 }
 
-export function mergeLearnCatalog(shipped: LearnArticle[], dbRows: CatalogDbEntry[]): LearnArticle[] {
+export function mergeLearnCatalog(shipped: LearnArticle[], allDbRows: CatalogDbEntry[]): LearnArticle[] {
+  // A row saved before isReviewedAt checked real days could hold "2026-13-01",
+  // which would crash the article page. Leave it out here (the shipped copy
+  // stays); the console still lists it so it can be fixed.
+  const dbRows = allDbRows.filter((row) => isReviewedAt(row.reviewedAt));
   const dbBySlug = new Map(dbRows.map((row) => [row.slug, row]));
   const published: LearnArticle[] = [];
   const seen = new Set<string>();
