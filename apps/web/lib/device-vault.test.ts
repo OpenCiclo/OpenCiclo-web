@@ -61,4 +61,10 @@ describe("device vault backend", () => {
     await expect(deviceVaultBackend(plugin).save(blob, 0)).rejects.toThrow();
     expect(state.data).toBe("not json");
   });
+
+  it("refuses to save on top of a file that is gone, instead of reading it as an empty diary", async () => {
+    const { plugin, state } = memoryPlugin();
+    await expect(deviceVaultBackend(plugin).save(blob, 5)).rejects.toThrow("The device diary is gone");
+    expect(state.writes).toBe(0);
+  });
 });

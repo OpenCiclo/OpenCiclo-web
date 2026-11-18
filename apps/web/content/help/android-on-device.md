@@ -36,7 +36,9 @@ Settings → **Where your diary is stored** shows where it is now. Pick the othe
 - **In the Ciclo cloud** uploads the encrypted diary as a 12-word account, then deletes the copy on the phone. If that phrase already had a hosted diary, the two are combined.
 - **Only on this device** (from a hosted account) saves the diary on the phone, then deletes the hosted account, including email sign-in.
 
-Either way, the old copy is deleted only after the new one is saved.
+Either way, the old copy is deleted only after the new one is saved. Moving to the phone copies the latest diary from the cloud first, so entries made on another device in the meantime come along; if another device saves during the move, nothing is moved and you can try again.
+
+If the connection drops at the last step, the diary stays on the phone either way. Settings then says whether the copy in the cloud may still be there. To delete it, sign in on the Ciclo website and use **Delete account**.
 
 After **In the Ciclo cloud** you sign in with the 12-word phrase. To sign in with an email and password again, use **Settings → Add email and password**; the email has to be confirmed with a new 6-digit code.
 
