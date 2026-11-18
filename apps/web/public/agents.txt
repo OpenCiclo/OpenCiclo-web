@@ -150,6 +150,8 @@ Desktop web: windows at least 64rem (1024px) wide get their own layout. Phones a
 
 Intermenstrual bleeding is a symptom, never a period start.
 
+Dates: day keys (YYYY-MM-DD) are UTC midnights, formatted with `timeZone: "UTC"` (`formatIsoUtc`, `formatForecastDate` in lib/format-date.ts) and moved with getUTC*/setUTC*, never local getters; "today" comes from the zone chosen in Settings (`useTodayIso()`, or `todayInSavedZone()` outside React, as for poolLastSyncedAt; both in `lib/client/today.ts`, which moves on at that zone's midnight and when the page is shown again) and is a required argument of `cycleOverview`, `patternStats`, `buildTipContext` (`todayIsoUtc` in lib/diary.ts is for the landing demo only). `isIsoDate` accepts only real days in 1900–2999 (Learn `reviewedAt` too); parseDiary drops other keys, with any note on them. Tests run in America/New_York (`vitest.config.mts`, override with TZ or TEST_TZ; an unknown zone is refused) and `lib/date-format-guard.test.ts` fails on a client date formatter (`Intl.DateTimeFormat`, `toLocale*String`) without `timeZone`, a non-UTC formatter in a file that builds `T00:00:00Z` instants, a local Date getter/setter, or `new Date(y, m, d)`.
+
 ## Crypto / identity (do not “simplify”)
 
 - Device generates BIP39 12-word mnemonic.

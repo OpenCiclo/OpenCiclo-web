@@ -11,6 +11,7 @@ import {
   shouldSyncPool,
   syncPoolIfDue,
 } from "@/lib/pool-sync";
+import { todayIsoIn } from "@/lib/time-zone";
 
 describe("pool sync", () => {
   it("requires at least one completed cycle", () => {
@@ -65,12 +66,36 @@ describe("pool sync", () => {
 
     afterEach(() => {
       vi.unstubAllGlobals();
+      vi.useRealTimers();
     });
 
+    // 20:00 on 18 November in New York is already 19 November in UTC.
+    const evening = new Date("2026-11-19T01:00:00Z");
+
+    function savedZone(zone: string | null) {
+      vi.stubGlobal("localStorage", {
+        getItem: (key: string) => (key === "ciclo.timeZone" ? zone : null),
+      });
+    }
+
     it("marks the diary as synced when the upload succeeds", async () => {
+      vi.useFakeTimers({ toFake: ["Date"] });
+      vi.setSystemTime(evening);
       vi.stubGlobal("fetch", vi.fn(async () => new Response("{}", { status: 200 })));
+      savedZone(null);
       const synced = await syncPoolIfDue(due);
-      expect(synced.poolLastSyncedAt).toBe(new Date().toISOString().slice(0, 10));
+      // Automatic: the device's date (the test zone), not the UTC one.
+      expect(synced.poolLastSyncedAt).toBe(todayIsoIn(undefined, evening));
+    });
+
+    it("stamps the date in the zone saved in Settings", async () => {
+      vi.useFakeTimers({ toFake: ["Date"] });
+      vi.setSystemTime(evening);
+      vi.stubGlobal("fetch", vi.fn(async () => new Response("{}", { status: 200 })));
+      savedZone("America/New_York");
+      expect((await syncPoolIfDue(due)).poolLastSyncedAt).toBe("2026-11-18");
+      savedZone("Asia/Tokyo");
+      expect((await syncPoolIfDue(due)).poolLastSyncedAt).toBe("2026-11-19");
     });
 
     it("returns the diary unchanged when the upload fails, so saving is not blocked", async () => {

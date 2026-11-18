@@ -17,6 +17,9 @@ import {
 } from "@/lib/diary";
 import type { Locale } from "@/lib/i18n";
 
+// YYYY-MM-DD as text. isIsoDate also checks that the day exists.
+const DATE_SHAPE = /^\d{4}-\d{2}-\d{2}$/;
+
 export type ImportPreview = {
   days: number;
   starts: number;
@@ -124,7 +127,9 @@ function parseCsvDiary(text: string): Diary {
   const days: Record<string, DayLog> = {};
   const starts: string[] = [];
 
-  const dateOnly = header.length === 1 && (header[0] === "date" || isIsoDate(header[0]));
+  // Sniff the shape, not the date: a headerless list whose first line is an
+  // impossible day (2026-02-30) is still a list. That row is skipped below.
+  const dateOnly = header.length === 1 && (header[0] === "date" || DATE_SHAPE.test(header[0]));
   if (dateOnly) {
     const dates = header[0] === "date" ? lines.slice(1) : lines;
     for (const raw of dates) {

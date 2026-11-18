@@ -4,6 +4,7 @@
 import { apiUrl } from "@/lib/app-target";
 import { cycleLengths } from "@/lib/forecast/math";
 import type { Diary } from "@/lib/diary";
+import { todayInSavedZone } from "@/lib/client/today";
 
 export const POOL_SYNC_INTERVAL_DAYS = 30;
 
@@ -20,10 +21,6 @@ export function isPoolContributorKey(value: string): boolean {
 
 export function poolCycleLengths(periodStarts: string[]): number[] {
   return cycleLengths(periodStarts);
-}
-
-export function todayIsoUtc(): string {
-  return new Date().toISOString().slice(0, 10);
 }
 
 export function daysSinceIso(iso: string, now = new Date()): number {
@@ -56,7 +53,8 @@ export async function submitPoolContribution(diary: Diary): Promise<Diary> {
     }),
   });
   if (!response.ok) throw new Error("Contribution failed");
-  return { ...withKey, poolLastSyncedAt: todayIsoUtc() };
+  // The person's date, as Settings shows it ("last shared"), not the UTC one.
+  return { ...withKey, poolLastSyncedAt: todayInSavedZone() };
 }
 
 /**

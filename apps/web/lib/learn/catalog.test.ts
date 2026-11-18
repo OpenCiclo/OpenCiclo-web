@@ -3,12 +3,14 @@
 
 import { describe, expect, it } from "vitest";
 
+import { formatIsoUtc } from "@/lib/format-date";
 import type { LearnArticleCopy } from "./articles";
 import { LEARN_ARTICLES } from "./content";
 import {
   dbRowToCatalogEntry,
   emptyLearnCopy,
   isPublishReady,
+  isReviewedAt,
   isSafeLearnHref,
   mergeLearnCatalog,
   type CatalogDbEntry,
@@ -55,6 +57,32 @@ describe("learn catalog merge", () => {
   it("adds database-only published slugs", () => {
     const merged = mergeLearnCatalog(LEARN_ARTICLES, [dbEntry({ slug: "iron-and-cycles", status: "published" })]);
     expect(merged.some((article) => article.slug === "iron-and-cycles")).toBe(true);
+  });
+
+  it("leaves out a row whose reviewed date is not a real day, so the page cannot crash", () => {
+    const shipped = LEARN_ARTICLES.find((article) => article.slug === "cycle-phases");
+    const merged = mergeLearnCatalog(LEARN_ARTICLES, [
+      dbEntry({ slug: "cycle-phases", status: "published", reviewedAt: "2026-13-01" }),
+      dbEntry({ slug: "iron-and-cycles", status: "published", reviewedAt: "2026-02-30" }),
+    ]);
+    expect(merged.find((article) => article.slug === "cycle-phases")?.reviewedAt).toBe(shipped?.reviewedAt);
+    expect(merged.some((article) => article.slug === "iron-and-cycles")).toBe(false);
+    for (const article of merged) {
+      expect(() =>
+        formatIsoUtc(article.reviewedAt, "en", { day: "numeric", month: "long", year: "numeric" }),
+      ).not.toThrow();
+    }
+  });
+});
+
+describe("learn reviewed date", () => {
+  it("accepts real days only", () => {
+    expect(isReviewedAt("2026-09-20")).toBe(true);
+    expect(isReviewedAt("2024-02-29")).toBe(true);
+    // 2026-13-01 made formatIsoUtc throw on the article page; 2026-02-30 showed as 2 March.
+    for (const value of ["2026-13-01", "2026-02-30", "2026-04-31", "2026-00-10", "2026-9-20", ""]) {
+      expect(isReviewedAt(value), value).toBe(false);
+    }
   });
 });
 
