@@ -449,86 +449,28 @@
 }
 
 /*
- * Screen carousel. AppShell is a <ViewTransition> that tags the leaving and
- * arriving screens with the `tab-slide` class. When the route moves between
- * tabs, the tab bar sets data-tab-slide on <html> to "next" (the new tab is to
- * the right) or "prev". Otherwise the screens swap in place.
+ * Each tab takes taps well beyond its pill, so a finger on the edge of the
+ * bar always lands on a tab: from a little above the bar down to the bottom
+ * of the screen, and the first and last tabs out to the side edges of the
+ * bar. 15px = 8px above the pill + its 6px padding and 1px border; 23px =
+ * padding + border + the bar's 16px margin. The tabs sit side by side with
+ * no gap, so the zones never overlap.
  */
-:root {
-  --tab-slide-duration: 0.4s;
-  --tab-slide-easing: cubic-bezier(0.22, 1, 0.36, 1);
+.tab-link::after {
+  content: "";
+  position: absolute;
+  top: -15px;
+  right: 0;
+  bottom: calc(-23px - env(safe-area-inset-bottom));
+  left: 0;
 }
 
-.tab-bar {
-  view-transition-name: tab-bar;
+.tab-link:first-of-type::after {
+  left: -23px;
 }
 
-::view-transition-group(tab-bar) {
-  z-index: 1;
-  animation: none;
-}
-
-::view-transition-old(tab-bar) {
-  display: none;
-}
-
-::view-transition-new(tab-bar) {
-  animation: none;
-}
-
-::view-transition-group(.tab-slide) {
-  overflow: clip;
-}
-
-::view-transition-old(.tab-slide),
-::view-transition-new(.tab-slide) {
-  animation: none;
-}
-
-:root:not([data-tab-slide])::view-transition-old(.tab-slide) {
-  display: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  :root[data-tab-slide="next"]::view-transition-old(.tab-slide) {
-    animation: tab-slide-out-left var(--tab-slide-duration) var(--tab-slide-easing) both;
-  }
-
-  :root[data-tab-slide="next"]::view-transition-new(.tab-slide) {
-    animation: tab-slide-in-right var(--tab-slide-duration) var(--tab-slide-easing) both;
-  }
-
-  :root[data-tab-slide="prev"]::view-transition-old(.tab-slide) {
-    animation: tab-slide-out-right var(--tab-slide-duration) var(--tab-slide-easing) both;
-  }
-
-  :root[data-tab-slide="prev"]::view-transition-new(.tab-slide) {
-    animation: tab-slide-in-left var(--tab-slide-duration) var(--tab-slide-easing) both;
-  }
-}
-
-@keyframes tab-slide-out-left {
-  to {
-    transform: translateX(-100%);
-  }
-}
-
-@keyframes tab-slide-in-right {
-  from {
-    transform: translateX(100%);
-  }
-}
-
-@keyframes tab-slide-out-right {
-  to {
-    transform: translateX(100%);
-  }
-}
-
-@keyframes tab-slide-in-left {
-  from {
-    transform: translateX(-100%);
-  }
+.tab-link:last-of-type::after {
+  right: -23px;
 }
 
 .cycle-season-card {
@@ -976,10 +918,6 @@ html.boot-splash #boot-splash {
     opacity: 1;
     transform: none;
     transition: none;
-  }
-
-  :root::view-transition-old(.tab-slide) {
-    display: none;
   }
 
   .cycle-season-card {

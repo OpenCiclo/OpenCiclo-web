@@ -3,9 +3,15 @@
 
 "use client";
 
-import { useRef, ViewTransition } from "react";
+import { useLayoutEffect, useRef } from "react";
 
 import { useCiclo } from "@/lib/client/ciclo-context";
+import {
+  ENTRANCE_EASING,
+  ENTRANCE_MS,
+  ENTRANCE_SHIFT_PX,
+  takeTabEntrance,
+} from "@/lib/client/tab-entrance";
 import { cn } from "@/lib/utils";
 
 /**
@@ -22,47 +28,48 @@ const DESKTOP_WIDTH: Record<ShellSize, string> = {
 };
 
 /** Plays a screen's entrance animations (fade-up and friends) to the end: it arrives whole. */
-function skipEntrance(screen: HTMLElement | null): void {
-  for (const animation of screen?.getAnimations({ subtree: true }) ?? []) {
+function skipEntrance(screen: HTMLElement): void {
+  for (const animation of screen.getAnimations({ subtree: true })) {
     if (Number.isFinite(animation.effect?.getComputedTiming().endTime)) animation.finish();
   }
 }
 
 export function AppShell({ children, size = "narrow" }: { children: React.ReactNode; size?: ShellSize }) {
   const { t, wallet } = useCiclo();
-  const screenRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
 
-  // A screen that slides in arrives whole: its own entrance animations
-  // (fade-up and friends) would play on top of the slide. Skip them to the end.
-  function onEnter() {
-    if (document.documentElement.dataset.tabSlide) skipEntrance(screenRef.current);
-  }
+  // A screen opened from the tab bar replaces the last one at once, in the
+  // same frame, and arrives as one short slide and fade from the side of the
+  // tab tapped (as quick for the next tab as for one three away). Its own
+  // entrance animations (fade-up and friends, half a second with delays)
+  // would hold it back: they are played to the end. Other arrivals (Back,
+  // links) keep them. Before the browser paints, so nothing flashes.
+  useLayoutEffect(() => {
+    const content = contentRef.current;
+    const entrance = takeTabEntrance();
+    if (!content || !entrance) return;
+    skipEntrance(content);
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const from = entrance === "next" ? ENTRANCE_SHIFT_PX : -ENTRANCE_SHIFT_PX;
+    // Transform and opacity only, on the content: the screen around it clips
+    // the shift, and no fill is kept, so fixed sheets inside are not affected.
+    content.animate([{ opacity: 0, transform: `translateX(${from}px)` }, { opacity: 1, transform: "none" }], {
+      duration: ENTRANCE_MS,
+      easing: ENTRANCE_EASING,
+    });
+  }, []);
 
-  // Next.js sometimes swaps screens in two commits: the old screen leaves in
-  // one view transition and the new one arrives in the next, which waits for
-  // the first to end. Hurry a lone exit so the gap stays short.
-  function onExit() {
-    const slides = document.getAnimations().filter((animation) => animation instanceof CSSAnimation);
-    if (slides.some((animation) => animation.animationName.startsWith("tab-slide-in"))) return;
-    for (const animation of slides) {
-      if (animation.animationName.startsWith("tab-slide-out")) animation.playbackRate = 3;
-    }
-  }
-
-  // Clips content that sticks out sideways: the phone would widen the layout
-  // viewport, and the fixed tab bar with it.
+  // Clips content that sticks out sideways (and the entrance shift): the
+  // phone would widen the layout viewport, and the fixed tab bar with it.
   // On the desktop the screen spans the window under DesktopHeader (4rem),
   // with a faint rose glow at the top, like the landing's hero.
-  const screen = (
-    <div
-      ref={screenRef}
-      className="mx-auto flex min-h-dvh w-full max-w-md flex-col overflow-x-clip bg-background desktop:relative desktop:min-h-[calc(100dvh-4rem)] desktop:max-w-none"
-    >
+  return (
+    <div className="mx-auto flex min-h-dvh w-full max-w-md flex-col overflow-x-clip bg-background desktop:relative desktop:min-h-[calc(100dvh-4rem)] desktop:max-w-none">
       <div
         aria-hidden
         className="pointer-events-none absolute inset-x-0 top-0 hidden h-80 bg-gradient-to-b from-primary/[0.07] to-transparent desktop:block"
       />
-      <div className="flex flex-1 flex-col">
+      <div ref={contentRef} className="flex flex-1 flex-col">
         <main
           id="main-content"
           className={cn(
@@ -82,12 +89,5 @@ export function AppShell({ children, size = "narrow" }: { children: React.ReactN
         </p>
       </div>
     </div>
-  );
-  // Screens enter and leave as a carousel when the route moves between tabs.
-  // The tab bar picks the direction; see `tab-slide` in globals.css.
-  return (
-    <ViewTransition enter="tab-slide" exit="tab-slide" default="none" onEnter={onEnter} onExit={onExit}>
-      {screen}
-    </ViewTransition>
   );
 }
