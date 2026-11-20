@@ -28,6 +28,13 @@ const locale: LocaleModule = {
       "Choisis comment tu veux te connecter. Dans les deux cas, tes dates sont chiffrées ici avant d’être enregistrées. Ciclo ne peut pas récupérer ton mot de passe ni ta phrase.",
     privacyBanner:
       "Tes dates sont chiffrées sur cet appareil. Ciclo ne peut pas réinitialiser ton mot de passe ni ta phrase. Si tu les perds, seul un export fait avant peut te sauver. Ainsi, personne — pas même nous — ne peut lire ton journal sur le serveur.",
+    signupConsentTitle: "Avant de commencer",
+    signupConsentHosted:
+      "Ton journal peut contenir des données de santé et sur ta vie sexuelle : règles, symptômes, santé mentale, activité sexuelle, tests de grossesse et d’ovulation, pilule contraceptive et autres médicaments, et notes. Ciclo le chiffre sur cet appareil avant de l’enregistrer. Dans le cloud de Ciclo, notre serveur ne garde que la copie chiffrée et ne peut pas la lire. Avec l’e-mail, il garde aussi une empreinte codée de ton adresse, jamais l’adresse elle-même.",
+    signupConsentDevice: "Avec « Uniquement sur cet appareil », le journal ne quitte jamais ce téléphone.",
+    signupConsentAgree:
+      "J’accepte que Ciclo enregistre et traite mes données de santé comme expliqué ici et dans la politique de confidentialité.",
+    signupConsentRequired: "Coche la case pour choisir comment créer ton journal.",
     noResetHint:
       "Si tu oublies ton mot de passe ou ta phrase, le journal en ligne est perdu. C’est voulu : cela protège ta vie privée. Exporte en JSON/CSV tant que tu le peux.",
     emailLoginHint:
@@ -41,7 +48,13 @@ const locale: LocaleModule = {
     forecast: "Prévision",
     settings: "Réglages",
     privacy: "Confidentialité",
+    privacyPolicy: "Politique de confidentialité",
     helpDocs: "Aide",
+    licensesTitle: "Licences open source",
+    licensesIntro:
+      "Ciclo utilise ces polices et ces paquets logiciels open source. Leurs licences demandent d’afficher ces mentions. Les textes des licences sont en anglais.",
+    licensesFonts: "Polices",
+    licensesLibraries: "Paquets logiciels",
     visualSeasons: "Saisons visuelles",
     visualSeasonsHint:
       "Habille la carte du cycle selon sa saison : hiver, printemps, été ou automne. Les animations respectent la préférence de réduction des animations de ton appareil.",
@@ -238,18 +251,6 @@ const locale: LocaleModule = {
     invalidPhrase: "Phrase non valide.",
     noAccountForPhrase: "Aucun compte n’utilise cette phrase. Vérifie les 12 mots ou crée un nouveau compte.",
     wordMismatch: "Ce mot ne correspond pas.",
-    privacyTitle: "Confidentialité",
-    privacyBody1:
-      "Les dates sont chiffrées dans le navigateur avec AES-GCM. Le serveur ne stocke que des données chiffrées. Tu peux utiliser e-mail et mot de passe, ou le mode super privé avec 12 mots.",
-    privacyBody1Android:
-      "Les dates sont chiffrées sur ce téléphone avec AES-GCM. Le serveur ne stocke que des données chiffrées. Tu peux utiliser e-mail et mot de passe, ou le mode super privé avec 12 mots.",
-    privacyBody2:
-      "Ciclo ne peut pas réinitialiser ton mot de passe ni ta phrase. Si tu les perds, le journal en ligne est perdu. Cela protège ta vie privée : personne — pas même nous — ne peut lire ton journal sur le serveur.",
-    privacyBody3:
-      "Avec e-mail et mot de passe, tu te connectes sur n’importe quel appareil avec la même paire. Le mot de passe déverrouille ta clé ici : pas besoin d’ouvrir ta boîte mail pour te connecter.",
-    privacyBody4:
-      "Les symptômes, les saignements, la glaire cervicale et les courtes notes du jour restent dans le journal chiffré. Le serveur n’ajoute aucune colonne de santé. La base anonyme ne reçoit que des durées de cycle (nombres entiers) ; les notes ne sont jamais envoyées ni analysées.",
-    privacyBody5: "La base de recherche anonyme ne garde aucun lien entre ton compte et l’identifiant anonyme.",
     welcomeCta: "Commence dans le navigateur. Les dates sont chiffrées avant de quitter l’appareil.",
     welcomeCtaAndroid: "Commence ici. Les dates sont chiffrées avant de quitter ce téléphone.",
     restoreFailedTitle: "Nous n’avons pas pu ouvrir ton journal",

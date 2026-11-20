@@ -28,6 +28,13 @@ const locale: LocaleModule = {
       "Scegli come vuoi accedere. In entrambi i casi le tue date vengono cifrate qui prima di essere salvate. Ciclo non può recuperare la tua password né la tua frase.",
     privacyBanner:
       "Le tue date vengono cifrate su questo dispositivo. Ciclo non può reimpostare la tua password né la tua frase. Se le perdi, ti salva solo un'esportazione fatta prima. Così nessuno — nemmeno noi — può leggere il tuo diario sul server.",
+    signupConsentTitle: "Prima di iniziare",
+    signupConsentHosted:
+      "Il tuo diario può contenere dati sulla salute e sulla tua vita sessuale: mestruazioni, sintomi, salute mentale, attività sessuale, test di gravidanza e di ovulazione, pillola anticoncezionale e altri farmaci, e note. Ciclo lo cifra su questo dispositivo prima di salvarlo. Nel cloud di Ciclo, il nostro server conserva solo la copia cifrata e non può leggerla. Con l'email conserva anche un'impronta codificata del tuo indirizzo, mai l'indirizzo stesso.",
+    signupConsentDevice: "Con «Solo su questo dispositivo», il diario non lascia mai questo telefono.",
+    signupConsentAgree:
+      "Accetto che Ciclo conservi e tratti i miei dati sulla salute come spiegato qui e nell'informativa sulla privacy.",
+    signupConsentRequired: "Spunta la casella per scegliere come creare il tuo diario.",
     noResetHint:
       "Se dimentichi la password o la frase, il diario nel cloud è perso. È voluto: protegge la tua privacy. Esporta in JSON/CSV finché puoi.",
     emailLoginHint:
@@ -41,7 +48,13 @@ const locale: LocaleModule = {
     forecast: "Previsione",
     settings: "Impostazioni",
     privacy: "Privacy",
+    privacyPolicy: "Informativa sulla privacy",
     helpDocs: "Guida",
+    licensesTitle: "Licenze open source",
+    licensesIntro:
+      "Ciclo usa questi caratteri e pacchetti software open source. Le loro licenze chiedono di mostrare queste note. I testi delle licenze sono in inglese.",
+    licensesFonts: "Caratteri",
+    licensesLibraries: "Pacchetti software",
     visualSeasons: "Tema delle stagioni",
     visualSeasonsHint:
       "Adatta la scheda del ciclo alla sua stagione: inverno, primavera, estate o autunno. Le animazioni rispettano la preferenza di movimento ridotto del dispositivo.",
@@ -238,19 +251,6 @@ const locale: LocaleModule = {
     invalidPhrase: "Frase non valida.",
     noAccountForPhrase: "Nessun account usa questa frase. Controlla le 12 parole o crea un nuovo account.",
     wordMismatch: "Questa parola non corrisponde.",
-    privacyTitle: "Privacy",
-    privacyBody1:
-      "Le date vengono cifrate nel browser con AES-GCM. Il server conserva solo dati cifrati. Puoi usare email e password oppure la modalità super privata con 12 parole.",
-    privacyBody1Android:
-      "Le date vengono cifrate su questo telefono con AES-GCM. Il server conserva solo dati cifrati. Puoi usare email e password oppure la modalità super privata con 12 parole.",
-    privacyBody2:
-      "Ciclo non può reimpostare la tua password né la tua frase. Se le perdi, il diario nel cloud è perso. Questo protegge la tua privacy: nessuno — nemmeno noi — può leggere il tuo diario sul server.",
-    privacyBody3:
-      "Con email e password accedi da qualsiasi dispositivo con la stessa coppia. La password sblocca la tua chiave qui; non serve aprire la posta per accedere.",
-    privacyBody4:
-      "I sintomi, il flusso, il muco cervicale e le brevi note del giorno restano dentro il diario cifrato. Il server non aggiunge colonne con dati sanitari. La raccolta anonima riceve solo durate del ciclo (numeri interi); le note non vengono mai inviate né analizzate.",
-    privacyBody5:
-      "La raccolta anonima per la ricerca non conserva alcuna corrispondenza tra il tuo account e l'identificativo anonimo.",
     welcomeCta: "Inizia nel browser. Le date vengono cifrate prima di lasciare il dispositivo.",
     welcomeCtaAndroid: "Inizia qui. Le date vengono cifrate prima di lasciare questo telefono.",
     restoreFailedTitle: "Non siamo riuscite ad aprire il tuo diario",
