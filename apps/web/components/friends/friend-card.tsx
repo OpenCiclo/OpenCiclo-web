@@ -186,7 +186,8 @@ export function FriendPhaseCard({
           >
             <X className="size-4" aria-hidden />
           </button>
-          <div className="flex flex-wrap items-center justify-center gap-2 pr-8">
+          {/* Two columns side by side (one when the friend ended it: only remove). */}
+          <div className="grid w-full grid-cols-2 gap-2 pr-10">
             {friend.state !== "ended" ? (
               <button
                 ref={firstActionRef}
@@ -196,7 +197,7 @@ export function FriendPhaseCard({
                   setOptionsOpen(false);
                   actions.onTogglePause();
                 }}
-                className="inline-flex min-h-10 items-center gap-2 rounded-full bg-white/90 px-4 text-sm font-semibold text-neutral-900 transition-transform active:scale-95 disabled:opacity-50"
+                className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-2xl bg-white/90 px-3 py-2 text-center text-[13px] leading-tight font-semibold text-neutral-900 transition-transform active:scale-95 disabled:opacity-50"
               >
                 {friend.paused ? <Play className="size-4" aria-hidden /> : <Pause className="size-4" aria-hidden />}
                 {(friend.paused ? t.friendsResumeOne : t.friendsPauseOne).replace("{name}", friend.name)}
@@ -210,7 +211,10 @@ export function FriendPhaseCard({
                 setOptionsOpen(false);
                 actions.onRemove();
               }}
-              className="inline-flex min-h-10 items-center gap-2 rounded-full bg-white/15 px-4 text-sm font-semibold text-white ring-1 ring-white/30 transition-transform active:scale-95 disabled:opacity-50"
+              className={cn(
+                "inline-flex min-h-11 items-center justify-center gap-1.5 rounded-2xl bg-white/15 px-3 py-2 text-center text-[13px] leading-tight font-semibold text-white ring-1 ring-white/30 transition-transform active:scale-95 disabled:opacity-50",
+                friend.state === "ended" && "col-span-2",
+              )}
             >
               <UserMinus className="size-4" aria-hidden />
               {t.friendsRemove.replace("{name}", friend.name)}
