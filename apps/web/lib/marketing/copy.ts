@@ -3,17 +3,11 @@
 
 // The landing's copy in Spanish and English. Other languages live in
 // lib/locales/<tag>.ts; read any language with `marketingCopy` from
-// lib/locales/registry.ts. Translations keep every `href`, `icon` and `key`.
+// lib/marketing/locale.ts. Translations keep every `href`, `icon` and `key`.
 
-export const MARKETING_LINKS = {
-  app: "/app",
-  learn: "/learn",
-  docs: "/help",
-  privacy: "/privacy",
-  contact: "/contact",
-  github: "https://github.com/OpenCiclo/OpenCiclo-web",
-  issues: "https://github.com/OpenCiclo/OpenCiclo-web/issues",
-} as const;
+import { MARKETING_LINKS } from "./links";
+
+export { MARKETING_LINKS };
 
 // Contact details the owner still has to choose. Each one fills every page that
 // needs it from here (the privacy policy, /delete-account). While a value is

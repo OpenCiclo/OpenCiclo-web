@@ -8,10 +8,10 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { ChevronLeft, ChevronRight, Filter, Moon, Plus, Sparkles } from "lucide-react";
 
 import {
+  estimatedFertileDates,
   isCurrentCalendarMonth,
   isEditableDiaryDate,
   isEstimatedBleedingDate,
-  isEstimatedFertileDate,
   visiblePossiblePeriodStarts,
 } from "@/lib/cycle/calendar-markers";
 import { cycleOverview } from "@/lib/cycle/phases";
@@ -128,6 +128,11 @@ export function CalendarScreen() {
     [overview.forecast, overview.nextPeriodInDays, today],
   );
   const mostLikelyStart = overview.forecastingEnabled ? overview.nextPeriodDate : null;
+  // Once per diary or forecast change, not once per day cell (up to three months during a swipe).
+  const fertileDates = useMemo(
+    () => estimatedFertileDates(diary.periodStarts, overview.nextPeriodDate),
+    [diary.periodStarts, overview.nextPeriodDate],
+  );
   const filtersActive = activeFilters.length > 0;
   const labels = weekdayLabels(locale, weekStartsOn);
   const monthTitle = formatIsoUtc(new Date(Date.UTC(year, month - 1, 1)).toISOString().slice(0, 10), locale, {
@@ -383,10 +388,7 @@ export function CalendarScreen() {
                         openable={canOpenDay(iso)}
                         possibleStart={overview.forecastingEnabled && possibleStarts.has(iso)}
                         mostLikelyStart={overview.forecastingEnabled && mostLikelyStart === iso}
-                        estimatedFertile={
-                          overview.forecastingEnabled &&
-                          isEstimatedFertileDate(iso, diary.periodStarts, overview.nextPeriodDate)
-                        }
+                        estimatedFertile={overview.forecastingEnabled && fertileDates.has(iso)}
                         estimatedBleeding={
                           overview.forecastingEnabled &&
                           isEstimatedBleedingDate(iso, overview.expectedBleedingWindow)

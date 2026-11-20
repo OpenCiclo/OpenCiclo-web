@@ -1,7 +1,7 @@
 // Copyright © 2026 Emma Flora Harbison & Luis Rey Sánchez
 // SPDX-License-Identifier: Apache-2.0
 
-import { and, count, gte, gt, lt, ne, notInArray, sql } from "drizzle-orm";
+import { and, count, gt, gte, lt, ne, notInArray, sql, type SQL } from "drizzle-orm";
 
 import { LEARN_ARTICLES } from "@/lib/learn/content";
 import { mergeLearnCatalog } from "@/lib/learn/catalog";
@@ -38,30 +38,46 @@ export type ConsoleStats = {
   learnPublic: number;
 };
 
+type Db = ReturnType<typeof getDb>;
+
+/** Days in the console's two charts (sign-ups and opens per day). */
+const CHART_DAYS = 28;
+
 function utcDay(date: Date): string {
   return date.toISOString().slice(0, 10);
 }
 
-function daysAgo(days: number): Date {
-  return new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+function daysBefore(now: Date, days: number): Date {
+  return new Date(now.getTime() - days * 24 * 60 * 60 * 1000);
 }
 
-function fillDayCounts(rows: { day: string; count: number }[], spanDays: number): ConsoleDayCount[] {
+function fillDayCounts(rows: { day: string; count: number }[], spanDays: number, now: Date): ConsoleDayCount[] {
   const byDay = new Map(rows.map((row) => [row.day, row.count]));
   const result: ConsoleDayCount[] = [];
   for (let offset = spanDays - 1; offset >= 0; offset -= 1) {
-    const day = utcDay(daysAgo(offset));
+    const day = utcDay(daysBefore(now, offset));
     result.push({ day, count: byDay.get(day) ?? 0 });
   }
   return result;
 }
 
-function startOfUtcDay(offsetDays = 0): Date {
-  const now = new Date();
+function startOfUtcDay(now: Date, offsetDays = 0): Date {
   return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - offsetDays));
 }
 
-async function loadActivity(spanDays: number): Promise<{
+/** Rows matching `condition`, counted inside one aggregate query (Postgres FILTER). */
+function countWhere(condition: SQL | undefined): SQL<number> {
+  return sql<number>`(count(*) filter (where ${condition ?? sql`true`}))::int`;
+}
+
+const toNumber = (value: unknown): number => Number(value ?? 0);
+
+async function loadActivity(
+  db: Db,
+  spanDays: number,
+  now: Date,
+  knownAdminIds: string[] | undefined,
+): Promise<{
   activeToday: number;
   active7d: number;
   active30d: number;
@@ -71,38 +87,43 @@ async function loadActivity(spanDays: number): Promise<{
     activeToday: 0,
     active7d: 0,
     active30d: 0,
-    activeByDay: fillDayCounts([], spanDays),
+    activeByDay: fillDayCounts([], spanDays, now),
   };
   try {
-    const db = getDb();
-    const adminIds = await consoleAdminAccountIds();
+    const adminIds = knownAdminIds ?? (await consoleAdminAccountIds());
     const excludeAdmins =
       adminIds.length > 0 ? notInArray(accountActivityDays.accountId, adminIds) : undefined;
-    const today = utcDay(new Date());
-    const day7 = utcDay(daysAgo(6));
-    const day30 = utcDay(daysAgo(29));
-    const day28 = utcDay(daysAgo(spanDays - 1));
-    const distinct = sql<number>`count(distinct ${accountActivityDays.accountId})::int`;
-    const [todayRows, weekRows, monthRows, byDay] = await Promise.all([
-      db.select({ n: count() }).from(accountActivityDays).where(and(gte(accountActivityDays.day, today), excludeAdmins)),
-      db.select({ n: distinct }).from(accountActivityDays).where(and(gte(accountActivityDays.day, day7), excludeAdmins)),
-      db.select({ n: distinct }).from(accountActivityDays).where(and(gte(accountActivityDays.day, day30), excludeAdmins)),
+    const today = utcDay(now);
+    const day7 = utcDay(daysBefore(now, 6));
+    const day30 = utcDay(daysBefore(now, 29));
+    const chartStart = utcDay(daysBefore(now, spanDays - 1));
+    // One row per account per UTC day, so today's rows are today's distinct accounts.
+    const [totals, byDay] = await Promise.all([
+      db
+        .select({
+          today: countWhere(gte(accountActivityDays.day, today)),
+          week: sql<number>`(count(distinct ${accountActivityDays.accountId}) filter (where ${gte(accountActivityDays.day, day7)}))::int`,
+          month: sql<number>`count(distinct ${accountActivityDays.accountId})::int`,
+        })
+        .from(accountActivityDays)
+        .where(and(gte(accountActivityDays.day, day30), excludeAdmins)),
       db
         .select({
           day: accountActivityDays.day,
           count: sql<number>`count(*)::int`,
         })
         .from(accountActivityDays)
-        .where(and(gte(accountActivityDays.day, day28), excludeAdmins))
+        .where(and(gte(accountActivityDays.day, chartStart), excludeAdmins))
         .groupBy(accountActivityDays.day),
     ]);
     return {
-      activeToday: Number(todayRows[0]?.n ?? 0),
-      active7d: Number(weekRows[0]?.n ?? 0),
-      active30d: Number(monthRows[0]?.n ?? 0),
+      activeToday: toNumber(totals[0]?.today),
+      active7d: toNumber(totals[0]?.week),
+      active30d: toNumber(totals[0]?.month),
       activeByDay: fillDayCounts(
         byDay.map((row) => ({ day: String(row.day), count: Number(row.count) })),
         spanDays,
+        now,
       ),
     };
   } catch {
@@ -110,75 +131,69 @@ async function loadActivity(spanDays: number): Promise<{
   }
 }
 
-export async function loadConsoleStats(): Promise<ConsoleStats> {
-  const db = getDb();
-  const since7 = daysAgo(7);
-  const since30 = daysAgo(30);
-  const since28 = daysAgo(27);
-  const todayStart = startOfUtcDay(0);
-  const yesterdayStart = startOfUtcDay(1);
+/**
+ * Counts for the operator console. Each table is read with a few aggregate
+ * queries (counts and per-day groups computed by Postgres), never by loading
+ * its rows. Row counts and dates only: see agents.txt "Operator console".
+ */
+export async function loadConsoleStats(
+  options: { db?: Db; now?: Date; adminIds?: string[] } = {},
+): Promise<ConsoleStats> {
+  const db = options.db ?? getDb();
+  const now = options.now ?? new Date();
+  const since7 = daysBefore(now, 7);
+  const since30 = daysBefore(now, 30);
+  const chartSince = daysBefore(now, CHART_DAYS - 1);
+  const todayStart = startOfUtcDay(now, 0);
+  const yesterdayStart = startOfUtcDay(now, 1);
+  const hosted = ne(accounts.ciphertext, "");
+  const signupDay = sql<string>`to_char(${accounts.createdAt} at time zone 'UTC', 'YYYY-MM-DD')`;
 
-  const [
-    totalRows,
-    new7Rows,
-    new30Rows,
-    todayRows,
-    yesterdayRows,
-    emailRows,
-    hostedRows,
-    saved7Rows,
-    saved30Rows,
-    researchTotalRows,
-    researchNewRows,
-    recentSignups,
-    activity,
-  ] = await Promise.all([
-    db.select({ n: count() }).from(accounts),
-    db.select({ n: count() }).from(accounts).where(gt(accounts.createdAt, since7)),
-    db.select({ n: count() }).from(accounts).where(gt(accounts.createdAt, since30)),
-    db.select({ n: count() }).from(accounts).where(gte(accounts.createdAt, todayStart)),
+  const [accountRows, signupsByDay, emailRows, researchRows, dbLearn, activity] = await Promise.all([
     db
-      .select({ n: count() })
+      .select({
+        total: sql<number>`count(*)::int`,
+        new7: countWhere(gt(accounts.createdAt, since7)),
+        new30: countWhere(gt(accounts.createdAt, since30)),
+        today: countWhere(gte(accounts.createdAt, todayStart)),
+        yesterday: countWhere(and(gte(accounts.createdAt, yesterdayStart), lt(accounts.createdAt, todayStart))),
+        hosted: countWhere(hosted),
+        saved7: countWhere(and(hosted, gt(accounts.updatedAt, since7))),
+        saved30: countWhere(and(hosted, gt(accounts.updatedAt, since30))),
+      })
+      .from(accounts),
+    db
+      .select({ day: signupDay, count: sql<number>`count(*)::int` })
       .from(accounts)
-      .where(and(gte(accounts.createdAt, yesterdayStart), lt(accounts.createdAt, todayStart))),
+      .where(gt(accounts.createdAt, chartSince))
+      .groupBy(signupDay),
     db.select({ n: count() }).from(recoveryMailboxes),
-    db.select({ n: count() }).from(accounts).where(ne(accounts.ciphertext, "")),
     db
-      .select({ n: count() })
-      .from(accounts)
-      .where(and(ne(accounts.ciphertext, ""), gt(accounts.updatedAt, since7))),
-    db
-      .select({ n: count() })
-      .from(accounts)
-      .where(and(ne(accounts.ciphertext, ""), gt(accounts.updatedAt, since30))),
-    db.select({ n: count() }).from(researchContributions),
-    db.select({ n: count() }).from(researchContributions).where(gt(researchContributions.createdAt, since30)),
-    db.select({ createdAt: accounts.createdAt }).from(accounts).where(gt(accounts.createdAt, since28)),
-    loadActivity(28),
+      .select({
+        total: sql<number>`count(*)::int`,
+        new30: countWhere(gt(researchContributions.createdAt, since30)),
+      })
+      .from(researchContributions),
+    loadDbLearnEntries(),
+    loadActivity(db, CHART_DAYS, now, options.adminIds),
   ]);
 
-  const signupCounts = new Map<string, number>();
-  for (const row of recentSignups) {
-    const day = utcDay(row.createdAt);
-    signupCounts.set(day, (signupCounts.get(day) ?? 0) + 1);
-  }
-
-  const dbLearn = await loadDbLearnEntries();
+  const totals = accountRows[0];
+  const accountsTotal = toNumber(totals?.total);
+  const emailAccounts = toNumber(emailRows[0]?.n);
   const learnPublishedDb = dbLearn.filter((row) => row.status === "published").length;
   const learnDraftsDb = dbLearn.filter((row) => row.status === "draft").length;
 
-  const accountsTotal = Number(totalRows[0]?.n ?? 0);
-  const emailAccounts = Number(emailRows[0]?.n ?? 0);
-
   return {
     accountsTotal,
-    accountsNew7d: Number(new7Rows[0]?.n ?? 0),
-    accountsNew30d: Number(new30Rows[0]?.n ?? 0),
-    signupsToday: Number(todayRows[0]?.n ?? 0),
-    signupsYesterday: Number(yesterdayRows[0]?.n ?? 0),
+    accountsNew7d: toNumber(totals?.new7),
+    accountsNew30d: toNumber(totals?.new30),
+    signupsToday: toNumber(totals?.today),
+    signupsYesterday: toNumber(totals?.yesterday),
     accountsByDay: fillDayCounts(
-      [...signupCounts.entries()].map(([day, count]) => ({ day, count })),
-      28,
+      signupsByDay.map((row) => ({ day: String(row.day), count: Number(row.count) })),
+      CHART_DAYS,
+      now,
     ),
     activeToday: activity.activeToday,
     active7d: activity.active7d,
@@ -186,11 +201,11 @@ export async function loadConsoleStats(): Promise<ConsoleStats> {
     activeByDay: activity.activeByDay,
     emailAccounts,
     phraseOnlyAccounts: Math.max(0, accountsTotal - emailAccounts),
-    hostedDiaries: Number(hostedRows[0]?.n ?? 0),
-    diariesSaved7d: Number(saved7Rows[0]?.n ?? 0),
-    diariesSaved30d: Number(saved30Rows[0]?.n ?? 0),
-    researchRows: Number(researchTotalRows[0]?.n ?? 0),
-    researchNew30d: Number(researchNewRows[0]?.n ?? 0),
+    hostedDiaries: toNumber(totals?.hosted),
+    diariesSaved7d: toNumber(totals?.saved7),
+    diariesSaved30d: toNumber(totals?.saved30),
+    researchRows: toNumber(researchRows[0]?.total),
+    researchNew30d: toNumber(researchRows[0]?.new30),
     learnPublishedDb,
     learnDraftsDb,
     learnPublic: mergeLearnCatalog(LEARN_ARTICLES, dbLearn).length,

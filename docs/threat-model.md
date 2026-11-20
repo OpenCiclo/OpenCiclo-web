@@ -104,7 +104,7 @@ We will not invent a protocol. We will not use a “recovery email” that re-de
 
 A review on 2026-10-29 found no advisory for `@scure/bip39` 2.3.0, `@noble/hashes` 2.3.0 or `@noble/ed25519` 3.1.0, no supply-chain incident touching them, and no weakness in `crypto.getRandomValues` on our platforms (browsers, Android 7+ WebView). Nothing here is urgent. Each item narrows the one residual risk, a compromised dependency in the client bundle, or a known weak spot.
 
-Done on 2026-11-11: `npm ci` on Vercel (`apps/web/vercel.json`), exact versions for the three crypto packages, and `npm audit signatures` in CI.
+Done on 2026-11-11: `npm ci` on Vercel (`apps/web/vercel.json`), exact versions for the three crypto packages, and `npm audit signatures` in CI. Done on 2026-11-19: exact versions for the other runtime packages that reach the client bundle (`jsqr`, `uqr`, `@zonneplan/suncalc`, `lucide-react`). In the Android app any script in the WebView can call the native plugin that returns the phrase, so a compromised package there would reach it.
 
 1. **Upgrade with a delay.** `@scure/bip39` 2.4.0, `@noble/hashes` 2.4.0 and `@noble/ed25519` 3.2.0 (August 2026) are hardening releases. Take new versions a week or so after release, not on day one. The pins mean these packages change only in a reviewed commit: read their lockfile diff.
 2. **RNG self-check at startup (optional).** Check that `crypto.getRandomValues` is the native function and that two draws differ and are not all zero. It catches a broken or stubbed RNG, not a crafted one.

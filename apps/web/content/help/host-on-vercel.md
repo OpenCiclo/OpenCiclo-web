@@ -14,6 +14,10 @@ You need access to the OpenCiclo git repository. The Vercel project **root direc
 
 Provision **Neon** from the Vercel Marketplace (or point `DATABASE_URL` at any Postgres 16 you control).
 
+Put the database and the app's functions in the same region: every page and API call waits for its queries. `apps/web/vercel.json` runs the functions in `fra1` (Frankfurt), next to the official instance's database. If your database is elsewhere, change `regions` there to the [Vercel region](https://vercel.com/docs/regions) nearest to it.
+
+Every build reads the Learn articles saved in the console (the `learn_articles` table), because the landing and the Learn pages are built ahead of time. If the database cannot be reached, the build fails on purpose: building without it would show again any article you hid. To ship an urgent fix while the database is down, set the environment variable `LEARN_BUILD_WITHOUT_DB=1` for that one deployment. The build then uses only the articles shipped in the code and prints a warning. Console edits come back once the database is reachable again: within about an hour, or at once when you save any article in the console. Remove the variable afterwards.
+
 On that database, run the SQL in:
 
 - `apps/web/drizzle/0000_init.sql`

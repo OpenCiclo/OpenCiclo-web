@@ -76,30 +76,62 @@ export type LearnArticle = {
   en: LearnArticleCopy;
 };
 
+/** The part of an article's copy that a list shows. */
+export type LearnSummaryCopy = Pick<LearnArticleCopy, "title" | "summary">;
+
+/**
+ * An article as a list shows it: no sections, notice, sources or related
+ * links. Lists (the Learn index, the landing, related links) get these; the
+ * body is loaded when an article opens (`lib/learn/bodies.ts`).
+ */
+export type LearnArticleSummary = {
+  slug: string;
+  category: LearnCategory;
+  reviewedAt: string;
+  es?: LearnSummaryCopy;
+  en: LearnSummaryCopy;
+};
+
+export function toLearnSummary(article: LearnArticle): LearnArticleSummary {
+  const copy = ({ title, summary }: LearnArticleCopy): LearnSummaryCopy => ({ title, summary });
+  return {
+    slug: article.slug,
+    category: article.category,
+    reviewedAt: article.reviewedAt,
+    ...(article.es ? { es: copy(article.es) } : {}),
+    en: copy(article.en),
+  };
+}
+
 /**
  * The language an article shows in for `locale`. Articles exist in English and
  * often Spanish; other languages fall back to Spanish or English (`contentLocale`).
  */
-export function articleCopyLocale(article: LearnArticle, locale: Locale): BaseLocale {
+export function articleCopyLocale(article: { es?: unknown }, locale: Locale): BaseLocale {
   return contentLocale(locale) === "es" && article.es ? "es" : "en";
 }
 
-export function hasArticleCopy(article: LearnArticle, locale: Locale): boolean {
+export function hasArticleCopy(article: { es?: unknown }, locale: Locale): boolean {
   return articleCopyLocale(article, locale) === locale;
 }
 
 /** `lang` for the article's text: set only when it is not in the UI language. */
-export function articleLang(article: LearnArticle, locale: Locale): BaseLocale | undefined {
+export function articleLang(article: { es?: unknown }, locale: Locale): BaseLocale | undefined {
   return hasArticleCopy(article, locale) ? undefined : articleCopyLocale(article, locale);
 }
 
-export function articleCopy(article: LearnArticle, locale: Locale): LearnArticleCopy {
+/** The article's copy (full, or a summary's) in the language it shows in for `locale`. */
+export function articleCopy<Copy>(article: { es?: Copy; en: Copy }, locale: Locale): Copy {
   return article[articleCopyLocale(article, locale)] ?? article.en;
 }
 
-export function relatedArticles(article: LearnArticle, articles: LearnArticle[]): LearnArticle[] {
+/** The articles `article` links to, in its order, picked from `articles` (full or summaries). */
+export function relatedArticles<Item extends { slug: string }>(
+  article: { related?: string[] },
+  articles: Item[],
+): Item[] {
   const bySlug = new Map(articles.map((item) => [item.slug, item]));
   return (article.related ?? [])
     .map((slug) => bySlug.get(slug))
-    .filter((item): item is LearnArticle => item !== undefined);
+    .filter((item): item is Item => item !== undefined);
 }

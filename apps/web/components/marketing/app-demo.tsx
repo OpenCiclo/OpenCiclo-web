@@ -3,7 +3,7 @@
 
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useSyncExternalStore } from "react";
 import {
   BookOpen,
   CalendarDays,
@@ -43,9 +43,9 @@ import {
 import { formatIsoUtc } from "@/lib/format-date";
 import { VISUAL_SEASONS_AVAILABLE } from "@/lib/features";
 import { daysUnit, messages, type Locale } from "@/lib/i18n";
-import { marketingCopy } from "@/lib/locales/registry";
+import { marketingCopy } from "@/lib/marketing/locale";
 import { useCiclo } from "@/lib/client/ciclo-context";
-import { LEARN_CATEGORY_COPY, articleCopy, articleLang, type LearnArticle } from "@/lib/learn/articles";
+import { LEARN_CATEGORY_COPY, articleCopy, articleLang, type LearnArticleSummary } from "@/lib/learn/articles";
 import { lunarDayInfo } from "@/lib/lunar/phases";
 import { patternStats } from "@/lib/patterns/stats";
 import { buildTipContext } from "@/lib/tips/context";
@@ -112,9 +112,22 @@ const TIP_TONE = {
 
 type Tab = "calendar" | "patterns" | "learn" | "settings";
 
-export function AppDemo({ locale, learnArticles }: { locale: Locale; learnArticles: LearnArticle[] }) {
+const noSubscription = () => () => {};
+
+export function AppDemo({
+  locale,
+  learnArticles,
+  renderedOn,
+}: {
+  locale: Locale;
+  learnArticles: LearnArticleSummary[];
+  /** The UTC day the static landing was rendered on, perhaps days ago. */
+  renderedOn: string;
+}) {
   const { t, weekStartsOn } = useCiclo();
-  const today = useMemo(() => todayIsoUtc(), []);
+  // Hydrate on the day the page was rendered, so the HTML matches, then move
+  // the demo to today in the browser.
+  const today = useSyncExternalStore(noSubscription, () => todayIsoUtc(), () => renderedOn);
   const sample = useMemo(() => buildSampleDiary(locale, today), [locale, today]);
   const [overrides, setOverrides] = useState<Record<string, DayLog>>({});
   const [forecasting, setForecasting] = useState(true);
@@ -133,6 +146,12 @@ export function AppDemo({ locale, learnArticles }: { locale: Locale; learnArticl
   const catalog = useMemo(() => resolveSymptomCatalog(diary.customSymptoms), [diary.customSymptoms]);
 
   const [selected, setSelected] = useState<string | null>(today);
+  const [shownToday, setShownToday] = useState(today);
+  if (today !== shownToday) {
+    // Today moved (right after hydration): the selection follows it if it was on the old today.
+    setShownToday(today);
+    if (selected === shownToday) setSelected(today);
+  }
   const [tab, setTab] = useState<Tab>("calendar");
   const [showMoon, setShowMoon] = useState(false);
   const [editingIso, setEditingIso] = useState<string | null>(null);
@@ -738,7 +757,7 @@ function PatternsTab({
   );
 }
 
-function LearnTab({ t, locale, articles }: { t: Messages; locale: Locale; articles: LearnArticle[] }) {
+function LearnTab({ t, locale, articles }: { t: Messages; locale: Locale; articles: LearnArticleSummary[] }) {
   return (
     <div className="flex flex-col gap-2.5">
       <div>

@@ -1,7 +1,7 @@
 // Copyright © 2026 Emma Flora Harbison & Luis Rey Sánchez
 // SPDX-License-Identifier: Apache-2.0
 
-import { MARKETING_LINKS } from "@/lib/marketing/copy";
+import { MARKETING_LINKS } from "@/lib/marketing/links";
 import type { LocaleModule } from "@/lib/locales/registry";
 
 // Basque (eu): the app, the landing and the code email.
@@ -643,6 +643,9 @@ const locale: LocaleModule = {
     forecastSection: "Aurreikuspena",
     learnTitle: "Ikasi",
     learnSubtitle: "Zikloari, sintomei eta noiz kontsultatu behar den buruzko informazio orokorra.",
+    learnDesktopTitle: "Informazio argia, irakurtzeko eta partekatzeko.",
+    learnDesktopSubtitle:
+      "Zikloari, sintomei eta noiz laguntza bilatu behar den buruzko hezkuntza orokorra, iturriekin. Publikoa, eta konturik behar gabe.",
     learnReviewed: "Berrikusia",
     learnSources: "Iturriak",
     learnAll: "Guztiak",
