@@ -47,14 +47,19 @@ App: http://localhost:3000 — Help: http://localhost:3000/help
 
 ## Self-host (Docker)
 
-From the repository root:
+From the repository root, create the app's two secrets once (Compose reads `.env` next to `docker-compose.yml`; git ignores it), then start everything:
 
 ```bash
+printf 'SESSION_SECRET=%s\nEMAIL_LOOKUP_SECRET=%s\n' "$(openssl rand -hex 32)" "$(openssl rand -hex 32)" > .env
 docker compose up --build
 ```
 
 - App: http://localhost:3000
 - Postgres: `postgres://openciclo:openciclo@localhost:5432/openciclo`
+
+**Upgrading an install that already has accounts:** earlier versions of `docker-compose.yml` set `SESSION_SECRET=local-dev-session-secret-change-me` and `EMAIL_LOOKUP_SECRET=local-dev-email-hmac-secret-change-me`. Put those same two values in `.env` instead of generating new ones. A new `EMAIL_LOOKUP_SECRET` breaks every email sign-in (the host finds a mailbox by an HMAC of the address made with that secret), and a new `SESSION_SECRET` signs everyone out. Changing them later needs a planned migration, not a new value.
+
+The image holds no secrets and runs as an unprivileged user; the app container refuses to start without both secrets. `docker compose up -d db mailpit` (database and mail only, for `npm run dev`) needs no `.env`. Every port is published on `127.0.0.1` only. To serve other people, put a reverse proxy with TLS in front of port 3000 that **sets** `X-Forwarded-For` to the client's address (overwriting what the client sent): the abuse limits count requests per address from that header, so without such a proxy a client can pick its own address. Change the Postgres password before the database holds real diaries.
 
 If you previously ran Docker with the old `oddy` database user, reset the volume once:
 

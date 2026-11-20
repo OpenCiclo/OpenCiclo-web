@@ -13,7 +13,6 @@ import { useCiclo } from "@/lib/client/ciclo-context";
 import { useIsDesktop } from "@/lib/client/desktop";
 import { useIsGhost } from "@/lib/client/ghost";
 import { formatIsoUtc } from "@/lib/format-date";
-import { marketingCopy } from "@/lib/locales/registry";
 import {
   LEARN_CATEGORIES,
   LEARN_CATEGORY_COPY,
@@ -21,8 +20,10 @@ import {
   articleLang,
   relatedArticles,
   type LearnArticle,
+  type LearnArticleSummary,
   type LearnCategory,
 } from "@/lib/learn/articles";
+import { loadLearnArticle } from "@/lib/learn/bodies";
 import { cn } from "@/lib/utils";
 
 /** Pixels from the top of the screen where the compact bar's filters sit. */
@@ -30,7 +31,11 @@ const BAR_PADDING = 8;
 /** The magnifier bubble's width plus the gap after it: how far the filters move to make room. */
 const BUBBLE_ROOM = 52;
 
-export function LearnIndex({ articles }: { articles: LearnArticle[] }) {
+/**
+ * The Learn tab. It lists summaries; an article opens in an overlay that
+ * shows its summary at once and loads the rest (`loadLearnArticle`).
+ */
+export function LearnIndex({ articles }: { articles: LearnArticleSummary[] }) {
   const { t, locale } = useCiclo();
   const ghost = useIsGhost();
   // Scrolled down, the search box and the filters turn into a compact bar
@@ -54,10 +59,32 @@ export function LearnIndex({ articles }: { articles: LearnArticle[] }) {
   );
   const activeCopy = activeArticle ? articleCopy(activeArticle, locale) : null;
   const activeLang = activeArticle ? articleLang(activeArticle, locale) : undefined;
-  const activeRelated = useMemo(
-    () => (activeArticle ? relatedArticles(activeArticle, articles) : []),
-    [activeArticle, articles],
-  );
+  // Bodies of the articles opened so far, and the one that failed to load.
+  const [bodies, setBodies] = useState<ReadonlyMap<string, LearnArticle>>(() => new Map());
+  const [failedSlug, setFailedSlug] = useState<string | null>(null);
+  const activeBody = activeSlug ? (bodies.get(activeSlug) ?? null) : null;
+  const activeBodyCopy = activeBody ? articleCopy(activeBody, locale) : null;
+  const activeBodyLang = activeBody ? articleLang(activeBody, locale) : undefined;
+  const activeFailed = activeSlug !== null && failedSlug === activeSlug;
+  const activeRelated = activeBody ? relatedArticles(activeBody, articles) : [];
+
+  useEffect(() => {
+    if (!activeArticle || bodies.has(activeArticle.slug) || failedSlug === activeArticle.slug) return;
+    const { slug, category } = activeArticle;
+    let current = true;
+    loadLearnArticle(slug, category)
+      .then((article) => {
+        if (!current) return;
+        if (article) setBodies((loaded) => new Map(loaded).set(slug, article));
+        else setFailedSlug(slug);
+      })
+      .catch(() => {
+        if (current) setFailedSlug(slug);
+      });
+    return () => {
+      current = false;
+    };
+  }, [activeArticle, bodies, failedSlug]);
 
   const categories = useMemo(
     () => LEARN_CATEGORIES.filter((value) => articles.some((article) => article.category === value)),
@@ -88,7 +115,6 @@ export function LearnIndex({ articles }: { articles: LearnArticle[] }) {
   // The desktop has no compact bar: its filters stay in view in a sticky side column.
   const desktop = useIsDesktop();
   const compact = !desktop && (scrolledPast || barSearch);
-  const site = marketingCopy(locale);
 
   useEffect(() => {
     // A ghost (see TabGhosts) sits at the top and out of sight: never compact.
@@ -155,10 +181,10 @@ export function LearnIndex({ articles }: { articles: LearnArticle[] }) {
       <p className="hidden text-xs font-semibold tracking-wide text-primary uppercase desktop:block">{t.learn}</p>
       <h1 className="mb-3 font-serif text-xl text-foreground desktop:mt-3 desktop:mb-0 desktop:max-w-2xl desktop:text-4xl desktop:tracking-tight desktop:text-balance">
         <span className="desktop:hidden">{t.learn}</span>
-        <span className="hidden desktop:inline">{site.learn.title}</span>
+        <span className="hidden desktop:inline">{t.learnDesktopTitle}</span>
       </h1>
       <p className="hidden max-w-2xl text-base leading-relaxed text-pretty text-muted-foreground desktop:mt-4 desktop:mb-10 desktop:block">
-        {site.learn.subtitle}
+        {t.learnDesktopSubtitle}
       </p>
       <div className="flex flex-col gap-5 pb-4 desktop:grid desktop:grid-cols-[15rem_minmax(0,1fr)] desktop:items-start desktop:gap-12">
         {/* The compact bar. Sticky and of no height, so it takes no room in
@@ -366,29 +392,54 @@ export function LearnIndex({ articles }: { articles: LearnArticle[] }) {
               {activeLang ? <Badge className="mt-2">{activeLang === "es" ? t.learnSpanishOnly : t.learnEnglishOnly}</Badge> : null}
             </div>
             {/* Keyed so the scroll position resets when a related article replaces the current one. */}
-            <div key={activeArticle.slug} className="min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain px-5 py-4 desktop:px-8 desktop:py-6">
+            <div
+              key={activeArticle.slug}
+              aria-busy={!activeBody && !activeFailed}
+              className="min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain px-5 py-4 desktop:px-8 desktop:py-6"
+            >
               <p lang={activeLang} className="text-sm leading-relaxed text-muted-foreground desktop:text-base">{activeCopy.summary}</p>
-              {activeCopy.sections.map((section) => (
-                <section key={section.heading} lang={activeLang} className="rounded-3xl bg-background p-4 desktop:p-5">
-                  <h3 className="font-serif text-lg text-card-foreground desktop:text-xl">{section.heading}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground desktop:text-base">{section.body}</p>
-                </section>
-              ))}
-              <p lang={activeLang} className="rounded-3xl border border-primary/20 bg-primary/8 p-4 text-sm leading-relaxed text-muted-foreground">
-                {activeCopy.notice}
-              </p>
-              <section>
-                <h3 className="font-serif text-lg text-foreground">{t.learnSources}</h3>
-                <ul className="mt-2 flex flex-col gap-2 text-sm">
-                  {activeArticle.sources.map((source) => (
-                    <li key={source.href}>
-                      <a href={source.href} className="text-primary underline" target="_blank" rel="noreferrer">
-                        {source.label}
-                      </a>
-                    </li>
+              {activeBody && activeBodyCopy ? (
+                <>
+                  {activeBodyCopy.sections.map((section) => (
+                    <section key={section.heading} lang={activeBodyLang} className="rounded-3xl bg-background p-4 desktop:p-5">
+                      <h3 className="font-serif text-lg text-card-foreground desktop:text-xl">{section.heading}</h3>
+                      <p className="mt-2 text-sm leading-relaxed text-muted-foreground desktop:text-base">{section.body}</p>
+                    </section>
                   ))}
-                </ul>
-              </section>
+                  <p lang={activeBodyLang} className="rounded-3xl border border-primary/20 bg-primary/8 p-4 text-sm leading-relaxed text-muted-foreground">
+                    {activeBodyCopy.notice}
+                  </p>
+                  <section>
+                    <h3 className="font-serif text-lg text-foreground">{t.learnSources}</h3>
+                    <ul className="mt-2 flex flex-col gap-2 text-sm">
+                      {activeBody.sources.map((source) => (
+                        <li key={source.href}>
+                          <a href={source.href} className="text-primary underline" target="_blank" rel="noreferrer">
+                            {source.label}
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  </section>
+                </>
+              ) : activeFailed ? (
+                <div role="alert" className="flex flex-col items-start gap-3 rounded-3xl bg-background p-4 text-sm text-muted-foreground">
+                  <p>{t.errorGeneric}</p>
+                  <button
+                    type="button"
+                    onClick={() => setFailedSlug(null)}
+                    className="rounded-full border border-border bg-card px-4 py-2 font-semibold text-foreground transition-transform active:scale-95"
+                  >
+                    {t.restoreRetry}
+                  </button>
+                </div>
+              ) : (
+                // The body is on its way (a moment on the web, at once in the app).
+                <div aria-hidden className="space-y-4 motion-safe:animate-pulse">
+                  <div className="h-32 rounded-3xl bg-background" />
+                  <div className="h-24 rounded-3xl bg-background" />
+                </div>
+              )}
               {activeRelated.length > 0 ? (
                 <section>
                   <h3 className="font-serif text-lg text-foreground">{t.learnRelated}</h3>

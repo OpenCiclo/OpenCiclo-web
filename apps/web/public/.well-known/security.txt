@@ -1,0 +1,6 @@
+# How to report a security problem in Ciclo / OpenCiclo (RFC 9116).
+# Report privately; please do not open a public issue. See the policy below.
+Contact: https://github.com/OpenCiclo/OpenCiclo-web/security/advisories/new
+Expires: 2027-11-18T00:00:00.000Z
+Preferred-Languages: en, es
+Policy: https://github.com/OpenCiclo/OpenCiclo-web/security/policy

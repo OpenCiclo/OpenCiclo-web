@@ -8,10 +8,22 @@ import Link from "next/link";
 import { AppShell } from "@/components/app-shell";
 import { Badge } from "@/components/ui/badge";
 import { useCiclo } from "@/lib/client/ciclo-context";
-import { LEARN_CATEGORY_COPY, articleCopy, articleLang, type LearnArticle } from "@/lib/learn/articles";
+import {
+  LEARN_CATEGORY_COPY,
+  articleCopy,
+  articleLang,
+  type LearnArticle,
+  type LearnArticleSummary,
+} from "@/lib/learn/articles";
 import { formatIsoUtc } from "@/lib/format-date";
 
-export function LearnArticleView({ article, related }: { article: LearnArticle | null; related: LearnArticle[] }) {
+export function LearnArticleView({
+  article,
+  related,
+}: {
+  article: LearnArticle | null;
+  related: LearnArticleSummary[];
+}) {
   const { t, locale } = useCiclo();
   if (!article) {
     return (

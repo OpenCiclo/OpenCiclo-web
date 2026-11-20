@@ -1,7 +1,7 @@
 // Copyright © 2026 Emma Flora Harbison & Luis Rey Sánchez
 // SPDX-License-Identifier: Apache-2.0
 
-import { MARKETING_LINKS } from "@/lib/marketing/copy";
+import { MARKETING_LINKS } from "@/lib/marketing/links";
 import type { LocaleModule } from "@/lib/locales/registry";
 
 // Polish (pl): the app, the landing and the code email.
@@ -641,6 +641,9 @@ const locale: LocaleModule = {
     forecastSection: "Prognoza",
     learnTitle: "Wiedza",
     learnSubtitle: "Ogólne informacje o cyklu, objawach i o tym, kiedy szukać pomocy medycznej.",
+    learnDesktopTitle: "Jasne informacje do czytania i udostępniania.",
+    learnDesktopSubtitle:
+      "Ogólna edukacja o cyklu, objawach i o tym, kiedy szukać pomocy, ze źródłami. Publiczna i bez zakładania konta.",
     learnReviewed: "Zweryfikowano",
     learnSources: "Źródła",
     learnAll: "Wszystko",

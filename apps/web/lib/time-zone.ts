@@ -38,14 +38,32 @@ export function deviceTimeZone(): string | null {
   }
 }
 
+// Formatters per named zone, made once: building an Intl.DateTimeFormat costs
+// far more than using one. The device zone (undefined) is never cached, so
+// "today" follows the device when it changes zone.
+const dayFormatters = new Map<string, Intl.DateTimeFormat>();
+const offsetFormatters = new Map<string, Intl.DateTimeFormat>();
+
+function dayFormatter(timeZone: string | undefined): Intl.DateTimeFormat {
+  const make = () =>
+    new Intl.DateTimeFormat("en-US", {
+      timeZone,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    });
+  if (timeZone === undefined) return make();
+  let formatter = dayFormatters.get(timeZone);
+  if (!formatter) {
+    formatter = make();
+    dayFormatters.set(timeZone, formatter);
+  }
+  return formatter;
+}
+
 /** The calendar date at `now` on a clock in `timeZone` (device zone when undefined). */
 export function todayIsoIn(timeZone?: string, now = new Date()): string {
-  const parts = new Intl.DateTimeFormat("en-US", {
-    timeZone,
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).formatToParts(now);
+  const parts = dayFormatter(timeZone).formatToParts(now);
   const part = (type: Intl.DateTimeFormatPartTypes) =>
     parts.find((item) => item.type === type)?.value ?? "";
   return `${part("year")}-${part("month")}-${part("day")}`;
@@ -85,13 +103,41 @@ export function listTimeZones(): string[] {
   return [...FALLBACK_TIME_ZONES];
 }
 
+/** A zone's name for people: "America/Mexico_City" reads "America/Mexico City". */
+export function zoneLabel(zone: string): string {
+  return zone.replaceAll("_", " ");
+}
+
+/**
+ * The time zone picker's options besides "automatic", with offsets at `now`.
+ * Every zone once the person reaches for the picker (`full`); before that only
+ * the zone in use, so the select can show it without building ~420 labels.
+ */
+export function timeZoneOptions(
+  current: TimeZoneSetting,
+  full: boolean,
+  now = new Date(),
+): { value: string; label: string }[] {
+  const zones = full ? listTimeZones() : [];
+  if (current !== TIME_ZONE_AUTO && !zones.includes(current)) zones.push(current);
+  return zones.map((zone) => {
+    const offset = timeZoneOffsetLabel(zone, now);
+    return { value: zone, label: offset ? `${zoneLabel(zone)} (${offset})` : zoneLabel(zone) };
+  });
+}
+
 /** "GMT-06:00"-style offset for a picker label, or "" if the runtime cannot say. */
 export function timeZoneOffsetLabel(timeZone: string, now = new Date()): string {
   try {
-    const parts = new Intl.DateTimeFormat("en-US", {
-      timeZone,
-      timeZoneName: "longOffset",
-    }).formatToParts(now);
+    let formatter = offsetFormatters.get(timeZone);
+    if (!formatter) {
+      formatter = new Intl.DateTimeFormat("en-US", {
+        timeZone,
+        timeZoneName: "longOffset",
+      });
+      offsetFormatters.set(timeZone, formatter);
+    }
+    const parts = formatter.formatToParts(now);
     return parts.find((item) => item.type === "timeZoneName")?.value ?? "";
   } catch {
     return "";

@@ -693,6 +693,9 @@ const es = {
   forecastSection: "Pronóstico",
   learnTitle: "Aprender",
   learnSubtitle: "Información general sobre el ciclo, síntomas y cuándo consultar.",
+  learnDesktopTitle: "Información clara, para leer y compartir.",
+  learnDesktopSubtitle:
+    "Educación general sobre el ciclo, los síntomas y cuándo buscar ayuda, con sus fuentes. Pública y sin necesidad de cuenta.",
   learnReviewed: "Revisado",
   learnSources: "Fuentes",
   learnAll: "Todo",
@@ -1396,6 +1399,9 @@ const en = {
   forecastSection: "Forecast",
   learnTitle: "Learn",
   learnSubtitle: "General information about the cycle, symptoms, and when to seek care.",
+  learnDesktopTitle: "Clear information, made to read and share.",
+  learnDesktopSubtitle:
+    "General education about the cycle, symptoms, and when to seek help, with its sources. Public and no account required.",
   learnReviewed: "Reviewed",
   learnSources: "Sources",
   learnAll: "All",

@@ -1,7 +1,7 @@
 // Copyright © 2026 Emma Flora Harbison & Luis Rey Sánchez
 // SPDX-License-Identifier: Apache-2.0
 
-import { MARKETING_LINKS } from "@/lib/marketing/copy";
+import { MARKETING_LINKS } from "@/lib/marketing/links";
 import type { LocaleModule } from "@/lib/locales/registry";
 
 // Brazilian Portuguese (pt-BR): the app, the landing and the code email.
@@ -642,6 +642,9 @@ const locale: LocaleModule = {
     forecastSection: "Previsão",
     learnTitle: "Aprender",
     learnSubtitle: "Informações gerais sobre o ciclo, os sintomas e quando procurar atendimento.",
+    learnDesktopTitle: "Informação clara, para ler e compartilhar.",
+    learnDesktopSubtitle:
+      "Educação geral sobre o ciclo, os sintomas e quando buscar ajuda, com as fontes. Pública e sem precisar de conta.",
     learnReviewed: "Revisado",
     learnSources: "Fontes",
     learnAll: "Tudo",
