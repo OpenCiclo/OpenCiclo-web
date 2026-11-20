@@ -1,36 +1,36 @@
 // Copyright © 2026 Emma Flora Harbison & Luis Rey Sánchez
 // SPDX-License-Identifier: Apache-2.0
 
-import { and, eq, gt, sql } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { after } from "next/server";
 
-import { mailboxPending, recoveryAttempts, recoveryMailboxes } from "@/lib/db/schema";
+import { recoveryMailboxes } from "@/lib/db/schema";
 import { getDb } from "@/lib/db";
 import { requireAccount } from "@/lib/server/account";
-import { emailLookup, hashIp, jsonError } from "@/lib/server/env";
+import { emailLookup, jsonError } from "@/lib/server/env";
+import { apiRoute, describeError, readJson } from "@/lib/server/http";
 import {
   generateMailboxCode,
-  hashMailboxCode,
-  MAILBOX_CODE_TTL_MS,
   MAILBOX_PENDING_MIN_RESPONSE_MS,
-  MAILBOX_SEND_MAX_PER_HOUR,
-  mailboxRegisterAction,
   parseMailboxEmail,
   parseMailboxKit,
   parseMailLocale,
 } from "@/lib/server/mailbox";
-import { clientIp, sourceKey, takeRateLimit, tooManyRequests } from "@/lib/server/rate-limit";
+import { findRegisterAction, startPendingMailbox } from "@/lib/server/mailbox-store";
+import { GLOBAL_KEY, limitKey, sourceKey, takeRateLimits, tooManyRequests } from "@/lib/server/rate-limit";
 import { mailTransportConfigured, sendMailboxCode } from "@/lib/server/mail";
 import { rejectOutdatedClient } from "@/lib/server/client-version";
 
-export async function POST(request: Request) {
+export const POST = apiRoute(async (request: Request) => {
   const outdated = rejectOutdatedClient(request);
   if (outdated) return outdated;
   const startedAt = Date.now();
   const { error, account } = await requireAccount();
   if (error || !account) return error;
 
-  const body = (await request.json()) as Record<string, unknown>;
+  const parsed = await readJson(request);
+  if (!parsed.ok) return parsed.response;
+  const body = parsed.body;
   // Checked before any lookup, so the answer depends only on the input.
   const email = parseMailboxEmail(body.email);
   if (!email) {
@@ -40,34 +40,15 @@ export async function POST(request: Request) {
   if (!kit) {
     return jsonError("Incomplete kit", 400);
   }
-  const { wrappedSecret, wrapNonce, wrapSalt, wrapParams } = kit;
 
   const lookup = emailLookup(email);
   const db = getDb();
-  const existing = await db
-    .select({
-      accountId: recoveryMailboxes.accountId,
-      verifiedAt: recoveryMailboxes.verifiedAt,
-    })
-    .from(recoveryMailboxes)
-    .where(eq(recoveryMailboxes.emailLookup, lookup))
-    .limit(1);
-  const existingRow = existing[0] ?? null;
-  const action = mailboxRegisterAction({
-    existingMailbox: existingRow ? { accountId: existingRow.accountId } : null,
-    accountId: account.id,
-  });
+  const { action, verifiedAt } = await findRegisterAction(db, lookup, account.id);
 
   if (action === "update-wrap") {
     await db
       .update(recoveryMailboxes)
-      .set({
-        wrappedSecret,
-        wrapNonce,
-        wrapSalt,
-        wrapParams,
-        verifiedAt: existingRow?.verifiedAt ?? new Date(),
-      })
+      .set({ ...kit, verifiedAt: verifiedAt ?? new Date() })
       .where(
         and(eq(recoveryMailboxes.emailLookup, lookup), eq(recoveryMailboxes.accountId, account.id)),
       );
@@ -75,70 +56,50 @@ export async function POST(request: Request) {
   }
 
   // From here on, an email that belongs to another account and a new email
-  // must look the same to the caller: same status codes, same rate limit,
-  // and no faster answer for "taken" (a new email waits for the mail send).
-  const respondPending = async () => {
-    await sleepUntil(startedAt + MAILBOX_PENDING_MIN_RESPONSE_MS);
-    return Response.json({ pending: true });
-  };
-
+  // must look the same to the caller: same status codes, same rate limits, same
+  // database writes (so /api/recovery/confirm behaves the same afterwards), and
+  // no faster answer for "taken" (a new email waits for the mail send).
   if (!mailTransportConfigured()) {
     return jsonError("Mail is not configured", 503);
   }
 
-  // Per source, before we know which branch applies, so it treats taken and
-  // new emails the same. Caps how many code mails one client can trigger.
-  if (!(await takeRateLimit(db, "recovery-register", sourceKey(request)))) {
+  // Before we know which branch applies, so taken and new emails count the
+  // same. Per IP, per account, per address (hour and day), and a host-wide
+  // spend cap on code mails.
+  const addressKey = limitKey("email", lookup);
+  const allowed = await takeRateLimits(db, [
+    { bucket: "recovery-register", keyHash: sourceKey(request) },
+    { bucket: "code-send-account", keyHash: limitKey("account", account.id) },
+    { bucket: "code-send-email", keyHash: addressKey },
+    { bucket: "code-send-email-day", keyHash: addressKey },
+    { bucket: "code-send-global", keyHash: GLOBAL_KEY },
+  ]);
+  if (!allowed) {
     return tooManyRequests();
   }
 
-  const ip = clientIp(request);
-  const hourAgo = new Date(Date.now() - 60 * 60 * 1000);
-  const recent = await db
-    .select({ n: sql<number>`count(*)::int` })
-    .from(recoveryAttempts)
-    .where(and(eq(recoveryAttempts.emailLookup, lookup), gt(recoveryAttempts.createdAt, hourAgo)));
-  if ((recent[0]?.n ?? 0) >= MAILBOX_SEND_MAX_PER_HOUR) {
-    return jsonError("Too many attempts", 429);
-  }
-
-  if (action === "reject-taken") {
-    // Count the attempt like a real send, but never mail or touch the owner's mailbox.
-    await db.insert(recoveryAttempts).values({ emailLookup: lookup, ipHash: hashIp(ip) });
-    return respondPending();
-  }
-
+  // For a taken address the code is never sent: the placeholder row only makes
+  // the account's pending state the same as after a real send.
   const code = generateMailboxCode();
-  const expiresAt = new Date(Date.now() + MAILBOX_CODE_TTL_MS);
-  await db.delete(mailboxPending).where(eq(mailboxPending.emailLookup, lookup));
-  await db.delete(mailboxPending).where(eq(mailboxPending.accountId, account.id));
-  await db.insert(mailboxPending).values({
-    emailLookup: lookup,
-    accountId: account.id,
-    wrappedSecret,
-    wrapNonce,
-    wrapSalt,
-    wrapParams,
-    codeHash: hashMailboxCode(code),
-    expiresAt,
-    attemptCount: 0,
-  });
-  await db.insert(recoveryAttempts).values({ emailLookup: lookup, ipHash: hashIp(ip) });
+  await startPendingMailbox(db, { accountId: account.id, lookup, kit, code });
 
-  // Send after the response: waiting for the mail provider would make a new
-  // email slower to answer than a taken one. If sending fails, the person can
-  // ask for a new code. Never log the address or the provider error.
-  const locale = parseMailLocale(body.locale);
-  after(async () => {
-    try {
-      await sendMailboxCode(email, code, locale);
-    } catch {
-      console.error("Mailbox code email failed to send");
-    }
-  });
+  if (action === "start-pending") {
+    // Send after the response: waiting for the mail provider would make a new
+    // email slower to answer than a taken one. If sending fails, the person can
+    // ask for a new code or use the phrase. Never log the address or the code.
+    const locale = parseMailLocale(body.locale);
+    after(async () => {
+      try {
+        await sendMailboxCode(email, code, locale);
+      } catch (cause) {
+        console.error(`Mailbox code email failed to send: ${describeError(cause)}`);
+      }
+    });
+  }
 
-  return respondPending();
-}
+  await sleepUntil(startedAt + MAILBOX_PENDING_MIN_RESPONSE_MS);
+  return Response.json({ pending: true });
+});
 
 function sleepUntil(deadline: number): Promise<void> {
   const wait = deadline - Date.now();

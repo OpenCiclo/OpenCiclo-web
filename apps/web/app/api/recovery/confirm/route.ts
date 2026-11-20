@@ -1,73 +1,33 @@
 // Copyright © 2026 Emma Flora Harbison & Luis Rey Sánchez
 // SPDX-License-Identifier: Apache-2.0
 
-import { eq } from "drizzle-orm";
-
-import { mailboxPending, recoveryMailboxes } from "@/lib/db/schema";
 import { getDb } from "@/lib/db";
 import { requireAccount } from "@/lib/server/account";
 import { jsonError } from "@/lib/server/env";
-import {
-  hashMailboxCode,
-  MAILBOX_CODE_MAX_ATTEMPTS,
-  mailboxCodesEqual,
-  parseMailboxCode,
-  pendingIsExpired,
-} from "@/lib/server/mailbox";
+import { apiRoute, readJson } from "@/lib/server/http";
+import { confirmPendingMailbox } from "@/lib/server/mailbox-store";
+import { limitKey, sourceKey, takeRateLimits, tooManyRequests } from "@/lib/server/rate-limit";
 import { rejectOutdatedClient } from "@/lib/server/client-version";
 
-export async function POST(request: Request) {
+export const POST = apiRoute(async (request: Request) => {
   const outdated = rejectOutdatedClient(request);
   if (outdated) return outdated;
   const { error, account } = await requireAccount();
   if (error || !account) return error;
 
-  const body = (await request.json()) as Record<string, unknown>;
+  const parsed = await readJson(request);
+  if (!parsed.ok) return parsed.response;
   const db = getDb();
-  const pendingRows = await db
-    .select()
-    .from(mailboxPending)
-    .where(eq(mailboxPending.accountId, account.id))
-    .limit(1);
-  const pending = pendingRows[0];
-  if (!pending) {
+  // Each code allows five attempts; these cap how many codes one client or one
+  // account can try to guess.
+  const allowed = await takeRateLimits(db, [
+    { bucket: "recovery-confirm", keyHash: sourceKey(request) },
+    { bucket: "recovery-confirm-account", keyHash: limitKey("account", account.id) },
+  ]);
+  if (!allowed) return tooManyRequests();
+
+  if ((await confirmPendingMailbox(db, account.id, parsed.body.code)) !== "confirmed") {
     return jsonError("Could not confirm", 400);
   }
-
-  if (pendingIsExpired(pending.expiresAt)) {
-    await db.delete(mailboxPending).where(eq(mailboxPending.id, pending.id));
-    return jsonError("Could not confirm", 400);
-  }
-
-  const code = parseMailboxCode(body.code);
-  if (!code || !mailboxCodesEqual(pending.codeHash, hashMailboxCode(code))) {
-    const attempts = pending.attemptCount + 1;
-    if (attempts >= MAILBOX_CODE_MAX_ATTEMPTS) {
-      await db.delete(mailboxPending).where(eq(mailboxPending.id, pending.id));
-    } else {
-      await db
-        .update(mailboxPending)
-        .set({ attemptCount: attempts })
-        .where(eq(mailboxPending.id, pending.id));
-    }
-    return jsonError("Could not confirm", 400);
-  }
-
-  try {
-    await db.insert(recoveryMailboxes).values({
-      emailLookup: pending.emailLookup,
-      accountId: account.id,
-      wrappedSecret: pending.wrappedSecret,
-      wrapNonce: pending.wrapNonce,
-      wrapSalt: pending.wrapSalt,
-      wrapParams: pending.wrapParams,
-      verifiedAt: new Date(),
-    });
-  } catch {
-    await db.delete(mailboxPending).where(eq(mailboxPending.id, pending.id));
-    return jsonError("Could not confirm", 400);
-  }
-
-  await db.delete(mailboxPending).where(eq(mailboxPending.id, pending.id));
   return Response.json({ ok: true });
-}
+});

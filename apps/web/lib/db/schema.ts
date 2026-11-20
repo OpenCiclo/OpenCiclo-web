@@ -41,22 +41,29 @@ export const accountActivityDays = pgTable(
       .references(() => accounts.id, { onDelete: "cascade" }),
     day: date("day").notNull(),
   },
-  (table) => [primaryKey({ columns: [table.accountId, table.day] })],
+  (table) => [
+    primaryKey({ columns: [table.accountId, table.day] }),
+    index("account_activity_days_day_idx").on(table.day),
+  ],
 );
 
-export const recoveryMailboxes = pgTable("recovery_mailboxes", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  emailLookup: text("email_lookup").notNull().unique("recovery_mailboxes_email_lookup_key"),
-  wrappedSecret: text("wrapped_secret").notNull(),
-  wrapNonce: text("wrap_nonce").notNull(),
-  wrapSalt: text("wrap_salt").notNull(),
-  wrapParams: jsonb("wrap_params").notNull(),
-  accountId: uuid("account_id")
-    .notNull()
-    .references(() => accounts.id, { onDelete: "cascade" }),
-  verifiedAt: timestamp("verified_at", { withTimezone: true }),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-});
+export const recoveryMailboxes = pgTable(
+  "recovery_mailboxes",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    emailLookup: text("email_lookup").notNull().unique("recovery_mailboxes_email_lookup_key"),
+    wrappedSecret: text("wrapped_secret").notNull(),
+    wrapNonce: text("wrap_nonce").notNull(),
+    wrapSalt: text("wrap_salt").notNull(),
+    wrapParams: jsonb("wrap_params").notNull(),
+    accountId: uuid("account_id")
+      .notNull()
+      .references(() => accounts.id, { onDelete: "cascade" }),
+    verifiedAt: timestamp("verified_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [index("recovery_mailboxes_account_idx").on(table.accountId)],
+);
 
 export const mailboxPending = pgTable(
   "mailbox_pending",

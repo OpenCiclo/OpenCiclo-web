@@ -1,46 +1,45 @@
 // Copyright © 2026 Emma Flora Harbison & Luis Rey Sánchez
 // SPDX-License-Identifier: Apache-2.0
 
-import { and, eq, gt, isNotNull, sql } from "drizzle-orm";
+import { and, eq, isNotNull } from "drizzle-orm";
 
-import { recoveryAttempts, recoveryMailboxes } from "@/lib/db/schema";
+import { recoveryMailboxes } from "@/lib/db/schema";
 import { getDb } from "@/lib/db";
-import { emailLookup, hashIp, jsonError } from "@/lib/server/env";
+import { emailLookup, jsonError } from "@/lib/server/env";
+import { apiRoute, readJson } from "@/lib/server/http";
 import { mailboxIsFetchable } from "@/lib/server/mailbox";
-import { clientIp, sourceKey, takeRateLimit, tooManyRequests } from "@/lib/server/rate-limit";
+import { sourceKey, takeRateLimit, tooManyRequests } from "@/lib/server/rate-limit";
 import { decoyKit } from "@/lib/server/recovery-decoy";
 import { rejectOutdatedClient } from "@/lib/server/client-version";
 
-const MAX_PER_HOUR = 5;
-
-export async function POST(request: Request) {
+export const POST = apiRoute(async (request: Request) => {
   const outdated = rejectOutdatedClient(request);
   if (outdated) return outdated;
-  const body = (await request.json()) as { email?: unknown };
-  const email = typeof body.email === "string" ? body.email.trim().toLowerCase() : "";
+  const parsed = await readJson(request);
+  if (!parsed.ok) return parsed.response;
+  const raw = parsed.body.email;
+  const email = typeof raw === "string" ? raw.trim().toLowerCase() : "";
   if (!email.includes("@") || email.length > 320) {
     return jsonError("Invalid email", 400);
   }
   const lookup = emailLookup(email);
-  const ip = clientIp(request);
   const db = getDb();
-  // Per source, on top of the per-email limit below: stops one client from
-  // collecting kits (or decoys) for many addresses. Same for every email.
+  // Per source only, and the same for every email. There is no per-email
+  // limit: anyone who knows an address could use it up and lock its owner out
+  // of signing in on a new device, and it would not slow down an attacker
+  // (guessing the password happens offline, on the downloaded kit).
   if (!(await takeRateLimit(db, "recovery-fetch", sourceKey(request)))) {
     return tooManyRequests();
   }
-  const hourAgo = new Date(Date.now() - 60 * 60 * 1000);
-  const recent = await db
-    .select({ n: sql<number>`count(*)::int` })
-    .from(recoveryAttempts)
-    .where(and(eq(recoveryAttempts.emailLookup, lookup), gt(recoveryAttempts.createdAt, hourAgo)));
-  if ((recent[0]?.n ?? 0) >= MAX_PER_HOUR) {
-    return jsonError("Too many attempts", 429);
-  }
-  await db.insert(recoveryAttempts).values({ emailLookup: lookup, ipHash: hashIp(ip) });
 
   const rows = await db
-    .select()
+    .select({
+      wrappedSecret: recoveryMailboxes.wrappedSecret,
+      wrapNonce: recoveryMailboxes.wrapNonce,
+      wrapSalt: recoveryMailboxes.wrapSalt,
+      wrapParams: recoveryMailboxes.wrapParams,
+      verifiedAt: recoveryMailboxes.verifiedAt,
+    })
     .from(recoveryMailboxes)
     .where(and(eq(recoveryMailboxes.emailLookup, lookup), isNotNull(recoveryMailboxes.verifiedAt)))
     .limit(1);
@@ -56,4 +55,4 @@ export async function POST(request: Request) {
     wrapSalt: kit.wrapSalt,
     wrapParams: kit.wrapParams,
   });
-}
+});

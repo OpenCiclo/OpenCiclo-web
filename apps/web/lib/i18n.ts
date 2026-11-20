@@ -137,7 +137,11 @@ const es = {
   mailNotConfigured:
     "Este servidor no puede enviar correo ahora. Prueba más tarde o usa el modo super privado.",
   tooManyEmailCodes: "Demasiados intentos. Espera un rato e inténtalo de nuevo.",
+  tooManySignups: "Se han creado demasiadas cuentas desde esta red. Inténtalo más tarde. Si ya tienes un diario, entra con tu frase de 12 palabras.",
+  tooManySignupsDevice: "También puedes elegir «Solo en este dispositivo», que no necesita cuenta.",
   verifyEmailInvalid: "Ese código no es válido o ya caducó. Solicita uno nuevo.",
+  codeDelayedSignup: "¿El código no llega en unos minutos? Vuelve atrás y elige «Modo super privado»: solo necesitas tu frase de 12 palabras.",
+  codeDelayedAddEmail: "¿El código no llega en unos minutos? Puedes seguir entrando con tu frase de 12 palabras.",
   copy: "Copiar",
   download: "Descargar",
   copied: "Copiada",
@@ -814,7 +818,11 @@ const en = {
   mailNotConfigured:
     "This server cannot send mail right now. Try later or use super private mode.",
   tooManyEmailCodes: "Too many attempts. Wait a bit and try again.",
+  tooManySignups: "Too many new accounts from this network for now. Try again later. If you already have a diary, sign in with your 12-word phrase.",
+  tooManySignupsDevice: "You can also choose “Only on this device”, which needs no account.",
   verifyEmailInvalid: "That code is invalid or expired. Request a new one.",
+  codeDelayedSignup: "Code not here after a few minutes? Go back and choose “Super private mode”: all you need is your 12-word phrase.",
+  codeDelayedAddEmail: "Code not here after a few minutes? You can keep signing in with your 12-word phrase.",
   copy: "Copy",
   download: "Download",
   copied: "Copied",
