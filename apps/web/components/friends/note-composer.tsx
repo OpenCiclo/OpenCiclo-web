@@ -35,6 +35,7 @@ export function NoteComposer({
   disabled,
   onSave,
   onClear,
+  onPreview,
 }: {
   name: string;
   note: FriendNote | null;
@@ -43,6 +44,8 @@ export function NoteComposer({
   disabled: boolean;
   onSave: (text: string) => Promise<void>;
   onClear: () => Promise<void>;
+  /** Opens "How friends see me"; the link sits beside the hint while the note is not being written. */
+  onPreview?: () => void;
 }) {
   const live = note && daysBetween(note.date, today) < NOTE_DAYS ? note : null;
   const [draft, setDraft] = useState<string | null>(null);
@@ -103,10 +106,10 @@ export function NoteComposer({
         </SpeechBubble>
       </div>
       <div className="flex items-center justify-between gap-3 pl-4">
-        <p className="flex items-center gap-2 text-xs font-bold text-muted-foreground">
+        <p className="flex min-w-0 items-center gap-2 text-xs leading-snug font-bold text-muted-foreground">
           <span
             aria-hidden
-            className="flex size-6 items-center justify-center rounded-full bg-primary text-[11px] text-primary-foreground"
+            className="flex size-6 shrink-0 items-center justify-center rounded-full bg-primary text-[11px] text-primary-foreground"
           >
             {Array.from(name)[0]?.toUpperCase() ?? "?"}
           </span>
@@ -116,6 +119,14 @@ export function NoteComposer({
           <span className="text-[11px] tabular-nums text-muted-foreground">
             {Array.from(draft).length}/{MAX_NOTE_LENGTH}
           </span>
+        ) : onPreview ? (
+          <button
+            type="button"
+            onClick={onPreview}
+            className="-my-2 min-h-11 shrink-0 text-xs font-extrabold text-primary underline-offset-2 hover:underline"
+          >
+            {t.friendsPreview}
+          </button>
         ) : null}
       </div>
       {editing ? (

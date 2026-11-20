@@ -158,6 +158,10 @@ export function FriendsSettingsSheet({
             </label>
           ))}
           <p className="text-xs leading-5 text-muted-foreground">{t.friendsDatesNote}</p>
+          {/* While Friends is new. Remove with the friendsExperimental* strings once it settles. */}
+          <p className="text-xs leading-5 text-muted-foreground">
+            <span className="font-bold text-primary">{t.friendsExperimentalTitle}</span> · {t.friendsExperimental}
+          </p>
           <Button type="button" variant="ghost" className="text-destructive" disabled={!writable || busy} onClick={onTurnOff}>
             {t.friendsTurnOff}
           </Button>
