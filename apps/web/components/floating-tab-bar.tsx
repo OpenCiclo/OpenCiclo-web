@@ -3,14 +3,15 @@
 
 "use client";
 
-import { useEffect, useEffectEvent, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { BookOpen, CalendarDays, LineChart, Settings } from "lucide-react";
 
 import { hidesAppChrome } from "@/lib/client/app-chrome";
 import { useCiclo } from "@/lib/client/ciclo-context";
+import { entranceBetween, setTabEntrance } from "@/lib/client/tab-entrance";
 import { SelectionMotion, labelScale } from "@/lib/client/tab-motion";
 import { cn } from "@/lib/utils";
 
@@ -24,7 +25,7 @@ const TABS = [
 /**
  * The code of each tab screen, in tab order. Next prefetches a tab's data but
  * loads its JavaScript only when it opens, so the first tap on each tab would
- * wait for it (about 100 ms more on a phone, and a rougher slide). The bar
+ * wait for it (about 100 ms more on a phone). The bar
  * loads it ahead, while the app is idle, without drawing anything.
  */
 const SCREEN_CODE = [
@@ -65,21 +66,6 @@ function prefersReducedMotion() {
 }
 
 /**
- * Tells the screen carousel (the `tab-slide` view transition on AppShell, see
- * globals.css) which way to slide, or to swap screens in place when the route
- * did not move from one tab to another. Runs in the commit that swaps the
- * screens, before the browser starts animating them.
- *
- * Back and Forward get no view transition (React renders a popstate
- * synchronously), so the attribute does nothing there.
- */
-function setSlideDirection(from: number, to: number) {
-  const root = document.documentElement;
-  if (from >= 0 && to >= 0 && from !== to) root.dataset.tabSlide = to > from ? "next" : "prev";
-  else delete root.dataset.tabSlide;
-}
-
-/**
  * The label under the selection stretches with it as it flies, like gum, and
  * leans after it so it stays inside. Both fade out halfway to the next tab,
  * where the next label takes over, so neither jumps.
@@ -106,20 +92,12 @@ function paintLabels(
 }
 
 /**
- * React starts the next screen only once the running slide ends: hurry it
- * along, so a tap during a slide goes through at once.
- */
-function hurrySlides() {
-  for (const animation of document.getAnimations()) {
-    if (animation instanceof CSSAnimation && animation.animationName.startsWith("tab-slide")) animation.playbackRate = 4;
-  }
-}
-
-/**
  * The phone's tab bar. Each tab is a plain link: one tap goes there (a real
- * `router.push`, so Android Back walks the history), also while the screens
- * are still sliding. There is no drag or swipe: the bar never holds on to the
- * finger, so nothing can turn a tap into something else.
+ * `router.push`, so Android Back walks the history), and the new screen
+ * replaces the last one at once (see AppShell for how it arrives). There is no
+ * drag or swipe: the bar never holds on to the finger, so nothing can turn a
+ * tap into something else. Each tab takes taps well beyond its pill, down to
+ * the screen's edge (`.tab-link` in globals.css).
  */
 export function FloatingTabBar() {
   const { t, wallet } = useCiclo();
@@ -135,13 +113,10 @@ export function FloatingTabBar() {
   const litIndex = tapped ? tapped.index : activeIndex;
   const bubbleIndex = Math.max(0, litIndex);
 
-  const router = useRouter();
   const bubbleRef = useRef<HTMLSpanElement>(null);
-  const linkRefs = useRef<(HTMLAnchorElement | null)[]>([]);
   const labelRefs = useRef<(HTMLSpanElement | null)[]>([]);
   const motionRef = useRef<SelectionMotion | null>(null);
   const placedRef = useRef(false);
-  const lastTabRef = useRef(activeIndex);
 
   function motion() {
     motionRef.current ??= new SelectionMotion(
@@ -160,60 +135,19 @@ export function FloatingTabBar() {
     return motionRef.current;
   }
 
-  /** A tap on tab `index` is on its way: light it now and hurry any running slide. */
-  function tapTab(index: number): boolean {
-    if (index === litIndex) return false;
-    hurrySlides();
+  /** A tap on tab `index` is on its way: light it now, and tell the screen opening which side it comes from. */
+  function tapTab(index: number) {
+    if (index === litIndex) return;
+    setTabEntrance(entranceBetween(activeIndex, index));
     // Back to the tab on display before the route left it: nothing is pending.
     setTapped(index === activeIndex ? null : { index, pathname });
-    return true;
   }
 
-  // While a slide runs, the browser shows a picture of the bar (the view
-  // transition) and hit-tests the page under it: a tap there reaches <body>
-  // or <html>, never the link. Find the tab under the finger by position.
-  // Only a click that hit nothing else counts, so a sheet or dialog over the
-  // bar keeps its taps.
-  const onClickUnderSlide = useEffectEvent((event: MouseEvent) => {
-    if (event.defaultPrevented || event.button !== 0) return;
-    if (event.target !== document.body && event.target !== document.documentElement) return;
-    const index = linkRefs.current.findIndex((link) => {
-      const box = link?.getBoundingClientRect();
-      return (
-        box !== undefined &&
-        event.clientX >= box.left &&
-        event.clientX <= box.right &&
-        event.clientY >= box.top &&
-        event.clientY <= box.bottom
-      );
-    });
-    if (index < 0) return;
-    event.preventDefault();
-    if (tapTab(index)) router.push(TABS[index].href);
-  });
-
   useEffect(() => {
-    if (hidden) return;
-    loadScreenCodeWhenIdle();
-    const onClick = (event: MouseEvent) => onClickUnderSlide(event);
-    document.addEventListener("click", onClick);
-    return () => document.removeEventListener("click", onClick);
+    if (!hidden) loadScreenCodeWhenIdle();
   }, [hidden]);
 
-  useEffect(
-    () => () => {
-      motionRef.current?.stop();
-      // Gone (the window grew into the desktop layout): screens swap in place.
-      delete document.documentElement.dataset.tabSlide;
-    },
-    [],
-  );
-
-  useLayoutEffect(() => {
-    const to = tabIndex(pathname);
-    setSlideDirection(lastTabRef.current, to);
-    lastTabRef.current = to;
-  }, [pathname]);
+  useEffect(() => () => motionRef.current?.stop(), []);
 
   useLayoutEffect(() => {
     if (hidden) {
@@ -234,7 +168,7 @@ export function FloatingTabBar() {
   const labels = [t.calendar, t.patterns, t.learn, t.settings];
 
   return (
-    <nav className="tab-bar fixed inset-x-0 bottom-0 z-40 mx-auto w-full max-w-md pb-[env(safe-area-inset-bottom)]">
+    <nav className="fixed inset-x-0 bottom-0 z-40 mx-auto w-full max-w-md pb-[env(safe-area-inset-bottom)]">
       <div className="mx-4 mb-4 rounded-full border border-border bg-card/90 p-1.5 shadow-lg backdrop-blur-md">
         <div className="relative grid touch-manipulation grid-cols-4 select-none [-webkit-touch-callout:none]">
           <span
@@ -249,16 +183,13 @@ export function FloatingTabBar() {
               <Link
                 key={item.href}
                 href={item.href}
-                ref={(link) => {
-                  linkRefs.current[index] = link;
-                }}
                 draggable={false}
                 aria-current={index === activeIndex ? "page" : undefined}
                 onNavigate={() => {
                   tapTab(index);
                 }}
                 className={cn(
-                  "relative z-10 flex min-h-12 flex-col items-center justify-center gap-0.5 rounded-full px-1 py-2 text-[11px] font-semibold transition-colors duration-200",
+                  "tab-link relative z-10 flex min-h-12 flex-col items-center justify-center gap-0.5 rounded-full px-1 py-2 text-[11px] font-semibold transition-colors duration-200",
                   index === litIndex ? "text-primary-foreground" : "text-muted-foreground",
                 )}
               >
