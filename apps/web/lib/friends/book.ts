@@ -173,29 +173,6 @@ export function publishesTo(friend: Friend): boolean {
   return friend.state !== "ended";
 }
 
-/**
- * Two active entries for the same person (both invited each other). Both
- * devices keep the pair whose key sorts first, so they always agree on which
- * one stays. Only active entries count: a "waiting" pair may never complete,
- * and dropping the working one for it would end the friendship on both sides
- * (each device becomes active only after seeing the other's status, so both
- * converge once both pairs are active). Returns the book without the others,
- * and the entries dropped.
- */
-export function dropDuplicates(book: FriendBook): { book: FriendBook; dropped: Friend[] } {
-  const keep = new Map<string, Friend>();
-  for (const friend of book.friends) {
-    if (!friend.selfId || friend.state !== "active") continue;
-    const current = keep.get(friend.selfId);
-    if (!current || friend.key < current.key) keep.set(friend.selfId, friend);
-  }
-  const dropped = book.friends.filter(
-    (friend) => friend.selfId && friend.state === "active" && keep.get(friend.selfId) !== friend,
-  );
-  if (dropped.length === 0) return { book, dropped };
-  return { book: { ...book, friends: book.friends.filter((friend) => !dropped.includes(friend)) }, dropped };
-}
-
 // Parsing. The book is this account's own, but it may come from a newer
 // version of the app (NewerFriendBookError) or an older one.
 

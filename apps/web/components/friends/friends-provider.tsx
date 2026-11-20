@@ -26,6 +26,7 @@ import {
   type FriendsSession,
 } from "@/lib/client/friends-sync";
 import { NewerFriendBookError, setProfile as setProfileOp, updateFriend, type FriendBook } from "@/lib/friends/book";
+import type { ParsedInvite } from "@/lib/friends/invite";
 import type { FriendNote, InviteMessage, ShareChoices } from "@/lib/friends/payload";
 
 export type FriendsStatus = "unavailable" | "idle" | "loading" | "off" | "on" | "newer" | "error";
@@ -39,9 +40,11 @@ type FriendsValue = {
   /** Loads the book and every friend's status. */
   refresh: () => Promise<void>;
   enable: (name: string) => Promise<void>;
-  createInvite: () => Promise<Uint8Array>;
+  /** A new invite: the secret and the key fingerprint for its link. */
+  createInvite: () => Promise<{ secret: Uint8Array; fingerprint: string }>;
   revokeInvite: (secret: string) => Promise<void>;
-  readInvite: (secret: Uint8Array) => Promise<InviteMessage>;
+  /** Who sent the invite in a pasted link or code (lib/friends/invite.ts parseInvite). */
+  readInvite: (link: ParsedInvite) => Promise<InviteMessage>;
   acceptInvite: (secret: Uint8Array, invite: InviteMessage) => Promise<void>;
   setProfile: (change: ProfileChange) => Promise<void>;
   setFriendPaused: (friendId: string, paused: boolean) => Promise<void>;
@@ -249,7 +252,7 @@ export function FriendsProvider({ children }: { children: ReactNode }) {
           if (!current) throw new FriendsOffError();
           const result = await createInviteCall(session, current, todayRef.current);
           apply(session, result.state);
-          return result.secret;
+          return { secret: result.secret, fingerprint: result.fingerprint };
         }),
       revokeInvite: (secret) =>
         run(async (session) => {
@@ -257,7 +260,7 @@ export function FriendsProvider({ children }: { children: ReactNode }) {
           if (!current) throw new FriendsOffError();
           apply(session, await revokeInviteCall(session, current, secret));
         }),
-      readInvite: (secret) => run((session) => readInviteCall(session, stateRef.current, secret)),
+      readInvite: (link) => run((session) => readInviteCall(session, stateRef.current, link, todayRef.current)),
       acceptInvite: (secret, invite) =>
         run(async (session) => {
           const current = stateRef.current;

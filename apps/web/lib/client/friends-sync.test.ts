@@ -10,9 +10,12 @@ import type { FriendsApi, SealedBook } from "@/lib/client/friends-api";
 import {
   exchangeSecret,
   handshakeLocation,
+  inviteAddress,
+  keyFingerprint,
   newExchangeKeys,
   openBox,
   pairKey,
+  sealBox,
   toBase64Url,
   type Sealed,
 } from "@/lib/friends/crypto";
@@ -126,7 +129,7 @@ async function befriend(host: FakeHost) {
   let anaState = await enableFriends(ana, "AnaPangolin");
   const invited = await createInvite(emma, emmaState, TODAY);
   emmaState = invited.state;
-  const invite = await readInvite(ana, anaState, invited.secret);
+  const invite = await readInvite(ana, anaState, invited, TODAY);
   expect(invite.name).toBe("EmmaQuokka");
   anaState = await acceptInvite(ana, anaState, invited.secret, invite, TODAY);
   await publishStatus(ana, anaState.book, DIARY, TODAY);
@@ -135,7 +138,7 @@ async function befriend(host: FakeHost) {
   await publishStatus(emma, emmaState.book, DIARY, TODAY);
   const anaSees = await refreshFriends(ana, anaState, TODAY);
   anaState = anaSees.state;
-  return { emma, ana, emmaState, anaState, emmaSees, anaSees, secret: invited.secret };
+  return { emma, ana, emmaState, anaState, emmaSees, anaSees, secret: invited.secret, link: invited };
 }
 
 describe("friends handshake", () => {
@@ -167,10 +170,10 @@ describe("friends handshake", () => {
 
   it("refuses the same link for a second person", async () => {
     const host = new FakeHost();
-    const { secret } = await befriend(host);
+    const { link } = await befriend(host);
     const third = session(host, "third", 3);
     const state = await enableFriends(third, "ThirdNarwhal");
-    await expect(readInvite(third, state, secret)).rejects.toBeInstanceOf(InviteNotFoundError);
+    await expect(readInvite(third, state, link, TODAY)).rejects.toBeInstanceOf(InviteNotFoundError);
   });
 
   it("refuses a second person who read the invite before the first one's answer landed", async () => {
@@ -181,8 +184,8 @@ describe("friends handshake", () => {
     const invited = await createInvite(emma, await enableFriends(emma, "EmmaQuokka"), TODAY);
     const anaState = await enableFriends(ana, "AnaPangolin");
     const thirdState = await enableFriends(third, "ThirdNarwhal");
-    const invite = await readInvite(third, thirdState, invited.secret);
-    await acceptInvite(ana, anaState, invited.secret, await readInvite(ana, anaState, invited.secret), TODAY);
+    const invite = await readInvite(third, thirdState, invited, TODAY);
+    await acceptInvite(ana, anaState, invited.secret, await readInvite(ana, anaState, invited, TODAY), TODAY);
     await expect(acceptInvite(third, thirdState, invited.secret, invite, TODAY)).rejects.toBeInstanceOf(InviteUsedError);
     expect((await loadBook(third))?.book.friends).toEqual([]);
   });
@@ -195,7 +198,7 @@ describe("friends handshake", () => {
     const invited = await createInvite(emma, emmaState, TODAY);
     emmaState = invited.state;
     let anaState = await enableFriends(ana, "AnaPangolin");
-    const invite = await readInvite(ana, anaState, invited.secret);
+    const invite = await readInvite(ana, anaState, invited, TODAY);
     host.failNextBoxWrite = true;
     await expect(acceptInvite(ana, anaState, invited.secret, invite, TODAY)).rejects.toThrow("Network down");
     anaState = (await loadBook(ana))!;
@@ -210,22 +213,23 @@ describe("friends handshake", () => {
     const host = new FakeHost();
     const emma = session(host, "emma", 1);
     const invited = await createInvite(emma, await enableFriends(emma, "EmmaQuokka"), TODAY);
-    await expect(readInvite(emma, invited.state, invited.secret)).rejects.toBeInstanceOf(OwnInviteError);
+    await expect(readInvite(emma, invited.state, invited, TODAY)).rejects.toBeInstanceOf(OwnInviteError);
   });
 
-  it("keeps one card when two people invited each other", async () => {
+  it("keeps both cards when two people invited each other, and both work", async () => {
     const host = new FakeHost();
     const { emma, ana, emmaState, anaState } = await befriend(host);
     const second = await createInvite(ana, anaState, TODAY);
-    let emmaNext = await acceptInvite(emma, emmaState, second.secret, await readInvite(emma, emmaState, second.secret), TODAY);
+    let emmaNext = await acceptInvite(emma, emmaState, second.secret, await readInvite(emma, emmaState, second, TODAY), TODAY);
     await publishStatus(emma, emmaNext.book, DIARY, TODAY);
     const anaNext = (await refreshFriends(ana, second.state, TODAY)).state;
     await publishStatus(ana, anaNext.book, DIARY, TODAY);
     emmaNext = (await refreshFriends(emma, emmaNext, TODAY)).state;
     const anaFinal = (await refreshFriends(ana, anaNext, TODAY)).state;
-    expect(emmaNext.book.friends).toHaveLength(1);
-    expect(anaFinal.book.friends).toHaveLength(1);
-    expect(emmaNext.book.friends[0].key).toBe(anaFinal.book.friends[0].key);
+    // Nothing is merged on an id the other side declares: each person can remove one.
+    expect(emmaNext.book.friends.map((f) => f.state)).toEqual(["active", "active"]);
+    expect(anaFinal.book.friends.map((f) => f.state)).toEqual(["active", "active"]);
+    expect(emmaNext.book.friends.map((f) => f.key).sort()).toEqual(anaFinal.book.friends.map((f) => f.key).sort());
   });
 
   it("drops an invite nobody answered after a week, and can revoke one", async () => {
@@ -255,7 +259,90 @@ describe("what someone holding only the link can do", () => {
   });
 });
 
+describe("what someone holding the link can write", () => {
+  it("cannot replace the invite box: its write token needs the inviter's private key", async () => {
+    const host = new FakeHost();
+    const emma = session(host, "emma", 1);
+    const invited = await createInvite(emma, await enableFriends(emma, "EmmaQuokka"), TODAY);
+    const mallory = await newExchangeKeys();
+    const swapped = inviteAddress(invited.secret, mallory.privateKey);
+    const sealed = await sealBox(swapped.key, { t: "invite", v: 1, selfId: "f".repeat(32), name: "EmmaQuokka", at: TODAY, pub: mallory.publicKey });
+    expect(await host.api().putBox({ id: swapped.id, token: swapped.token, kind: "invite", ...sealed }, "mallory")).toBe("conflict");
+  });
+
+  it("is refused when the invite box's key does not match the link's fingerprint", async () => {
+    const host = new FakeHost();
+    const emma = session(host, "emma", 1);
+    const ana = session(host, "ana", 2);
+    const invited = await createInvite(emma, await enableFriends(emma, "EmmaQuokka"), TODAY);
+    const other = await newExchangeKeys();
+    const anaState = await enableFriends(ana, "AnaPangolin");
+    await expect(
+      readInvite(ana, anaState, { secret: invited.secret, fingerprint: keyFingerprint(other.publicKey) }, TODAY),
+    ).rejects.toBeInstanceOf(InviteNotFoundError);
+  });
+});
+
+describe("invites answered late or seen late", () => {
+  it("completes an answer given in time even when the inviter opens Ciclo after day 7", async () => {
+    const host = new FakeHost();
+    const emma = session(host, "emma", 1);
+    const ana = session(host, "ana", 2);
+    const invited = await createInvite(emma, await enableFriends(emma, "EmmaQuokka"), "2026-11-01");
+    const anaState = await enableFriends(ana, "AnaPangolin");
+    await acceptInvite(ana, anaState, invited.secret, await readInvite(ana, anaState, invited, "2026-11-03"), "2026-11-03");
+    const emmaSees = await refreshFriends(emma, invited.state, "2026-11-12");
+    expect(emmaSees.cards).toHaveLength(1);
+    expect(emmaSees.cards[0].friend.state).toBe("active");
+  });
+
+  it("refuses an invite 7 days old or more, and tells a joiner who answered too late", async () => {
+    const host = new FakeHost();
+    const emma = session(host, "emma", 1);
+    const ana = session(host, "ana", 2);
+    const invited = await createInvite(emma, await enableFriends(emma, "EmmaQuokka"), "2026-11-01");
+    let anaState = await enableFriends(ana, "AnaPangolin");
+    const invite = await readInvite(ana, anaState, invited, "2026-11-02");
+    await expect(readInvite(ana, anaState, invited, "2026-11-08")).rejects.toBeInstanceOf(InviteNotFoundError);
+    // An answer written on day 9 (read earlier, accepted late) is refused by the inviter...
+    anaState = await acceptInvite(ana, anaState, invited.secret, invite, "2026-11-10");
+    const emmaSees = await refreshFriends(emma, invited.state, "2026-11-10");
+    expect(emmaSees.cards).toEqual([]);
+    expect(emmaSees.state.book.invites).toEqual([]);
+    // ...and the joiner hears it ended, so it stops waiting.
+    const anaSees = await refreshFriends(ana, anaState, "2026-11-10");
+    expect(anaSees.cards[0].friend.state).toBe("ended");
+  });
+});
+
 describe("devices with an old copy of the book", () => {
+  it("repairs 'ended' after a publish from an old copy lands after a removal", async () => {
+    const host = new FakeHost();
+    const { emma, ana, emmaState, anaState } = await befriend(host);
+    await removeFriendAndTell(emma, emmaState, emmaState.book.friends[0].id, TODAY);
+    // Another tab still holds the old copy and publishes from it.
+    await publishStatus(emma, emmaState.book, DIARY, TODAY);
+    const anaSees = await refreshFriends(ana, anaState, TODAY);
+    expect(readStatus(anaSees.cards[0].status!, TODAY)).toEqual({ kind: "ended" });
+  });
+
+  it("turning off from an old copy still tells a friend added on another device", async () => {
+    const host = new FakeHost();
+    const { emma, ana, emmaState, anaState } = await befriend(host);
+    const staleCopy = emmaState;
+    // A third person joins on another of Emma's devices.
+    const cara = session(host, "cara", 3);
+    const invited = await createInvite(emma, (await loadBook(emma))!, TODAY);
+    let caraState = await enableFriends(cara, "CaraOcelot");
+    caraState = await acceptInvite(cara, caraState, invited.secret, await readInvite(cara, caraState, invited, TODAY), TODAY);
+    await publishStatus(cara, caraState.book, DIARY, TODAY);
+    const emmaNow = (await refreshFriends(emma, invited.state, TODAY)).state;
+    await publishStatus(emma, emmaNow.book, DIARY, TODAY);
+    await turnOffFriends(emma, staleCopy, TODAY);
+    expect(readStatus((await refreshFriends(cara, caraState, TODAY)).cards[0].status!, TODAY)).toEqual({ kind: "ended" });
+    expect(readStatus((await refreshFriends(ana, anaState, TODAY)).cards[0].status!, TODAY)).toEqual({ kind: "ended" });
+  });
+
   it("cannot undo a removal made on another device", async () => {
     const host = new FakeHost();
     const { emma, ana, emmaState, anaState } = await befriend(host);

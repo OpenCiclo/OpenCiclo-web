@@ -10,7 +10,6 @@ import { MAX_FRIENDS, MAX_PENDING_INVITES } from "@/lib/friends/limits";
 import {
   addFriend,
   addInvite,
-  dropDuplicates,
   FriendBookFullError,
   newFriendBook,
   NewerFriendBookError,
@@ -70,25 +69,6 @@ describe("friend book", () => {
     book = setProfile(updateFriend(book, entry.id, { paused: false }), { pausedAll: true });
     expect(sharesWith(book, book.friends[0])).toBe(false);
     expect(removeFriend(book, entry.id).friends).toEqual([]);
-  });
-
-  it("keeps the same one of two entries for one person on both devices", () => {
-    const person = "b".repeat(32);
-    const first = addFriend(addFriend(newFriendBook("Ana"), friend(7, person)), friend(3, person));
-    const second = addFriend(addFriend(newFriendBook("Emma"), friend(3, person)), friend(7, person));
-    const a = dropDuplicates(first);
-    const b = dropDuplicates(second);
-    expect(a.book.friends.map((entry) => entry.key)).toEqual([key(3)]);
-    expect(b.book.friends.map((entry) => entry.key)).toEqual([key(3)]);
-    expect(a.dropped.map((entry) => entry.key)).toEqual([key(7)]);
-  });
-
-  it("never drops a working friendship for a waiting entry of the same person", () => {
-    const person = "c".repeat(32);
-    const book = addFriend(addFriend(newFriendBook("Ana"), friend(7, person)), { ...friend(3, person), state: "waiting" });
-    const { book: kept, dropped } = dropDuplicates(book);
-    expect(dropped).toEqual([]);
-    expect(kept.friends.map((entry) => entry.key).sort()).toEqual([key(3), key(7)].sort());
   });
 
   it("keeps an ended friend, and publishes nothing to them", async () => {
