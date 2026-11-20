@@ -54,6 +54,8 @@ export default function OnboardingPage() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const checkIndex = useMemo(() => (wallet ? 2 : 0), [wallet]);
+  // The app can also keep the diary on the phone, with no account.
+  const tooManySignupsMessage = IS_ANDROID_APP ? `${t.tooManySignups} ${t.tooManySignupsDevice}` : t.tooManySignups;
 
   function generate() {
     setWallet(startOnboarding());
@@ -83,7 +85,7 @@ export default function OnboardingPage() {
         cause instanceof UpdateRequiredError
           ? updateErrorMessage(cause, t)
           : cause instanceof HttpError && cause.status === 429
-            ? t.tooManyEmailCodes
+            ? tooManySignupsMessage
             : t.errorGeneric,
       );
     } finally {
@@ -111,6 +113,8 @@ export default function OnboardingPage() {
     } catch (cause) {
       if (cause instanceof MailNotConfiguredError) setError(t.mailNotConfigured);
       else if (cause instanceof RateLimitedError) setError(t.tooManyEmailCodes);
+      // A 429 from creating the account itself (the per-network sign-up limit).
+      else if (cause instanceof HttpError && cause.status === 429) setError(tooManySignupsMessage);
       else if (cause instanceof UpdateRequiredError) setError(updateErrorMessage(cause, t));
       else setError(t.errorGeneric);
     } finally {
@@ -307,6 +311,7 @@ export default function OnboardingPage() {
               <Button type="button" variant="outline" disabled={busy} onClick={() => void resend()}>
                 {t.resendCode}
               </Button>
+              <p className="text-xs text-muted-foreground">{t.codeDelayedSignup}</p>
               <button
                 type="button"
                 className="text-sm underline"

@@ -4,7 +4,10 @@
 import postgres from "postgres";
 import { describe, expect, it } from "vitest";
 
-const databaseUrl = process.env.DATABASE_URL;
+import { testDatabaseUrl } from "@/lib/db/test-db";
+
+// Local Postgres only: a non-local DATABASE_URL is refused (lib/db/test-db.ts).
+const databaseUrl = testDatabaseUrl;
 
 describe.skipIf(!databaseUrl)("mailbox pending database", () => {
   it("does not fetch pending kits; verified kits fetch; delete frees the lookup", async () => {

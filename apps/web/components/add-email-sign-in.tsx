@@ -115,6 +115,7 @@ export function AddEmailSignIn({ disabled, onDone }: { disabled: boolean; onDone
             {t.changeEmail}
           </Button>
         </div>
+        <p className="text-xs text-muted-foreground">{t.codeDelayedAddEmail}</p>
       </form>
     );
   }

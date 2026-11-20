@@ -6,6 +6,7 @@ import { eq } from "drizzle-orm";
 import { researchContributions } from "@/lib/db/schema";
 import { getDb } from "@/lib/db";
 import { jsonError } from "@/lib/server/env";
+import { apiRoute, readJson } from "@/lib/server/http";
 import { hashPoolContributorKey } from "@/lib/server/pool-key";
 import { sourceKey, takeRateLimit, tooManyRequests } from "@/lib/server/rate-limit";
 import { upsertPoolContribution } from "@/lib/server/research-pool";
@@ -29,15 +30,16 @@ function parseContributorKey(raw: unknown): string | null {
   return hashPoolContributorKey(raw);
 }
 
-export async function POST(request: Request) {
+export const POST = apiRoute(async (request: Request) => {
   const outdated = rejectOutdatedClient(request);
   if (outdated) return outdated;
-  const body = (await request.json()) as { contributorKey?: unknown; cycleLengths?: unknown };
-  const contributorKeyHash = parseContributorKey(body.contributorKey);
+  const parsed = await readJson(request);
+  if (!parsed.ok) return parsed.response;
+  const contributorKeyHash = parseContributorKey(parsed.body.contributorKey);
   if (!contributorKeyHash) {
     return jsonError("contributorKey must be a UUID", 400);
   }
-  const cycleLengths = parseCycleLengths(body.cycleLengths);
+  const cycleLengths = parseCycleLengths(parsed.body.cycleLengths);
   if (!cycleLengths) {
     return jsonError("Send between 1 and 200 cycle lengths (integers 1–90)", 400);
   }
@@ -51,13 +53,14 @@ export async function POST(request: Request) {
   await upsertPoolContribution(db, contributorKeyHash, cycleLengths);
 
   return Response.json({ ok: true });
-}
+});
 
-export async function DELETE(request: Request) {
+export const DELETE = apiRoute(async (request: Request) => {
   const outdated = rejectOutdatedClient(request);
   if (outdated) return outdated;
-  const body = (await request.json()) as { contributorKey?: unknown };
-  const contributorKeyHash = parseContributorKey(body.contributorKey);
+  const parsed = await readJson(request);
+  if (!parsed.ok) return parsed.response;
+  const contributorKeyHash = parseContributorKey(parsed.body.contributorKey);
   if (!contributorKeyHash) {
     return jsonError("contributorKey must be a UUID", 400);
   }
@@ -68,4 +71,4 @@ export async function DELETE(request: Request) {
     .where(eq(researchContributions.contributorKeyHash, contributorKeyHash));
 
   return Response.json({ ok: true });
-}
+});

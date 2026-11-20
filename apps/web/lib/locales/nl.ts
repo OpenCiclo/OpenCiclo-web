@@ -88,7 +88,11 @@ const locale: LocaleModule = {
     mailNotConfigured:
       "Deze server kan nu geen e-mail versturen. Probeer het later opnieuw of gebruik de superprivémodus.",
     tooManyEmailCodes: "Te veel pogingen. Wacht even en probeer het opnieuw.",
+    tooManySignups: "Vanaf dit netwerk zijn te veel nieuwe accounts aangemaakt. Probeer het later opnieuw. Heb je al een dagboek? Log dan in met je herstelzin van 12 woorden.",
+    tooManySignupsDevice: "Je kunt ook „Alleen op dit apparaat” kiezen, daarvoor heb je geen account nodig.",
     verifyEmailInvalid: "Die code is ongeldig of verlopen. Vraag een nieuwe aan.",
+    codeDelayedSignup: "Is de code er na een paar minuten nog niet? Ga terug en kies „Superprivémodus”: je hebt alleen je herstelzin van 12 woorden nodig.",
+    codeDelayedAddEmail: "Is de code er na een paar minuten nog niet? Je kunt blijven inloggen met je herstelzin van 12 woorden.",
     copy: "Kopiëren",
     download: "Downloaden",
     copied: "Gekopieerd",

@@ -16,22 +16,21 @@ export type VaultWriteResult =
   | { ok: false; current: VaultBlob & { version: number } };
 
 /**
- * Saves the encrypted diary. With `baseVersion`, the write only lands if the
- * stored version still matches (compare-and-set in one UPDATE); otherwise the
- * caller gets the current blob back to merge. Without it (clients from before
- * versioning), the write is unconditional, as before, but still bumps the
- * version so newer clients notice it.
+ * Saves the encrypted diary on top of `baseVersion`: the write only lands if
+ * the stored version still matches (compare-and-set in one UPDATE); otherwise
+ * the caller gets the current blob back to merge. Every client sends a base
+ * version; `PUT /api/vault` refuses a save without one.
  *
- * Either way it never lands over a diary stored with a newer format
- * (`schemaVersion`): an app build that does not know that format would have
- * dropped what it cannot read. The caller gets the current blob back instead,
- * which that build then shows read-only (lib/diary.ts, `NewerDiaryError`).
+ * It never lands over a diary stored with a newer format (`schemaVersion`):
+ * an app build that does not know that format would have dropped what it
+ * cannot read. The caller gets the current blob back instead, which that build
+ * then shows read-only (lib/diary.ts, `NewerDiaryError`).
  */
 export async function writeVault(
   db: Db,
   accountId: string,
   blob: VaultBlob,
-  baseVersion: number | null,
+  baseVersion: number,
 ): Promise<VaultWriteResult> {
   const notOlder = lte(accounts.schemaVersion, blob.schemaVersion);
   const updated = await db
@@ -43,11 +42,7 @@ export async function writeVault(
       updatedAt: new Date(),
       vaultVersion: sql`${accounts.vaultVersion} + 1`,
     })
-    .where(
-      baseVersion === null
-        ? and(eq(accounts.id, accountId), notOlder)
-        : and(eq(accounts.id, accountId), eq(accounts.vaultVersion, baseVersion), notOlder),
-    )
+    .where(and(eq(accounts.id, accountId), eq(accounts.vaultVersion, baseVersion), notOlder))
     .returning({ version: accounts.vaultVersion });
   if (updated[0]) return { ok: true, version: updated[0].version };
 
@@ -91,8 +86,26 @@ export async function deleteAccountRow(
   return still[0] ? "changed" : "gone";
 }
 
-export function parseBaseVersion(value: unknown): number | null | "invalid" {
-  if (value === undefined || value === null) return null;
+/** `baseVersion` from a save request: required, a non-negative integer. */
+export function parseBaseVersion(value: unknown): number | "missing" | "invalid" {
+  if (value === undefined || value === null) return "missing";
   if (typeof value === "number" && Number.isInteger(value) && value >= 0) return value;
   return "invalid";
+}
+
+/** The diary blob of the account signed in with this key, and the account id. One query. */
+export async function readVault(db: Db, pubkeyHash: string) {
+  const rows = await db
+    .select({
+      id: accounts.id,
+      ciphertext: accounts.ciphertext,
+      nonce: accounts.nonce,
+      schemaVersion: accounts.schemaVersion,
+      updatedAt: accounts.updatedAt,
+      version: accounts.vaultVersion,
+    })
+    .from(accounts)
+    .where(eq(accounts.pubkeyHash, pubkeyHash))
+    .limit(1);
+  return rows[0] ?? null;
 }

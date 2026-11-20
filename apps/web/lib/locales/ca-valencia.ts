@@ -40,6 +40,10 @@ const locale: LocaleModule = {
     mailNotConfigured:
       "Ara mateix este servidor no pot enviar correus. Torna-ho a provar més tard o usa el mode superprivat.",
     verifyEmailInvalid: "Este codi no és vàlid o ha caducat. Sol·licita'n un de nou.",
+    tooManySignups: "S'han creat massa comptes des d'esta xarxa. Torna-ho a provar més tard. Si ja tens un diari, entra amb la teua frase de 12 paraules.",
+    tooManySignupsDevice: "També pots triar «Només en este dispositiu», que no necessita compte.",
+    codeDelayedSignup: "El codi no arriba al cap d'uns minuts? Torna arrere i tria «Mode superprivat»: només necessites la teua frase de 12 paraules.",
+    codeDelayedAddEmail: "El codi no arriba al cap d'uns minuts? Pots continuar entrant amb la teua frase de 12 paraules.",
     confirmTitle: "Confirma que l'has guardada",
     unlockBody: "Correu i contrasenya, o la teua frase de 12 paraules si vas triar el mode superprivat.",
     passwordHint: "Mínim 8 caràcters. El navegador la pot guardar com qualsevol altra contrasenya.",
