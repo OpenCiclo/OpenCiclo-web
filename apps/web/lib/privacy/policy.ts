@@ -19,7 +19,7 @@ import { DATABASE_PLACE, FUNCTION_REGIONS, type HostingRegion } from "@/lib/priv
 import type { LegalBlock, LegalDoc } from "@/lib/privacy/legal-doc";
 
 /** The day this text last changed (YYYY-MM-DD). Change it with the text. */
-export const PRIVACY_POLICY_UPDATED = "2026-11-19";
+export const PRIVACY_POLICY_UPDATED = "2026-11-20";
 
 /**
  * What a diary can hold, in plain words. Keep it in step with

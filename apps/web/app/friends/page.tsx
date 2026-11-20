@@ -5,24 +5,21 @@
 
 import { useEffect, useState } from "react";
 import { notFound } from "next/navigation";
-import { RefreshCw } from "lucide-react";
+import { FlaskConical, RefreshCw, Settings2 } from "lucide-react";
 
-import { apiUrl } from "@/lib/app-target";
 import { useCiclo, useTodayIso } from "@/lib/client/ciclo-context";
-import { inviteFingerprint, InviteNotFoundError, InviteUsedError, OwnInviteError } from "@/lib/client/friends-sync";
+import { InviteNotFoundError, InviteUsedError, OwnInviteError } from "@/lib/client/friends-sync";
 import { takePendingInvite } from "@/lib/client/pending-invite";
 import { FRIENDS_AVAILABLE } from "@/lib/features";
 import { FriendBookFullError, sharesWith } from "@/lib/friends/book";
-import { fromBase64Url, toBase64Url } from "@/lib/friends/crypto";
-import { inviteLink, parseInvite } from "@/lib/friends/invite";
-import { MAX_NAME_LENGTH, MAX_NOTE_LENGTH } from "@/lib/friends/limits";
-import type { InviteMessage } from "@/lib/friends/payload";
-import { formatIsoUtc } from "@/lib/format-date";
+import { MAX_NAME_LENGTH } from "@/lib/friends/limits";
 import { AppShell } from "@/components/app-shell";
 import { useConfirmDialog } from "@/components/confirm-dialog";
 import { FriendPhaseCard } from "@/components/friends/friend-card";
 import { useFriends } from "@/components/friends/friends-provider";
-import { LinkQrCode } from "@/components/friends/link-qr";
+import { FriendsSettingsSheet } from "@/components/friends/friends-settings-sheet";
+import { InviteCard } from "@/components/friends/invite-card";
+import { NoteComposer } from "@/components/friends/note-composer";
 import { OfflineNotice } from "@/components/offline-notice";
 import { UpdateNotice } from "@/components/update-notice";
 import { Button } from "@/components/ui/button";
@@ -30,14 +27,11 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-const SWITCH_CLASS =
-  "h-7 w-12 shrink-0 cursor-pointer appearance-none rounded-full bg-muted-foreground/30 p-1 transition-colors before:block before:size-5 before:rounded-full before:bg-white before:shadow-sm before:transition-transform checked:bg-primary checked:before:translate-x-5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:cursor-not-allowed disabled:opacity-50";
-
-/** Where invite links point: the website (in the Android app, the API host), never the app's own origin. */
-function siteOrigin(): string {
-  return new URL(apiUrl("/"), window.location.href).origin;
-}
-
+/**
+ * The Friends screen. Top to bottom: the person's own note (a speech bubble),
+ * their friends' cards, one card to invite or join, and a button that opens
+ * the settings sheet.
+ */
 export default function FriendsPage() {
   if (!FRIENDS_AVAILABLE) notFound();
   const { t, wallet, storageMode, readOnly, locale } = useCiclo();
@@ -48,11 +42,8 @@ export default function FriendsPage() {
   const [busy, setBusy] = useState(false);
   const [consent, setConsent] = useState(false);
   const [name, setName] = useState("");
-  const [invite, setInvite] = useState<{ secret: string; link: string } | null>(null);
-  const [copied, setCopied] = useState<"link" | null>(null);
-  const [pasted, setPasted] = useState("");
-  const [received, setReceived] = useState<{ secret: Uint8Array; message: InviteMessage } | null>(null);
-  const [note, setNote] = useState<string | null>(null);
+  const [pendingCode, setPendingCode] = useState<string | null>(null);
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   const { refresh, status } = friends;
   const hosted = Boolean(wallet) && storageMode === "hosted";
@@ -63,7 +54,7 @@ export default function FriendsPage() {
     // An invite link opened on this tab (app/friends/join): read once, after the first paint.
     const code = takePendingInvite();
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    if (code) setPasted(code);
+    if (code) setPendingCode(code);
   }, [hosted, refresh]);
 
   if (!wallet) {
@@ -81,16 +72,38 @@ export default function FriendsPage() {
     return t.friendsLoadFailed;
   }
 
+  /** Runs a change, showing what went wrong; resolves either way. */
   async function act(work: () => Promise<void>) {
+    await attempt(work).catch(() => undefined);
+  }
+
+  /** Like act, but rejects after showing the error (the caller keeps its draft). */
+  async function attempt(work: () => Promise<void>) {
     setBusy(true);
     setMessage(null);
     try {
       await work();
     } catch (cause) {
       setMessage(errorText(cause));
+      throw cause;
     } finally {
       setBusy(false);
     }
+  }
+
+  async function turnOff() {
+    const ok = await confirm({
+      message: t.friendsTurnOffConfirm,
+      confirmLabel: t.friendsTurnOff,
+      cancelLabel: t.cancel,
+      destructive: true,
+    });
+    if (!ok) return;
+    setSettingsOpen(false);
+    void act(async () => {
+      await friends.turnOff();
+      setConsent(false);
+    });
   }
 
   const book = friends.book;
@@ -98,16 +111,21 @@ export default function FriendsPage() {
 
   return (
     <AppShell size="narrow">
+      {/* While Friends is new. Remove with the friendsExperimental* strings once it settles. */}
+      <div
+        role="note"
+        className="mb-4 flex items-start gap-3 rounded-2xl border border-primary/25 bg-primary/8 px-4 py-3 text-sm leading-snug"
+      >
+        <FlaskConical className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden />
+        <p>
+          <span className="font-bold text-primary">{t.friendsExperimentalTitle}</span>
+          <span className="text-muted-foreground"> · {t.friendsExperimental}</span>
+        </p>
+      </div>
       <div className="mb-3 flex items-center justify-between gap-3 desktop:mb-8">
         <h1 className="font-serif text-xl text-foreground desktop:text-4xl desktop:tracking-tight">{t.friends}</h1>
         {status === "on" ? (
-          <Button
-            type="button"
-            variant="ghost"
-            aria-label={t.friendsRefresh}
-            disabled={busy}
-            onClick={() => void act(() => refresh())}
-          >
+          <Button type="button" variant="ghost" aria-label={t.friendsRefresh} disabled={busy} onClick={() => void act(() => refresh())}>
             <RefreshCw className="size-4" aria-hidden />
           </Button>
         ) : null}
@@ -146,13 +164,7 @@ export default function FriendsPage() {
           </ul>
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="friends-name">{t.friendsYourName}</Label>
-            <Input
-              id="friends-name"
-              value={name}
-              maxLength={MAX_NAME_LENGTH}
-              autoComplete="nickname"
-              onChange={(event) => setName(event.target.value)}
-            />
+            <Input id="friends-name" value={name} maxLength={MAX_NAME_LENGTH} autoComplete="nickname" onChange={(event) => setName(event.target.value)} />
           </div>
           <label className="flex cursor-pointer items-start gap-3 text-sm leading-6">
             <input
@@ -163,17 +175,22 @@ export default function FriendsPage() {
             />
             <span>{t.friendsConsent}</span>
           </label>
-          <Button
-            type="button"
-            disabled={!consent || !name.trim() || busy || readOnly}
-            onClick={() => void act(() => friends.enable(name))}
-          >
+          <Button type="button" disabled={!consent || !name.trim() || busy || readOnly} onClick={() => void act(() => friends.enable(name))}>
             {t.friendsTurnOn}
           </Button>
-          <p className="text-xs leading-5 text-muted-foreground">{t.disclaimer}</p>
         </Card>
       ) : book ? (
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-5">
+          <NoteComposer
+            name={book.name}
+            note={book.note}
+            today={today}
+            t={t}
+            disabled={!writable || busy}
+            onSave={(text) => attempt(() => friends.setProfile({ note: { text, date: today } }))}
+            onClear={() => attempt(() => friends.setProfile({ note: null }))}
+          />
+
           {friends.cards.length === 0 ? (
             <Card className="rounded-3xl p-4 text-sm text-muted-foreground">{t.friendsEmpty}</Card>
           ) : (
@@ -185,24 +202,10 @@ export default function FriendsPage() {
                   today={today}
                   t={t}
                   youPaused={!sharesWith(book, card.friend)}
-                >
-                  {card.friend.state !== "ended" ? (
-                    <Button
-                      type="button"
-                      variant="outline"
-                      className="h-8 px-3 text-xs"
-                      disabled={!writable || busy}
-                      onClick={() => void act(() => friends.setFriendPaused(card.friend.id, !card.friend.paused))}
-                    >
-                      {(card.friend.paused ? t.friendsResumeOne : t.friendsPauseOne).replace("{name}", card.friend.name)}
-                    </Button>
-                  ) : null}
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    className="h-8 px-3 text-xs text-muted-foreground"
-                    disabled={!writable || busy}
-                    onClick={async () => {
+                  actions={{
+                    disabled: !writable || busy,
+                    onTogglePause: () => void act(() => friends.setFriendPaused(card.friend.id, !card.friend.paused)),
+                    onRemove: async () => {
                       const ok = await confirm({
                         message: t.friendsRemoveConfirm.replace("{name}", card.friend.name),
                         confirmLabel: t.friendsRemove.replace("{name}", card.friend.name),
@@ -210,256 +213,41 @@ export default function FriendsPage() {
                         destructive: true,
                       });
                       if (ok) void act(() => friends.removeFriend(card.friend.id));
-                    }}
-                  >
-                    {t.friendsRemove.replace("{name}", card.friend.name)}
-                  </Button>
-                </FriendPhaseCard>
+                    },
+                  }}
+                />
               ))}
+              <p className="text-xs leading-5 text-muted-foreground">{t.friendsEstimatesNote}</p>
             </div>
           )}
-          <p className="text-xs leading-5 text-muted-foreground">{t.friendsEstimatesNote}</p>
 
-          <Card className="flex flex-col gap-3 rounded-3xl p-4">
-            <p className="font-medium">{t.friendsInvite}</p>
-            {invite ? (
-              <>
-                <p className="text-sm leading-6 text-muted-foreground">{t.friendsInviteHint}</p>
-                <div className="flex justify-center">
-                  <LinkQrCode text={invite.link} label={t.friendsInvite} />
-                </div>
-                <Input readOnly value={invite.link} onFocus={(event) => event.currentTarget.select()} aria-label={t.friendsCopyLink} />
-                <Button
-                  type="button"
-                  onClick={async () => {
-                    await navigator.clipboard?.writeText(invite.link).catch(() => undefined);
-                    setCopied("link");
-                  }}
-                >
-                  {copied === "link" ? t.friendsLinkCopied : t.friendsCopyLink}
-                </Button>
-              </>
-            ) : (
-              <Button
-                type="button"
-                disabled={!writable || busy}
-                onClick={() =>
-                  void act(async () => {
-                    const created = await friends.createInvite();
-                    setCopied(null);
-                    setInvite({
-                      secret: toBase64Url(created.secret),
-                      link: inviteLink(siteOrigin(), created.secret, created.fingerprint),
-                    });
-                  })
-                }
-              >
-                {t.friendsInvite}
-              </Button>
-            )}
-          </Card>
+          <InviteCard
+            book={book}
+            today={today}
+            locale={locale}
+            t={t}
+            writable={writable}
+            busy={busy}
+            initialCode={pendingCode}
+            act={act}
+            onUnreadable={() => setMessage(t.friendsInviteUnreadable)}
+          />
 
-          <Card className="flex flex-col gap-3 rounded-3xl p-4">
-            <Label htmlFor="friends-paste">{t.friendsHaveInvite}</Label>
-            {received ? (
-              <>
-                <p className="text-sm leading-6">{t.friendsInvitedBy.replace("{name}", received.message.name)}</p>
-                <div className="grid grid-cols-2 gap-2">
-                  <Button type="button" variant="outline" onClick={() => setReceived(null)}>
-                    {t.cancel}
-                  </Button>
-                  <Button
-                    type="button"
-                    disabled={!writable || busy}
-                    onClick={() =>
-                      void act(async () => {
-                        await friends.acceptInvite(received.secret, received.message);
-                        setReceived(null);
-                        setPasted("");
-                      })
-                    }
-                  >
-                    {t.friendsAccept}
-                  </Button>
-                </div>
-              </>
-            ) : (
-              <>
-                <Input
-                  id="friends-paste"
-                  value={pasted}
-                  placeholder={t.friendsPasteInvite}
-                  autoCapitalize="none"
-                  autoCorrect="off"
-                  spellCheck={false}
-                  onChange={(event) => setPasted(event.target.value)}
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  disabled={!pasted.trim() || busy || !writable}
-                  onClick={() =>
-                    void act(async () => {
-                      const link = parseInvite(pasted);
-                      if (!link) {
-                        setMessage(t.friendsInviteUnreadable);
-                        return;
-                      }
-                      setReceived({ secret: link.secret, message: await friends.readInvite(link) });
-                    })
-                  }
-                >
-                  {t.friendsOpenInvite}
-                </Button>
-              </>
-            )}
-          </Card>
+          <Button type="button" variant="outline" className="self-center rounded-full px-5" onClick={() => setSettingsOpen(true)}>
+            <Settings2 className="size-4" aria-hidden />
+            {t.friendsSettingsTitle}
+          </Button>
 
-          {book.invites.length > 0 ? (
-            <Card className="flex flex-col gap-2 rounded-3xl p-4">
-              <p className="font-medium">{t.friendsPendingInvites}</p>
-              {book.invites.map((pending) => {
-                const secret = fromBase64Url(pending.secret);
-                return (
-                  <div key={pending.secret} className="flex items-center justify-between gap-3 text-sm">
-                    <span className="text-muted-foreground">
-                      {t.friendsInviteSince.replace("{date}", formatIsoUtc(pending.createdAt, locale, { day: "numeric", month: "short" }))}
-                    </span>
-                    <div className="flex gap-1">
-                      {secret ? (
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          className="h-8 px-2 text-xs"
-                          onClick={() =>
-                            setInvite({ secret: pending.secret, link: inviteLink(siteOrigin(), secret, inviteFingerprint(pending)) })
-                          }
-                        >
-                          {t.friendsCopyLink}
-                        </Button>
-                      ) : null}
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        className="h-8 px-2 text-xs text-muted-foreground"
-                        disabled={!writable || busy}
-                        onClick={() =>
-                          void act(async () => {
-                            await friends.revokeInvite(pending.secret);
-                            if (invite?.secret === pending.secret) setInvite(null);
-                          })
-                        }
-                      >
-                        {t.friendsCancelInvite}
-                      </Button>
-                    </div>
-                  </div>
-                );
-              })}
-            </Card>
-          ) : null}
-
-          <Card className="flex flex-col gap-3 rounded-3xl p-4">
-            <p className="font-medium">{t.friendsYourSharing}</p>
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="friends-own-name">{t.friendsYourName}</Label>
-              <Input
-                id="friends-own-name"
-                defaultValue={book.name}
-                maxLength={MAX_NAME_LENGTH}
-                disabled={!writable}
-                onBlur={(event) => {
-                  const next = event.target.value.trim();
-                  if (next && next !== book.name) void act(() => friends.setProfile({ name: next }));
-                }}
-              />
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="friends-note">{t.friendsNote}</Label>
-              <textarea
-                id="friends-note"
-                className="min-h-16 rounded-2xl border border-border bg-background px-3 py-2 text-sm"
-                maxLength={MAX_NOTE_LENGTH}
-                placeholder={t.friendsNotePlaceholder}
-                disabled={!writable}
-                value={note ?? book.note?.text ?? ""}
-                onChange={(event) => setNote(event.target.value)}
-              />
-              <p className="text-xs text-muted-foreground">{t.friendsNoteHint}</p>
-              <div className="grid grid-cols-2 gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  disabled={!writable || busy || !book.note}
-                  onClick={() =>
-                    void act(async () => {
-                      await friends.setProfile({ note: null });
-                      setNote(null);
-                    })
-                  }
-                >
-                  {t.friendsClearNote}
-                </Button>
-                <Button
-                  type="button"
-                  disabled={!writable || busy || note === null || !note.trim()}
-                  onClick={() =>
-                    void act(async () => {
-                      await friends.setProfile({ note: { text: note ?? "", date: today } });
-                      setNote(null);
-                    })
-                  }
-                >
-                  {t.save}
-                </Button>
-              </div>
-            </div>
-            {(
-              [
-                ["friends-show-day", t.friendsShowDay, book.show.day, (value: boolean) => ({ show: { ...book.show, day: value } })],
-                ["friends-show-expected", t.friendsShowExpected, book.show.expected, (value: boolean) => ({ show: { ...book.show, expected: value } })],
-                ["friends-pause-all", t.friendsPauseAll, book.pausedAll, (value: boolean) => ({ pausedAll: value })],
-              ] as const
-            ).map(([id, label, checked, toChange]) => (
-              <label key={id} htmlFor={id} className="flex cursor-pointer items-center justify-between gap-4 rounded-2xl bg-muted/60 p-3">
-                <span className="text-sm font-semibold text-card-foreground">{label}</span>
-                <input
-                  id={id}
-                  type="checkbox"
-                  role="switch"
-                  className={SWITCH_CLASS}
-                  checked={checked}
-                  disabled={!writable || busy}
-                  onChange={(event) => void act(() => friends.setProfile(toChange(event.target.checked)))}
-                />
-              </label>
-            ))}
-            <p className="text-xs leading-5 text-muted-foreground">{t.friendsDatesNote}</p>
-            <Button
-              type="button"
-              variant="ghost"
-              className="text-destructive"
-              disabled={!writable || busy}
-              onClick={async () => {
-                const ok = await confirm({
-                  message: t.friendsTurnOffConfirm,
-                  confirmLabel: t.friendsTurnOff,
-                  cancelLabel: t.cancel,
-                  destructive: true,
-                });
-                if (ok) {
-                  void act(async () => {
-                    await friends.turnOff();
-                    setInvite(null);
-                    setConsent(false);
-                  });
-                }
-              }}
-            >
-              {t.friendsTurnOff}
-            </Button>
-          </Card>
-          <p className="text-xs leading-5 text-muted-foreground">{t.disclaimer}</p>
+          <FriendsSettingsSheet
+            open={settingsOpen}
+            book={book}
+            t={t}
+            writable={writable}
+            busy={busy}
+            act={act}
+            onClose={() => setSettingsOpen(false)}
+            onTurnOff={() => void turnOff()}
+          />
         </div>
       ) : null}
     </AppShell>

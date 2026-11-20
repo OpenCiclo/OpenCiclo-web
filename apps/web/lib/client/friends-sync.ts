@@ -272,11 +272,13 @@ export async function readInvite(
 /** The handshake box for the joiner entry `friend` (it holds K and, while waiting, S and its public key). */
 async function writeHandshake(
   session: FriendsSession,
-  friend: Pick<Friend, "key" | "handshake">,
+  friend: Pick<Friend, "key" | "handshake" | "since">,
   book: FriendBook,
-  today: string,
 ): Promise<"written" | "conflict"> {
   if (!friend.handshake) throw new Error("No handshake to write");
+  // Dated the day the friend accepted, also when written again later: the
+  // inviter judges the answer by it (in time if within the invite's 7 days).
+  const today = friend.since;
   const address = handshakeAddress(secretBytes(friend.handshake.secret), secretBytes(friend.key));
   const message: HandshakeMessage = {
     t: "handshake",
@@ -339,7 +341,7 @@ export async function acceptInvite(
     if (!entry) throw new Error("Friend not saved");
   }
   const key = entry.key;
-  if ((await writeHandshake(session, entry, next.book, today)) === "conflict") {
+  if ((await writeHandshake(session, entry, next.book)) === "conflict") {
     await updateBook(session, next, (book) => ({ ...book, friends: book.friends.filter((friend) => friend.key !== key) }));
     throw new InviteUsedError();
   }
@@ -515,7 +517,7 @@ export async function refreshFriends(
   for (const friend of lostHandshakes) {
     const current = saved.book.friends.find((entry) => entry.key === friend.key);
     if (!current?.handshake || current.state !== "waiting") continue;
-    await bestEffort(() => writeHandshake(session, current, saved.book, today));
+    await bestEffort(() => writeHandshake(session, current, saved.book));
   }
 
   return {
