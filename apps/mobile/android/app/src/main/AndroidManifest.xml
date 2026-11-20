@@ -10,8 +10,12 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
+        <!-- configChanges: Ciclo redraws itself (the WebView reflows) instead of Android
+             recreating the activity, which would reload the page and close a diary that
+             was not kept signed in. fontScale and fontWeightAdjustment: the system font
+             size and bold text settings. -->
         <activity
-            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|smallestScreenSize|screenLayout|uiMode|navigation|density"
+            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|smallestScreenSize|screenLayout|uiMode|navigation|density|fontScale|fontWeightAdjustment"
             android:name=".MainActivity"
             android:label="@string/title_activity_main"
             android:theme="@style/AppTheme.NoActionBarLaunch"

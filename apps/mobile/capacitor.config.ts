@@ -10,6 +10,9 @@ const config: CapacitorConfig = {
   // (emails on the recovery endpoints) and each plugin result, including the
   // phrase returned by DeviceVault.readPhrase. Debug through chrome://inspect.
   loggingBehavior: "none",
+  // No android.minWebViewVersion / server.errorPath: an old WebView is sent to
+  // webview-update.html by a script in the web layout instead (see
+  // apps/web/lib/webview-update-page.ts for why Capacitor's check misfires).
   plugins: {
     // The bundle is served from https://localhost and calls the Ciclo host for
     // /api. Native HTTP keeps the session cookie (httpOnly, SameSite=Lax) in the

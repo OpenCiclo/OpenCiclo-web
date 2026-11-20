@@ -14,6 +14,8 @@ export type DeviceVaultStatus = {
   phraseNeedsAuth: boolean;
   /** Android 11+ with a fingerprint or screen lock set up. */
   lockAvailable: boolean;
+  /** Android 11+: the app lock can work once a fingerprint or screen lock is set up. Missing in older app builds. */
+  lockSupported?: boolean;
 };
 
 /** Text for the system fingerprint / screen-lock sheet. */
@@ -38,6 +40,13 @@ export type DeviceVaultPlugin = {
   clearHostedCopy(): Promise<void>;
   setSecureScreen(options: { enabled: boolean }): Promise<void>;
   shareFile(options: { filename: string; data: string; mimeType: string }): Promise<void>;
+  /** Copies the phrase to the clipboard, marked sensitive (Android 13+ hides it from the preview). */
+  copySensitive(options: { text: string }): Promise<void>;
+  /**
+   * Empties the clipboard if it still holds what copySensitive put there.
+   * `checked: false`: the app could not look (Android 10+, not in front); try again later.
+   */
+  clearCopied(): Promise<{ checked: boolean }>;
 };
 
 const FILE_FORMAT = 1;

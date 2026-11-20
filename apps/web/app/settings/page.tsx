@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ChevronDown } from "lucide-react";
@@ -17,6 +17,7 @@ import { diaryToCsv, mergeDiaries, parseImportedFile, previewImport } from "@/li
 import { VISUAL_SEASONS_AVAILABLE } from "@/lib/features";
 import { AppShell } from "@/components/app-shell";
 import { AddEmailSignIn } from "@/components/add-email-sign-in";
+import { useConfirmDialog } from "@/components/confirm-dialog";
 import { InstallPrompt } from "@/components/install-prompt";
 import { LanguageSelect } from "@/components/language-select";
 import { OfflineNotice } from "@/components/offline-notice";
@@ -47,6 +48,9 @@ function SettingsDisclosure({ title, children }: { title: string; children: Reac
     </Card>
   );
 }
+
+// Where a message shows: next to the action it is about, not at the end of a long page.
+type MessageArea = "preferences" | "storage" | "password" | "backup" | "phrase" | "research" | "account";
 
 const SWITCH_CLASS =
   "h-7 w-12 shrink-0 cursor-pointer appearance-none rounded-full bg-muted-foreground/30 p-1 transition-colors before:block before:size-5 before:rounded-full before:bg-white before:shadow-sm before:transition-transform checked:bg-primary checked:before:translate-x-5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:cursor-not-allowed disabled:opacity-50";
@@ -81,6 +85,7 @@ export default function SettingsPage() {
     readOnly,
     diaryNewer,
     exportDiaryJson,
+    setLocale,
   } = useCiclo();
   const onDevice = storageMode === "device";
   // `readOnly`: the offline copy is open (Android), or this build must be updated
@@ -97,27 +102,66 @@ export default function SettingsPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordBusy, setPasswordBusy] = useState(false);
   const [researchOk, setResearchOk] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
+  const [message, setMessage] = useState<{ area: MessageArea; text: string } | null>(null);
   const [showPhrase, setShowPhrase] = useState(false);
-  const canChangePassword = !onDevice && (diary.recoveryEmailSet || Boolean(lastEmail()));
+  const [deleting, setDeleting] = useState(false);
+  // Android 11+ (the app lock needs it). Asked from the device when an on-device diary is open.
+  const [lockSupported, setLockSupported] = useState(true);
+  const [confirm, confirmDialog] = useConfirmDialog();
+  // The diary says whether this account has an email sign-in. The last email
+  // typed on this device does not: it outlives sign-out and other accounts.
+  const canChangePassword = !onDevice && diary.recoveryEmailSet;
+
+  useEffect(() => {
+    if (!IS_ANDROID_APP || !onDevice) return;
+    let cancelled = false;
+    void import("@/lib/client/device-storage")
+      .then(({ deviceVault }) => deviceVault.status())
+      .then((status) => {
+        if (!cancelled) setLockSupported(status.lockSupported !== false);
+      })
+      .catch(() => undefined);
+    return () => {
+      cancelled = true;
+    };
+  }, [onDevice]);
+
+  // `null` clears that area's message only.
+  function say(area: MessageArea, text: string | null) {
+    setMessage((current) => (text !== null ? { area, text } : current?.area === area ? null : current));
+  }
+
+  function notice(area: MessageArea) {
+    return message?.area === area ? (
+      <p role="status" className="text-sm">
+        {message.text}
+      </p>
+    ) : null;
+  }
+
+  function errorText(cause: unknown) {
+    return cause instanceof UpdateRequiredError ? t.updateNeededAction : t.errorGeneric;
+  }
 
   // `action` may return the message to show when it is done.
   async function runStorageAction(action: () => Promise<string | void>) {
     setStorageBusy(true);
-    setMessage(null);
+    say("storage", null);
     try {
       const done = await action();
-      if (done) setMessage(done);
+      if (done) say("storage", done);
     } catch (cause) {
-      setMessage(
-        cause instanceof UpdateRequiredError
-          ? t.updateNeededAction
-          : cause instanceof VaultChangedError
-            ? t.moveChangedElsewhere
-            : t.errorGeneric,
-      );
+      say("storage", cause instanceof VaultChangedError ? t.moveChangedElsewhere : errorText(cause));
     } finally {
       setStorageBusy(false);
+    }
+  }
+
+  async function exportFile(filename: string, body: () => string, type: string) {
+    try {
+      await saveFile(filename, body(), type);
+    } catch {
+      say("backup", t.errorGeneric);
     }
   }
   const [importPreview, setImportPreview] = useState<{ days: number; starts: number; raw: string } | null>(
@@ -148,7 +192,14 @@ export default function SettingsPage() {
       <Card className="flex flex-col gap-3 rounded-3xl">
         <div>
           <p className="text-sm font-semibold text-card-foreground">{t.language}</p>
-          <LanguageSelect className="mt-2" />
+          <LanguageSelect
+            className="mt-2"
+            onSelect={(next) => {
+              // TODO(integration): await setLocale(next) once the context returns its save
+              // promise, and say("preferences", errorText(cause)) when the save fails.
+              setLocale(next);
+            }}
+          />
         </div>
         <label
           htmlFor="visual-seasons"
@@ -189,7 +240,10 @@ export default function SettingsPage() {
             checked={diary.forecastingEnabled !== false}
             disabled={readOnly}
             onChange={(event) => {
-              void persistDiary({ ...diary, forecastingEnabled: event.target.checked });
+              say("preferences", null);
+              persistDiary({ ...diary, forecastingEnabled: event.target.checked }).catch((cause) => {
+                say("preferences", errorText(cause));
+              });
             }}
             className={SWITCH_CLASS}
           />
@@ -233,6 +287,8 @@ export default function SettingsPage() {
             </Button>
           </div>
         </div>
+        {/* A language or forecast change that could not be saved says so here, by its control. */}
+        {notice("preferences")}
         <TimeZoneSelect />
         <div>
           <p className="text-sm font-semibold text-card-foreground">{t.colorScheme}</p>
@@ -282,16 +338,28 @@ export default function SettingsPage() {
             aria-label={t.storageTitle}
             aria-describedby="storage-mode-hint"
             value={onDevice ? "device" : "hosted"}
-            disabled={storageBusy || readOnly}
-            onChange={(event) => {
+            disabled={storageBusy || deleting || readOnly}
+            onChange={async (event) => {
+              // The select stays on the current place until the move is confirmed and done.
               if (event.target.value === "hosted" && onDevice) {
-                if (!window.confirm(t.moveToHostedConfirm)) return;
+                const confirmed = await confirm({
+                  message: t.moveToHostedConfirm,
+                  confirmLabel: t.next,
+                  cancelLabel: t.cancel,
+                });
+                if (!confirmed) return;
                 void runStorageAction(async () => {
                   await moveToHosted();
                   return t.moveToHostedDone;
                 });
               } else if (event.target.value === "device" && !onDevice) {
-                if (!window.confirm(t.moveToDeviceConfirm)) return;
+                const confirmed = await confirm({
+                  message: t.moveToDeviceConfirm,
+                  confirmLabel: t.next,
+                  cancelLabel: t.cancel,
+                  destructive: true,
+                });
+                if (!confirmed) return;
                 void runStorageAction(async () => {
                   const { hostedDeleted } = await moveToDevice();
                   return hostedDeleted === "confirmed"
@@ -319,7 +387,11 @@ export default function SettingsPage() {
               <div className="min-w-0">
                 <p className="text-sm font-semibold text-card-foreground">{t.appLock}</p>
                 <p id="app-lock-hint" className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
-                  {appLockAvailable || appLockEnabled ? t.appLockHint : t.appLockUnavailable}
+                  {appLockAvailable || appLockEnabled
+                    ? t.appLockHint
+                    : lockSupported
+                      ? t.appLockUnavailable
+                      : t.appLockNeedsAndroid11}
                 </p>
               </div>
               <input
@@ -328,7 +400,7 @@ export default function SettingsPage() {
                 role="switch"
                 aria-describedby="app-lock-hint"
                 checked={appLockEnabled}
-                disabled={storageBusy || (!appLockAvailable && !appLockEnabled)}
+                disabled={storageBusy || deleting || (!appLockAvailable && !appLockEnabled)}
                 onChange={(event) => {
                   const enabled = event.target.checked;
                   void runStorageAction(() => setAppLock(enabled));
@@ -337,6 +409,7 @@ export default function SettingsPage() {
               />
             </label>
           ) : null}
+          {notice("storage")}
         </SettingsDisclosure>
       ) : null}
       {canChangePassword ? (
@@ -347,11 +420,11 @@ export default function SettingsPage() {
             onSubmit={(event) => {
               event.preventDefault();
               if (nextPassword.length < 8) {
-                setMessage(t.passwordTooShort);
+                say("password", t.passwordTooShort);
                 return;
               }
               if (nextPassword !== confirmPassword) {
-                setMessage(t.passwordMismatch);
+                say("password", t.passwordMismatch);
                 return;
               }
               setPasswordBusy(true);
@@ -361,16 +434,10 @@ export default function SettingsPage() {
                   setCurrentPassword("");
                   setNextPassword("");
                   setConfirmPassword("");
-                  setMessage(t.changePasswordOk);
+                  say("password", t.changePasswordOk);
                 })
                 .catch((cause) => {
-                  setMessage(
-                    cause instanceof UpdateRequiredError
-                      ? t.updateNeededAction
-                      : cause instanceof InvalidCredentialsError
-                        ? t.invalidCredentials
-                        : t.errorGeneric,
-                  );
+                  say("password", cause instanceof InvalidCredentialsError ? t.invalidCredentials : errorText(cause));
                 })
                 .finally(() => {
                   setPasswordBusy(false);
@@ -430,22 +497,24 @@ export default function SettingsPage() {
       ) : onDevice ? null : (
         // A hosted account with no email sign-in: a phrase account, or one moved back from this device.
         <SettingsDisclosure title={t.addEmailTitle}>
-          <AddEmailSignIn disabled={readOnly} onDone={setMessage} />
+          <AddEmailSignIn disabled={readOnly} onDone={(text) => say("password", text)} />
         </SettingsDisclosure>
       )}
+      {/* Outside the section: adding an email swaps it for Change password, which starts closed. */}
+      {message?.area === "password" ? <p role="status" className="mt-3 text-sm">{message.text}</p> : null}
       <SettingsDisclosure title={t.backupTitle}>
         {/* A diary from a newer build exports as stored (exportDiaryJson): nothing this
             build cannot read is lost. CSV can only hold what this build reads, so it is off then. */}
         <Button
           variant="outline"
-          onClick={() => void saveFile("ciclo-diary.json", exportDiaryJson(), "application/json")}
+          onClick={() => void exportFile("ciclo-diary.json", exportDiaryJson, "application/json")}
         >
           {t.exportJson}
         </Button>
         <Button
           variant="outline"
           disabled={diaryNewer}
-          onClick={() => void saveFile("ciclo-diary.csv", diaryToCsv(diary), "text/csv")}
+          onClick={() => void exportFile("ciclo-diary.csv", () => diaryToCsv(diary), "text/csv")}
         >
           {t.exportCsv}
         </Button>
@@ -463,10 +532,10 @@ export default function SettingsPage() {
               const incoming = parseImportedFile(raw);
               const preview = previewImport(incoming);
               setImportPreview({ ...preview, raw });
-              setMessage(null);
+              say("backup", null);
             } catch (cause) {
               setImportPreview(null);
-              setMessage(cause instanceof NewerDiaryError ? t.importNewerFile : t.importInvalid);
+              say("backup", cause instanceof NewerDiaryError ? t.importNewerFile : t.importInvalid);
             }
           }}
         />
@@ -488,9 +557,10 @@ export default function SettingsPage() {
                   const incoming = parseImportedFile(importPreview.raw);
                   await persistDiary(mergeDiaries(diary, incoming, locale));
                   setImportPreview(null);
-                  setMessage(t.importOk);
+                  say("backup", t.importOk);
                 } catch (cause) {
-                  setMessage(
+                  say(
+                    "backup",
                     cause instanceof NewerDiaryError
                       ? t.importNewerFile
                       : cause instanceof UpdateRequiredError
@@ -504,16 +574,18 @@ export default function SettingsPage() {
             </Button>
           </>
         ) : null}
+        {notice("backup")}
       </SettingsDisclosure>
-      <SettingsDisclosure title={t.saveInBrowser}>
-        {onDevice ? null : (
+      {/* In the app there is no browser to save to: the section is the phrase itself (QR). */}
+      <SettingsDisclosure title={IS_ANDROID_APP ? t.onboardingTitle : t.saveInBrowser}>
+        {onDevice || IS_ANDROID_APP ? null : (
           <form
             className="flex flex-col gap-3"
             onSubmit={async (event) => {
               event.preventDefault();
               if (email && browserPassword) {
                 await storeBrowserPassword(email.trim().toLowerCase(), browserPassword);
-                setMessage(t.savedInBrowser);
+                say("phrase", t.savedInBrowser);
               }
             }}
           >
@@ -549,6 +621,7 @@ export default function SettingsPage() {
             <p className="text-center text-xs text-muted-foreground">{t.backupQrHint}</p>
           </div>
         ) : null}
+        {notice("phrase")}
       </SettingsDisclosure>
       <SettingsDisclosure title={t.researchTitle}>
         <p className="text-sm text-muted-foreground">{t.researchBenefit}</p>
@@ -581,7 +654,7 @@ export default function SettingsPage() {
                     await disablePoolOptIn();
                     setResearchOk(false);
                   } catch (cause) {
-                    setMessage(cause instanceof UpdateRequiredError ? t.updateNeededAction : t.errorGeneric);
+                    say("research", errorText(cause));
                   }
                 }}
               />
@@ -610,7 +683,7 @@ export default function SettingsPage() {
                   try {
                     await enablePoolOptIn();
                   } catch (cause) {
-                    setMessage(cause instanceof UpdateRequiredError ? t.updateNeededAction : t.poolNeedCycle);
+                    say("research", cause instanceof UpdateRequiredError ? t.updateNeededAction : t.poolNeedCycle);
                     event.target.checked = false;
                   }
                 }}
@@ -619,40 +692,54 @@ export default function SettingsPage() {
             </label>
           </>
         )}
+        {notice("research")}
       </SettingsDisclosure>
       <Card className="mt-4 flex flex-col gap-3 rounded-3xl">
         {onDevice ? null : (
           <Button
             variant="outline"
-            disabled={offlineCopy}
-            onClick={() => void signOut().then(() => router.push("/app"))}
+            disabled={offlineCopy || deleting}
+            onClick={() => {
+              say("account", null);
+              signOut()
+                .then(() => router.push("/app"))
+                .catch(() => say("account", t.errorGeneric));
+            }}
           >
             {t.logout}
           </Button>
         )}
         <Button
           variant="destructive"
-          disabled={storageBusy || offlineCopy}
+          disabled={storageBusy || deleting || offlineCopy}
+          aria-busy={deleting}
           onClick={async () => {
-            if (!window.confirm(onDevice ? t.deleteDeviceConfirm : t.deleteConfirm)) return;
-            setStorageBusy(true);
-            setMessage(null);
+            const confirmed = await confirm({
+              message: onDevice ? t.deleteDeviceConfirm : t.deleteConfirm,
+              confirmLabel: t.deleteAction,
+              cancelLabel: t.cancel,
+              destructive: true,
+            });
+            if (!confirmed) return;
+            setDeleting(true);
+            say("account", null);
             try {
               await wipe();
               router.push("/app");
             } catch {
-              setMessage(t.errorGeneric);
+              say("account", t.errorGeneric);
             } finally {
-              setStorageBusy(false);
+              setDeleting(false);
             }
           }}
         >
-          {onDevice ? t.deleteDeviceDiary : t.deleteAccount}
+          {deleting ? t.deleting : onDevice ? t.deleteDeviceDiary : t.deleteAccount}
         </Button>
+        {notice("account")}
       </Card>
-      {message ? <p className="mt-3 text-sm">{message}</p> : null}
       </div>
       </div>
+      {confirmDialog}
     </AppShell>
   );
 }

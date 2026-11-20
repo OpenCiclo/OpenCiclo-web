@@ -68,6 +68,8 @@ const es = {
   createWithEmail: "Correo y contraseña",
   createWithEmailHint:
     "Entra en cualquier dispositivo con el mismo correo y contraseña. Al crear la cuenta confirmas el buzón con un código. El diario se cifra en tu navegador; nosotras no podemos leerlo ni resetear tu contraseña.",
+  createWithEmailHintAndroid:
+    "Entra en cualquier dispositivo con el mismo correo y contraseña. Al crear la cuenta confirmas el buzón con un código. El diario se cifra en este móvil; nosotras no podemos leerlo ni resetear tu contraseña.",
   superPrivateMode: "Modo super privado",
   superPrivateHint:
     "Sin correo. Guardas 12 palabras. Máxima privacidad. Si las pierdes, no hay recuperación — exporta una copia como backup.",
@@ -124,6 +126,8 @@ const es = {
   onboardingTitle: "Tu frase de 12 palabras",
   onboardingBody:
     "Estas 12 palabras son la llave de tu diario. Guárdalas en el navegador o en un sitio seguro. Ciclo no puede recuperarlas.",
+  onboardingBodyAndroid:
+    "Estas 12 palabras son la llave de tu diario. Apúntalas o guárdalas en un sitio seguro. Ciclo no puede recuperarlas.",
   emailAccountTitle: "Correo y contraseña",
   emailAccountBody:
     "Elige un correo y una contraseña (mín. 8 caracteres). Te enviaremos un código de 6 dígitos a ese buzón para confirmar que es tuyo. No es un enlace de reset. Ciclo cifra el diario aquí. La contraseña nunca sale de tu dispositivo en claro.",
@@ -154,11 +158,14 @@ const es = {
   password: "Contraseña",
   confirmPassword: "Confirmar contraseña",
   passwordHint: "Mínimo 8 caracteres. El navegador puede guardarla como cualquier otra contraseña.",
+  passwordHintAndroid: "Mínimo 8 caracteres. Tu gestor de contraseñas puede guardarla como cualquier otra.",
   showPassword: "Mostrar contraseña",
   hidePassword: "Ocultar contraseña",
   keepLoggedIn: "Mantener la sesión iniciada",
   keepLoggedInHint:
     "En este navegador el diario queda abierto hasta que cierres sesión. Cualquiera con acceso a este perfil puede abrirlo.",
+  keepLoggedInHintAndroid:
+    "En este móvil el diario queda abierto hasta que cierres sesión. Cualquiera que use este móvil desbloqueado puede abrirlo.",
   saveInBrowser: "Guardar en el navegador",
   savedInBrowser: "El navegador puede pedirte guardar esto. Si aparece el aviso, acéptalo.",
   savePhraseInBrowserHint:
@@ -216,6 +223,7 @@ const es = {
   nextMonth: "Mes siguiente",
   today: "Hoy",
   clearDay: "Quitar registro",
+  clearDayConfirm: "¿Quitar todo lo registrado este día?",
   nextStart: "Próximo inicio más probable",
   expectedToStart: "Se esperaba que tu periodo empezara...",
   cycleLength: "Duración de ciclo",
@@ -251,8 +259,10 @@ const es = {
   importOk: "Datos importados.",
   importInvalid: "No se pudo leer el archivo.",
   deleteAccount: "Borrar cuenta y diario",
+  deleting: "Borrando…",
   deleteConfirm:
     "Esto borra el cifrado en el servidor y los datos de este dispositivo. El pool de investigación anónimo no se puede deshacer. ¿Continuar?",
+  deleteAction: "Borrar",
   email: "Correo",
   researchTitle: "Contribuir al pool anónimo",
   researchBenefit:
@@ -270,12 +280,16 @@ const es = {
   address: "Identidad pública",
   logout: "Cerrar sesión en este dispositivo",
   errorGeneric: "Algo falló. Inténtalo de nuevo.",
+  screenErrorTitle: "Algo falló en esta pantalla",
+  screenErrorBody: "Tu diario no se ha tocado. Si reintentar no lo arregla, exporta una copia.",
   invalidPhrase: "Frase no válida.",
   noAccountForPhrase: "No hay ninguna cuenta con esa frase. Revisa las 12 palabras o crea una cuenta nueva.",
   wordMismatch: "Esa palabra no coincide.",
   privacyTitle: "Privacidad",
   privacyBody1:
     "Las fechas se cifran en el navegador con AES-GCM. El servidor guarda solo ciphertext. Puedes usar correo y contraseña o el modo super privado con 12 palabras.",
+  privacyBody1Android:
+    "Las fechas se cifran en este móvil con AES-GCM. El servidor guarda solo ciphertext. Puedes usar correo y contraseña o el modo super privado con 12 palabras.",
   privacyBody2:
     "Ciclo no puede resetear tu contraseña ni tu frase. Si las pierdes, el diario alojado se pierde. Eso protege tu privacidad: nadie — ni nosotras — puede leer tu diario en el servidor.",
   privacyBody3:
@@ -284,6 +298,7 @@ const es = {
     "Los síntomas, el flujo, el moco cervical y las notas breves del día se quedan dentro del diario cifrado. El servidor no añade columnas de salud. El pool anónimo solo recibe duraciones de ciclo (números enteros); las notas nunca se envían ni se analizan.",
   privacyBody5: "El pool de investigación no guarda un mapa de tu cuenta al identificador anónimo.",
   welcomeCta: "Empieza en el navegador. Las fechas se cifran antes de salir del dispositivo.",
+  welcomeCtaAndroid: "Empieza aquí. Las fechas se cifran antes de salir de este móvil.",
   restoreFailedTitle: "No pudimos abrir tu diario",
   restoreFailedBody:
     "Puede ser la conexión o el servidor. Tu acceso sigue guardado en este dispositivo y tus datos no se han tocado.",
@@ -300,6 +315,9 @@ const es = {
   updateBodyCopy: "Esta versión de Ciclo es demasiado antigua para el servidor, así que ves la copia guardada en este móvil ({date}). Actualízala desde Google Play para ver las entradas más recientes y seguir editando.",
   updateSignInBodyWeb: "Recarga la página para tener la última versión de Ciclo y vuelve a iniciar sesión.",
   updateOpenStore: "Abrir Google Play",
+  webviewUpdateTitle: "Actualiza Android System WebView",
+  webviewUpdateBody:
+    "Ciclo necesita una versión más reciente de Android System WebView. Actualízala desde Google Play, y también Google Chrome si lo tienes, y vuelve a abrir Ciclo.",
   updateReload: "Recargar",
   updateDayHint: "Actualiza Ciclo para cambiar este día.",
   updateNeededAction: "Actualiza Ciclo para hacer esto.",
@@ -334,12 +352,13 @@ const es = {
   moveToDeviceHint:
     "Guarda tu diario cifrado en este móvil y borra tu cuenta del servidor, también el acceso con correo y contraseña.",
   moveToDeviceConfirm:
-    "Tu diario se guardará solo en este móvil y se borrará tu cuenta del servidor, también el acceso con correo y contraseña. Antes, apunta tu frase de 12 palabras (Guardar en el navegador → Ver QR de la frase) y haz un export. ¿Continuar?",
+    "Tu diario se guardará solo en este móvil y se borrará tu cuenta del servidor, también el acceso con correo y contraseña. Antes, apunta tu frase de 12 palabras (Tu frase de 12 palabras → Ver QR de la frase) y haz un export. ¿Continuar?",
   moveToDeviceDone: "Tu diario ya está solo en este móvil.",
   appLock: "Bloquear con huella o PIN",
   appLockHint:
     "Pide tu huella o el bloqueo de pantalla al abrir Ciclo y tras 30 segundos fuera. También oculta la app en recientes y en capturas.",
   appLockUnavailable: "Configura una huella o un bloqueo de pantalla en Android para usarlo.",
+  appLockNeedsAndroid11: "El bloqueo de la app necesita Android 11 o posterior.",
   appLockPromptTitle: "Abrir Ciclo",
   appLockPromptSubtitle: "Confirma que eres tú para ver tu diario.",
   deleteDeviceDiary: "Borrar diario de este dispositivo",
@@ -439,6 +458,9 @@ const es = {
   backToLearn: "Volver a Aprender",
   noPatternsYet: "Registra al menos un inicio de periodo para ver patrones.",
   saveEntry: "Guardar",
+  discardDraftConfirm: "¿Descartar los cambios de este día?",
+  discardDraft: "Descartar",
+  keepEditing: "Seguir editando",
   mucusHintDry: "Poco o nada",
   mucusHintSticky: "Denso, pegajoso",
   mucusHintCreamy: "Tipo loción",
@@ -449,6 +471,8 @@ const es = {
   favoriteSymptom: "Añadir a favoritos",
   unfavoriteSymptom: "Quitar de favoritos",
   deleteCustomSymptom: "Eliminar {name}",
+  deleteCustomSymptomConfirm:
+    "¿Eliminar «{name}»? Se quitará de todos los días en que lo registraste. No se puede deshacer.",
   addCustomSymptom: "Crear síntoma personalizado",
   customSymptomName: "Nombre",
   customSymptomEmoji: "Emoji",
@@ -749,6 +773,8 @@ const en = {
   createWithEmail: "Email and password",
   createWithEmailHint:
     "Sign in on any device with the same email and password. Creating the account confirms the inbox with a code. Your diary is encrypted in the browser; we cannot read it or reset your password.",
+  createWithEmailHintAndroid:
+    "Sign in on any device with the same email and password. Creating the account confirms the inbox with a code. Your diary is encrypted on this phone; we cannot read it or reset your password.",
   superPrivateMode: "Super private mode",
   superPrivateHint:
     "No email. You keep 12 words. Maximum privacy. If you lose them, there is no recovery — export a backup.",
@@ -805,6 +831,8 @@ const en = {
   onboardingTitle: "Your 12-word phrase",
   onboardingBody:
     "These 12 words are the key to your diary. Save them in the browser or somewhere safe. Ciclo cannot recover them.",
+  onboardingBodyAndroid:
+    "These 12 words are the key to your diary. Write them down or keep them somewhere safe. Ciclo cannot recover them.",
   emailAccountTitle: "Email and password",
   emailAccountBody:
     "Choose an email and a password (min. 8 characters). We send a 6-digit code to that inbox once to prove it is yours. It is not a reset link. Ciclo encrypts the diary here. Your password never leaves the device in the clear.",
@@ -835,11 +863,14 @@ const en = {
   password: "Password",
   confirmPassword: "Confirm password",
   passwordHint: "At least 8 characters. Your browser can save it like any other password.",
+  passwordHintAndroid: "At least 8 characters. Your password manager can save it like any other password.",
   showPassword: "Show password",
   hidePassword: "Hide password",
   keepLoggedIn: "Keep me signed in",
   keepLoggedInHint:
     "This browser stays unlocked until you sign out. Anyone with this browser profile can open the diary.",
+  keepLoggedInHintAndroid:
+    "On this phone the diary stays open until you sign out. Anyone using this phone unlocked can open it.",
   saveInBrowser: "Save in the browser",
   savedInBrowser: "Your browser may ask to save this. If you see a prompt, accept it.",
   savePhraseInBrowserHint:
@@ -897,6 +928,7 @@ const en = {
   nextMonth: "Next month",
   today: "Today",
   clearDay: "Clear log",
+  clearDayConfirm: "Remove everything logged on this day?",
   nextStart: "Most likely next start",
   expectedToStart: "Your period was expected to start...",
   cycleLength: "Cycle length",
@@ -932,8 +964,10 @@ const en = {
   importOk: "Data imported.",
   importInvalid: "Could not read that file.",
   deleteAccount: "Delete account and diary",
+  deleting: "Deleting…",
   deleteConfirm:
     "This deletes server ciphertext and local data. Anonymous research rows cannot be undone. Continue?",
+  deleteAction: "Delete",
   email: "Email",
   researchTitle: "Contribute to the anonymous pool",
   researchBenefit:
@@ -951,12 +985,16 @@ const en = {
   address: "Public identity",
   logout: "Sign out on this device",
   errorGeneric: "Something went wrong. Try again.",
+  screenErrorTitle: "Something went wrong on this screen",
+  screenErrorBody: "Your diary was not changed. If trying again does not help, export a copy.",
   invalidPhrase: "Invalid phrase.",
   noAccountForPhrase: "No account uses this phrase. Check the 12 words, or create a new account.",
   wordMismatch: "That word does not match.",
   privacyTitle: "Privacy",
   privacyBody1:
     "Dates are encrypted in the browser with AES-GCM. The server stores ciphertext only. You can use email and password or super private mode with 12 words.",
+  privacyBody1Android:
+    "Dates are encrypted on this phone with AES-GCM. The server stores ciphertext only. You can use email and password or super private mode with 12 words.",
   privacyBody2:
     "Ciclo cannot reset your password or phrase. If you lose them, the hosted diary is gone. That protects your privacy: nobody — including us — can read your diary on the server.",
   privacyBody3:
@@ -965,6 +1003,7 @@ const en = {
     "Symptoms, flow, cervical mucus, and short day notes stay inside the encrypted diary. The server does not add health columns. The anonymous pool only receives cycle lengths (whole numbers); notes are never uploaded or analyzed.",
   privacyBody5: "The research pool does not store a map from your account to the anonymous id.",
   welcomeCta: "Start in the browser. Dates are encrypted before they leave the device.",
+  welcomeCtaAndroid: "Start here. Dates are encrypted before they leave this phone.",
   restoreFailedTitle: "We couldn't open your diary",
   restoreFailedBody:
     "It may be your connection or our server. Your sign-in is still saved on this device and your data was not touched.",
@@ -981,6 +1020,9 @@ const en = {
   updateBodyCopy: "This version of Ciclo is too old for the server, so this is the copy saved on this phone ({date}). Update it from Google Play to see newer entries and keep editing.",
   updateSignInBodyWeb: "Reload the page to get the latest Ciclo, then sign in again.",
   updateOpenStore: "Open Google Play",
+  webviewUpdateTitle: "Update Android System WebView",
+  webviewUpdateBody:
+    "Ciclo needs a newer version of Android System WebView. Update it from Google Play, and Google Chrome too if you have it, then open Ciclo again.",
   updateReload: "Reload",
   updateDayHint: "Update Ciclo to change this day.",
   updateNeededAction: "Update Ciclo to do this.",
@@ -1015,12 +1057,13 @@ const en = {
   moveToDeviceHint:
     "Saves your encrypted diary on this phone and deletes your account on the server, including email and password sign-in.",
   moveToDeviceConfirm:
-    "Your diary will be kept only on this phone and your account on the server deleted, including email and password sign-in. First, write down your 12-word phrase (Save in the browser → Show phrase QR) and make an export. Continue?",
+    "Your diary will be kept only on this phone and your account on the server deleted, including email and password sign-in. First, write down your 12-word phrase (Your 12-word phrase → Show phrase QR) and make an export. Continue?",
   moveToDeviceDone: "Your diary is now only on this phone.",
   appLock: "Lock with fingerprint or PIN",
   appLockHint:
     "Asks for your fingerprint or screen lock when Ciclo opens and after 30 seconds away. It also hides the app in recent apps and screenshots.",
   appLockUnavailable: "Set up a fingerprint or screen lock in Android to use this.",
+  appLockNeedsAndroid11: "App lock needs Android 11 or later.",
   appLockPromptTitle: "Open Ciclo",
   appLockPromptSubtitle: "Confirm it's you to see your diary.",
   deleteDeviceDiary: "Delete the diary on this device",
@@ -1117,6 +1160,9 @@ const en = {
   backToLearn: "Back to Learn",
   noPatternsYet: "Log at least one period start to see patterns.",
   saveEntry: "Save entry",
+  discardDraftConfirm: "Discard your changes to this day?",
+  discardDraft: "Discard",
+  keepEditing: "Keep editing",
   mucusHintDry: "None / low",
   mucusHintSticky: "Thick, tacky",
   mucusHintCreamy: "Lotion-like",
@@ -1127,6 +1173,8 @@ const en = {
   favoriteSymptom: "Add to favorites",
   unfavoriteSymptom: "Remove from favorites",
   deleteCustomSymptom: "Delete {name}",
+  deleteCustomSymptomConfirm:
+    "Delete “{name}”? It will be removed from every day you logged it on. This cannot be undone.",
   addCustomSymptom: "Create custom symptom",
   customSymptomName: "Name",
   customSymptomEmoji: "Emoji",

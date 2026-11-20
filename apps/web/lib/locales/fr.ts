@@ -19,6 +19,8 @@ const locale: LocaleModule = {
     createWithEmail: "E-mail et mot de passe",
     createWithEmailHint:
       "Connecte-toi sur n’importe quel appareil avec le même e-mail et le même mot de passe. En créant le compte, tu confirmes ta boîte mail avec un code. Ton journal est chiffré dans ton navigateur : nous ne pouvons ni le lire ni réinitialiser ton mot de passe.",
+    createWithEmailHintAndroid:
+      "Connecte-toi sur n’importe quel appareil avec le même e-mail et le même mot de passe. En créant le compte, tu confirmes ta boîte mail avec un code. Ton journal est chiffré sur ce téléphone : nous ne pouvons ni le lire ni réinitialiser ton mot de passe.",
     superPrivateMode: "Mode super privé",
     superPrivateHint:
       "Sans e-mail. Tu gardes 12 mots. Confidentialité maximale. Si tu les perds, aucune récupération n’est possible — exporte une copie de sauvegarde.",
@@ -75,6 +77,8 @@ const locale: LocaleModule = {
     onboardingTitle: "Ta phrase de 12 mots",
     onboardingBody:
       "Ces 12 mots sont la clé de ton journal. Enregistre-les dans le navigateur ou dans un endroit sûr. Ciclo ne peut pas les récupérer.",
+    onboardingBodyAndroid:
+      "Ces 12 mots sont la clé de ton journal. Note-les ou garde-les dans un endroit sûr. Ciclo ne peut pas les récupérer.",
     emailAccountTitle: "E-mail et mot de passe",
     emailAccountBody:
       "Choisis un e-mail et un mot de passe (8 caractères min.). Nous envoyons une fois un code à 6 chiffres à cette adresse pour confirmer qu’elle est à toi. Ce n’est pas un lien de réinitialisation. Ciclo chiffre le journal ici. Ton mot de passe ne quitte jamais ton appareil en clair.",
@@ -105,11 +109,15 @@ const locale: LocaleModule = {
     password: "Mot de passe",
     confirmPassword: "Confirmer le mot de passe",
     passwordHint: "8 caractères minimum. Ton navigateur peut l’enregistrer comme n’importe quel autre mot de passe.",
+    passwordHintAndroid:
+      "8 caractères minimum. Ton gestionnaire de mots de passe peut l’enregistrer comme n’importe quel autre.",
     showPassword: "Afficher le mot de passe",
     hidePassword: "Masquer le mot de passe",
     keepLoggedIn: "Garder la session ouverte",
     keepLoggedInHint:
       "Dans ce navigateur, le journal reste ouvert jusqu’à ce que tu te déconnectes. Toute personne ayant accès à ce profil peut l’ouvrir.",
+    keepLoggedInHintAndroid:
+      "Sur ce téléphone, le journal reste ouvert jusqu’à ce que tu te déconnectes. Toute personne qui utilise ce téléphone déverrouillé peut l’ouvrir.",
     saveInBrowser: "Enregistrer dans le navigateur",
     savedInBrowser: "Ton navigateur peut te proposer de l’enregistrer. Si le message apparaît, accepte-le.",
     savePhraseInBrowserHint:
@@ -168,6 +176,7 @@ const locale: LocaleModule = {
     nextMonth: "Mois suivant",
     today: "Aujourd’hui",
     clearDay: "Effacer la saisie",
+    clearDayConfirm: "Effacer tout ce qui est noté pour ce jour ?",
     nextStart: "Prochain début le plus probable",
     expectedToStart: "Tes règles devaient commencer…",
     cycleLength: "Durée du cycle",
@@ -203,8 +212,10 @@ const locale: LocaleModule = {
     importOk: "Données importées.",
     importInvalid: "Impossible de lire ce fichier.",
     deleteAccount: "Supprimer le compte et le journal",
+    deleting: "Suppression…",
     deleteConfirm:
       "Cela supprime les données chiffrées sur le serveur et les données de cet appareil. Les envois à la base de recherche anonyme ne peuvent pas être annulés. Continuer ?",
+    deleteAction: "Supprimer",
     email: "E-mail",
     researchTitle: "Contribuer à la base anonyme",
     researchBenefit:
@@ -222,12 +233,16 @@ const locale: LocaleModule = {
     address: "Identité publique",
     logout: "Se déconnecter sur cet appareil",
     errorGeneric: "Un problème est survenu. Réessaie.",
+    screenErrorTitle: "Un problème est survenu sur cet écran",
+    screenErrorBody: "Ton journal n’a pas été modifié. Si réessayer ne suffit pas, exporte une copie.",
     invalidPhrase: "Phrase non valide.",
     noAccountForPhrase: "Aucun compte n’utilise cette phrase. Vérifie les 12 mots ou crée un nouveau compte.",
     wordMismatch: "Ce mot ne correspond pas.",
     privacyTitle: "Confidentialité",
     privacyBody1:
       "Les dates sont chiffrées dans le navigateur avec AES-GCM. Le serveur ne stocke que des données chiffrées. Tu peux utiliser e-mail et mot de passe, ou le mode super privé avec 12 mots.",
+    privacyBody1Android:
+      "Les dates sont chiffrées sur ce téléphone avec AES-GCM. Le serveur ne stocke que des données chiffrées. Tu peux utiliser e-mail et mot de passe, ou le mode super privé avec 12 mots.",
     privacyBody2:
       "Ciclo ne peut pas réinitialiser ton mot de passe ni ta phrase. Si tu les perds, le journal en ligne est perdu. Cela protège ta vie privée : personne — pas même nous — ne peut lire ton journal sur le serveur.",
     privacyBody3:
@@ -236,6 +251,7 @@ const locale: LocaleModule = {
       "Les symptômes, les saignements, la glaire cervicale et les courtes notes du jour restent dans le journal chiffré. Le serveur n’ajoute aucune colonne de santé. La base anonyme ne reçoit que des durées de cycle (nombres entiers) ; les notes ne sont jamais envoyées ni analysées.",
     privacyBody5: "La base de recherche anonyme ne garde aucun lien entre ton compte et l’identifiant anonyme.",
     welcomeCta: "Commence dans le navigateur. Les dates sont chiffrées avant de quitter l’appareil.",
+    welcomeCtaAndroid: "Commence ici. Les dates sont chiffrées avant de quitter ce téléphone.",
     restoreFailedTitle: "Nous n’avons pas pu ouvrir ton journal",
     restoreFailedBody:
       "Le problème vient peut-être de la connexion ou du serveur. Ton accès reste enregistré sur cet appareil et tes données n’ont pas été modifiées.",
@@ -252,6 +268,9 @@ const locale: LocaleModule = {
     updateBodyCopy: "Cette version de Ciclo est trop ancienne pour le serveur : voici la copie enregistrée sur ce téléphone ({date}). Mets-la à jour depuis Google Play pour voir les entrées plus récentes et continuer à modifier.",
     updateSignInBodyWeb: "Recharge la page pour avoir la dernière version de Ciclo, puis reconnecte-toi.",
     updateOpenStore: "Ouvrir Google Play",
+    webviewUpdateTitle: "Mets à jour Android System WebView",
+    webviewUpdateBody:
+      "Ciclo a besoin d’une version plus récente d’Android System WebView. Mets-la à jour depuis Google Play, ainsi que Google Chrome si tu l’as, puis rouvre Ciclo.",
     updateReload: "Recharger",
     updateDayHint: "Mets à jour Ciclo pour modifier ce jour.",
     updateNeededAction: "Mets à jour Ciclo pour faire ceci.",
@@ -286,12 +305,13 @@ const locale: LocaleModule = {
     moveToDeviceHint:
       "Enregistre ton journal chiffré sur ce téléphone et supprime ton compte du serveur, y compris la connexion par e-mail et mot de passe.",
     moveToDeviceConfirm:
-      "Ton journal sera conservé uniquement sur ce téléphone et ton compte sera supprimé du serveur, y compris la connexion par e-mail et mot de passe. Avant, note ta phrase de 12 mots (Enregistrer dans le navigateur → Voir le QR de la phrase) et fais un export. Continuer ?",
+      "Ton journal sera conservé uniquement sur ce téléphone et ton compte sera supprimé du serveur, y compris la connexion par e-mail et mot de passe. Avant, note ta phrase de 12 mots (Ta phrase de 12 mots → Voir le QR de la phrase) et fais un export. Continuer ?",
     moveToDeviceDone: "Ton journal est maintenant uniquement sur ce téléphone.",
     appLock: "Verrouiller par empreinte ou PIN",
     appLockHint:
       "Demande ton empreinte ou le verrouillage de l’écran à l’ouverture de Ciclo et après 30 secondes d’absence. Masque aussi l’app dans les applis récentes et sur les captures d’écran.",
     appLockUnavailable: "Configure une empreinte ou un verrouillage de l’écran dans Android pour l’utiliser.",
+    appLockNeedsAndroid11: "Le verrouillage de l’app nécessite Android 11 ou une version ultérieure.",
     appLockPromptTitle: "Ouvrir Ciclo",
     appLockPromptSubtitle: "Confirme que c’est bien toi pour voir ton journal.",
     deleteDeviceDiary: "Supprimer le journal de cet appareil",
@@ -391,6 +411,9 @@ const locale: LocaleModule = {
     backToLearn: "Retour à Apprendre",
     noPatternsYet: "Note au moins un début de règles pour voir tes tendances.",
     saveEntry: "Enregistrer",
+    discardDraftConfirm: "Abandonner les modifications de ce jour ?",
+    discardDraft: "Abandonner",
+    keepEditing: "Continuer à modifier",
     mucusHintDry: "Peu ou pas",
     mucusHintSticky: "Épaisse, collante",
     mucusHintCreamy: "Comme une lotion",
@@ -401,6 +424,8 @@ const locale: LocaleModule = {
     favoriteSymptom: "Ajouter aux favoris",
     unfavoriteSymptom: "Retirer des favoris",
     deleteCustomSymptom: "Supprimer {name}",
+    deleteCustomSymptomConfirm:
+      "Supprimer « {name} » ? Il sera retiré de tous les jours où tu l’as noté. C’est irréversible.",
     addCustomSymptom: "Créer un symptôme personnalisé",
     customSymptomName: "Nom",
     customSymptomEmoji: "Emoji",

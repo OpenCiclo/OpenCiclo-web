@@ -1,7 +1,9 @@
 // Copyright © 2026 Emma Flora Harbison & Luis Rey Sánchez
 // SPDX-License-Identifier: Apache-2.0
 
+import { IS_ANDROID_APP } from "@/lib/app-target";
 import { contentLocale, messages, type BaseLocale, type Locale, type Messages } from "@/lib/i18n";
+import { withAndroidCopy } from "@/lib/locales/android-copy";
 import { enMail, esMail, type MailCopy } from "@/lib/mail-copy";
 import { enMarketing, esMarketing, type MarketingCopy } from "@/lib/marketing/copy";
 
@@ -81,8 +83,19 @@ function moduleOrFallback(locale: Locale): LocaleModule {
   return localeModule(locale) ?? BUNDLED[contentLocale(locale)];
 }
 
+// One swapped copy per language, so the hook's snapshot stays the same object.
+const androidMessages = new WeakMap<Messages, Messages>();
+
+/** The app's texts. The Android build gets its own wording where the web says "browser" (android-copy.ts). */
 export function messagesFor(locale: Locale): Messages {
-  return moduleOrFallback(locale).messages;
+  const messages = moduleOrFallback(locale).messages;
+  if (!IS_ANDROID_APP) return messages;
+  let android = androidMessages.get(messages);
+  if (!android) {
+    android = withAndroidCopy(messages);
+    androidMessages.set(messages, android);
+  }
+  return android;
 }
 
 export function marketingCopy(locale: Locale): MarketingCopy {

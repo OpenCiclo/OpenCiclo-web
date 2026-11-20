@@ -1,0 +1,5 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!-- Machine-assisted translation; needs a native review before release. -->
+<resources>
+    <string name="no_webview_message">Ciclo braucht Android System WebView, das auf diesem Handy deaktiviert ist oder fehlt. Aktiviere oder installiere es bei Google Play und öffne Ciclo dann erneut.</string>
+</resources>

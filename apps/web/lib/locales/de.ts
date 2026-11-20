@@ -19,6 +19,8 @@ const locale: LocaleModule = {
     createWithEmail: "E-Mail und Passwort",
     createWithEmailHint:
       "Melde dich auf jedem Gerät mit derselben E-Mail und demselben Passwort an. Beim Erstellen des Kontos bestätigst du dein Postfach mit einem Code. Dein Tagebuch wird im Browser verschlüsselt; wir können es nicht lesen und dein Passwort nicht zurücksetzen.",
+    createWithEmailHintAndroid:
+      "Melde dich auf jedem Gerät mit derselben E-Mail und demselben Passwort an. Beim Erstellen des Kontos bestätigst du dein Postfach mit einem Code. Dein Tagebuch wird auf diesem Handy verschlüsselt; wir können es nicht lesen und dein Passwort nicht zurücksetzen.",
     superPrivateMode: "Superprivater Modus",
     superPrivateHint:
       "Keine E-Mail. Du bewahrst 12 Wörter auf. Maximale Privatsphäre. Wenn du sie verlierst, gibt es keine Wiederherstellung – exportiere eine Sicherung.",
@@ -75,6 +77,8 @@ const locale: LocaleModule = {
     onboardingTitle: "Deine 12-Wort-Phrase",
     onboardingBody:
       "Diese 12 Wörter sind der Schlüssel zu deinem Tagebuch. Speichere sie im Browser oder an einem sicheren Ort. Ciclo kann sie nicht wiederherstellen.",
+    onboardingBodyAndroid:
+      "Diese 12 Wörter sind der Schlüssel zu deinem Tagebuch. Schreib sie auf oder bewahre sie an einem sicheren Ort auf. Ciclo kann sie nicht wiederherstellen.",
     emailAccountTitle: "E-Mail und Passwort",
     emailAccountBody:
       "Wähle eine E-Mail-Adresse und ein Passwort (mind. 8 Zeichen). Wir schicken einmal einen 6-stelligen Code an dieses Postfach, um zu prüfen, dass es dir gehört. Es ist kein Link zum Zurücksetzen. Ciclo verschlüsselt das Tagebuch hier. Dein Passwort verlässt das Gerät nie im Klartext.",
@@ -105,11 +109,15 @@ const locale: LocaleModule = {
     password: "Passwort",
     confirmPassword: "Passwort bestätigen",
     passwordHint: "Mindestens 8 Zeichen. Dein Browser kann es wie jedes andere Passwort speichern.",
+    passwordHintAndroid:
+      "Mindestens 8 Zeichen. Dein Passwortmanager kann es wie jedes andere Passwort speichern.",
     showPassword: "Passwort anzeigen",
     hidePassword: "Passwort verbergen",
     keepLoggedIn: "Angemeldet bleiben",
     keepLoggedInHint:
       "Dieser Browser bleibt entsperrt, bis du dich abmeldest. Wer Zugriff auf dieses Browserprofil hat, kann das Tagebuch öffnen.",
+    keepLoggedInHintAndroid:
+      "Auf diesem Handy bleibt das Tagebuch offen, bis du dich abmeldest. Wer dieses Handy entsperrt benutzt, kann es öffnen.",
     saveInBrowser: "Im Browser speichern",
     savedInBrowser: "Dein Browser fragt vielleicht, ob er das speichern soll. Wenn ein Hinweis erscheint, bestätige ihn.",
     savePhraseInBrowserHint:
@@ -167,6 +175,7 @@ const locale: LocaleModule = {
     nextMonth: "Nächster Monat",
     today: "Heute",
     clearDay: "Eintrag löschen",
+    clearDayConfirm: "Alles löschen, was an diesem Tag eingetragen ist?",
     nextStart: "Wahrscheinlichster nächster Beginn",
     expectedToStart: "Deine Periode wurde erwartet am …",
     cycleLength: "Zykluslänge",
@@ -203,8 +212,10 @@ const locale: LocaleModule = {
     importOk: "Daten importiert.",
     importInvalid: "Die Datei konnte nicht gelesen werden.",
     deleteAccount: "Konto und Tagebuch löschen",
+    deleting: "Wird gelöscht…",
     deleteConfirm:
       "Damit werden die verschlüsselten Daten auf dem Server und die Daten auf diesem Gerät gelöscht. Beiträge zum anonymen Datenpool lassen sich nicht rückgängig machen. Fortfahren?",
+    deleteAction: "Löschen",
     email: "E-Mail",
     researchTitle: "Zum anonymen Datenpool beitragen",
     researchBenefit:
@@ -222,12 +233,17 @@ const locale: LocaleModule = {
     address: "Öffentliche Identität",
     logout: "Auf diesem Gerät abmelden",
     errorGeneric: "Etwas ist schiefgelaufen. Versuch es noch einmal.",
+    screenErrorTitle: "Auf diesem Bildschirm ist etwas schiefgelaufen",
+    screenErrorBody:
+      "Dein Tagebuch wurde nicht verändert. Wenn erneutes Versuchen nicht hilft, exportiere eine Kopie.",
     invalidPhrase: "Ungültige Phrase.",
     noAccountForPhrase: "Kein Konto nutzt diese Phrase. Prüf die 12 Wörter oder erstelle ein neues Konto.",
     wordMismatch: "Dieses Wort stimmt nicht.",
     privacyTitle: "Datenschutz",
     privacyBody1:
       "Die Daten werden im Browser mit AES-GCM verschlüsselt. Der Server speichert nur verschlüsselte Daten. Du kannst E-Mail und Passwort nutzen oder den superprivaten Modus mit 12 Wörtern.",
+    privacyBody1Android:
+      "Die Daten werden auf diesem Handy mit AES-GCM verschlüsselt. Der Server speichert nur verschlüsselte Daten. Du kannst E-Mail und Passwort nutzen oder den superprivaten Modus mit 12 Wörtern.",
     privacyBody2:
       "Ciclo kann dein Passwort und deine Phrase nicht zurücksetzen. Wenn du sie verlierst, ist das Tagebuch in der Cloud verloren. Das schützt deine Privatsphäre: Niemand – auch wir nicht – kann dein Tagebuch auf dem Server lesen.",
     privacyBody3:
@@ -236,6 +252,7 @@ const locale: LocaleModule = {
       "Symptome, Blutung, Zervixschleim und kurze Tagesnotizen bleiben im verschlüsselten Tagebuch. Der Server legt keine Gesundheitsspalten an. Der anonyme Datenpool erhält nur Zykluslängen (ganze Zahlen); Notizen werden nie hochgeladen oder ausgewertet.",
     privacyBody5: "Der anonyme Datenpool speichert keine Zuordnung von deinem Konto zur anonymen ID.",
     welcomeCta: "Starte im Browser. Deine Daten werden verschlüsselt, bevor sie das Gerät verlassen.",
+    welcomeCtaAndroid: "Starte hier. Deine Daten werden verschlüsselt, bevor sie dieses Handy verlassen.",
     restoreFailedTitle: "Wir konnten dein Tagebuch nicht öffnen",
     restoreFailedBody:
       "Vielleicht liegt es an der Verbindung oder an unserem Server. Deine Anmeldung ist weiterhin auf diesem Gerät gespeichert, und deine Daten wurden nicht verändert.",
@@ -252,6 +269,9 @@ const locale: LocaleModule = {
     updateBodyCopy: "Diese Version von Ciclo ist zu alt für den Server. Du siehst die auf diesem Handy gespeicherte Kopie ({date}). Aktualisiere sie über Google Play, um neuere Einträge zu sehen und weiter zu bearbeiten.",
     updateSignInBodyWeb: "Lade die Seite neu, um die neueste Version von Ciclo zu bekommen, und melde dich dann erneut an.",
     updateOpenStore: "Google Play öffnen",
+    webviewUpdateTitle: "Aktualisiere Android System WebView",
+    webviewUpdateBody:
+      "Ciclo braucht eine neuere Version von Android System WebView. Aktualisiere sie bei Google Play, und auch Google Chrome, falls du es hast, und öffne Ciclo dann erneut.",
     updateReload: "Neu laden",
     updateDayHint: "Aktualisiere Ciclo, um diesen Tag zu ändern.",
     updateNeededAction: "Aktualisiere Ciclo, um das zu tun.",
@@ -286,12 +306,13 @@ const locale: LocaleModule = {
     moveToDeviceHint:
       "Speichert dein verschlüsseltes Tagebuch auf diesem Handy und löscht dein Konto auf dem Server, auch die Anmeldung mit E-Mail und Passwort.",
     moveToDeviceConfirm:
-      "Dein Tagebuch wird nur noch auf diesem Handy gespeichert und dein Konto auf dem Server gelöscht, auch die Anmeldung mit E-Mail und Passwort. Schreib dir vorher deine 12-Wort-Phrase auf (Im Browser speichern → QR-Code der Phrase anzeigen) und mach einen Export. Fortfahren?",
+      "Dein Tagebuch wird nur noch auf diesem Handy gespeichert und dein Konto auf dem Server gelöscht, auch die Anmeldung mit E-Mail und Passwort. Schreib dir vorher deine 12-Wort-Phrase auf (Deine 12-Wort-Phrase → QR-Code der Phrase anzeigen) und mach einen Export. Fortfahren?",
     moveToDeviceDone: "Dein Tagebuch ist jetzt nur noch auf diesem Handy.",
     appLock: "Mit Fingerabdruck oder PIN sperren",
     appLockHint:
       "Fragt nach deinem Fingerabdruck oder der Displaysperre, wenn Ciclo geöffnet wird und wenn du 30 Sekunden weg warst. Blendet die App außerdem in den zuletzt verwendeten Apps und auf Screenshots aus.",
     appLockUnavailable: "Richte in Android einen Fingerabdruck oder eine Displaysperre ein, um das zu nutzen.",
+    appLockNeedsAndroid11: "Die App-Sperre braucht Android 11 oder neuer.",
     appLockPromptTitle: "Ciclo öffnen",
     appLockPromptSubtitle: "Bestätige, dass du es bist, um dein Tagebuch zu sehen.",
     deleteDeviceDiary: "Tagebuch auf diesem Gerät löschen",
@@ -388,6 +409,9 @@ const locale: LocaleModule = {
     backToLearn: "Zurück zu Wissen",
     noPatternsYet: "Trag mindestens einen Periodenbeginn ein, um Muster zu sehen.",
     saveEntry: "Eintrag speichern",
+    discardDraftConfirm: "Deine Änderungen an diesem Tag verwerfen?",
+    discardDraft: "Verwerfen",
+    keepEditing: "Weiter bearbeiten",
     mucusHintDry: "Wenig oder nichts",
     mucusHintSticky: "Dicklich, klebrig",
     mucusHintCreamy: "Wie Lotion",
@@ -398,6 +422,8 @@ const locale: LocaleModule = {
     favoriteSymptom: "Zu Favoriten hinzufügen",
     unfavoriteSymptom: "Aus Favoriten entfernen",
     deleteCustomSymptom: "{name} löschen",
+    deleteCustomSymptomConfirm:
+      "„{name}“ löschen? Es wird aus allen Tagen entfernt, an denen du es eingetragen hast. Das lässt sich nicht rückgängig machen.",
     addCustomSymptom: "Eigenes Symptom erstellen",
     customSymptomName: "Name",
     customSymptomEmoji: "Emoji",

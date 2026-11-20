@@ -19,6 +19,8 @@ const locale: LocaleModule = {
     createWithEmail: "E-mail en wachtwoord",
     createWithEmailHint:
       "Log op elk apparaat in met hetzelfde e-mailadres en wachtwoord. Bij het aanmaken bevestig je je mailbox met een code. Je dagboek wordt in je browser versleuteld; wij kunnen het niet lezen en je wachtwoord niet resetten.",
+    createWithEmailHintAndroid:
+      "Log op elk apparaat in met hetzelfde e-mailadres en wachtwoord. Bij het aanmaken bevestig je je mailbox met een code. Je dagboek wordt op deze telefoon versleuteld; wij kunnen het niet lezen en je wachtwoord niet resetten.",
     superPrivateMode: "Superprivémodus",
     superPrivateHint:
       "Geen e-mail. Je bewaart 12 woorden. Maximale privacy. Ben je ze kwijt, dan is herstel niet mogelijk – exporteer een back-up.",
@@ -75,6 +77,8 @@ const locale: LocaleModule = {
     onboardingTitle: "Je herstelzin van 12 woorden",
     onboardingBody:
       "Deze 12 woorden zijn de sleutel van je dagboek. Bewaar ze in de browser of op een veilige plek. Ciclo kan ze niet terughalen.",
+    onboardingBodyAndroid:
+      "Deze 12 woorden zijn de sleutel van je dagboek. Schrijf ze op of bewaar ze op een veilige plek. Ciclo kan ze niet terughalen.",
     emailAccountTitle: "E-mail en wachtwoord",
     emailAccountBody:
       "Kies een e-mailadres en een wachtwoord (min. 8 tekens). We sturen eenmalig een code van 6 cijfers naar die mailbox om te bewijzen dat hij van jou is. Het is geen resetlink. Ciclo versleutelt het dagboek hier. Je wachtwoord verlaat je apparaat nooit onversleuteld.",
@@ -105,11 +109,15 @@ const locale: LocaleModule = {
     password: "Wachtwoord",
     confirmPassword: "Wachtwoord bevestigen",
     passwordHint: "Minimaal 8 tekens. Je browser kan het opslaan zoals elk ander wachtwoord.",
+    passwordHintAndroid:
+      "Minimaal 8 tekens. Je wachtwoordbeheerder kan het opslaan zoals elk ander wachtwoord.",
     showPassword: "Wachtwoord tonen",
     hidePassword: "Wachtwoord verbergen",
     keepLoggedIn: "Ingelogd blijven",
     keepLoggedInHint:
       "In deze browser blijft je dagboek open tot je uitlogt. Iedereen met toegang tot dit browserprofiel kan het openen.",
+    keepLoggedInHintAndroid:
+      "Op deze telefoon blijft je dagboek open tot je uitlogt. Iedereen die deze telefoon ontgrendeld gebruikt, kan het openen.",
     saveInBrowser: "Opslaan in de browser",
     savedInBrowser: "Je browser vraagt misschien of je dit wilt opslaan. Zie je die melding, accepteer hem dan.",
     savePhraseInBrowserHint:
@@ -167,6 +175,7 @@ const locale: LocaleModule = {
     nextMonth: "Volgende maand",
     today: "Vandaag",
     clearDay: "Registratie wissen",
+    clearDayConfirm: "Alles wissen wat op deze dag is geregistreerd?",
     nextStart: "Meest waarschijnlijke volgende begin",
     expectedToStart: "Je menstruatie werd verwacht op...",
     cycleLength: "Cycluslengte",
@@ -202,8 +211,10 @@ const locale: LocaleModule = {
     importOk: "Gegevens geïmporteerd.",
     importInvalid: "Het bestand kon niet worden gelezen.",
     deleteAccount: "Account en dagboek verwijderen",
+    deleting: "Bezig met verwijderen…",
     deleteConfirm:
       "Dit verwijdert de versleutelde gegevens op de server en de gegevens op dit apparaat. Wat al in de anonieme onderzoekspool staat, kan niet ongedaan worden gemaakt. Doorgaan?",
+    deleteAction: "Verwijderen",
     email: "E-mail",
     researchTitle: "Bijdragen aan de anonieme onderzoekspool",
     researchBenefit:
@@ -221,12 +232,16 @@ const locale: LocaleModule = {
     address: "Publieke identiteit",
     logout: "Uitloggen op dit apparaat",
     errorGeneric: "Er ging iets mis. Probeer het opnieuw.",
+    screenErrorTitle: "Er ging iets mis op dit scherm",
+    screenErrorBody: "Je dagboek is niet gewijzigd. Helpt opnieuw proberen niet, maak dan een export.",
     invalidPhrase: "Ongeldige herstelzin.",
     noAccountForPhrase: "Er is geen account met deze herstelzin. Controleer de 12 woorden of maak een nieuw account aan.",
     wordMismatch: "Dat woord klopt niet.",
     privacyTitle: "Privacy",
     privacyBody1:
       "Datums worden in de browser versleuteld met AES-GCM. De server slaat alleen versleutelde gegevens op. Je kunt e-mail en wachtwoord gebruiken of de superprivémodus met 12 woorden.",
+    privacyBody1Android:
+      "Datums worden op deze telefoon versleuteld met AES-GCM. De server slaat alleen versleutelde gegevens op. Je kunt e-mail en wachtwoord gebruiken of de superprivémodus met 12 woorden.",
     privacyBody2:
       "Ciclo kan je wachtwoord of herstelzin niet resetten. Ben je ze kwijt, dan is het online dagboek weg. Zo blijft je privacy beschermd: niemand – ook wij niet – kan je dagboek op de server lezen.",
     privacyBody3:
@@ -235,6 +250,7 @@ const locale: LocaleModule = {
       "Symptomen, bloedverlies, cervixslijm en korte dagnotities blijven in het versleutelde dagboek. De server voegt geen gezondheidskolommen toe. De anonieme onderzoekspool krijgt alleen cycluslengtes (hele getallen); notities worden nooit verstuurd of geanalyseerd.",
     privacyBody5: "De onderzoekspool bewaart geen koppeling tussen je account en de anonieme ID.",
     welcomeCta: "Begin in de browser. Datums worden versleuteld voordat ze je apparaat verlaten.",
+    welcomeCtaAndroid: "Begin hier. Datums worden versleuteld voordat ze deze telefoon verlaten.",
     restoreFailedTitle: "We konden je dagboek niet openen",
     restoreFailedBody:
       "Misschien ligt het aan de verbinding of aan onze server. Je inloggegevens staan nog op dit apparaat en je gegevens zijn niet aangeraakt.",
@@ -251,6 +267,9 @@ const locale: LocaleModule = {
     updateBodyCopy: "Deze versie van Ciclo is te oud voor de server. Je ziet de kopie die op deze telefoon is opgeslagen ({date}). Werk hem bij via Google Play om nieuwere invoer te zien en verder te bewerken.",
     updateSignInBodyWeb: "Laad de pagina opnieuw voor de nieuwste versie van Ciclo en log daarna opnieuw in.",
     updateOpenStore: "Google Play openen",
+    webviewUpdateTitle: "Werk Android System WebView bij",
+    webviewUpdateBody:
+      "Ciclo heeft een nieuwere versie van Android System WebView nodig. Werk die bij via Google Play, en ook Google Chrome als je dat hebt, en open Ciclo daarna opnieuw.",
     updateReload: "Opnieuw laden",
     updateDayHint: "Werk Ciclo bij om deze dag te wijzigen.",
     updateNeededAction: "Werk Ciclo bij om dit te doen.",
@@ -285,12 +304,13 @@ const locale: LocaleModule = {
     moveToDeviceHint:
       "Bewaart je versleutelde dagboek op deze telefoon en verwijdert je account van de server, ook het inloggen met e-mail en wachtwoord.",
     moveToDeviceConfirm:
-      "Je dagboek wordt alleen nog op deze telefoon bewaard en je account op de server wordt verwijderd, ook het inloggen met e-mail en wachtwoord. Schrijf eerst je herstelzin van 12 woorden op (Opslaan in de browser → QR van herstelzin tonen) en maak een export. Doorgaan?",
+      "Je dagboek wordt alleen nog op deze telefoon bewaard en je account op de server wordt verwijderd, ook het inloggen met e-mail en wachtwoord. Schrijf eerst je herstelzin van 12 woorden op (Je herstelzin van 12 woorden → QR van herstelzin tonen) en maak een export. Doorgaan?",
     moveToDeviceDone: "Je dagboek staat nu alleen op deze telefoon.",
     appLock: "Vergrendelen met vingerafdruk of PIN",
     appLockHint:
       "Vraagt om je vingerafdruk of schermvergrendeling wanneer je Ciclo opent en als je 30 seconden weg bent geweest. De app wordt ook verborgen in recente apps en op screenshots.",
     appLockUnavailable: "Stel in Android een vingerafdruk of schermvergrendeling in om dit te gebruiken.",
+    appLockNeedsAndroid11: "App-vergrendeling vereist Android 11 of hoger.",
     appLockPromptTitle: "Ciclo openen",
     appLockPromptSubtitle: "Bevestig dat jij het bent om je dagboek te zien.",
     deleteDeviceDiary: "Dagboek op dit apparaat verwijderen",
@@ -387,6 +407,9 @@ const locale: LocaleModule = {
     backToLearn: "Terug naar Leren",
     noPatternsYet: "Registreer minstens één begin van een menstruatie om patronen te zien.",
     saveEntry: "Opslaan",
+    discardDraftConfirm: "Je wijzigingen aan deze dag weggooien?",
+    discardDraft: "Weggooien",
+    keepEditing: "Verder bewerken",
     mucusHintDry: "Weinig of niets",
     mucusHintSticky: "Dik, kleverig",
     mucusHintCreamy: "Als lotion",
@@ -397,6 +420,8 @@ const locale: LocaleModule = {
     favoriteSymptom: "Toevoegen aan favorieten",
     unfavoriteSymptom: "Verwijderen uit favorieten",
     deleteCustomSymptom: "{name} verwijderen",
+    deleteCustomSymptomConfirm:
+      "‘{name}’ verwijderen? Het verdwijnt van alle dagen waarop je het hebt geregistreerd. Dit kan niet ongedaan worden gemaakt.",
     addCustomSymptom: "Eigen symptoom maken",
     customSymptomName: "Naam",
     customSymptomEmoji: "Emoji",

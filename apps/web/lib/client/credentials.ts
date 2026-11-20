@@ -1,6 +1,8 @@
 // Copyright © 2026 Emma Flora Harbison & Luis Rey Sánchez
 // SPDX-License-Identifier: Apache-2.0
 
+import { IS_ANDROID_APP } from "@/lib/app-target";
+
 export const PHRASE_USERNAME = "ciclo";
 
 type PasswordCred = Credential & { password?: string };
@@ -13,7 +15,13 @@ function passwordCredentialCtor():
   return ctor ?? null;
 }
 
+/**
+ * Offers the password to the browser's password manager (Credential Management
+ * API). Does nothing where the API is missing, which includes the Android app's
+ * WebView: the app never shows a "saved in the browser" message.
+ */
 export async function storeBrowserPassword(id: string, password: string, name = "Ciclo") {
+  if (IS_ANDROID_APP) return;
   const Ctor = passwordCredentialCtor();
   if (!Ctor || !navigator.credentials?.store) return;
   try {

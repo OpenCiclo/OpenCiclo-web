@@ -6,7 +6,7 @@
 import { ChevronDown } from "lucide-react";
 
 import { useCiclo } from "@/lib/client/ciclo-context";
-import { LOCALES, LOCALE_NAMES, LOCALE_SHORT, isLocale } from "@/lib/i18n";
+import { LOCALES, LOCALE_NAMES, LOCALE_SHORT, isLocale, type Locale } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 // Languages by their own names, in alphabetical order.
@@ -15,16 +15,25 @@ const OPTIONS = [...LOCALES].sort((a, b) => LOCALE_NAMES[a].localeCompare(LOCALE
 /**
  * The language menu: the phone's own picker, listing each language in itself.
  * `compact` shows two letters in a pill (welcome screen, headers); the full
- * one is a field with the language's name (Settings).
+ * one is a field with the language's name (Settings). `onSelect` replaces the
+ * plain `setLocale` call (Settings, which reports a save that failed).
  */
-export function LanguageSelect({ compact = false, className }: { compact?: boolean; className?: string }) {
+export function LanguageSelect({
+  compact = false,
+  className,
+  onSelect,
+}: {
+  compact?: boolean;
+  className?: string;
+  onSelect?: (locale: Locale) => void;
+}) {
   const { t, locale, setLocale } = useCiclo();
   const select = (
     <select
       aria-label={t.language}
       value={locale}
       onChange={(event) => {
-        if (isLocale(event.target.value)) setLocale(event.target.value);
+        if (isLocale(event.target.value)) (onSelect ?? setLocale)(event.target.value);
       }}
       className={
         compact

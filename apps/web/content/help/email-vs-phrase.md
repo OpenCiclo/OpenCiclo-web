@@ -27,7 +27,7 @@ Save it in the browser’s password manager, or write it down somewhere you actu
 
 Signing in with a phrase never creates an account. If no account uses the phrase you type, Ciclo says so and opens nothing. A mistyped word can still form a valid phrase, so check the 12 words before you create a new account. Only **Create account** makes a new one.
 
-On the 12-word setup screen, **Save in the browser** is a normal username + password form (the phrase is the password). The app cannot force the manager to store it; accept the browser prompt if it appears. Copy and download still work.
+On the 12-word setup screen, **Save in the browser** is a normal username + password form (the phrase is the password). The app cannot force the manager to store it; accept the browser prompt if it appears. Copy and download still work. A copied phrase is cleared from the clipboard about a minute later when Ciclo can tell nothing else was copied since. The Android app has no **Save in the browser** form; there, Settings calls the section **Your 12-word phrase**.
 
 Settings (and the 12-word setup screen) can also show a QR of the **same** phrase. It is not a new secret. Anyone who photographs it can open the diary.
 
