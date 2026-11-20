@@ -4,7 +4,7 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowLeft, QrCode, ScanLine, Ticket, UserPlus } from "lucide-react";
+import { ArrowLeft, QrCode, ScanLine, UserPlus } from "lucide-react";
 
 import { apiUrl } from "@/lib/app-target";
 import { inviteFingerprint } from "@/lib/client/friends-sync";
@@ -30,7 +30,7 @@ function siteOrigin(): string {
 type Mode = "choose" | "invite" | "join";
 
 // The two choices: tall enough for a comfortable tap, and a long label may take two lines.
-const CHOICE_CLASS = "h-auto min-h-13 gap-2 rounded-2xl px-3 py-2 text-center text-[15px] leading-tight font-bold text-balance";
+const CHOICE_CLASS = "h-auto min-h-[52px] gap-2 rounded-[18px] px-3 py-2 text-center text-[15px] leading-tight font-extrabold text-balance";
 
 /**
  * Inviting and joining: two buttons side by side, and under them a line that
@@ -145,15 +145,14 @@ export function InviteCard({
 
   if (mode === "choose") {
     return (
-      <div className="flex flex-col gap-1.5">
+      <div className="flex flex-col gap-0.5">
         <div className="grid grid-cols-2 gap-2.5">
           <Button type="button" className={CHOICE_CLASS} disabled={!writable || busy} onClick={() => openInvite()}>
             <UserPlus className="size-[18px] shrink-0" aria-hidden />
-            {t.friendsInvite}
+            {t.friendsInviteShort}
           </Button>
           <Button type="button" variant="outline" className={cn(CHOICE_CLASS, "bg-card")} disabled={!writable} onClick={() => setMode("join")}>
-            <Ticket className="size-[18px] shrink-0" aria-hidden />
-            {t.friendsHaveInvite}
+            {t.friendsHaveCode}
           </Button>
         </div>
         {live.length > 0 ? (
@@ -161,9 +160,9 @@ export function InviteCard({
             type="button"
             disabled={busy}
             onClick={() => openInvite()}
-            className="min-h-11 self-center rounded-full px-3 text-[13px] font-bold text-primary underline-offset-2 hover:underline disabled:opacity-50"
+            className="min-h-11 self-center rounded-full px-3 text-center text-[13px] font-bold text-primary underline-offset-2 hover:underline disabled:opacity-50"
           >
-            {t.friendsPendingInvites} · {live.length}
+            {live.length === 1 ? t.friendsPendingOne : t.friendsPendingMany.replace("{count}", String(live.length))}
           </button>
         ) : null}
       </div>
@@ -182,7 +181,7 @@ export function InviteCard({
           >
             <ArrowLeft className="size-5" aria-hidden />
           </button>
-          <p className="font-semibold">{mode === "invite" ? t.friendsInvite : t.friendsHaveInvite}</p>
+          <p className="font-semibold">{mode === "invite" ? t.friendsInvite : t.friendsHaveCode}</p>
         </div>
 
         {mode === "invite" ? (
@@ -289,7 +288,7 @@ export function InviteCard({
       {scanning ? (
         <PhraseQrScanner
           t={t}
-          title={t.friendsHaveInvite}
+          title={t.friendsHaveCode}
           hint={t.friendsScanHint}
           deniedText={t.friendsScanDenied}
           invalidText={t.friendsInviteUnreadable}

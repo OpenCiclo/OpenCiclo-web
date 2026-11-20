@@ -6,13 +6,13 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { Ellipsis, Pause, Play, UserMinus, X } from "lucide-react";
 
-import { NEXT_PHASE, PHASE_INK, PhaseAura, PhaseRing } from "@/components/calendar/phase-visuals";
+import { PHASE_INK, PhaseRing } from "@/components/calendar/phase-visuals";
 import { SpeechBubble } from "@/components/friends/speech-bubble";
 import type { FriendCard } from "@/lib/client/friends-sync";
 import { phaseLabel, type CyclePhase } from "@/lib/cycle/phases";
 import { cycleTimeline } from "@/lib/cycle/phase-timeline";
 import { readStatus, visibleNote, type FriendView } from "@/lib/friends/payload";
-import type { Messages } from "@/lib/i18n";
+import type { Locale, Messages } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 function timing(days: number | null, t: Messages): string | null {
@@ -22,16 +22,28 @@ function timing(days: number | null, t: Messages): string | null {
   return t.periodInShort.replace("{days}", String(days));
 }
 
-function describe(view: FriendView | null, waiting: string, t: Messages): { title: string; meta: string | null; phase: CyclePhase | null } {
+/** A phrase that starts a line elsewhere, placed after "·": lower-case first letter, except in German (its nouns keep the capital). */
+function midLine(text: string, locale: Locale): string {
+  return locale === "de" ? text : text.charAt(0).toLowerCase() + text.slice(1);
+}
+
+function describe(
+  view: FriendView | null,
+  waiting: string,
+  t: Messages,
+  locale: Locale,
+): { title: string; meta: string | null; phase: CyclePhase | null } {
   if (!view) return { title: waiting, meta: null, phase: null };
   switch (view.kind) {
     case "phase": {
+      // Bleeding logged today says so; an estimate says when the period is expected
+      // (the line under the cards says phases are estimates).
       const parts = [
-        view.source === "estimated" ? t.phaseEstimated : null,
         view.cycleDay !== null ? t.cycleDayShort.replace("{day}", String(view.cycleDay)) : null,
-        timing(view.daysToNext, t),
-      ].filter(Boolean);
-      return { title: phaseLabel(view.phase, t), meta: parts.length ? parts.join(" · ") : null, phase: view.phase };
+        view.source === "observed" ? t.friendsLoggedToday : timing(view.daysToNext, t),
+      ].filter((part): part is string => Boolean(part));
+      const meta = parts.map((part, index) => (index === 0 ? part : midLine(part, locale))).join(" · ");
+      return { title: phaseLabel(view.phase, t), meta: meta || null, phase: view.phase };
     }
     case "due":
       return { title: t.friendsDue, meta: null, phase: "menstrual" };
@@ -53,22 +65,24 @@ export type FriendCardActions = {
 };
 
 /**
- * One friend, drawn like the phase card above the calendar but smaller: their
- * name, the ring and phase, what they chose to show, and their note as a
- * speech bubble. The ring is drawn only when they show their cycle day. A
- * small button in the corner lays a dimmed, blurred layer over the card with
- * pause and remove.
+ * One friend: the ring of their cycle with the day in the middle, their name,
+ * the phase, what they chose to show, and their note as a chat bubble. The
+ * card is tinted from the left in the phase's colour. The ring's arcs and the
+ * day are drawn only when they show their cycle day. The button in the corner
+ * lays a dimmed, blurred layer over the card with pause and remove.
  */
 export function FriendPhaseCard({
   card,
   today,
   t,
+  locale,
   youPaused,
   actions,
 }: {
   card: FriendCard;
   today: string;
   t: Messages;
+  locale: Locale;
   youPaused: boolean;
   actions?: FriendCardActions;
 }) {
@@ -103,7 +117,7 @@ export function FriendPhaseCard({
           ? { kind: "stale" }
           : null;
   const waiting = t.friendsWaiting.replace("{name}", friend.name);
-  const { title, meta, phase } = describe(view, waiting, t);
+  const { title, meta, phase } = describe(view, waiting, t, locale);
   const note = status ? visibleNote(status, today) : null;
   const ringTimeline =
     view?.kind === "phase" && view.cycleDay !== null && status?.cycle
@@ -111,9 +125,11 @@ export function FriendPhaseCard({
       : null;
 
   return (
-    <section className="relative isolate overflow-hidden rounded-3xl border border-border/70 bg-card px-4 py-3.5 text-card-foreground shadow-sm">
-      <PhaseAura phase={phase ?? "luteal"} next={phase ? NEXT_PHASE[phase] : "menstrual"} animate={false} />
-      <div className={cn("relative z-[1] flex items-center gap-3", actions && "pr-8")}>
+    <section
+      className="relative isolate overflow-hidden rounded-3xl border border-border bg-card px-4 py-3.5 text-card-foreground"
+      style={phase ? { backgroundImage: `linear-gradient(100deg, color-mix(in oklch, ${PHASE_INK[phase]} 26%, var(--card)) 0%, var(--card) 62%)` } : undefined}
+    >
+      <div className={cn("relative z-[1] flex items-center gap-3.5", actions && "pr-9")}>
         {phase ? (
           <PhaseRing
             timeline={ringTimeline}
@@ -121,6 +137,7 @@ export function FriendPhaseCard({
             phase={phase}
             due={view?.kind === "due"}
             animate={false}
+            label={view?.kind === "phase" && view.cycleDay !== null ? String(view.cycleDay) : undefined}
           />
         ) : (
           <span
@@ -132,15 +149,15 @@ export function FriendPhaseCard({
         )}
         <div className="flex min-w-0 flex-col gap-[3px]">
           <p
-            className="truncate text-[10px] font-extrabold tracking-[0.07em] uppercase"
+            className="truncate text-xs font-extrabold tracking-[0.07em] uppercase"
             style={phase ? { color: PHASE_INK[phase] } : undefined}
           >
             {friend.name}
           </p>
-          <p className={cn("font-serif leading-[1.15] text-balance", phase ? "text-[21px]" : "text-[17px] text-muted-foreground")}>
+          <p className={cn("font-serif leading-[1.15] text-balance", phase ? "text-[22px]" : "text-[17px] text-muted-foreground")}>
             {title}
           </p>
-          {meta ? <p className="text-xs font-bold text-card-foreground/85">{meta}</p> : null}
+          {meta ? <p className="text-[13px] font-bold text-card-foreground">{meta}</p> : null}
         </div>
       </div>
       {note ? (
@@ -161,9 +178,9 @@ export function FriendPhaseCard({
           aria-expanded={optionsOpen}
           aria-controls={optionsOpen ? optionsId : undefined}
           onClick={() => setOptionsOpen(true)}
-          className="absolute top-3 right-3 z-[2] flex size-8 items-center justify-center rounded-full border border-[var(--glass-edge)] bg-[var(--glass)] text-card-foreground/80 transition-transform active:scale-90"
+          className="absolute top-2 right-2 z-[2] flex size-11 items-center justify-center rounded-full text-card-foreground transition-transform active:scale-90"
         >
-          <Ellipsis className="size-4" aria-hidden />
+          <Ellipsis className="size-5" aria-hidden />
         </button>
       ) : null}
 
