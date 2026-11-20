@@ -254,6 +254,7 @@ const locale: LocaleModule = {
     screenErrorTitle: "Algo deu errado nesta tela",
     screenErrorBody: "Seu diário não foi alterado. Se tentar de novo não resolver, exporte uma cópia.",
     vaultTooLarge: "Seu diário é grande demais para a nuvem do Ciclo, então não foi salvo lá. Faça um export antes; notas mais curtas ocupam menos espaço.",
+    accountMismatch: "Nada foi salvo nem alterado: naquele momento este dispositivo estava conectado a outra conta do Ciclo. Tente de novo.",
     invalidPhrase: "Frase inválida.",
     noAccountForPhrase: "Nenhuma conta usa essa frase. Confira as 12 palavras ou crie uma conta nova.",
     vaultUnreadable: "Não foi possível abrir o diário salvo nesta conta. Nada foi alterado no servidor.",

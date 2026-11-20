@@ -9,7 +9,7 @@ import { useBackStep } from "@/lib/client/android-back";
 import { goBack, returnTo } from "@/lib/client/back-navigation";
 import { storeBrowserPassword } from "@/lib/client/credentials";
 import { copyPhrase } from "@/lib/client/phrase-clipboard";
-import { HttpError } from "@/lib/client/api";
+import { AccountMismatchError, HttpError } from "@/lib/client/api";
 import { UpdateRequiredError } from "@/lib/client/http";
 import { saveFile } from "@/lib/client/save-file";
 import {
@@ -145,6 +145,7 @@ export default function OnboardingPage() {
       else if (cause instanceof HttpError && cause.status === 429) setError(tooManySignupsMessage);
       else if (cause instanceof UpdateRequiredError) setError(updateErrorMessage(cause, t));
       else if (cause instanceof SavedSignInError) setError(t.restoreSavedSignInBlocks);
+      else if (cause instanceof AccountMismatchError) setError(t.accountMismatch);
       else if (cause instanceof SignupConfirmedError) {
         setEmailPhase("code");
         setError(t.signupConfirmedLoadFailed);
@@ -164,6 +165,7 @@ export default function OnboardingPage() {
     } catch (cause) {
       if (cause instanceof InvalidConfirmError) setError(t.verifyEmailInvalid);
       else if (cause instanceof UpdateRequiredError) setError(updateErrorMessage(cause, t));
+      else if (cause instanceof AccountMismatchError) setError(t.accountMismatch);
       // The code went through; only opening the diary failed. The button tries that again.
       else if (cause instanceof SignupConfirmedError) setError(t.signupConfirmedLoadFailed);
       else setError(t.errorGeneric);
@@ -187,6 +189,7 @@ export default function OnboardingPage() {
       if (cause instanceof MailNotConfiguredError) setError(t.mailNotConfigured);
       else if (cause instanceof RateLimitedError) setError(t.tooManyEmailCodes);
       else if (cause instanceof UpdateRequiredError) setError(updateErrorMessage(cause, t));
+      else if (cause instanceof AccountMismatchError) setError(t.accountMismatch);
       else if (cause instanceof SignupConfirmedError) setError(t.signupConfirmedLoadFailed);
       else setError(t.errorGeneric);
     } finally {

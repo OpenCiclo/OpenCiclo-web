@@ -255,6 +255,7 @@ const locale: LocaleModule = {
     screenErrorTitle: "Algo fallou nesta pantalla",
     screenErrorBody: "O teu diario non se tocou. Se tentalo de novo non o arranxa, exporta unha copia.",
     vaultTooLarge: "O teu diario é grande de máis para a nube de Ciclo, así que non se gardou alí. Fai antes un export; as notas máis curtas ocupan menos.",
+    accountMismatch: "Non se gardou nin cambiou nada: nese momento este dispositivo tiña aberta outra conta de Ciclo. Téntao de novo.",
     invalidPhrase: "Frase non válida.",
     noAccountForPhrase: "Non hai ningunha conta con esa frase. Revisa as 12 palabras ou crea unha conta nova.",
     vaultUnreadable: "Non se puido abrir o diario gardado nesta conta. Non se cambiou nada no servidor.",

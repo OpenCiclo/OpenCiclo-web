@@ -255,6 +255,7 @@ const locale: LocaleModule = {
     screenErrorTitle: "Qualcosa è andato storto in questa schermata",
     screenErrorBody: "Il tuo diario non è stato modificato. Se riprovare non basta, esporta una copia.",
     vaultTooLarge: "Il tuo diario è troppo grande per il cloud di Ciclo, quindi non è stato salvato lì. Fai prima un export; le note più brevi occupano meno spazio.",
+    accountMismatch: "Non è stato salvato né modificato nulla: in quel momento questo dispositivo era connesso a un altro account Ciclo. Riprova.",
     invalidPhrase: "Frase non valida.",
     noAccountForPhrase: "Nessun account usa questa frase. Controlla le 12 parole o crea un nuovo account.",
     vaultUnreadable: "Non è stato possibile aprire il diario salvato per questo account. Sul server non è cambiato nulla.",

@@ -1,7 +1,13 @@
 // Copyright © 2026 Emma Flora Harbison & Luis Rey Sánchez
 // SPDX-License-Identifier: Apache-2.0
 
-import { HttpError, SignInCancelledError, type PutVaultResult, type VaultBlob } from "@/lib/client/api";
+import {
+  AccountMismatchError,
+  HttpError,
+  SignInCancelledError,
+  type PutVaultResult,
+  type VaultBlob,
+} from "@/lib/client/api";
 import { decryptAesGcm } from "@/lib/crypto/aes";
 import { emptyDiary, type Diary } from "@/lib/diary";
 import { mergeDiaryEdits } from "@/lib/diary-merge";
@@ -55,11 +61,34 @@ export async function loadVaultWithSession(deps: {
 }
 
 /**
+ * The host refused a request that changes the account because the session
+ * cookie is another account's (409 `account-mismatch`). Nothing was written.
+ */
+export function isAccountMismatch(cause: unknown): boolean {
+  return cause instanceof AccountMismatchError;
+}
+
+/** The wallet whose diary is open, and the session generation it opened in. */
+export type OpenSessionWallet = { gen: number; wallet: { pubkeyHash: string } };
+
+/**
+ * Whether `who` is the wallet whose diary is open in session generation `gen`.
+ * Saves and account requests (which name `who`'s account and may sign `who` in
+ * again) run only then: a handler kept from an earlier session or another
+ * account must never act, or sign in, over the session open now.
+ */
+export function isOpenSessionWallet(open: OpenSessionWallet | null, gen: number, who: { pubkeyHash: string }): boolean {
+  return open !== null && open.gen === gen && open.wallet.pubkeyHash === who.pubkeyHash;
+}
+
+/**
  * Wraps hosted requests so that a 401 (the session expired while the app was
- * open) signs in once with the wallet in memory and runs that request again.
- * One sign-in per wrapper: a second 401 is thrown. `isLive`: the session the
- * request belongs to is still the one open; once it is not (signed out,
- * another account), the 401 is thrown as it came and nothing signs in.
+ * open) or a 409 `account-mismatch` (the cookie is another account's: a sign-in
+ * that landed late, another tab) signs in once with the wallet in memory and
+ * runs that request again. One sign-in per wrapper: a second refusal is thrown,
+ * and a request still refused as another account's never writes. `isLive`: the
+ * session the request belongs to is still the one open; once it is not (signed
+ * out, another account), the refusal is thrown as it came and nothing signs in.
  */
 export function retryAfterSignInOnce(signIn: () => Promise<unknown>, isLive: () => boolean = () => true) {
   let used = false;
@@ -67,7 +96,7 @@ export function retryAfterSignInOnce(signIn: () => Promise<unknown>, isLive: () 
     try {
       return await run();
     } catch (cause) {
-      if (used || !isSessionExpired(cause) || !isLive()) throw cause;
+      if (used || !(isSessionExpired(cause) || isAccountMismatch(cause)) || !isLive()) throw cause;
       used = true;
     }
     await signIn();

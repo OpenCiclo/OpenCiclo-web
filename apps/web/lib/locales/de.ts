@@ -256,6 +256,7 @@ const locale: LocaleModule = {
     screenErrorBody:
       "Dein Tagebuch wurde nicht verändert. Wenn erneutes Versuchen nicht hilft, exportiere eine Kopie.",
     vaultTooLarge: "Dein Tagebuch ist zu groß für die Ciclo-Cloud und wurde dort nicht gespeichert. Mach zuerst einen Export; kürzere Notizen brauchen weniger Platz.",
+    accountMismatch: "Nichts wurde gespeichert oder geändert: Dieses Gerät war in diesem Moment bei einem anderen Ciclo-Konto angemeldet. Versuch es noch einmal.",
     invalidPhrase: "Ungültige Phrase.",
     noAccountForPhrase: "Kein Konto nutzt diese Phrase. Prüf die 12 Wörter oder erstelle ein neues Konto.",
     vaultUnreadable: "Das für dieses Konto gespeicherte Tagebuch ließ sich nicht öffnen. Auf dem Server wurde nichts geändert.",

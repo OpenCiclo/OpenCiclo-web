@@ -1,9 +1,10 @@
 // Copyright © 2026 Emma Flora Harbison & Luis Rey Sánchez
 // SPDX-License-Identifier: Apache-2.0
 
-import { HttpError } from "@/lib/client/api";
+import { HttpError, accountHeader, rejectAccountMismatch } from "@/lib/client/api";
 import { UpdateRequiredError, apiFetch } from "@/lib/client/http";
 import { UnsupportedKitError, unwrapMnemonic, type WrappedKit } from "@/lib/crypto/wrap";
+import type { Locale } from "@/lib/i18n";
 
 const KITS_KEY = "ciclo.kits";
 const LAST_EMAIL_KEY = "ciclo.lastEmail";
@@ -102,6 +103,51 @@ export async function fetchRemoteKit(email: string): Promise<WrappedKit> {
   if (response.status >= 500) throw new HttpError(response.status, `HTTP ${response.status}`);
   if (!response.ok) throw new InvalidCredentialsError();
   return (await response.json()) as WrappedKit;
+}
+
+/**
+ * POST /api/recovery/register: stores `kit` for `email` on the signed-in account
+ * (a new address gets a 6-digit code mail; `pending: false` means the address was
+ * already this account's and its kit was replaced). `account`: the public-key hash
+ * of the wallet whose phrase `kit` wraps; the host refuses (AccountMismatchError)
+ * when its session is another account's.
+ */
+export async function postRecoveryKit(
+  email: string,
+  kit: WrappedKit,
+  locale: Locale,
+  account: string,
+): Promise<{ pending: boolean }> {
+  const response = await apiFetch("/api/recovery/register", {
+    method: "POST",
+    headers: { "content-type": "application/json", ...accountHeader(account) },
+    body: JSON.stringify({ email, locale, ...kit }),
+  });
+  if (response.status === 503) throw new MailNotConfiguredError();
+  if (response.status === 429) throw new RateLimitedError();
+  await rejectAccountMismatch(response);
+  // HttpError: a 401 (session expired) signs in again and retries (retryAfterSignInOnce),
+  // like the AccountMismatchError above.
+  if (!response.ok) throw new HttpError(response.status, "Recovery kit was not saved");
+  const payload = (await response.json()) as { pending?: boolean };
+  return { pending: payload.pending !== false };
+}
+
+/** POST /api/recovery/confirm with the 6-digit code, for the account `account` names (see postRecoveryKit). */
+export async function confirmRecoveryCode(code: string, account: string) {
+  const response = await apiFetch("/api/recovery/confirm", {
+    method: "POST",
+    headers: { "content-type": "application/json", ...accountHeader(account) },
+    body: JSON.stringify({ code }),
+  });
+  // No session (the app was closed, its cookie not kept), a session for another
+  // account, or the host failing is not a wrong code: the first two sign in again,
+  // the last is reported as it is.
+  await rejectAccountMismatch(response);
+  if (response.status === 401 || response.status >= 500) {
+    throw new HttpError(response.status, "Could not confirm");
+  }
+  if (!response.ok) throw new InvalidConfirmError();
 }
 
 type OpenKitDeps = {

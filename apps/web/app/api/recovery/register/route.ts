@@ -25,7 +25,7 @@ export const POST = apiRoute(async (request: Request) => {
   const outdated = rejectOutdatedClient(request);
   if (outdated) return outdated;
   const startedAt = Date.now();
-  const { error, account } = await requireAccount();
+  const { error, account } = await requireAccount(request);
   if (error || !account) return error;
 
   const parsed = await readJson(request);

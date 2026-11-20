@@ -4,6 +4,7 @@
 import { describe, expect, it, vi } from "vitest";
 
 import {
+  AccountMismatchError,
   AccountNotFoundError,
   HttpError,
   SignInCancelledError,
@@ -398,5 +399,86 @@ describe("retryAfterSignInOnce after the session ended", () => {
     });
     await expect(retryAfterSignInOnce(signIn, () => live)(save)).rejects.toBeInstanceOf(SignInCancelledError);
     expect(save).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("retryAfterSignInOnce on a session of another account (409 account-mismatch, C15)", () => {
+  it("signs in once with the wallet in memory and runs the request again", async () => {
+    const signIn = vi.fn(async () => undefined);
+    const save = vi
+      .fn<() => Promise<string>>()
+      .mockRejectedValueOnce(new AccountMismatchError())
+      .mockResolvedValueOnce("saved");
+    await expect(retryAfterSignInOnce(signIn)(save)).resolves.toBe("saved");
+    expect(signIn).toHaveBeenCalledTimes(1);
+    expect(save).toHaveBeenCalledTimes(2);
+  });
+
+  it("throws a second refusal instead of trying again", async () => {
+    const signIn = vi.fn(async () => undefined);
+    const save = vi.fn(async () => {
+      throw new AccountMismatchError();
+    });
+    await expect(retryAfterSignInOnce(signIn)(save)).rejects.toBeInstanceOf(AccountMismatchError);
+    expect(signIn).toHaveBeenCalledTimes(1);
+    expect(save).toHaveBeenCalledTimes(2);
+  });
+
+  it("shares the one sign-in with the 401 path", async () => {
+    const signIn = vi.fn(async () => undefined);
+    const save = vi
+      .fn<() => Promise<string>>()
+      .mockRejectedValueOnce(new HttpError(401, "Not authenticated"))
+      .mockRejectedValueOnce(new AccountMismatchError());
+    await expect(retryAfterSignInOnce(signIn)(save)).rejects.toBeInstanceOf(AccountMismatchError);
+    expect(signIn).toHaveBeenCalledTimes(1);
+  });
+
+  it("never signs in for a session that is no longer open, nor runs again when it ends during the sign-in", async () => {
+    const mismatch = new AccountMismatchError();
+    const signIn = vi.fn(async () => undefined);
+    await expect(
+      retryAfterSignInOnce(signIn, () => false)(async () => {
+        throw mismatch;
+      }),
+    ).rejects.toBe(mismatch);
+    expect(signIn).not.toHaveBeenCalled();
+
+    let live = true;
+    const save = vi.fn(async () => {
+      throw new AccountMismatchError();
+    });
+    const endingSignIn = async () => {
+      live = false;
+    };
+    await expect(retryAfterSignInOnce(endingSignIn, () => live)(save)).rejects.toBeInstanceOf(SignInCancelledError);
+    expect(save).toHaveBeenCalledTimes(1);
+  });
+
+  it("a save still refused as another account's ends the merge loop: nothing merged, nothing synced", async () => {
+    const synced = { diary: emptyDiary("es"), version: 5 };
+    const local = upsertDay(synced.diary, "2026-09-02", { symptoms: {}, flow: "light" });
+    const signIn = vi.fn(async () => undefined);
+    const put = vi.fn<(blob: VaultBlob, baseVersion: number) => Promise<PutVaultResult>>(async () => {
+      throw new AccountMismatchError();
+    });
+    const openRemote = vi.fn();
+    const onSynced = vi.fn();
+    const withSession = retryAfterSignInOnce(signIn);
+    await expect(
+      saveWithMerge({
+        synced,
+        local,
+        maxAttempts: 3,
+        seal: async (diary) => ({ ciphertext: JSON.stringify(diary), nonce: "n", schemaVersion: diary.schemaVersion }),
+        save: (blob, baseVersion) => withSession(() => put(blob, baseVersion)),
+        openRemote,
+        onSynced,
+      }),
+    ).rejects.toBeInstanceOf(AccountMismatchError);
+    expect(signIn).toHaveBeenCalledTimes(1);
+    expect(put).toHaveBeenCalledTimes(2);
+    expect(openRemote).not.toHaveBeenCalled();
+    expect(onSynced).not.toHaveBeenCalled();
   });
 });
