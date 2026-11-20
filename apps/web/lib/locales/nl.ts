@@ -28,6 +28,13 @@ const locale: LocaleModule = {
       "Kies hoe je wilt inloggen. In beide gevallen worden je datums hier versleuteld voordat ze worden opgeslagen. Ciclo kan je wachtwoord of herstelzin niet terughalen.",
     privacyBanner:
       "Je datums worden op dit apparaat versleuteld. Ciclo kan je wachtwoord of herstelzin niet resetten. Ben je ze kwijt, dan red je het alleen met een eerdere export. Zo kan niemand – ook wij niet – je dagboek op de server lezen.",
+    signupConsentTitle: "Voordat je begint",
+    signupConsentHosted:
+      "Je dagboek kan gezondheidsgegevens en gegevens over je seksleven bevatten: menstruaties, symptomen, mentale gezondheid, seksuele activiteit, zwangerschaps- en ovulatietests, de anticonceptiepil en andere medicijnen, en notities. Ciclo versleutelt het op dit apparaat voordat het wordt opgeslagen. In de Ciclo-cloud bewaart onze server alleen de versleutelde kopie en kan die niet lezen. Met e-mail bewaart hij ook een gecodeerde vingerafdruk van je adres, nooit het adres zelf.",
+    signupConsentDevice: "Met “Alleen op dit apparaat” verlaat het dagboek deze telefoon nooit.",
+    signupConsentAgree:
+      "Ik ga ermee akkoord dat Ciclo mijn gezondheidsgegevens opslaat en verwerkt zoals hier en in het privacybeleid staat.",
+    signupConsentRequired: "Vink het vakje aan om te kiezen hoe je je dagboek maakt.",
     noResetHint:
       "Vergeet je je wachtwoord of herstelzin, dan is het online dagboek weg. Dat is met opzet: zo blijft je privacy beschermd. Exporteer JSON/CSV zolang het kan.",
     emailLoginHint:
@@ -41,7 +48,13 @@ const locale: LocaleModule = {
     forecast: "Voorspelling",
     settings: "Instellingen",
     privacy: "Privacy",
+    privacyPolicy: "Privacybeleid",
     helpDocs: "Help",
+    licensesTitle: "Opensourcelicenties",
+    licensesIntro:
+      "Ciclo gebruikt deze opensourcelettertypen en -softwarepakketten. Hun licenties vragen ons deze vermeldingen te tonen. De licentieteksten zijn in het Engels.",
+    licensesFonts: "Lettertypen",
+    licensesLibraries: "Softwarepakketten",
     visualSeasons: "Visuele seizoenen",
     visualSeasonsHint:
       "Geef de cycluskaart de sfeer van het bijbehorende seizoen: winter, lente, zomer of herfst. Animaties volgen de instelling voor minder beweging op je apparaat.",
@@ -237,18 +250,6 @@ const locale: LocaleModule = {
     invalidPhrase: "Ongeldige herstelzin.",
     noAccountForPhrase: "Er is geen account met deze herstelzin. Controleer de 12 woorden of maak een nieuw account aan.",
     wordMismatch: "Dat woord klopt niet.",
-    privacyTitle: "Privacy",
-    privacyBody1:
-      "Datums worden in de browser versleuteld met AES-GCM. De server slaat alleen versleutelde gegevens op. Je kunt e-mail en wachtwoord gebruiken of de superprivémodus met 12 woorden.",
-    privacyBody1Android:
-      "Datums worden op deze telefoon versleuteld met AES-GCM. De server slaat alleen versleutelde gegevens op. Je kunt e-mail en wachtwoord gebruiken of de superprivémodus met 12 woorden.",
-    privacyBody2:
-      "Ciclo kan je wachtwoord of herstelzin niet resetten. Ben je ze kwijt, dan is het online dagboek weg. Zo blijft je privacy beschermd: niemand – ook wij niet – kan je dagboek op de server lezen.",
-    privacyBody3:
-      "Met e-mail en wachtwoord log je op elk apparaat in met dezelfde combinatie. Het wachtwoord ontgrendelt je sleutel hier; je hoeft je mail niet te openen om in te loggen.",
-    privacyBody4:
-      "Symptomen, bloedverlies, cervixslijm en korte dagnotities blijven in het versleutelde dagboek. De server voegt geen gezondheidskolommen toe. De anonieme onderzoekspool krijgt alleen cycluslengtes (hele getallen); notities worden nooit verstuurd of geanalyseerd.",
-    privacyBody5: "De onderzoekspool bewaart geen koppeling tussen je account en de anonieme ID.",
     welcomeCta: "Begin in de browser. Datums worden versleuteld voordat ze je apparaat verlaten.",
     welcomeCtaAndroid: "Begin hier. Datums worden versleuteld voordat ze deze telefoon verlaten.",
     restoreFailedTitle: "We konden je dagboek niet openen",

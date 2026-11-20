@@ -28,6 +28,13 @@ const locale: LocaleModule = {
       "Wybierz, jak chcesz się logować. W obu przypadkach daty są szyfrowane tutaj, zanim zostaną zapisane. Ciclo nie może odzyskać twojego hasła ani frazy.",
     privacyBanner:
       "Twoje daty są szyfrowane na tym urządzeniu. Ciclo nie może zresetować twojego hasła ani frazy. Jeśli je zgubisz, uratuje cię tylko wcześniejszy eksport. Dzięki temu nikt — nawet my — nie może przeczytać twojego dziennika na serwerze.",
+    signupConsentTitle: "Zanim zaczniesz",
+    signupConsentHosted:
+      "Twój dziennik może zawierać dane o zdrowiu i życiu seksualnym: miesiączki, objawy, zdrowie psychiczne, aktywność seksualną, testy ciążowe i owulacyjne, tabletki antykoncepcyjne i inne leki oraz notatki. Ciclo szyfruje go na tym urządzeniu przed zapisaniem. W chmurze Ciclo nasz serwer przechowuje tylko zaszyfrowaną kopię i nie może jej odczytać. Przy logowaniu e-mailem przechowuje też zakodowany odcisk twojego adresu, nigdy sam adres.",
+    signupConsentDevice: "Przy opcji „Tylko na tym urządzeniu” dziennik nigdy nie opuszcza tego telefonu.",
+    signupConsentAgree:
+      "Zgadzam się, aby Ciclo przechowywało i przetwarzało moje dane o zdrowiu w sposób opisany tutaj i w polityce prywatności.",
+    signupConsentRequired: "Zaznacz pole, aby wybrać, jak utworzyć dziennik.",
     noResetHint:
       "Jeśli zapomnisz hasła lub frazy, dziennik w chmurze przepadnie. To celowe: chroni twoją prywatność. Eksportuj JSON/CSV, póki możesz.",
     emailLoginHint:
@@ -41,7 +48,13 @@ const locale: LocaleModule = {
     forecast: "Prognoza",
     settings: "Ustawienia",
     privacy: "Prywatność",
+    privacyPolicy: "Polityka prywatności",
     helpDocs: "Pomoc",
+    licensesTitle: "Licencje open source",
+    licensesIntro:
+      "Ciclo korzysta z tych otwartoźródłowych czcionek i pakietów oprogramowania. Ich licencje wymagają pokazania tych informacji. Teksty licencji są po angielsku.",
+    licensesFonts: "Czcionki",
+    licensesLibraries: "Pakiety oprogramowania",
     visualSeasons: "Wizualne pory roku",
     visualSeasonsHint:
       "Dopasowuje wygląd karty cyklu do jej pory roku: zimy, wiosny, lata lub jesieni. Animacje uwzględniają ustawienie ograniczenia ruchu na urządzeniu.",
@@ -236,18 +249,6 @@ const locale: LocaleModule = {
     invalidPhrase: "Nieprawidłowa fraza.",
     noAccountForPhrase: "Żadne konto nie używa tej frazy. Sprawdź 12 słów lub utwórz nowe konto.",
     wordMismatch: "To słowo się nie zgadza.",
-    privacyTitle: "Prywatność",
-    privacyBody1:
-      "Daty są szyfrowane w przeglądarce za pomocą AES-GCM. Serwer przechowuje tylko zaszyfrowane dane. Możesz używać e-maila i hasła albo trybu superprywatnego z 12 słowami.",
-    privacyBody1Android:
-      "Daty są szyfrowane na tym telefonie za pomocą AES-GCM. Serwer przechowuje tylko zaszyfrowane dane. Możesz używać e-maila i hasła albo trybu superprywatnego z 12 słowami.",
-    privacyBody2:
-      "Ciclo nie może zresetować twojego hasła ani frazy. Jeśli je zgubisz, dziennik w chmurze przepadnie. To chroni twoją prywatność: nikt — nawet my — nie może przeczytać twojego dziennika na serwerze.",
-    privacyBody3:
-      "Z e-mailem i hasłem logujesz się na każdym urządzeniu tą samą parą. Hasło odblokowuje twój klucz tutaj; nie musisz otwierać poczty, żeby się zalogować.",
-    privacyBody4:
-      "Objawy, krwawienie, śluz szyjkowy i krótkie notatki dnia zostają w zaszyfrowanym dzienniku. Serwer nie dodaje kolumn z danymi o zdrowiu. Anonimowa pula badawcza otrzymuje tylko długości cykli (liczby całkowite); notatki nigdy nie są wysyłane ani analizowane.",
-    privacyBody5: "Pula badawcza nie przechowuje powiązania twojego konta z anonimowym identyfikatorem.",
     welcomeCta: "Zacznij w przeglądarce. Daty są szyfrowane, zanim opuszczą urządzenie.",
     welcomeCtaAndroid: "Zacznij tutaj. Daty są szyfrowane, zanim opuszczą ten telefon.",
     restoreFailedTitle: "Nie udało nam się otworzyć twojego dziennika",

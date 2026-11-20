@@ -4,7 +4,7 @@ OpenCiclo
 Copyright © 2026 Emma Flora Harbison & Luis Rey Sánchez
 Apache License 2.0
 
-User-facing text lives in [PRIVACY.md](../PRIVACY.md). The hosted Help article is `/help/how-data-is-stored`. This note is the contributor checklist.
+User-facing text lives in [PRIVACY.md](../PRIVACY.md). The privacy policy the apps show at `/privacy` is [`apps/web/lib/privacy/policy.ts`](../apps/web/lib/privacy/policy.ts); the data map, processors and DPIA outline for the Google Play launch are in [play/privacy-checklist.md](play/privacy-checklist.md). The hosted Help article is `/help/how-data-is-stored`. This note is the contributor checklist.
 
 In one line: the Python engine never needs a network; the web host stores ciphertext plus a public key hash (and, for email accounts, an HMAC of the email plus a password-wrapped phrase). Research rows are cycle lengths with **no** link back to an account.
 

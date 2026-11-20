@@ -23,11 +23,20 @@ const locale: LocaleModule = {
       "Tria com vols entrar. En els dos casos, les teues dates es xifren ací abans de guardar-se. Ciclo no pot recuperar la teua contrasenya ni la teua frase.",
     privacyBanner:
       "Les teues dates es xifren en este dispositiu. Ciclo no pot restablir la teua contrasenya ni la teua frase. Si les perds, només et salva una exportació prèvia. Així ningú — ni tan sols nosaltres — pot llegir el teu diari al servidor.",
+    signupConsentHosted:
+      "El teu diari pot contindre dades de salut i de la teua vida sexual: períodes, símptomes, salut mental, activitat sexual, proves d'embaràs i d'ovulació, pastilles anticonceptives i altres medicaments, i notes. Ciclo el xifra en este dispositiu abans de guardar-lo. En el núvol de Ciclo, el nostre servidor només en guarda la còpia xifrada i no la pot llegir. Amb correu, també guarda una empremta codificada de la teua adreça, mai l'adreça.",
+    signupConsentDevice: "Amb «Només en este dispositiu», el diari no ix mai d'este mòbil.",
+    signupConsentAgree:
+      "Accepte que Ciclo guarde i tracte les meues dades de salut tal com s'explica ací i en la política de privacitat.",
+    signupConsentRequired: "Marca la casella per a triar com crear el teu diari.",
     noResetHint:
       "Si oblides la contrasenya o la frase, el diari del núvol es perd. És intencionat: protegix la teua privacitat. Exporta en JSON/CSV mentres pugues.",
     back: "Arrere",
     save: "Guarda",
     privacy: "Privacitat",
+    privacyPolicy: "Política de privacitat",
+    licensesIntro:
+      "Ciclo utilitza estos tipus de lletra i paquets de programari de codi obert. Les seues llicències demanen mostrar estos avisos. Els textos de les llicències estan en anglés.",
     visualSeasonsHint:
       "Ambienta la targeta del cicle segons la seua estació: hivern, primavera, estiu o tardor. Les animacions respecten la preferència de moviment reduït del dispositiu.",
     timeZoneHint:
@@ -105,18 +114,6 @@ const locale: LocaleModule = {
     screenErrorTitle: "Alguna cosa ha fallat en esta pantalla",
     noAccountForPhrase: "No hi ha cap compte amb esta frase. Revisa les 12 paraules o crea un compte nou.",
     wordMismatch: "Esta paraula no coincidix.",
-    privacyTitle: "Privacitat",
-    privacyBody1:
-      "Les dates es xifren al navegador amb AES-GCM. El servidor només guarda text xifrat. Pots usar correu i contrasenya o el mode superprivat amb 12 paraules.",
-    privacyBody1Android:
-      "Les dates es xifren en este mòbil amb AES-GCM. El servidor només guarda text xifrat. Pots usar correu i contrasenya o el mode superprivat amb 12 paraules.",
-    privacyBody2:
-      "Ciclo no pot restablir la teua contrasenya ni la teua frase. Si les perds, el diari del núvol es perd. Açò protegix la teua privacitat: ningú — ni tan sols nosaltres — pot llegir el teu diari al servidor.",
-    privacyBody3:
-      "Amb correu i contrasenya, entres des de qualsevol dispositiu amb la mateixa parella. La contrasenya desxifra la teua clau ací; no cal obrir el correu per a entrar.",
-    privacyBody4:
-      "Els símptomes, el flux, el moc cervical i les notes breus del dia es queden dins del diari xifrat. El servidor no hi afig columnes de salut. El recull anònim només rep durades del cicle (nombres enters); les notes no s'envien ni s'analitzen mai.",
-    privacyBody5: "El recull de recerca no guarda cap correspondència entre el teu compte i l'identificador anònim.",
     welcomeCta: "Comença al navegador. Les dates es xifren abans d'eixir del dispositiu.",
     welcomeCtaAndroid: "Comença ací. Les dates es xifren abans d'eixir d'este mòbil.",
     restoreFailedBody:

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 import { IS_ANDROID_APP, PLAY_STORE_URL } from "@/lib/app-target";
 import { useCiclo } from "@/lib/client/ciclo-context";
@@ -90,6 +91,11 @@ export function WelcomeScreen() {
           {t.haveAccount}
         </Button>
       </Card>
+      <p className="text-center text-xs text-muted-foreground">
+        <Link href="/privacy" className="underline">
+          {t.privacyPolicy}
+        </Link>
+      </p>
       <InstallPrompt />
     </div>
   );
