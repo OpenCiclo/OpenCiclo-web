@@ -28,6 +28,13 @@ const locale: LocaleModule = {
       "Tria com vols entrar. En tots dos casos, les teves dates es xifren aquí abans de desar-se. Ciclo no pot recuperar la teva contrasenya ni la teva frase.",
     privacyBanner:
       "Les teves dates es xifren en aquest dispositiu. Ciclo no pot restablir la teva contrasenya ni la teva frase. Si les perds, només et salva una exportació prèvia. Així ningú — ni tan sols nosaltres — pot llegir el teu diari al servidor.",
+    signupConsentTitle: "Abans de començar",
+    signupConsentHosted:
+      "El teu diari pot contenir dades de salut i de la teva vida sexual: períodes, símptomes, salut mental, activitat sexual, proves d'embaràs i d'ovulació, pastilles anticonceptives i altres medicaments, i notes. Ciclo el xifra en aquest dispositiu abans de desar-lo. Al núvol de Ciclo, el nostre servidor només en desa la còpia xifrada i no la pot llegir. Amb correu, també desa una empremta codificada de la teva adreça, mai l'adreça.",
+    signupConsentDevice: "Amb «Només en aquest dispositiu», el diari no surt mai d'aquest mòbil.",
+    signupConsentAgree:
+      "Accepto que Ciclo desi i tracti les meves dades de salut tal com s'explica aquí i a la política de privadesa.",
+    signupConsentRequired: "Marca la casella per triar com crear el teu diari.",
     noResetHint:
       "Si oblides la contrasenya o la frase, el diari del núvol es perd. És intencionat: protegeix la teva privadesa. Exporta en JSON/CSV mentre puguis.",
     emailLoginHint:
@@ -41,7 +48,13 @@ const locale: LocaleModule = {
     forecast: "Previsió",
     settings: "Configuració",
     privacy: "Privadesa",
+    privacyPolicy: "Política de privadesa",
     helpDocs: "Documentació",
+    licensesTitle: "Llicències de codi obert",
+    licensesIntro:
+      "Ciclo fa servir aquests tipus de lletra i paquets de programari de codi obert. Les seves llicències demanen mostrar aquests avisos. Els textos de les llicències són en anglès.",
+    licensesFonts: "Tipus de lletra",
+    licensesLibraries: "Paquets de programari",
     visualSeasons: "Estacions visuals",
     visualSeasonsHint:
       "Ambienta la targeta del cicle segons la seva estació: hivern, primavera, estiu o tardor. Les animacions respecten la preferència de moviment reduït del dispositiu.",
@@ -236,18 +249,6 @@ const locale: LocaleModule = {
     invalidPhrase: "La frase no és vàlida.",
     noAccountForPhrase: "No hi ha cap compte amb aquesta frase. Revisa les 12 paraules o crea un compte nou.",
     wordMismatch: "Aquesta paraula no coincideix.",
-    privacyTitle: "Privadesa",
-    privacyBody1:
-      "Les dates es xifren al navegador amb AES-GCM. El servidor només desa text xifrat. Pots fer servir correu i contrasenya o el mode superprivat amb 12 paraules.",
-    privacyBody1Android:
-      "Les dates es xifren en aquest mòbil amb AES-GCM. El servidor només desa text xifrat. Pots fer servir correu i contrasenya o el mode superprivat amb 12 paraules.",
-    privacyBody2:
-      "Ciclo no pot restablir la teva contrasenya ni la teva frase. Si les perds, el diari del núvol es perd. Això protegeix la teva privadesa: ningú — ni tan sols nosaltres — pot llegir el teu diari al servidor.",
-    privacyBody3:
-      "Amb correu i contrasenya, entres des de qualsevol dispositiu amb la mateixa parella. La contrasenya desxifra la teva clau aquí; no cal obrir el correu per entrar.",
-    privacyBody4:
-      "Els símptomes, el flux, el moc cervical i les notes breus del dia es queden dins del diari xifrat. El servidor no hi afegeix columnes de salut. El recull anònim només rep durades del cicle (nombres enters); les notes no s'envien ni s'analitzen mai.",
-    privacyBody5: "El recull de recerca no desa cap correspondència entre el teu compte i l'identificador anònim.",
     welcomeCta: "Comença al navegador. Les dates es xifren abans de sortir del dispositiu.",
     welcomeCtaAndroid: "Comença aquí. Les dates es xifren abans de sortir d'aquest mòbil.",
     restoreFailedTitle: "No hem pogut obrir el teu diari",

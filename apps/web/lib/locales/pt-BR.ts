@@ -28,6 +28,13 @@ const locale: LocaleModule = {
       "Escolha como quer entrar. Nos dois casos, suas datas são criptografadas aqui antes de serem salvas. O Ciclo não pode recuperar sua senha nem sua frase.",
     privacyBanner:
       "Suas datas são criptografadas neste dispositivo. O Ciclo não pode redefinir sua senha nem sua frase. Se você perdê-las, só uma exportação anterior salva seus dados. Assim, ninguém — nem nós — pode ler seu diário no servidor.",
+    signupConsentTitle: "Antes de começar",
+    signupConsentHosted:
+      "Seu diário pode conter dados de saúde e da sua vida sexual: menstruações, sintomas, saúde mental, atividade sexual, testes de gravidez e de ovulação, pílulas anticoncepcionais e outros medicamentos, e notas. O Ciclo o criptografa neste dispositivo antes de salvá-lo. Na nuvem do Ciclo, nosso servidor guarda só a cópia criptografada e não consegue lê-la. Com e-mail, ele também guarda uma impressão codificada do seu endereço, nunca o endereço.",
+    signupConsentDevice: "Com “Só neste dispositivo”, o diário nunca sai deste celular.",
+    signupConsentAgree:
+      "Concordo que o Ciclo armazene e trate meus dados de saúde como explicado aqui e na política de privacidade.",
+    signupConsentRequired: "Marque a caixa para escolher como criar seu diário.",
     noResetHint:
       "Se você esquecer sua senha ou sua frase, o diário na nuvem se perde. Isso é intencional: protege sua privacidade. Exporte em JSON/CSV enquanto pode.",
     emailLoginHint:
@@ -41,7 +48,13 @@ const locale: LocaleModule = {
     forecast: "Previsão",
     settings: "Ajustes",
     privacy: "Privacidade",
+    privacyPolicy: "Política de privacidade",
     helpDocs: "Ajuda",
+    licensesTitle: "Licenças de código aberto",
+    licensesIntro:
+      "O Ciclo usa estas fontes e pacotes de software de código aberto. As licenças deles pedem que mostremos estes avisos. Os textos das licenças estão em inglês.",
+    licensesFonts: "Fontes",
+    licensesLibraries: "Pacotes de software",
     visualSeasons: "Estações visuais",
     visualSeasonsHint:
       "Muda o visual do cartão do ciclo conforme a estação: inverno, primavera, verão ou outono. As animações respeitam a preferência de movimento reduzido do dispositivo.",
@@ -237,18 +250,6 @@ const locale: LocaleModule = {
     invalidPhrase: "Frase inválida.",
     noAccountForPhrase: "Nenhuma conta usa essa frase. Confira as 12 palavras ou crie uma conta nova.",
     wordMismatch: "Essa palavra não confere.",
-    privacyTitle: "Privacidade",
-    privacyBody1:
-      "As datas são criptografadas no navegador com AES-GCM. O servidor guarda só texto cifrado. Você pode usar e-mail e senha ou o modo superprivado com 12 palavras.",
-    privacyBody1Android:
-      "As datas são criptografadas neste celular com AES-GCM. O servidor guarda só texto cifrado. Você pode usar e-mail e senha ou o modo superprivado com 12 palavras.",
-    privacyBody2:
-      "O Ciclo não pode redefinir sua senha nem sua frase. Se você perdê-las, o diário na nuvem se perde. Isso protege sua privacidade: ninguém — nem nós — pode ler seu diário no servidor.",
-    privacyBody3:
-      "Com e-mail e senha, você entra em qualquer dispositivo com o mesmo par. A senha desbloqueia sua chave aqui; não é preciso abrir o e-mail para entrar.",
-    privacyBody4:
-      "Os sintomas, o fluxo, o muco cervical e as notas curtas do dia ficam dentro do diário criptografado. O servidor não adiciona colunas de saúde. A base anônima só recebe durações de ciclo (números inteiros); as notas nunca são enviadas nem analisadas.",
-    privacyBody5: "A base de pesquisa não guarda um mapa da sua conta para o identificador anônimo.",
     welcomeCta: "Comece no navegador. As datas são criptografadas antes de sair do dispositivo.",
     welcomeCtaAndroid: "Comece aqui. As datas são criptografadas antes de sair deste celular.",
     restoreFailedTitle: "Não conseguimos abrir seu diário",

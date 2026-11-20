@@ -322,6 +322,7 @@ export default function SettingsPage() {
         <Link href="/help" className="text-sm font-medium text-primary underline">
           {t.helpDocs}
         </Link>
+        <Link href="/licenses" className="text-sm font-medium text-primary underline">{t.licensesTitle}</Link>
         <p className="break-all text-xs text-muted-foreground">
           {t.address}: {wallet.pubkeyHash}
         </p>

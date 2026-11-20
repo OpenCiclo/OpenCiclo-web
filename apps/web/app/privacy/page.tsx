@@ -3,20 +3,18 @@
 import Link from "next/link";
 
 import { useCiclo } from "@/lib/client/ciclo-context";
+import { privacyPolicy } from "@/lib/privacy/policy";
 import { AppShell } from "@/components/app-shell";
-import { Card } from "@/components/ui/card";
+import { LegalPage } from "@/components/legal-page";
 
+// The privacy policy, in Spanish or English (lib/privacy/policy.ts). Other UI
+// languages show one of the two with a badge, like Learn articles. `?lang=en`
+// or `?lang=es` picks one regardless of the UI language (display only).
 export default function PrivacyPage() {
   const { t } = useCiclo();
   return (
     <AppShell size="reading">
-      <h1 className="text-2xl font-semibold">{t.privacyTitle}</h1>
-      <Card className="mt-4 flex flex-col gap-3 text-sm leading-6">
-        <p>{t.privacyBody1}</p>
-        <p>{t.privacyBody2}</p>
-        <p>{t.privacyBody3}</p>
-        <p>{t.privacyBody4}</p>
-        <p>{t.privacyBody5}</p>
+      <LegalPage build={privacyPolicy}>
         <p>
           <a className="underline" href="https://physionet.org/content/mcphases/1.0.0/">
             mcPHASES
@@ -26,16 +24,20 @@ export default function PrivacyPage() {
             Utah / Creighton
           </a>
         </p>
-        <p>
+        <p className="flex flex-wrap gap-x-2 gap-y-1">
+          <Link href="/licenses" className="underline">
+            {t.licensesTitle}
+          </Link>
+          <span aria-hidden>·</span>
           <Link href="/help" className="underline">
             {t.helpDocs}
           </Link>
-          {" · "}
+          <span aria-hidden>·</span>
           <Link href="/" className="underline">
             {t.back}
           </Link>
         </p>
-      </Card>
+      </LegalPage>
     </AppShell>
   );
 }

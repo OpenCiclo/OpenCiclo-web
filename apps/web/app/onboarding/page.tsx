@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useId, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { IS_ANDROID_APP } from "@/lib/app-target";
@@ -19,6 +19,8 @@ import {
   useCiclo,
 } from "@/lib/client/ciclo-context";
 import { maskEmail } from "@/lib/client/kit-store";
+import { gatedSignupMethod, type SignupMethod } from "@/lib/client/signup-consent";
+import { PolicyDialog } from "@/components/policy-dialog";
 import { AppShell } from "@/components/app-shell";
 import { UpdateNotice, updateErrorMessage } from "@/components/update-notice";
 import { PhraseQrCode } from "@/components/phrase-qr-code";
@@ -43,6 +45,12 @@ export default function OnboardingPage() {
   } = useCiclo();
   const router = useRouter();
   const [method, setMethod] = useState<Method>("choose");
+  // The sign-up consent. Kept in this page only, so existing users are never asked.
+  const [consented, setConsented] = useState(false);
+  const [policyOpen, setPolicyOpen] = useState(false);
+  const closePolicy = useCallback(() => setPolicyOpen(false), []);
+  const consentHintId = useId();
+  const consentHint = consented ? undefined : consentHintId;
   const [wallet, setWallet] = useState<Wallet | null>(null);
   const [copied, setCopied] = useState(false);
   const [step, setStep] = useState<"show" | "confirm">("show");
@@ -57,6 +65,12 @@ export default function OnboardingPage() {
   const checkIndex = useMemo(() => (wallet ? 2 : 0), [wallet]);
   // The app can also keep the diary on the phone, with no account.
   const tooManySignupsMessage = IS_ANDROID_APP ? `${t.tooManySignups} ${t.tooManySignupsDevice}` : t.tooManySignups;
+
+  // Every way to create a diary goes through the consent gate.
+  function startSignup(next: SignupMethod) {
+    const allowed = gatedSignupMethod(next, consented);
+    if (allowed) setMethod(allowed);
+  }
 
   function generate() {
     setWallet(startOnboarding());
@@ -189,9 +203,35 @@ export default function OnboardingPage() {
         <>
           <h1 className="text-2xl font-semibold">{t.createAccount}</h1>
           <p className="mt-2 text-sm text-muted-foreground">{t.chooseModeIntro}</p>
-          <Card className="mt-4 border-primary/20 bg-primary/5 p-4 text-sm leading-6 text-muted-foreground">
-            {t.privacyBanner}
+          {/* What is stored and where, and an explicit yes, before any diary exists (all three ways). Not saved anywhere. */}
+          <Card className="mt-4 flex flex-col gap-3 border-primary/20 bg-primary/5 p-4 text-sm leading-6">
+            <h2 className="font-semibold text-card-foreground">{t.signupConsentTitle}</h2>
+            <p className="text-muted-foreground">{t.signupConsentHosted}</p>
+            {IS_ANDROID_APP ? <p className="text-muted-foreground">{t.signupConsentDevice}</p> : null}
+            <label className="flex items-start gap-2 font-medium text-card-foreground">
+              <input
+                type="checkbox"
+                className="mt-1.5"
+                checked={consented}
+                onChange={(event) => setConsented(event.target.checked)}
+              />
+              <span>{t.signupConsentAgree}</span>
+            </label>
+            {/* Opens over this screen, so the tick survives reading the policy. */}
+            <button
+              type="button"
+              className="self-start font-medium text-primary underline"
+              onClick={() => setPolicyOpen(true)}
+            >
+              {t.privacyPolicy}
+            </button>
+            {consented ? null : (
+              <p id={consentHintId} className="text-xs text-muted-foreground">
+                {t.signupConsentRequired}
+              </p>
+            )}
           </Card>
+          {policyOpen ? <PolicyDialog onClose={closePolicy} /> : null}
           <div className="mt-6 flex flex-col gap-3">
             <Card className="flex flex-col gap-3">
               <div>
@@ -199,14 +239,21 @@ export default function OnboardingPage() {
                 <h2 className="mt-1 font-medium">{t.createWithEmail}</h2>
                 <p className="mt-1 text-sm text-muted-foreground">{t.createWithEmailHint}</p>
               </div>
-              <Button onClick={() => setMethod("email")}>{t.createWithEmail}</Button>
+              <Button disabled={!consented} aria-describedby={consentHint} onClick={() => startSignup("email")}>
+                {t.createWithEmail}
+              </Button>
             </Card>
             <Card className="flex flex-col gap-3">
               <div>
                 <h2 className="font-medium">{t.superPrivateMode}</h2>
                 <p className="mt-1 text-sm text-muted-foreground">{t.superPrivateHint}</p>
               </div>
-              <Button variant="outline" onClick={() => setMethod("phrase")}>
+              <Button
+                variant="outline"
+                disabled={!consented}
+                aria-describedby={consentHint}
+                onClick={() => startSignup("phrase")}
+              >
                 {t.superPrivateMode}
               </Button>
             </Card>
@@ -216,7 +263,12 @@ export default function OnboardingPage() {
                   <h2 className="font-medium">{t.deviceMode}</h2>
                   <p className="mt-1 text-sm text-muted-foreground">{t.deviceModeHint}</p>
                 </div>
-                <Button variant="outline" onClick={() => setMethod("device")}>
+                <Button
+                  variant="outline"
+                  disabled={!consented}
+                  aria-describedby={consentHint}
+                  onClick={() => startSignup("device")}
+                >
                   {t.deviceMode}
                 </Button>
               </Card>

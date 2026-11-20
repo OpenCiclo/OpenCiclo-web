@@ -28,6 +28,13 @@ const locale: LocaleModule = {
       "Escolle como queres entrar. En calquera caso, as túas datas cífranse aquí antes de gardárense. Ciclo non pode recuperar o teu contrasinal nin a túa frase.",
     privacyBanner:
       "As túas datas cífranse neste dispositivo. Ciclo non pode restablecer o teu contrasinal nin a túa frase. Se os perdes, só te salva unha exportación previa. Así ninguén — nin sequera nós — pode ler o teu diario no servidor.",
+    signupConsentTitle: "Antes de comezar",
+    signupConsentHosted:
+      "O teu diario pode conter datos de saúde e da túa vida sexual: períodos, síntomas, saúde mental, actividade sexual, probas de embarazo e de ovulación, pílulas anticonceptivas e outros medicamentos, e notas. Ciclo cífrao neste dispositivo antes de gardalo. Na nube de Ciclo, o noso servidor só garda a copia cifrada e non pode lela. Con correo, garda ademais unha pegada codificada do teu enderezo, nunca o enderezo.",
+    signupConsentDevice: "Con «Só neste dispositivo», o diario nunca sae deste móbil.",
+    signupConsentAgree:
+      "Acepto que Ciclo garde e trate os meus datos de saúde tal como se explica aquí e na política de privacidade.",
+    signupConsentRequired: "Marca a caixa para escoller como crear o teu diario.",
     noResetHint:
       "Se esqueces o teu contrasinal ou a túa frase, o diario na nube pérdese. É intencionado: protexe a túa privacidade. Exporta en JSON/CSV mentres poidas.",
     emailLoginHint:
@@ -41,7 +48,13 @@ const locale: LocaleModule = {
     forecast: "Previsión",
     settings: "Axustes",
     privacy: "Privacidade",
+    privacyPolicy: "Política de privacidade",
     helpDocs: "Documentación",
+    licensesTitle: "Licenzas de código aberto",
+    licensesIntro:
+      "Ciclo usa estas fontes e paquetes de software de código aberto. As súas licenzas piden amosar estes avisos. Os textos das licenzas están en inglés.",
+    licensesFonts: "Fontes",
+    licensesLibraries: "Paquetes de software",
     visualSeasons: "Estacións visuais",
     visualSeasonsHint:
       "Ambienta a tarxeta do ciclo segundo a súa estación: inverno, primavera, verán ou outono. As animacións respectan a preferencia de movemento reducido do dispositivo.",
@@ -238,19 +251,6 @@ const locale: LocaleModule = {
     invalidPhrase: "Frase non válida.",
     noAccountForPhrase: "Non hai ningunha conta con esa frase. Revisa as 12 palabras ou crea unha conta nova.",
     wordMismatch: "Esa palabra non coincide.",
-    privacyTitle: "Privacidade",
-    privacyBody1:
-      "As datas cífranse no navegador con AES-GCM. O servidor garda só texto cifrado. Podes usar correo e contrasinal ou o modo superprivado con 12 palabras.",
-    privacyBody1Android:
-      "As datas cífranse neste móbil con AES-GCM. O servidor garda só texto cifrado. Podes usar correo e contrasinal ou o modo superprivado con 12 palabras.",
-    privacyBody2:
-      "Ciclo non pode restablecer o teu contrasinal nin a túa frase. Se os perdes, o diario aloxado pérdese. Isto protexe a túa privacidade: ninguén — nin sequera nós — pode ler o teu diario no servidor.",
-    privacyBody3:
-      "Con correo e contrasinal, entras en calquera dispositivo co mesmo par. O contrasinal desbloquea a túa chave aquí; non fai falta abrir o correo para entrar.",
-    privacyBody4:
-      "Os síntomas, o sangrado, o moco cervical e as notas breves do día quedan dentro do diario cifrado. O servidor non engade columnas de saúde. O banco de datos anónimo só recibe duracións de ciclo (números enteiros); as notas nunca se envían nin se analizan.",
-    privacyBody5:
-      "O banco de datos de investigación non garda ningunha relación entre a túa conta e o identificador anónimo.",
     welcomeCta: "Comeza no navegador. As datas cífranse antes de saíren do dispositivo.",
     welcomeCtaAndroid: "Comeza aquí. As datas cífranse antes de saíren deste móbil.",
     restoreFailedTitle: "Non puidemos abrir o teu diario",
