@@ -16,6 +16,8 @@ import {
   InvalidConfirmError,
   MailNotConfiguredError,
   RateLimitedError,
+  SavedSignInError,
+  SignupConfirmedError,
   useCiclo,
 } from "@/lib/client/ciclo-context";
 import { maskEmail } from "@/lib/client/kit-store";
@@ -42,9 +44,14 @@ export default function OnboardingPage() {
     createEmailAccount,
     confirmEmailAccount,
     resendEmailCode,
+    pendingSignup,
   } = useCiclo();
   const router = useRouter();
-  const [method, setMethod] = useState<Method>("choose");
+  // An email sign-up left waiting for its code (the app was closed while the
+  // email was read) opens on the code step until the person chooses otherwise.
+  // Its account already exists, so it was agreed to when it was created.
+  const [chosenMethod, setMethod] = useState<Method | null>(null);
+  const method: Method = chosenMethod ?? (pendingSignup ? "email" : "choose");
   // The sign-up consent. Kept in this page only, so existing users are never asked.
   const [consented, setConsented] = useState(false);
   const [policyOpen, setPolicyOpen] = useState(false);
@@ -54,10 +61,12 @@ export default function OnboardingPage() {
   const [wallet, setWallet] = useState<Wallet | null>(null);
   const [copied, setCopied] = useState(false);
   const [step, setStep] = useState<"show" | "confirm">("show");
-  const [emailPhase, setEmailPhase] = useState<"form" | "code">("form");
+  const [chosenEmailPhase, setEmailPhase] = useState<"form" | "code" | null>(null);
+  const emailPhase = chosenEmailPhase ?? (pendingSignup ? "code" : "form");
   const [code, setCode] = useState("");
   const [guess, setGuess] = useState("");
-  const [email, setEmail] = useState("");
+  const [enteredEmail, setEmail] = useState<string | null>(null);
+  const email = enteredEmail ?? pendingSignup?.email ?? "";
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [busy, setBusy] = useState(false);
@@ -101,7 +110,9 @@ export default function OnboardingPage() {
           ? updateErrorMessage(cause, t)
           : cause instanceof HttpError && cause.status === 429
             ? tooManySignupsMessage
-            : t.errorGeneric,
+            : cause instanceof SavedSignInError
+              ? t.restoreSavedSignInBlocks
+              : t.errorGeneric,
       );
     } finally {
       setBusy(false);
@@ -121,6 +132,8 @@ export default function OnboardingPage() {
     try {
       setBusy(true);
       setError(null);
+      // Stay on the form if this fails, even though the sign-up is now kept.
+      setEmailPhase("form");
       await createEmailAccount(email, password, { persist: true });
       await storeBrowserPassword(email.trim().toLowerCase(), password);
       setEmailPhase("code");
@@ -131,7 +144,11 @@ export default function OnboardingPage() {
       // A 429 from creating the account itself (the per-network sign-up limit).
       else if (cause instanceof HttpError && cause.status === 429) setError(tooManySignupsMessage);
       else if (cause instanceof UpdateRequiredError) setError(updateErrorMessage(cause, t));
-      else setError(t.errorGeneric);
+      else if (cause instanceof SavedSignInError) setError(t.restoreSavedSignInBlocks);
+      else if (cause instanceof SignupConfirmedError) {
+        setEmailPhase("code");
+        setError(t.signupConfirmedLoadFailed);
+      } else setError(t.errorGeneric);
     } finally {
       setBusy(false);
     }
@@ -147,6 +164,8 @@ export default function OnboardingPage() {
     } catch (cause) {
       if (cause instanceof InvalidConfirmError) setError(t.verifyEmailInvalid);
       else if (cause instanceof UpdateRequiredError) setError(updateErrorMessage(cause, t));
+      // The code went through; only opening the diary failed. The button tries that again.
+      else if (cause instanceof SignupConfirmedError) setError(t.signupConfirmedLoadFailed);
       else setError(t.errorGeneric);
     } finally {
       setBusy(false);
@@ -157,12 +176,18 @@ export default function OnboardingPage() {
     try {
       setBusy(true);
       setError(null);
-      await resendEmailCode();
+      const { confirmed } = await resendEmailCode();
+      // An earlier code had gone through: the diary is open now.
+      if (confirmed) {
+        returnTo(router, "/app");
+        return;
+      }
       setError(t.codeSent);
     } catch (cause) {
       if (cause instanceof MailNotConfiguredError) setError(t.mailNotConfigured);
       else if (cause instanceof RateLimitedError) setError(t.tooManyEmailCodes);
       else if (cause instanceof UpdateRequiredError) setError(updateErrorMessage(cause, t));
+      else if (cause instanceof SignupConfirmedError) setError(t.signupConfirmedLoadFailed);
       else setError(t.errorGeneric);
     } finally {
       setBusy(false);
@@ -327,7 +352,25 @@ export default function OnboardingPage() {
         </>
       ) : null}
 
-      {method === "email" && emailPhase === "code" ? (
+      {method === "email" && emailPhase === "code" && pendingSignup?.confirmed ? (
+        // The code went through before (the app closed, or the diary did not open): only opening it is left.
+        <>
+          <h1 className="text-2xl font-semibold">{t.pendingSignupTitle}</h1>
+          <Card className="mt-4">
+            <form className="flex flex-col gap-3" onSubmit={(event) => void finishEmailCode(event)}>
+              <p className="text-sm text-muted-foreground">{t.signupConfirmedLoadFailed}</p>
+              {error && error !== t.signupConfirmedLoadFailed ? (
+                <p className="text-sm text-destructive">{error}</p>
+              ) : null}
+              <Button type="submit" disabled={busy}>
+                {t.next}
+              </Button>
+            </form>
+          </Card>
+        </>
+      ) : null}
+
+      {method === "email" && emailPhase === "code" && !pendingSignup?.confirmed ? (
         <>
           <h1 className="text-2xl font-semibold">{t.verifyEmailTitle}</h1>
           <p className="mt-2 text-sm text-muted-foreground">

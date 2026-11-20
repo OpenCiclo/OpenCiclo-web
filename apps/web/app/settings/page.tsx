@@ -6,7 +6,7 @@ import Link from "next/link";
 import { ChevronDown } from "lucide-react";
 
 import { IS_ANDROID_APP, apiHostLabel } from "@/lib/app-target";
-import { VaultChangedError } from "@/lib/client/api";
+import { VaultChangedError, VaultTooLargeError } from "@/lib/client/api";
 import { InvalidCredentialsError, useCiclo } from "@/lib/client/ciclo-context";
 import { UpdateRequiredError } from "@/lib/client/http";
 import { lastEmail } from "@/lib/client/kit-store";
@@ -89,8 +89,8 @@ export default function SettingsPage() {
   } = useCiclo();
   const onDevice = storageMode === "device";
   // `readOnly`: the offline copy is open (Android), or this build must be updated
-  // to save the diary. Either way what saves the diary is off. Signing out and
-  // deleting the account only need the host, so only the offline copy stops them.
+  // to save the diary. Either way what saves the diary is off. Deleting the account
+  // only needs the host, so only the offline copy stops it; signing out works offline.
   const offlineCopy = offline !== null;
   const [storageBusy, setStorageBusy] = useState(false);
   const router = useRouter();
@@ -151,7 +151,14 @@ export default function SettingsPage() {
       const done = await action();
       if (done) say("storage", done);
     } catch (cause) {
-      say("storage", cause instanceof VaultChangedError ? t.moveChangedElsewhere : errorText(cause));
+      say(
+        "storage",
+        cause instanceof VaultChangedError
+          ? t.moveChangedElsewhere
+          : cause instanceof VaultTooLargeError
+            ? t.vaultTooLarge
+            : errorText(cause),
+      );
     } finally {
       setStorageBusy(false);
     }
@@ -194,10 +201,14 @@ export default function SettingsPage() {
           <p className="text-sm font-semibold text-card-foreground">{t.language}</p>
           <LanguageSelect
             className="mt-2"
-            onSelect={(next) => {
-              // TODO(integration): await setLocale(next) once the context returns its save
-              // promise, and say("preferences", errorText(cause)) when the save fails.
-              setLocale(next);
+            onSelect={async (next) => {
+              say("preferences", null);
+              try {
+                // Resolves once the diary saved the new language (on screen only while read-only).
+                await setLocale(next);
+              } catch (cause) {
+                say("preferences", errorText(cause));
+              }
             }}
           />
         </div>
@@ -566,7 +577,9 @@ export default function SettingsPage() {
                       ? t.importNewerFile
                       : cause instanceof UpdateRequiredError
                         ? t.updateNeededAction
-                        : t.importInvalid,
+                        : cause instanceof VaultTooLargeError
+                          ? t.vaultTooLarge
+                          : t.importInvalid,
                   );
                 }
               }}
@@ -699,7 +712,8 @@ export default function SettingsPage() {
         {onDevice ? null : (
           <Button
             variant="outline"
-            disabled={offlineCopy || deleting}
+            // Works offline too: it forgets this device's copy and ends the session when it can.
+            disabled={deleting}
             onClick={() => {
               say("account", null);
               signOut()

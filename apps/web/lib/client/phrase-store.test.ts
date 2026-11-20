@@ -136,10 +136,10 @@ describe("androidPhraseStore", () => {
     expect(plaintextLeft(local, session)).toEqual([]);
   });
 
-  it("reads as nothing kept when Keystore cannot open the phrase, without deleting it", async () => {
+  it("reports a phrase kept but unreadable when Keystore cannot open it, without deleting it", async () => {
     const { store, state } = setup({ failRead: true });
     state.sealed = PHRASE;
-    expect(await store.read()).toEqual({ mnemonic: null, persist: false, persistCookie: true });
+    expect(await store.read()).toEqual({ mnemonic: null, persist: false, persistCookie: true, unreadable: true });
     expect(state.clears).toBe(0);
   });
 
@@ -156,5 +156,24 @@ describe("androidPhraseStore", () => {
   it("clear throws when the sealed phrase may still be there", async () => {
     const { store } = setup({ failClear: true });
     await expect(store.clear()).rejects.toThrow();
+  });
+
+  it("writeVerified keeps the phrase in Keystore and checks it reads back", async () => {
+    const { store, state, local, session } = setup();
+    local.setItem(MNEMONIC_KEY, "older phrase");
+    await store.writeVerified(PHRASE);
+    expect(state.sealed).toBe(PHRASE);
+    expect(plaintextLeft(local, session)).toEqual([]);
+  });
+
+  it("writeVerified throws when Keystore fails, and never falls back to WebView storage", async () => {
+    const { store, local, session } = setup({ failStore: true });
+    await expect(store.writeVerified(PHRASE)).rejects.toThrow();
+    expect(plaintextLeft(local, session)).toEqual([]);
+  });
+
+  it("writeVerified throws when the sealed copy does not read back the same", async () => {
+    const { store } = setup({ corrupt: true });
+    await expect(store.writeVerified(PHRASE)).rejects.toThrow();
   });
 });

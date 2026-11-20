@@ -19,6 +19,12 @@ export type PhraseStore = {
   read(): Promise<UnlockStoreState>;
   /** Never throws: the person is already signed in, and the next start can ask for the phrase again. */
   write(mnemonic: string, persist: boolean): Promise<void>;
+  /**
+   * Keeps the phrase between starts and reads it back. Throws unless the kept copy
+   * reads back as `mnemonic`: for when the phrase must be kept before something
+   * else is deleted (moving an on-device diary to the host).
+   */
+  writeVerified(mnemonic: string): Promise<void>;
   /** Throws if a kept phrase may still be there. */
   clear(): Promise<void>;
 };
@@ -26,6 +32,10 @@ export type PhraseStore = {
 export const browserPhraseStore: PhraseStore = {
   read: async () => readUnlockState(),
   write: async (mnemonic, persist) => writeStoredMnemonic(mnemonic, persist),
+  writeVerified: async (mnemonic) => {
+    writeStoredMnemonic(mnemonic, true);
+    if (readUnlockState().mnemonic !== mnemonic) throw new Error("The phrase could not be kept on this device");
+  },
   clear: async () => clearStoredMnemonic(),
 };
 
@@ -79,8 +89,9 @@ export function androidPhraseStore(
         return phrase ? kept(phrase) : NOTHING_KEPT;
       } catch {
         // Keystore could not open it. Leave the file: a phrase is never dropped on an
-        // uncertain error. The person signs in again, which replaces it.
-        return NOTHING_KEPT;
+        // uncertain error, and it may be the only copy. The start screen offers Try
+        // again, and blocks other sign-ins until it is forgotten on purpose.
+        return { ...NOTHING_KEPT, unreadable: true };
       }
     },
 
@@ -92,6 +103,12 @@ export function androidPhraseStore(
         return;
       }
       await plugin.clearHostedPhrase().catch(() => undefined);
+    },
+
+    async writeVerified(mnemonic) {
+      dropPlaintext();
+      // No fallback to WebView storage if Keystore fails: the caller stops instead.
+      if (!(await sealAndCheck(mnemonic))) throw new Error("The phrase could not be kept on this device");
     },
 
     async clear() {

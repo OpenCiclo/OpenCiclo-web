@@ -14,9 +14,15 @@ You can change the wrap password in Settings while you are signed in. That only 
 
 **Keep me signed in** stores the unlock secret in this browser until you sign out. That is a device convenience, not a server session that can decrypt the diary. The Android app keeps it sealed by Android Keystore instead of browser storage. Unchecked, the app keeps it in memory only, so closing the app signs you out; the web keeps it only in the tab's session storage, until you close the tab. Creating an account always keeps you signed in on that device, as if the box were ticked; there is no box on the sign-up screen.
 
-If Ciclo cannot reach the server when it opens (no connection, or a server error), it keeps that secret and shows **Try again**. It does not show an empty diary while it waits, so nothing can be saved over your real one.
+If Ciclo cannot reach the server when it opens (no connection, or a server error), it keeps that secret and shows **Try again**. It also tries again on its own, waiting a little longer each time. It does not show an empty diary while it waits, so nothing can be saved over your real one. While that secret is kept, the start screen does not offer to create an account or sign in with another one, because that would replace it. You can look at the 12 words it holds, and **Forget the saved sign-in** on purpose first.
 
 In the Android app, with **Keep me signed in** on, Ciclo also keeps a copy of your diary on the phone, encrypted the same way as on the server. Without a connection it opens that copy so you can look through it, and says when it was last saved. You cannot change anything until the connection comes back, then the app loads the diary from the server again. Signing out deletes the copy.
+
+Signing out works without a connection too. It deletes what this device keeps first: the unlock secret, the offline copy, the saved email and its encrypted kit. In the Android app the session ends on the phone right away. In a browser the server session ends as soon as Ciclo can reach the server again, and the start screen says so until then.
+
+If the Android app cannot open the unlock secret it keeps (the phone's secure storage failed), it does not throw it away and does not let another sign-in replace it: you can try again, or forget it on purpose and sign in again.
+
+The Ciclo cloud has a size limit for one diary. If a change would go over it, Ciclo says so and saves nothing; moving an on-device diary to the cloud checks this before it starts.
 
 ## What happens on save
 
@@ -31,6 +37,8 @@ A new symptom label or a day note does not change the database schema. It stays 
 Each save says which version of the diary it was made on. If another device (or another tab) saved in between, the server refuses the save and sends back the newer encrypted copy. Your browser decrypts it, combines both sets of edits, and saves again. The server never sees the contents.
 
 Edits on different days, or to different things on the same day, are all kept. Something deleted on one device stays deleted. If both devices changed the same thing (for example the note on the same day), the device that saves last wins.
+
+When you come back to Ciclo (or the connection comes back), it checks for a newer version on the server and shows entries made on another device, unless something is being saved or a sheet is open; then the next save combines them.
 
 ## What the server does store
 

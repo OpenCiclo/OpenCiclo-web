@@ -3,7 +3,42 @@
 
 import { describe, expect, it } from "vitest";
 
-import { decodeDeviceDiary, deviceVaultBackend, encodeDeviceDiary } from "@/lib/device-vault";
+import {
+  UnreadableDeviceDiaryError,
+  decodeDeviceDiary,
+  deviceLockReason,
+  deviceVaultBackend,
+  encodeDeviceDiary,
+  phraseKeyIsGone,
+} from "@/lib/device-vault";
+
+describe("deviceLockReason (what the lock screen says)", () => {
+  const rejection = (code: string) => Object.assign(new Error("plugin"), { code });
+
+  it("maps each DeviceVaultPlugin code", () => {
+    expect(deviceLockReason(rejection("AUTH_CANCELED"))).toBe("canceled");
+    expect(deviceLockReason(rejection("AUTH_ERROR"))).toBe("canceled");
+    expect(deviceLockReason(rejection("KEY_INVALIDATED"))).toBe("key-invalidated");
+    expect(deviceLockReason(rejection("KEY_MISSING"))).toBe("no-key");
+    expect(deviceLockReason(rejection("NO_PHRASE"))).toBe("no-key");
+    expect(deviceLockReason(rejection("KEY_ERROR"))).toBe("key-error");
+    expect(deviceLockReason(rejection("IO_ERROR"))).toBe("unreadable");
+  });
+
+  it("calls a damaged diary file unreadable, and anything else a key error", () => {
+    expect(() => decodeDeviceDiary("{")).toThrow(UnreadableDeviceDiaryError);
+    expect(deviceLockReason(new UnreadableDeviceDiaryError())).toBe("unreadable");
+    expect(deviceLockReason(new Error("OperationError"))).toBe("key-error");
+    expect(deviceLockReason(undefined)).toBe("key-error");
+  });
+
+  it("knows when only the 12 words can open the diary", () => {
+    expect(phraseKeyIsGone(rejection("KEY_INVALIDATED"))).toBe(true);
+    expect(phraseKeyIsGone(rejection("NO_PHRASE"))).toBe(true);
+    expect(phraseKeyIsGone(rejection("AUTH_CANCELED"))).toBe(false);
+    expect(phraseKeyIsGone(rejection("KEY_ERROR"))).toBe(false);
+  });
+});
 
 const blob = { ciphertext: "c2VhbGVk", nonce: "bm9uY2U=", schemaVersion: 6 };
 
