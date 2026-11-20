@@ -28,6 +28,13 @@ const locale: LocaleModule = {
       "Wähle, wie du dich anmelden möchtest. In beiden Fällen werden deine Daten hier verschlüsselt, bevor sie gespeichert werden. Ciclo kann dein Passwort und deine Phrase nicht wiederherstellen.",
     privacyBanner:
       "Deine Daten werden auf diesem Gerät verschlüsselt. Ciclo kann dein Passwort und deine Phrase nicht zurücksetzen. Wenn du sie verlierst, hilft nur ein vorheriger Export. So kann niemand – auch wir nicht – dein Tagebuch auf dem Server lesen.",
+    signupConsentTitle: "Bevor du anfängst",
+    signupConsentHosted:
+      "Dein Tagebuch kann Gesundheitsdaten und Daten zu deinem Sexualleben enthalten: Perioden, Symptome, psychische Gesundheit, sexuelle Aktivität, Schwangerschafts- und Ovulationstests, Antibabypille und andere Medikamente sowie Notizen. Ciclo verschlüsselt es auf diesem Gerät, bevor es gespeichert wird. In der Ciclo-Cloud speichert unser Server nur die verschlüsselte Kopie und kann sie nicht lesen. Mit E-Mail speichert er außerdem einen codierten Fingerabdruck deiner Adresse, nie die Adresse selbst.",
+    signupConsentDevice: "Mit „Nur auf diesem Gerät“ verlässt das Tagebuch dieses Handy nie.",
+    signupConsentAgree:
+      "Ich bin einverstanden, dass Ciclo meine Gesundheitsdaten so speichert und verarbeitet, wie es hier und in der Datenschutzerklärung beschrieben ist.",
+    signupConsentRequired: "Setze das Häkchen, um auszuwählen, wie du dein Tagebuch erstellst.",
     noResetHint:
       "Wenn du dein Passwort oder deine Phrase vergisst, ist das Tagebuch in der Cloud verloren. Das ist Absicht: So bleibt deine Privatsphäre geschützt. Exportiere JSON/CSV, solange du kannst.",
     emailLoginHint:
@@ -41,7 +48,13 @@ const locale: LocaleModule = {
     forecast: "Prognose",
     settings: "Einstellungen",
     privacy: "Datenschutz",
+    privacyPolicy: "Datenschutzerklärung",
     helpDocs: "Hilfe",
+    licensesTitle: "Open-Source-Lizenzen",
+    licensesIntro:
+      "Ciclo nutzt diese Open-Source-Schriften und Softwarepakete. Ihre Lizenzen verlangen, dass wir diese Hinweise zeigen. Die Lizenztexte sind auf Englisch.",
+    licensesFonts: "Schriften",
+    licensesLibraries: "Softwarepakete",
     visualSeasons: "Visuelle Jahreszeiten",
     visualSeasonsHint:
       "Gestaltet die Zykluskarte passend zu ihrer Jahreszeit: Winter, Frühling, Sommer oder Herbst. Die Animationen berücksichtigen die Einstellung „Bewegung reduzieren“ deines Geräts.",
@@ -239,18 +252,6 @@ const locale: LocaleModule = {
     invalidPhrase: "Ungültige Phrase.",
     noAccountForPhrase: "Kein Konto nutzt diese Phrase. Prüf die 12 Wörter oder erstelle ein neues Konto.",
     wordMismatch: "Dieses Wort stimmt nicht.",
-    privacyTitle: "Datenschutz",
-    privacyBody1:
-      "Die Daten werden im Browser mit AES-GCM verschlüsselt. Der Server speichert nur verschlüsselte Daten. Du kannst E-Mail und Passwort nutzen oder den superprivaten Modus mit 12 Wörtern.",
-    privacyBody1Android:
-      "Die Daten werden auf diesem Handy mit AES-GCM verschlüsselt. Der Server speichert nur verschlüsselte Daten. Du kannst E-Mail und Passwort nutzen oder den superprivaten Modus mit 12 Wörtern.",
-    privacyBody2:
-      "Ciclo kann dein Passwort und deine Phrase nicht zurücksetzen. Wenn du sie verlierst, ist das Tagebuch in der Cloud verloren. Das schützt deine Privatsphäre: Niemand – auch wir nicht – kann dein Tagebuch auf dem Server lesen.",
-    privacyBody3:
-      "Mit E-Mail und Passwort meldest du dich auf jedem Gerät mit denselben Zugangsdaten an. Das Passwort entschlüsselt deinen Schlüssel hier; zum Anmelden musst du dein Postfach nicht öffnen.",
-    privacyBody4:
-      "Symptome, Blutung, Zervixschleim und kurze Tagesnotizen bleiben im verschlüsselten Tagebuch. Der Server legt keine Gesundheitsspalten an. Der anonyme Datenpool erhält nur Zykluslängen (ganze Zahlen); Notizen werden nie hochgeladen oder ausgewertet.",
-    privacyBody5: "Der anonyme Datenpool speichert keine Zuordnung von deinem Konto zur anonymen ID.",
     welcomeCta: "Starte im Browser. Deine Daten werden verschlüsselt, bevor sie das Gerät verlassen.",
     welcomeCtaAndroid: "Starte hier. Deine Daten werden verschlüsselt, bevor sie dieses Handy verlassen.",
     restoreFailedTitle: "Wir konnten dein Tagebuch nicht öffnen",

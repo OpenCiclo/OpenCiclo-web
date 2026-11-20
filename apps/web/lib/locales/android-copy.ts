@@ -13,7 +13,6 @@ export const ANDROID_COPY = {
   onboardingBody: "onboardingBodyAndroid",
   passwordHint: "passwordHintAndroid",
   keepLoggedInHint: "keepLoggedInHintAndroid",
-  privacyBody1: "privacyBody1Android",
   welcomeCta: "welcomeCtaAndroid",
 } as const satisfies Partial<Record<keyof Messages, keyof Messages>>;
 

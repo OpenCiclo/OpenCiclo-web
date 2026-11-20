@@ -28,6 +28,13 @@ const locale: LocaleModule = {
       "Aukeratu nola sartu nahi duzun. Bi kasuetan, zure datak hemen zifratzen dira gorde aurretik. Ciclok ezin ditu zure pasahitza eta esaldia berreskuratu.",
     privacyBanner:
       "Zure datak gailu honetan zifratzen dira. Ciclok ezin ditu zure pasahitza eta esaldia berrezarri. Galtzen badituzu, aurretik egindako esportazio batek bakarrik salbatuko zaitu. Horrela, inork — ezta guk ere — ezin du zure egunerokoa zerbitzarian irakurri.",
+    signupConsentTitle: "Hasi aurretik",
+    signupConsentHosted:
+      "Zure egunerokoak osasun-datuak eta zure sexu-bizitzari buruzko datuak izan ditzake: hilekoak, sintomak, osasun mentala, sexu-jarduera, haurdunaldi- eta obulazio-probak, pilula antisorgailuak eta beste botika batzuk, eta oharrak. Ciclok gailu honetan zifratzen du gorde aurretik. Cicloren hodeian, gure zerbitzariak kopia zifratua baino ez du gordetzen, eta ezin du irakurri. Posta elektronikoarekin, zure helbidearen hatz-marka kodetu bat ere gordetzen du, inoiz ez helbidea bera.",
+    signupConsentDevice: "«Gailu honetan bakarrik» aukerarekin, egunerokoa ez da inoiz mugikor honetatik ateratzen.",
+    signupConsentAgree:
+      "Onartzen dut Ciclok nire osasun-datuak gorde eta tratatzea, hemen eta pribatutasun-politikan azaltzen den bezala.",
+    signupConsentRequired: "Markatu laukia egunerokoa nola sortu aukeratzeko.",
     noResetHint:
       "Pasahitza edo esaldia ahazten badituzu, hodeiko egunerokoa galdu egingo da. Nahita da horrela: zure pribatutasuna babesten du. Esportatu JSON/CSV ahal duzun bitartean.",
     emailLoginHint:
@@ -41,7 +48,13 @@ const locale: LocaleModule = {
     forecast: "Aurreikuspena",
     settings: "Ezarpenak",
     privacy: "Pribatutasuna",
+    privacyPolicy: "Pribatutasun-politika",
     helpDocs: "Dokumentazioa",
+    licensesTitle: "Kode irekiko lizentziak",
+    licensesIntro:
+      "Ciclok kode irekiko letra-tipo eta software-pakete hauek erabiltzen ditu. Haien lizentziek ohar hauek erakusteko eskatzen dute. Lizentzien testuak ingelesez daude.",
+    licensesFonts: "Letra-tipoak",
+    licensesLibraries: "Software-paketeak",
     visualSeasons: "Urtaro bisualak",
     visualSeasonsHint:
       "Zikloaren txartela bere urtarora egokitzen du: negua, udaberria, uda edo udazkena. Animazioek gailuaren mugimendu murriztuko hobespena errespetatzen dute.",
@@ -238,18 +251,6 @@ const locale: LocaleModule = {
     invalidPhrase: "Esaldiak ez du balio.",
     noAccountForPhrase: "Ez dago esaldi hori duen konturik. Berrikusi 12 hitzak edo sortu kontu berri bat.",
     wordMismatch: "Hitz hori ez dator bat.",
-    privacyTitle: "Pribatutasuna",
-    privacyBody1:
-      "Datak nabigatzailean zifratzen dira AES-GCM bidez. Zerbitzariak testu zifratua bakarrik gordetzen du. E-posta eta pasahitza erabil ditzakezu, edo modu superpribatua 12 hitzekin.",
-    privacyBody1Android:
-      "Datak telefono honetan zifratzen dira AES-GCM bidez. Zerbitzariak testu zifratua bakarrik gordetzen du. E-posta eta pasahitza erabil ditzakezu, edo modu superpribatua 12 hitzekin.",
-    privacyBody2:
-      "Ciclok ezin ditu zure pasahitza eta esaldia berrezarri. Galtzen badituzu, hodeiko egunerokoa galdu egiten da. Horrek zure pribatutasuna babesten du: inork — ezta guk ere — ezin du zure egunerokoa zerbitzarian irakurri.",
-    privacyBody3:
-      "E-posta eta pasahitzarekin, edozein gailutan sartzen zara bikote berarekin. Pasahitzak zure giltza hemen askatzen du; ez duzu posta-kutxa ireki behar sartzeko.",
-    privacyBody4:
-      "Sintomak, odoljarioa, zerbix-mukia eta eguneko ohar laburrak eguneroko zifratuaren barruan geratzen dira. Zerbitzariak ez du osasun-zutaberik gehitzen. Bilduma anonimoak zikloen iraupenak bakarrik jasotzen ditu (zenbaki osoak); oharrak ez dira inoiz bidaltzen, ezta aztertzen ere.",
-    privacyBody5: "Ikerketa-bildumak ez du zure kontuaren eta identifikatzaile anonimoaren arteko maparik gordetzen.",
     welcomeCta: "Hasi nabigatzailean. Datak zifratu egiten dira gailutik atera aurretik.",
     welcomeCtaAndroid: "Hasi hemen. Datak zifratu egiten dira telefono honetatik atera aurretik.",
     restoreFailedTitle: "Ezin izan dugu zure egunerokoa ireki",

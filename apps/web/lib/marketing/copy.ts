@@ -15,6 +15,33 @@ export const MARKETING_LINKS = {
   issues: "https://github.com/OpenCiclo/OpenCiclo-web/issues",
 } as const;
 
+// Contact details the owner still has to choose. Each one fills every page that
+// needs it from here (the privacy policy, /delete-account). While a value is
+// null, those pages leave out the sentences that need it.
+
+/** Who is responsible for personal data under the GDPR (the "controller"). */
+export type Controller = {
+  /** Legal name: a person or an organisation. */
+  name: string;
+  /** Postal address, on one line. */
+  address: string;
+};
+
+/**
+ * The controller. Null until the owner chooses a personal or an organisation
+ * Google Play account. While null, the privacy policy leaves the name and
+ * address out.
+ */
+export const CONTROLLER: Controller | null = null;
+
+/**
+ * Public mailbox for privacy requests: questions, rights, and deleting an
+ * account whose password and phrase are lost. Null until it exists. While null,
+ * the contact sentences point to /contact and /delete-account hides the request
+ * by email.
+ */
+export const PRIVACY_EMAIL: string | null = null;
+
 type NavItem = { label: string; href: string; external?: boolean };
 
 type Feature = { icon: string; title: string; body: string };

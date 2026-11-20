@@ -8,9 +8,11 @@ Period dates, symptoms, mucus, and day notes are encrypted **in the browser** (A
 
 Ciclo cannot reset your password or your 12-word phrase. If both are gone, the hosted diary is gone. Export a backup while you still can.
 
+Before you create a diary, the sign-up screen says what Ciclo stores and where, and asks you to tick **I agree** (Spanish UI: **Acepto**). The privacy policy opens over the same screen, so reading it keeps your tick. Until you tick it, the ways to create a diary stay disabled. Your diary holds health data, so Ciclo needs that explicit yes. The tick is not saved anywhere. People who created their diary earlier are not asked.
+
 You can change the wrap password in Settings while you are signed in. That only replaces the wrapped copy of the phrase. The diary blob stays the same.
 
-**Keep me signed in** stores the unlock secret in this browser until you sign out. That is a device convenience, not a server session that can decrypt the diary. The Android app keeps it sealed by Android Keystore instead of browser storage. Unchecked, the app keeps it in memory only, so closing the app signs you out.
+**Keep me signed in** stores the unlock secret in this browser until you sign out. That is a device convenience, not a server session that can decrypt the diary. The Android app keeps it sealed by Android Keystore instead of browser storage. Unchecked, the app keeps it in memory only, so closing the app signs you out; the web keeps it only in the tab's session storage, until you close the tab. Creating an account always keeps you signed in on that device, as if the box were ticked; there is no box on the sign-up screen.
 
 If Ciclo cannot reach the server when it opens (no connection, or a server error), it keeps that secret and shows **Try again**. It does not show an empty diary while it waits, so nothing can be saved over your real one.
 
@@ -54,6 +56,8 @@ Settings can export JSON or CSV after decrypting on the device. Import restores 
 Dates are written as `YYYY-MM-DD`. A date that does not exist on the calendar, such as `2026-02-30` or `2026-13-01`, or a year outside 1900–2999, is skipped on import; the other rows still come in. Only an earlier import could have put such a date in a diary. If yours holds one, Ciclo leaves that day out when it opens the diary, together with any note written on it, and the next save removes it. Earlier versions listed a note on such a day in **Diary** (Spanish UI: **Diario**) and Patterns under the next real date (for example 2 March for 30 February), but no calendar day showed it.
 
 Delete account removes your ciphertext and mailbox row. Research rows that were already uploaded without an account link cannot be found later, so they cannot be deleted on request. That limit is shown before you contribute.
+
+Step by step, for the web, the Android app, a diary kept only on the phone, and what to do if you cannot sign in: [Delete your account](https://www.openciclo.com/delete-account).
 
 ## The Python library
 

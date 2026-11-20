@@ -77,6 +77,13 @@ const es = {
     "Elige cómo quieres entrar. En ambos casos tus fechas se cifran aquí antes de guardarse. Ciclo no puede recuperar tu contraseña ni tu frase.",
   privacyBanner:
     "Tus fechas se cifran en este dispositivo. Ciclo no puede resetear tu contraseña ni tu frase. Si las pierdes, solo te salva un export previo. Así nadie — ni nosotras — puede leer tu diario en el servidor.",
+  signupConsentTitle: "Antes de empezar",
+  signupConsentHosted:
+    "Tu diario puede contener datos de salud y de tu vida sexual: periodos, síntomas, salud mental, actividad sexual, tests de embarazo y de ovulación, píldoras anticonceptivas y otros medicamentos, y notas. Ciclo lo cifra en este dispositivo antes de guardarlo. En la nube de Ciclo, nuestro servidor solo guarda la copia cifrada y no puede leerla. Con correo, guarda además una huella codificada de tu dirección, nunca la dirección.",
+  signupConsentDevice: "Con «Solo en este dispositivo», el diario nunca sale de este móvil.",
+  signupConsentAgree:
+    "Acepto que Ciclo guarde y trate mis datos de salud como se explica aquí y en la política de privacidad.",
+  signupConsentRequired: "Marca la casilla para elegir cómo crear tu diario.",
   noResetHint:
     "Si olvidas tu contraseña o tu frase, el diario en la nube se pierde. Esto es intencional: protege tu privacidad. Haz export JSON/CSV mientras puedas.",
   emailLoginHint:
@@ -90,7 +97,13 @@ const es = {
   forecast: "Pronóstico",
   settings: "Ajustes",
   privacy: "Privacidad",
+  privacyPolicy: "Política de privacidad",
   helpDocs: "Documentación",
+  licensesTitle: "Licencias de código abierto",
+  licensesIntro:
+    "Ciclo usa estas fuentes y paquetes de software de código abierto. Sus licencias piden mostrar estos avisos. Los textos de las licencias están en inglés.",
+  licensesFonts: "Fuentes",
+  licensesLibraries: "Paquetes de software",
   visualSeasons: "Estaciones visuales",
   visualSeasonsHint:
     "Ambientar la tarjeta del ciclo según su estación: invierno, primavera, verano u otoño. Las animaciones respetan la preferencia de movimiento reducido del dispositivo.",
@@ -285,18 +298,6 @@ const es = {
   invalidPhrase: "Frase no válida.",
   noAccountForPhrase: "No hay ninguna cuenta con esa frase. Revisa las 12 palabras o crea una cuenta nueva.",
   wordMismatch: "Esa palabra no coincide.",
-  privacyTitle: "Privacidad",
-  privacyBody1:
-    "Las fechas se cifran en el navegador con AES-GCM. El servidor guarda solo ciphertext. Puedes usar correo y contraseña o el modo super privado con 12 palabras.",
-  privacyBody1Android:
-    "Las fechas se cifran en este móvil con AES-GCM. El servidor guarda solo ciphertext. Puedes usar correo y contraseña o el modo super privado con 12 palabras.",
-  privacyBody2:
-    "Ciclo no puede resetear tu contraseña ni tu frase. Si las pierdes, el diario alojado se pierde. Eso protege tu privacidad: nadie — ni nosotras — puede leer tu diario en el servidor.",
-  privacyBody3:
-    "Con correo y contraseña, entras en cualquier dispositivo con el mismo par. La contraseña desenvuelve tu llave aquí; no hace falta abrir el correo para entrar.",
-  privacyBody4:
-    "Los síntomas, el flujo, el moco cervical y las notas breves del día se quedan dentro del diario cifrado. El servidor no añade columnas de salud. El pool anónimo solo recibe duraciones de ciclo (números enteros); las notas nunca se envían ni se analizan.",
-  privacyBody5: "El pool de investigación no guarda un mapa de tu cuenta al identificador anónimo.",
   welcomeCta: "Empieza en el navegador. Las fechas se cifran antes de salir del dispositivo.",
   welcomeCtaAndroid: "Empieza aquí. Las fechas se cifran antes de salir de este móvil.",
   restoreFailedTitle: "No pudimos abrir tu diario",
@@ -782,6 +783,13 @@ const en = {
     "Choose how you want to sign in. Either way, dates are encrypted here before they are stored. Ciclo cannot recover your password or phrase.",
   privacyBanner:
     "Your dates are encrypted on this device. Ciclo cannot reset your password or phrase. If you lose them, only a prior export saves you. That way nobody — including us — can read your diary on the server.",
+  signupConsentTitle: "Before you start",
+  signupConsentHosted:
+    "Your diary can hold health and sex-life data: periods, symptoms, mental health, sexual activity, pregnancy and ovulation tests, contraceptive pills and other medicines, and notes. Ciclo encrypts it on this device before saving it. In the Ciclo cloud, our server keeps only the encrypted copy and cannot read it. With email, it also keeps a coded fingerprint of your address, never the address itself.",
+  signupConsentDevice: "With “Only on this device”, the diary never leaves this phone.",
+  signupConsentAgree:
+    "I agree that Ciclo stores and processes my health data as described here and in the privacy policy.",
+  signupConsentRequired: "Tick the box to choose how to create your diary.",
   noResetHint:
     "If you forget your password or phrase, the hosted diary is gone. This is intentional: it protects your privacy. Export JSON/CSV while you can.",
   emailLoginHint:
@@ -795,7 +803,13 @@ const en = {
   forecast: "Forecast",
   settings: "Settings",
   privacy: "Privacy",
+  privacyPolicy: "Privacy policy",
   helpDocs: "Help",
+  licensesTitle: "Open-source licenses",
+  licensesIntro:
+    "Ciclo is built on these open-source fonts and software packages. Their licenses ask us to show these notices. The license texts are in English.",
+  licensesFonts: "Fonts",
+  licensesLibraries: "Software packages",
   visualSeasons: "Visual seasons",
   visualSeasonsHint:
     "Theme the cycle card for its season: winter, spring, summer, or fall. Animations respect your device's reduced-motion preference.",
@@ -990,18 +1004,6 @@ const en = {
   invalidPhrase: "Invalid phrase.",
   noAccountForPhrase: "No account uses this phrase. Check the 12 words, or create a new account.",
   wordMismatch: "That word does not match.",
-  privacyTitle: "Privacy",
-  privacyBody1:
-    "Dates are encrypted in the browser with AES-GCM. The server stores ciphertext only. You can use email and password or super private mode with 12 words.",
-  privacyBody1Android:
-    "Dates are encrypted on this phone with AES-GCM. The server stores ciphertext only. You can use email and password or super private mode with 12 words.",
-  privacyBody2:
-    "Ciclo cannot reset your password or phrase. If you lose them, the hosted diary is gone. That protects your privacy: nobody — including us — can read your diary on the server.",
-  privacyBody3:
-    "With email and password, you sign in on any device with the same pair. The password unwraps your key here; you do not need to open your inbox to sign in.",
-  privacyBody4:
-    "Symptoms, flow, cervical mucus, and short day notes stay inside the encrypted diary. The server does not add health columns. The anonymous pool only receives cycle lengths (whole numbers); notes are never uploaded or analyzed.",
-  privacyBody5: "The research pool does not store a map from your account to the anonymous id.",
   welcomeCta: "Start in the browser. Dates are encrypted before they leave the device.",
   welcomeCtaAndroid: "Start here. Dates are encrypted before they leave this phone.",
   restoreFailedTitle: "We couldn't open your diary",
