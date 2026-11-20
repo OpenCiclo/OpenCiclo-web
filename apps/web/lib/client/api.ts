@@ -1,7 +1,7 @@
 // Copyright © 2026 Emma Flora Harbison & Luis Rey Sánchez
 // SPDX-License-Identifier: Apache-2.0
 
-import { NO_ACCOUNT_CODE, VAULT_CHANGED_CODE } from "@/lib/auth-codes";
+import { ACCOUNT_HEADER, ACCOUNT_MISMATCH_CODE, NO_ACCOUNT_CODE, VAULT_CHANGED_CODE } from "@/lib/auth-codes";
 import { REQUEST_TIMEOUT_MS, apiFetch } from "@/lib/client/http";
 
 // The vault is the one large payload (up to 2 MB of ciphertext). Its requests
@@ -33,6 +33,38 @@ export class HttpError extends Error {
   }
 }
 
+/**
+ * The host refused a request that changes the account (409 `account-mismatch`)
+ * because the session cookie on this device is another account's (a sign-in
+ * that landed late, another tab): nothing was written. The request had named
+ * its account with `accountHeader`. Like a 401, `retryAfterSignInOnce` signs in
+ * once with the wallet in memory and tries again.
+ */
+export class AccountMismatchError extends HttpError {
+  constructor() {
+    super(409, "The session on this device is for another account", ACCOUNT_MISMATCH_CODE);
+    this.name = "AccountMismatchError";
+  }
+}
+
+/**
+ * Names the account a request that changes an account is for (`x-ciclo-account`):
+ * the public-key hash of the wallet whose diary or account it acts on. The host
+ * answers 409 `account-mismatch` (AccountMismatchError) when its session is another
+ * account's. Always pass the hash of the wallet the request was made with (the one
+ * whose key sealed the diary, the one a retry signs in with), never another.
+ */
+export function accountHeader(account: string): Record<string, string> {
+  return { [ACCOUNT_HEADER]: account };
+}
+
+/** Throws AccountMismatchError when `response` is a 409 `account-mismatch`; leaves its body unread otherwise. */
+export async function rejectAccountMismatch(response: Response): Promise<void> {
+  if (response.status !== 409) return;
+  const payload = (await response.clone().json().catch(() => ({}))) as { code?: string };
+  if (payload.code === ACCOUNT_MISMATCH_CODE) throw new AccountMismatchError();
+}
+
 /** DELETE /api/account was asked to delete at one vault version and another device saved since. */
 export class VaultChangedError extends Error {
   constructor() {
@@ -44,6 +76,7 @@ export class VaultChangedError extends Error {
 async function parseJson(response: Response) {
   const payload = (await response.json().catch(() => ({}))) as { error?: string; code?: string };
   if (response.status === 404 && payload.code === NO_ACCOUNT_CODE) throw new AccountNotFoundError();
+  if (response.status === 409 && payload.code === ACCOUNT_MISMATCH_CODE) throw new AccountMismatchError();
   if (!response.ok) {
     throw new HttpError(response.status, payload.error ?? `HTTP ${response.status}`, payload.code);
   }
@@ -220,18 +253,24 @@ export type PutVaultResult =
  * Saves on top of `baseVersion`. A 409 means the host kept what it has: another
  * device saved first, or a newer app version wrote the diary (the host never
  * takes a save older than the stored format). Its blob comes back to merge, or
- * to show read-only if it is newer than this build.
+ * to show read-only if it is newer than this build. `account`: the public-key
+ * hash of the wallet whose key sealed `blob`; the host takes the save only into
+ * that account (AccountMismatchError otherwise, with nothing written).
  */
-export async function putVault(blob: VaultBlob, baseVersion: number): Promise<PutVaultResult> {
+export async function putVault(blob: VaultBlob, baseVersion: number, account: string): Promise<PutVaultResult> {
   const body = JSON.stringify({ ...blob, baseVersion });
   const response = await apiFetch(
     "/api/vault",
-    { method: "PUT", headers: { "content-type": "application/json" }, body },
+    { method: "PUT", headers: { "content-type": "application/json", ...accountHeader(account) }, body },
     vaultSaveTimeout(body),
   );
   if (response.status === 409) {
-    const current = (await response.json()) as VaultBlob & { version: number };
-    return { ok: false, current };
+    const current = (await response.json().catch(() => ({}))) as Partial<VaultBlob & { version: number; code: string }>;
+    // The session is another account's. Read as "another device saved", its body
+    // would merge as an empty diary and drop every day.
+    if (current.code === ACCOUNT_MISMATCH_CODE) throw new AccountMismatchError();
+    if (typeof current.version !== "number") throw new HttpError(409, "Vault changed", current.code);
+    return { ok: false, current: current as VaultBlob & { version: number } };
   }
   if (response.status === 413) throw new VaultTooLargeError();
   const payload = (await parseJson(response)) as { version: number };
@@ -255,7 +294,12 @@ export type VaultBackend = {
    */
   updateRequired?: boolean;
   load: () => Promise<{ blob: VaultBlob | null; version: number }>;
-  save: (blob: VaultBlob, baseVersion: number) => Promise<PutVaultResult>;
+  /**
+   * `account`: the public-key hash of the wallet whose key sealed `blob`. The host
+   * saves it only into that account (`putVault`); a device file, one diary per
+   * install, ignores it.
+   */
+  save: (blob: VaultBlob, baseVersion: number, account: string) => Promise<PutVaultResult>;
 };
 
 export const hostedVault: VaultBackend = { mode: "hosted", load: fetchVault, save: putVault };
@@ -265,15 +309,20 @@ export const hostedVault: VaultBackend = { mode: "hosted", load: fetchVault, sav
  * still at that version (`VaultChangedError` otherwise), so a diary saved by
  * another device in the meantime is never deleted unseen. An account that is
  * already gone counts as deleted: the request may have reached the host while
- * its answer was lost.
+ * its answer was lost. `account`: the public-key hash of the wallet whose
+ * account this is; the host deletes nothing when its session is another
+ * account's (AccountMismatchError), so a cookie left by another sign-in can
+ * never delete the wrong account.
  */
-export async function deleteAccount(baseVersion?: number) {
+export async function deleteAccount(account: string, baseVersion?: number) {
   const query = baseVersion === undefined ? "" : `?baseVersion=${baseVersion}`;
-  const response = await apiFetch(`/api/account${query}`, { method: "DELETE" });
+  const response = await apiFetch(`/api/account${query}`, { method: "DELETE", headers: accountHeader(account) });
   if (response.status === 404) return;
   if (response.status === 409) {
-    const payload = (await response.json().catch(() => ({}))) as { code?: string };
+    const payload = (await response.json().catch(() => ({}))) as { code?: string; error?: string };
     if (payload.code === VAULT_CHANGED_CODE) throw new VaultChangedError();
+    if (payload.code === ACCOUNT_MISMATCH_CODE) throw new AccountMismatchError();
+    throw new HttpError(409, payload.error ?? "HTTP 409", payload.code);
   }
   await parseJson(response);
 }

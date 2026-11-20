@@ -254,6 +254,7 @@ const locale: LocaleModule = {
     screenErrorTitle: "Er ging iets mis op dit scherm",
     screenErrorBody: "Je dagboek is niet gewijzigd. Helpt opnieuw proberen niet, maak dan een export.",
     vaultTooLarge: "Je dagboek is te groot voor de Ciclo-cloud en is daar niet opgeslagen. Maak eerst een export; kortere notities nemen minder ruimte in.",
+    accountMismatch: "Er is niets opgeslagen of gewijzigd: dit apparaat was op dat moment aangemeld bij een ander Ciclo-account. Probeer het opnieuw.",
     invalidPhrase: "Ongeldige herstelzin.",
     noAccountForPhrase: "Er is geen account met deze herstelzin. Controleer de 12 woorden of maak een nieuw account aan.",
     vaultUnreadable: "Het dagboek dat voor dit account is opgeslagen kon niet worden geopend. Er is niets veranderd op de server.",

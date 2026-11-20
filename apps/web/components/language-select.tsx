@@ -33,7 +33,13 @@ export function LanguageSelect({
       aria-label={t.language}
       value={locale}
       onChange={(event) => {
-        if (isLocale(event.target.value)) (onSelect ?? setLocale)(event.target.value);
+        const next = event.target.value;
+        if (!isLocale(next)) return;
+        if (onSelect) onSelect(next);
+        // setLocale rejects when the diary could not save the new language (the
+        // language stays as it was). The pills have nowhere to say so; Settings,
+        // which passes onSelect, does. Caught so it is not an unhandled rejection.
+        else void setLocale(next).catch(() => undefined);
       }}
       className={
         compact

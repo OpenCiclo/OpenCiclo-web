@@ -70,6 +70,9 @@ describe("device diary file", () => {
 });
 
 describe("device vault backend", () => {
+  // The account a save is for: the host checks it, a device file ignores it.
+  const ACCOUNT = "a".repeat(64);
+
   it("loads nothing when there is no file", async () => {
     const { plugin } = memoryPlugin();
     await expect(deviceVaultBackend(plugin).load()).resolves.toEqual({ blob: null, version: 0 });
@@ -78,28 +81,28 @@ describe("device vault backend", () => {
   it("saves on top of the version it was given", async () => {
     const { plugin, state } = memoryPlugin();
     const backend = deviceVaultBackend(plugin);
-    await expect(backend.save(blob, 0)).resolves.toEqual({ ok: true, version: 1 });
-    await expect(backend.save({ ...blob, ciphertext: "bmV3" }, 1)).resolves.toEqual({ ok: true, version: 2 });
+    await expect(backend.save(blob, 0, ACCOUNT)).resolves.toEqual({ ok: true, version: 1 });
+    await expect(backend.save({ ...blob, ciphertext: "bmV3" }, 1, ACCOUNT)).resolves.toEqual({ ok: true, version: 2 });
     await expect(backend.load()).resolves.toEqual({ blob: { ...blob, ciphertext: "bmV3" }, version: 2 });
     expect(state.writes).toBe(2);
   });
 
   it("refuses a stale base and hands back the current blob", async () => {
     const { plugin, state } = memoryPlugin(encodeDeviceDiary(blob, 4));
-    const result = await deviceVaultBackend(plugin).save({ ...blob, ciphertext: "b2xk" }, 3);
+    const result = await deviceVaultBackend(plugin).save({ ...blob, ciphertext: "b2xk" }, 3, ACCOUNT);
     expect(result).toEqual({ ok: false, current: { ...blob, version: 4 } });
     expect(state.writes).toBe(0);
   });
 
   it("never overwrites a damaged file", async () => {
     const { plugin, state } = memoryPlugin("not json");
-    await expect(deviceVaultBackend(plugin).save(blob, 0)).rejects.toThrow();
+    await expect(deviceVaultBackend(plugin).save(blob, 0, ACCOUNT)).rejects.toThrow();
     expect(state.data).toBe("not json");
   });
 
   it("refuses to save on top of a file that is gone, instead of reading it as an empty diary", async () => {
     const { plugin, state } = memoryPlugin();
-    await expect(deviceVaultBackend(plugin).save(blob, 5)).rejects.toThrow("The device diary is gone");
+    await expect(deviceVaultBackend(plugin).save(blob, 5, ACCOUNT)).rejects.toThrow("The device diary is gone");
     expect(state.writes).toBe(0);
   });
 });

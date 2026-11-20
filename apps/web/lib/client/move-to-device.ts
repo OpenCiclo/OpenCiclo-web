@@ -51,8 +51,10 @@ export class DeviceDiaryExistsError extends Error {
   }
 }
 
-// The host answered and did not delete: a 409 for a vault that moved on, a 426
-// for a build it refuses, or any other 4xx. Only then is the device copy removed.
+// The host answered and did not delete: a 409 for a vault that moved on, or for
+// a session cookie of another account still there after signing in again
+// (AccountMismatchError), a 426 for a build it refuses, or any other 4xx. Only
+// then is the device copy removed.
 function hostRefused(cause: unknown): boolean {
   if (cause instanceof VaultChangedError || cause instanceof UpdateRequiredError) return true;
   return cause instanceof HttpError && cause.status >= 400 && cause.status < 500;
