@@ -11,7 +11,6 @@ import { AppShell } from "@/components/app-shell";
 import { Badge } from "@/components/ui/badge";
 import { useCiclo } from "@/lib/client/ciclo-context";
 import { useIsDesktop } from "@/lib/client/desktop";
-import { useIsGhost } from "@/lib/client/ghost";
 import { formatIsoUtc } from "@/lib/format-date";
 import {
   LEARN_CATEGORIES,
@@ -37,7 +36,6 @@ const BUBBLE_ROOM = 52;
  */
 export function LearnIndex({ articles }: { articles: LearnArticleSummary[] }) {
   const { t, locale } = useCiclo();
-  const ghost = useIsGhost();
   // Scrolled down, the search box and the filters turn into a compact bar
   // stuck to the top: a magnifier bubble, and the filters beside it, which
   // scroll sideways. The bar takes over when the filters reach the top, and
@@ -117,8 +115,6 @@ export function LearnIndex({ articles }: { articles: LearnArticleSummary[] }) {
   const compact = !desktop && (scrolledPast || barSearch);
 
   useEffect(() => {
-    // A ghost (see TabGhosts) sits at the top and out of sight: never compact.
-    if (ghost) return;
     const row = chipsRef.current;
     if (!row) return;
     const observer = new IntersectionObserver(
@@ -130,7 +126,7 @@ export function LearnIndex({ articles }: { articles: LearnArticleSummary[] }) {
     );
     observer.observe(row);
     return () => observer.disconnect();
-  }, [ghost]);
+  }, []);
 
   // The two rows of filters show the same chips: hand over how far they
   // were scrolled, so the one taking over starts where the other was.

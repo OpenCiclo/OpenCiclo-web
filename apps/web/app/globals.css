@@ -453,63 +453,10 @@
  * arriving screens with the `tab-slide` class. When the route moves between
  * tabs, the tab bar sets data-tab-slide on <html> to "next" (the new tab is to
  * the right) or "prev". Otherwise the screens swap in place.
- *
- * A drag of the tab bar selection moves the screens itself (see TabGhosts),
- * and its screen change swaps them in place with no slide.
  */
 :root {
   --tab-slide-duration: 0.4s;
   --tab-slide-easing: cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-/*
- * From the moment the selection is picked up until the screen is back in
- * place, the screen gets its own layer, so moving it every frame repaints
- * nothing (without it a phone drops to about 30 fps). Only then: it would
- * make fixed sheets inside the screen sit against the screen, not the window.
- */
-:root[data-tab-follow] .tab-screen,
-:root[data-tab-follow] .tab-label {
-  will-change: transform;
-}
-
-/*
- * Ghosts of the other tabs (see TabGhosts): fixed under the tab bar, not
- * painted until a drag of the selection shows one beside the real screen.
- * The tab bar moves them. Hidden ones also wait out of sight: on a Galaxy S22
- * some layers inside (the moons' drop shadow, Learn's scrolling filter row)
- * were drawn over the page through visibility: hidden. contain: strict clips
- * everything inside to the ghost, so out of sight means all of it.
- */
-.tab-ghost {
-  position: fixed;
-  inset: 0;
-  z-index: 30;
-  overflow: hidden;
-  visibility: hidden;
-  pointer-events: none;
-  contain: strict;
-  transform: translateX(-300%);
-}
-
-/* A ghost shows its screen as it ends up, with no entrance animations. */
-.tab-ghost *,
-.tab-ghost *::before,
-.tab-ghost *::after {
-  animation: none !important;
-  transition: none !important;
-}
-
-/*
- * A drag that lands on a ghost swaps the real screens under it. React still
- * starts a view transition when a screen arrives (any new <ViewTransition>
- * starts one, even with class "none"); with nothing to animate it ends at
- * once, instead of the default crossfade holding taps for a quarter second.
- */
-:root[data-tab-swap]::view-transition-group(*),
-:root[data-tab-swap]::view-transition-old(*),
-:root[data-tab-swap]::view-transition-new(*) {
-  animation: none;
 }
 
 .tab-bar {

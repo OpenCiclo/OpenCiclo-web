@@ -13,7 +13,7 @@ import { PhaseAura } from "@/components/calendar/phase-visuals";
 import { IS_ANDROID_APP } from "@/lib/app-target";
 import { useLatest, usePrefersReducedMotion } from "@/lib/client/hooks";
 import { VelocityTracker, sheetDragIntent, sheetShouldClose } from "@/lib/client/swipe";
-import { resist } from "@/lib/client/tab-drag";
+import { resist } from "@/lib/client/tab-motion";
 import type { CyclePhase } from "@/lib/cycle/phases";
 import type { Messages } from "@/lib/i18n";
 import { cn } from "@/lib/utils";

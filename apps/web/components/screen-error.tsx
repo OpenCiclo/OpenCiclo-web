@@ -97,12 +97,3 @@ export function ScreenErrorView({ onRetry }: { onRetry: () => void }) {
 export const ScreenBoundary = catchError(function ScreenBoundaryFallback(_props: object, { reset }: ErrorInfo) {
   return <ScreenErrorView onRetry={reset} />;
 });
-
-/**
- * Around each ghost of a tab screen (TabGhosts): a ghost that fails to draw
- * shows nothing, instead of taking the whole app down. The real screen, once
- * opened, has its own boundary.
- */
-export const GhostBoundary = catchError(function GhostBoundaryFallback() {
-  return null;
-});

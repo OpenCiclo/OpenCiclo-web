@@ -32,7 +32,6 @@ import { useCiclo, useTodayIso } from "@/lib/client/ciclo-context";
 import { AccountMismatchError, VaultTooLargeError } from "@/lib/client/api";
 import { UpdateRequiredError } from "@/lib/client/http";
 import { IS_ANDROID_APP } from "@/lib/app-target";
-import { useIsGhost } from "@/lib/client/ghost";
 import { useMonthSwipe } from "@/lib/client/use-month-swipe";
 import { lunarDayInfo } from "@/lib/lunar/phases";
 import { symptomColor, symptomLabel, symptomMeta } from "@/lib/symptoms/catalog";
@@ -64,12 +63,9 @@ export function CalendarScreen() {
   } = useCiclo();
   const router = useRouter();
   const searchParams = useSearchParams();
-  // A ghost (see TabGhosts) reads another screen's address: it opens no day from it.
-  const ghost = useIsGhost();
   const today = useTodayIso();
   const todayDate = new Date(`${today}T00:00:00Z`);
   const deepLinkDay = (() => {
-    if (ghost) return null;
     const day = searchParams.get("day");
     if (!day || !isIsoDate(day) || !isEditableDiaryDate(day, today)) return null;
     return day;
@@ -157,9 +153,9 @@ export function CalendarScreen() {
   }
 
   // In the Android app a sideways swipe on the calendar card turns the month
-  // too. The web keeps the buttons only. Ghosts are only looked at.
+  // too. The web keeps the buttons only.
   const { open: monthSwipeOpen, zoneRef, viewportRef, stripRef, zoneProps } = useMonthSwipe({
-    enabled: IS_ANDROID_APP && !ghost,
+    enabled: IS_ANDROID_APP,
     onTurn: (step) => {
       const next = shiftedMonth(year, month, step);
       setSwipedTo(monthKey(next.year, next.month));
@@ -189,9 +185,9 @@ export function CalendarScreen() {
   }
 
   useEffect(() => {
-    if (ghost || !searchParams.get("day")) return;
+    if (!searchParams.get("day")) return;
     router.replace("/app", { scroll: false });
-  }, [ghost, router, searchParams]);
+  }, [router, searchParams]);
 
   const closeSheet = useCallback(() => {
     if (saving) return;

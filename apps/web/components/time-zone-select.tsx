@@ -20,8 +20,8 @@ export function TimeZoneSelect() {
   );
 
   // The full list (about 420 zones, each with its offset) is built the first
-  // time the select is pressed or focused, not each time Settings (or its
-  // ghost) mounts. Until then it holds only the zone in use.
+  // time the select is pressed or focused, not each time Settings mounts.
+  // Until then it holds only the zone in use.
   const [listWanted, setListWanted] = useState(false);
   const options = useMemo(
     () => (isClient ? timeZoneOptions(timeZone, listWanted) : []),
