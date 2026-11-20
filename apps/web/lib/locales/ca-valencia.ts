@@ -126,6 +126,7 @@ const locale: LocaleModule = {
     signOutPendingNote: "Has tancat la sessió en este dispositiu. La sessió del servidor acaba quan este navegador torne a tindre connexió.",
     vaultUnreadable: "No s'ha pogut obrir el diari guardat en este compte. No s'ha canviat res al servidor.",
     vaultTooLarge: "El teu diari és massa gran per al núvol de Ciclo, així que no s'hi ha guardat. Fes abans una exportació; les notes més curtes ocupen menys.",
+    accountMismatch: "No s'ha guardat ni canviat res: en aquell moment este dispositiu tenia obert un altre compte de Ciclo. Torna-ho a provar.",
     offlineBody:
       "Estàs veient la còpia guardada en este mòbil ({date}). Pots consultar-la, però no podràs guardar canvis fins que tornes a tindre connexió.",
     offlineDayHint: "Sense connexió: pots veure este dia, però no canviar-lo.",

@@ -25,7 +25,9 @@ function parseQueryVersion(value: string | null): number | null | "invalid" {
 export const DELETE = apiRoute(async (request: Request) => {
   const baseVersion = parseQueryVersion(new URL(request.url).searchParams.get("baseVersion"));
   if (baseVersion === "invalid") return jsonError("baseVersion must be a non-negative integer", 400);
-  const { error, account } = await requireAccount();
+  // A request naming another account (x-ciclo-account) gets 409 account-mismatch
+  // here, before anything is deleted: the cookie came from another sign-in.
+  const { error, account } = await requireAccount(request);
   if (error || !account) return error;
   const result = await deleteAccountRow(getDb(), account.id, baseVersion);
   if (result === "changed") {

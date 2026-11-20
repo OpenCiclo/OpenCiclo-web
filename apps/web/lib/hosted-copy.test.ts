@@ -95,6 +95,6 @@ describe("offline backend", () => {
   it("is read-only: every save throws", async () => {
     const backend = offlineBackend(copy);
     expect(backend.readOnlySince).toBe(copy.savedAt);
-    await expect(backend.save(copy.blob, copy.version)).rejects.toBeInstanceOf(OfflineError);
+    await expect(backend.save(copy.blob, copy.version, "a".repeat(64))).rejects.toBeInstanceOf(OfflineError);
   });
 });

@@ -253,6 +253,7 @@ const locale: LocaleModule = {
     screenErrorTitle: "Alguna cosa ha fallat en aquesta pantalla",
     screenErrorBody: "El teu diari no s'ha tocat. Si tornar-ho a provar no ho arregla, exporta'n una còpia.",
     vaultTooLarge: "El teu diari és massa gran per al núvol de Ciclo, així que no s'hi ha desat. Fes abans una exportació; les notes més curtes ocupen menys.",
+    accountMismatch: "No s'ha desat ni canviat res: en aquell moment aquest dispositiu tenia obert un altre compte de Ciclo. Torna-ho a provar.",
     invalidPhrase: "La frase no és vàlida.",
     noAccountForPhrase: "No hi ha cap compte amb aquesta frase. Revisa les 12 paraules o crea un compte nou.",
     vaultUnreadable: "No s'ha pogut obrir el diari desat en aquest compte. No s'ha canviat res al servidor.",

@@ -10,7 +10,6 @@ import { InvalidPhraseError, createWallet, unlockWallet, type Wallet } from "@/l
 import { wrapMnemonic, type WrappedKit } from "@/lib/crypto/wrap";
 import {
   AccountNotFoundError,
-  HttpError,
   MAX_HOSTED_VAULT_CIPHERTEXT_LENGTH,
   VaultTooLargeError,
   authSettled,
@@ -25,7 +24,7 @@ import {
   type VaultBackend,
   type VaultBlob,
 } from "@/lib/client/api";
-import { UpdateRequiredError, apiFetch, onUpdateRequired } from "@/lib/client/http";
+import { UpdateRequiredError, onUpdateRequired } from "@/lib/client/http";
 import { moveHostedDiaryToDevice } from "@/lib/client/move-to-device";
 import {
   browserPendingSignupStore,
@@ -34,6 +33,7 @@ import {
 } from "@/lib/client/pending-signup";
 import {
   RestoreGeneration,
+  isOpenSessionWallet,
   loadVaultWithSession,
   opensWithKey,
   restoreRetryDelay,
@@ -53,9 +53,11 @@ import {
   MailNotConfiguredError,
   RateLimitedError,
   clearLocalKits,
+  confirmRecoveryCode,
   lastEmail,
   normalizeEmail,
   openKit,
+  postRecoveryKit,
   saveLocalKit,
 } from "@/lib/client/kit-store";
 import {
@@ -290,34 +292,6 @@ function storedSignup(pending: PendingEmailSignup): StoredPendingSignup {
   };
 }
 
-async function postRecoveryKit(email: string, kit: WrappedKit, locale: Locale): Promise<{ pending: boolean }> {
-  const response = await apiFetch("/api/recovery/register", {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({ email, locale, ...kit }),
-  });
-  if (response.status === 503) throw new MailNotConfiguredError();
-  if (response.status === 429) throw new RateLimitedError();
-  // HttpError: a 401 (session expired) signs in again and retries (retryAfterSignInOnce).
-  if (!response.ok) throw new HttpError(response.status, "Recovery kit was not saved");
-  const payload = (await response.json()) as { pending?: boolean };
-  return { pending: payload.pending !== false };
-}
-
-async function confirmRecoveryCode(code: string) {
-  const response = await apiFetch("/api/recovery/confirm", {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({ code }),
-  });
-  // No session (the app was closed, its cookie not kept) or the host failing is
-  // not a wrong code: the first signs in again, the second is reported as it is.
-  if (response.status === 401 || response.status >= 500) {
-    throw new HttpError(response.status, "Could not confirm");
-  }
-  if (!response.ok) throw new InvalidConfirmError();
-}
-
 /** The vault was fetched but does not decrypt (or parse) with this key. */
 export class VaultUnreadableError extends Error {
   constructor() {
@@ -328,11 +302,15 @@ export class VaultUnreadableError extends Error {
 
 /**
  * A request that signs in once with `wallet` and runs again if the host answers
- * 401. `isLive`: the session it belongs to is still open; after a sign-out (or
- * another account) nothing signs in, and a sign-in already out is undone.
+ * 401, or 409 `account-mismatch` (the session cookie is another account's).
+ * `run` gets the account to name (`x-ciclo-account`): always `wallet`'s, the one
+ * the retry signs in with, so a request never names another account. `isLive`:
+ * the session it belongs to is still open; after a sign-out (or another account)
+ * nothing signs in, and a sign-in already out is undone.
  */
 function sessionRetry(wallet: Wallet, persist: boolean, isLive: () => boolean = () => true) {
-  return retryAfterSignInOnce(() => loginWithWallet(wallet, undefined, persist, { isLive }), isLive);
+  const retry = retryAfterSignInOnce(() => loginWithWallet(wallet, undefined, persist, { isLive }), isLive);
+  return <T,>(run: (account: string) => Promise<T>): Promise<T> => retry(() => run(wallet.pubkeyHash));
 }
 
 // The start's first vault request waits this long, at most, for a sign-out still
@@ -513,6 +491,11 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
   // Goes up whenever a diary opens or closes. Work that started for one session
   // (a save in flight, the pool sync after a load) never touches the next one.
   const sessionGenRef = useRef(0);
+  // The wallet whose diary is open, and the session (sessionGenRef) it opened in.
+  // Only it saves: a hosted save names its account (x-ciclo-account) and is sealed
+  // with its key, so a save left from an earlier session (another account) can
+  // never go out under the one open now.
+  const sessionWalletRef = useRef<{ gen: number; wallet: Wallet } | null>(null);
   // The "Keep me signed in" choice of the hosted session open now, for signing in
   // again when its cookie expires while the app is open.
   const sessionPersistRef = useRef(true);
@@ -679,12 +662,16 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
   // what was stored. If the diary there was saved by a newer build, nothing is
   // merged or saved: the newer diary goes on screen read-only and this throws
   // UpdateRequiredError. A hosted save answered 401 (the session expired while
-  // the app was open) signs in once with `saver` and saves again.
+  // the app was open) or 409 account-mismatch (the cookie is another account's)
+  // signs in once with `saver` and saves again. `saver` must be the wallet whose
+  // diary is open: its key seals the diary and its account is the one the save
+  // names, so the host never stores it in another account.
   const saveMerged = useCallback(async (saver: Wallet, local: Diary): Promise<Diary> => {
     const synced = syncedRef.current;
     const backend = backendRef.current;
     if (!synced || !backend) throw new Error("Locked");
     const gen = sessionGenRef.current;
+    if (!isOpenSessionWallet(sessionWalletRef.current, gen, saver)) throw new Error("Locked");
     const live = () => sessionGenRef.current === gen;
     const withSession = sessionRetry(saver, sessionPersistRef.current, live);
     const result = await saveWithMerge({
@@ -696,8 +683,8 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
         // Signed out or locked meanwhile: nothing more is sent for that session.
         if (!live()) throw new Error("Locked");
         return backend === hostedVault
-          ? withSession(() => backend.save(blob, baseVersion))
-          : backend.save(blob, baseVersion);
+          ? withSession((account) => backend.save(blob, baseVersion, account))
+          : backend.save(blob, baseVersion, saver.pubkeyHash);
       },
       openRemote: (blob, fallbackLocale) => openVaultForDisplay(saver.aesKey, blob, fallbackLocale),
       onSynced: (next) => {
@@ -752,6 +739,7 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
       const refused = serverOutdatedRef.current && backend.mode === "hosted";
       const usable = newer || refused ? updateRequiredBackend(backend, newer ? "diary" : "server") : backend;
       const gen = (sessionGenRef.current += 1);
+      sessionWalletRef.current = { gen, wallet: nextWallet };
       backendRef.current = usable;
       syncedRef.current = { diary: loaded, version: vault.version };
       newerDiaryJsonRef.current = newerJson;
@@ -1203,7 +1191,11 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
         const status = await device.deviceVault.status();
         // One diary per install. Never replace one that exists.
         if (status.hasDiary) throw new Error("This device already has a diary");
-        const created = await device.deviceBackend.save(await sealDiary(nextWallet.aesKey, emptyDiary(locale)), 0);
+        const created = await device.deviceBackend.save(
+          await sealDiary(nextWallet.aesKey, emptyDiary(locale)),
+          0,
+          nextWallet.pubkeyHash,
+        );
         if (!created.ok) throw new Error("This device already has a diary");
         deviceDiaryRef.current = true;
         await device.deviceVault.storePhrase({ ...authPrompt(locale), phrase: nextWallet.mnemonic, requireAuth: false });
@@ -1369,7 +1361,10 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
         const sealed = await sealDiary(wallet.aesKey, next);
         // Combined with what the account already held, it may be over the cap now.
         if (sealed.ciphertext.length > MAX_HOSTED_VAULT_CIPHERTEXT_LENGTH) throw new VaultTooLargeError();
-        const saved = await hostedVault.save(sealed, remote.version);
+        // Names this wallet's account: if a late sign-in for another account replaced
+        // the cookie meanwhile, the host refuses (AccountMismatchError) and nothing
+        // is written or deleted.
+        const saved = await hostedVault.save(sealed, remote.version, wallet.pubkeyHash);
         if (!saved.ok) throw new Error("The hosted diary changed during the move");
         const device = await loadDeviceStorage();
         // Keep the phrase for the hosted account (sealed in Keystore and read back)
@@ -1435,7 +1430,7 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
             loadHosted: () => loadSession(() => hostedVault.load()),
             open: (blob) => openVault(wallet.aesKey, blob),
             seal: (next) => sealDiary(wallet.aesKey, next),
-            writeDevice: async (blob) => (await device.deviceBackend.save(blob, 0)).ok,
+            writeDevice: async (blob) => (await device.deviceBackend.save(blob, 0, wallet.pubkeyHash)).ok,
             storePhrase: () =>
               device.deviceVault.storePhrase({
                 ...authPrompt(synced.diary.locale),
@@ -1443,7 +1438,7 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
                 requireAuth: false,
               }),
             clearDevice: () => device.deviceVault.clear(),
-            deleteHosted: (baseVersion) => deleteSession(() => deleteAccount(baseVersion)),
+            deleteHosted: (baseVersion) => deleteSession((account) => deleteAccount(account, baseVersion)),
             probeHosted: async () => {
               await loginWithWallet(wallet, undefined, true, { isLive: live });
             },
@@ -1555,11 +1550,16 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
     endHostSession();
   }, [cancelRestores, endHostSession, keepCopies]);
 
-  // A 401 retry for a request made in the session open now: once that session
-  // ends (sign-out, lock, another account), nothing signs in for it.
+  // A 401 / account-mismatch retry for a request made in the session open now, by
+  // the wallet whose diary is open (`who`). A handler kept with another wallet, or
+  // from a session that has ended (sign-out, lock, another account), sends nothing
+  // ("Locked") and never signs that wallet in over the session open now.
   const liveSessionRetry = useCallback((who: Wallet) => {
     const gen = sessionGenRef.current;
-    return sessionRetry(who, sessionPersistRef.current, () => sessionGenRef.current === gen);
+    const live = () => sessionGenRef.current === gen && isOpenSessionWallet(sessionWalletRef.current, gen, who);
+    const retry = sessionRetry(who, sessionPersistRef.current, live);
+    return <T,>(run: (account: string) => Promise<T>): Promise<T> =>
+      live() ? retry(run) : Promise.reject(new Error("Locked"));
   }, []);
 
   // A refusal from the host matters for a hosted diary (or before one opens),
@@ -1683,7 +1683,7 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
         setPendingSignup(pending);
         await writePendingSignup(pending);
         const withSession = sessionRetry(nextWallet, signupPersist);
-        const result = await withSession(() => postRecoveryKit(normalized, kit, locale));
+        const result = await withSession((account) => postRecoveryKit(normalized, kit, locale, account));
         if (!result.pending) {
           const confirmed = { ...pending, confirmed: true };
           setPendingSignup(confirmed);
@@ -1698,7 +1698,7 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
         // After an app restart the session cookie may be gone: sign in once and retry.
         const withSession = sessionRetry(pending.wallet, pending.persist);
         if (!pending.confirmed) {
-          await withSession(() => confirmRecoveryCode(code));
+          await withSession((account) => confirmRecoveryCode(code, account));
           pending = { ...pending, confirmed: true };
           setPendingSignup(pending);
           await writePendingSignup(pending);
@@ -1713,7 +1713,7 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
           await completeSignup(pending, withSession);
           return { confirmed: true };
         }
-        const result = await withSession(() => postRecoveryKit(pending.email, pending.kit, locale));
+        const result = await withSession((account) => postRecoveryKit(pending.email, pending.kit, locale, account));
         if (result.pending) return { confirmed: false };
         // Already this account's verified address: an earlier code went through and its answer was lost.
         const confirmed = { ...pending, confirmed: true };
@@ -1747,8 +1747,8 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
         const normalized = normalizeEmail(email);
         const gen = sessionGenRef.current;
         const kit = await wrapMnemonic(wallet.mnemonic, password);
-        const result = await liveSessionRetry(wallet)(() =>
-          postRecoveryKit(normalized, kit, locale),
+        const result = await liveSessionRetry(wallet)((account) =>
+          postRecoveryKit(normalized, kit, locale, account),
         );
         // Signed out (or locked) meanwhile: nothing goes back onto this device.
         if (sessionGenRef.current !== gen) throw new Error("Locked");
@@ -1766,7 +1766,7 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
         if (!pendingEmailSignIn) throw new InvalidConfirmError();
         if (!wallet) throw new Error("Locked");
         const gen = sessionGenRef.current;
-        await liveSessionRetry(wallet)(() => confirmRecoveryCode(code));
+        await liveSessionRetry(wallet)((account) => confirmRecoveryCode(code, account));
         // Signed out (or locked) meanwhile: nothing goes back onto this device.
         if (sessionGenRef.current !== gen) throw new Error("Locked");
         saveLocalKit(pendingEmailSignIn.email, pendingEmailSignIn.kit);
@@ -1776,8 +1776,8 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
       resendEmailSignInCode: async () => {
         if (!pendingEmailSignIn) throw new InvalidConfirmError();
         if (!wallet) throw new Error("Locked");
-        await liveSessionRetry(wallet)(() =>
-          postRecoveryKit(pendingEmailSignIn.email, pendingEmailSignIn.kit, locale),
+        await liveSessionRetry(wallet)((account) =>
+          postRecoveryKit(pendingEmailSignIn.email, pendingEmailSignIn.kit, locale, account),
         );
       },
       cancelEmailSignIn: () => setPendingEmailSignIn(null),
@@ -1791,8 +1791,8 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
         const { mnemonic: recovered } = await openKit(normalized, currentPassword);
         if (recovered !== wallet.mnemonic) throw new InvalidCredentialsError();
         const nextKit = await wrapMnemonic(wallet.mnemonic, nextPassword);
-        const result = await liveSessionRetry(wallet)(() =>
-          postRecoveryKit(normalized, nextKit, locale),
+        const result = await liveSessionRetry(wallet)((account) =>
+          postRecoveryKit(normalized, nextKit, locale, account),
         );
         if (result.pending) throw new Error("Recovery kit was not saved");
         // Signed out (or locked) meanwhile: the host has the new kit, but this device keeps nothing.
@@ -1824,8 +1824,16 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
             await dropPendingSignup();
           } else {
             if (!wallet) throw new Error("Locked");
-            // A session that expired while the app was open signs in once and asks again.
-            await liveSessionRetry(wallet)(() => deleteAccount());
+            // A session that expired while the app was open, or a cookie another
+            // sign-in left (409 account-mismatch: nothing deleted), signs in once and
+            // asks again. The delete names this wallet's account, never another.
+            try {
+              await liveSessionRetry(wallet)((account) => deleteAccount(account));
+            } catch (cause) {
+              // The sign-in after a 401 or an account-mismatch found no account for this
+              // phrase: it is already gone, the same outcome as a 404 to the delete.
+              if (!(cause instanceof AccountNotFoundError)) throw cause;
+            }
             // The account is gone either way; a phrase left behind only meets "no account" on the next start.
             await (await phraseStore()).clear().catch(() => undefined);
             await keepCopies(false);

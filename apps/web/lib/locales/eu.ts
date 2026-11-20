@@ -255,6 +255,7 @@ const locale: LocaleModule = {
     screenErrorBody:
       "Zure egunerokoa ez da aldatu. Berriro saiatzeak konpontzen ez badu, esportatu kopia bat.",
     vaultTooLarge: "Zure egunerokoa handiegia da Cicloren hodeirako, eta ez da han gorde. Egin esportazio bat lehenago; ohar laburragoek leku gutxiago hartzen dute.",
+    accountMismatch: "Ez da ezer gorde edo aldatu: une hartan gailu honetan Cicloren beste kontu bat zegoen irekita. Saiatu berriro.",
     invalidPhrase: "Esaldiak ez du balio.",
     noAccountForPhrase: "Ez dago esaldi hori duen konturik. Berrikusi 12 hitzak edo sortu kontu berri bat.",
     vaultUnreadable: "Ezin izan da kontu honetan gordetako egunerokoa ireki. Ez da ezer aldatu zerbitzarian.",

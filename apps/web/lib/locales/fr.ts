@@ -255,6 +255,7 @@ const locale: LocaleModule = {
     screenErrorTitle: "Un problème est survenu sur cet écran",
     screenErrorBody: "Ton journal n’a pas été modifié. Si réessayer ne suffit pas, exporte une copie.",
     vaultTooLarge: "Ton journal est trop volumineux pour le cloud de Ciclo : il n’y a pas été enregistré. Fais d’abord un export ; des notes plus courtes prennent moins de place.",
+    accountMismatch: "Rien n’a été enregistré ni modifié : à ce moment-là, cet appareil était connecté à un autre compte Ciclo. Réessaie.",
     invalidPhrase: "Phrase non valide.",
     noAccountForPhrase: "Aucun compte n’utilise cette phrase. Vérifie les 12 mots ou crée un nouveau compte.",
     vaultUnreadable: "Le journal enregistré pour ce compte n’a pas pu être ouvert. Rien n’a été modifié sur le serveur.",

@@ -20,8 +20,10 @@ public class MainActivity extends BridgeActivity {
         // Local plugins must be registered before the bridge starts.
         registerPlugin(DeviceVaultPlugin.class);
         super.onCreate(savedInstanceState);
-        // The recents screen shows the app's icon instead of a picture of the diary,
-        // for every account. Screenshots still work; the app lock adds FLAG_SECURE.
+        // Android keeps no picture of the diary for the recents screen, for every
+        // account: once the app has left the front, recents shows it without its
+        // content. Opening recents while the app is in front still shows it live;
+        // only FLAG_SECURE (the app lock) hides that. Screenshots still work.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             setRecentsScreenshotEnabled(false);
         }
