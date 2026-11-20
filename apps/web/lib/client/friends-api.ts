@@ -38,6 +38,24 @@ function jsonInit(method: "POST" | "PUT", account: string, body: unknown): ApiRe
   };
 }
 
+/** Runs a host call naming `account`, signing in once and retrying on a 401 or account-mismatch. */
+export type SessionRun = <T>(call: (account: string) => Promise<T>) => Promise<T>;
+
+/**
+ * `base` with every call run through `run` (the context's live session retry):
+ * the account a call names is always the one the retry signs in with.
+ */
+export function retryingFriendsApi(run: SessionRun, base: FriendsApi = hostedFriendsApi): FriendsApi {
+  return {
+    getBook: () => run((account) => base.getBook(account)),
+    putBook: (sealed, baseVersion) => run((account) => base.putBook(sealed, baseVersion, account)),
+    deleteBook: () => run((account) => base.deleteBook(account)),
+    readBoxes: (ids) => run((account) => base.readBoxes(ids, account)),
+    putBox: (box) => run((account) => base.putBox(box, account)),
+    deleteBoxes: (items) => run((account) => base.deleteBoxes(items, account)),
+  };
+}
+
 export const hostedFriendsApi: FriendsApi = {
   async getBook(account) {
     const response = await apiFetch("/api/friends/book", { headers: accountHeader(account) });

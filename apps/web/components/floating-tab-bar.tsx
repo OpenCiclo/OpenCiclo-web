@@ -7,20 +7,28 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BookOpen, CalendarDays, LineChart, Settings } from "lucide-react";
+import { BookOpen, CalendarDays, LineChart, Settings, Users } from "lucide-react";
 
 import { hidesAppChrome } from "@/lib/client/app-chrome";
 import { useCiclo } from "@/lib/client/ciclo-context";
+import { useShowsFriendsTab } from "@/lib/client/friends-tab";
 import { entranceBetween, setTabEntrance } from "@/lib/client/tab-entrance";
 import { SelectionMotion, labelScale } from "@/lib/client/tab-motion";
+import { FRIENDS_AVAILABLE } from "@/lib/features";
+import type { Messages } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
-const TABS = [
-  { href: "/app", icon: CalendarDays },
-  { href: "/patterns", icon: LineChart },
-  { href: "/learn", icon: BookOpen },
-  { href: "/settings", icon: Settings },
-] as const;
+type Tab = { href: string; icon: typeof CalendarDays; label: keyof Messages };
+
+const BASE_TABS: Tab[] = [
+  { href: "/app", icon: CalendarDays, label: "calendar" },
+  { href: "/patterns", icon: LineChart, label: "patterns" },
+  { href: "/learn", icon: BookOpen, label: "learn" },
+  { href: "/settings", icon: Settings, label: "settings" },
+];
+
+// Friends sits between Patterns and Learn, when it is shown (useShowsFriendsTab).
+const FRIENDS_TABS: Tab[] = [...BASE_TABS.slice(0, 2), { href: "/friends", icon: Users, label: "friends" }, ...BASE_TABS.slice(2)];
 
 /**
  * The code of each tab screen, in tab order. Next prefetches a tab's data but
@@ -33,6 +41,7 @@ const SCREEN_CODE = [
   () => import("@/app/patterns/page"),
   () => import("@/components/learn/learn-index"),
   () => import("@/app/settings/page"),
+  ...(FRIENDS_AVAILABLE ? [() => import("@/app/friends/page")] : []),
 ];
 
 let screenCodeRequested = false;
@@ -57,8 +66,10 @@ function loadScreenCodeWhenIdle() {
   step();
 }
 
-function tabIndex(pathname: string) {
-  return TABS.findIndex(({ href }) => pathname === href || pathname.startsWith(`${href}/`));
+// `/friends/join` is the landing page of an invite link, not the Friends tab.
+function tabIndex(tabs: Tab[], pathname: string) {
+  if (pathname.startsWith("/friends/")) return -1;
+  return tabs.findIndex(({ href }) => pathname === href || pathname.startsWith(`${href}/`));
 }
 
 function prefersReducedMotion() {
@@ -102,7 +113,9 @@ function paintLabels(
 export function FloatingTabBar() {
   const { t, wallet } = useCiclo();
   const pathname = usePathname();
-  const activeIndex = tabIndex(pathname);
+  const showsFriends = useShowsFriendsTab();
+  const tabs = showsFriends ? FRIENDS_TABS : BASE_TABS;
+  const activeIndex = tabIndex(tabs, pathname);
   const hidden = !wallet || hidesAppChrome(pathname);
 
   // The tab just tapped, lit (and the selection on its way to it) from the
@@ -116,11 +129,18 @@ export function FloatingTabBar() {
   const bubbleRef = useRef<HTMLSpanElement>(null);
   const labelRefs = useRef<(HTMLSpanElement | null)[]>([]);
   const motionRef = useRef<SelectionMotion | null>(null);
+  const motionTabsRef = useRef(tabs.length);
   const placedRef = useRef(false);
 
   function motion() {
+    // The Friends tab came or went: a new motion for the new number of tabs.
+    if (motionRef.current && motionTabsRef.current !== tabs.length) {
+      motionRef.current.stop();
+      motionRef.current = null;
+    }
+    motionTabsRef.current = tabs.length;
     motionRef.current ??= new SelectionMotion(
-      TABS.length,
+      tabs.length,
       (position, scale) => {
         const bubble = bubbleRef.current;
         if (!bubble) return;
@@ -155,29 +175,40 @@ export function FloatingTabBar() {
       placedRef.current = false;
       return;
     }
-    if (placedRef.current) {
+    const recount = motionTabsRef.current !== tabs.length;
+    if (placedRef.current && !recount) {
       motion().settle(bubbleIndex);
     } else {
       motion().place(bubbleIndex);
       placedRef.current = true;
     }
-  }, [hidden, bubbleIndex]);
+    // motion() reads the number of tabs itself.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hidden, bubbleIndex, tabs.length]);
 
   if (hidden) return null;
 
-  const labels = [t.calendar, t.patterns, t.learn, t.settings];
+  const labels = tabs.map((tab) => String(t[tab.label]));
 
   return (
     <nav className="fixed inset-x-0 bottom-0 z-40 mx-auto w-full max-w-md pb-[env(safe-area-inset-bottom)]">
       <div className="mx-4 mb-4 rounded-full border border-border bg-card/90 p-1.5 shadow-lg backdrop-blur-md">
-        <div className="relative grid touch-manipulation grid-cols-4 select-none [-webkit-touch-callout:none]">
+        <div
+          className={cn(
+            "relative grid touch-manipulation select-none [-webkit-touch-callout:none]",
+            tabs.length === 5 ? "grid-cols-5" : "grid-cols-4",
+          )}
+        >
           <span
             ref={bubbleRef}
             aria-hidden
-            className="tab-bubble pointer-events-none absolute inset-y-0 left-0 w-1/4 rounded-full bg-primary shadow-sm"
+            className={cn(
+              "tab-bubble pointer-events-none absolute inset-y-0 left-0 rounded-full bg-primary shadow-sm",
+              tabs.length === 5 ? "w-1/5" : "w-1/4",
+            )}
             style={{ "--tab-index": bubbleIndex } as CSSProperties}
           />
-          {TABS.map((item, index) => {
+          {tabs.map((item, index) => {
             const Icon = item.icon;
             return (
               <Link
@@ -189,7 +220,9 @@ export function FloatingTabBar() {
                   tapTab(index);
                 }}
                 className={cn(
-                  "tab-link relative z-10 flex min-h-12 flex-col items-center justify-center gap-0.5 rounded-full px-1 py-2 text-[11px] font-semibold transition-colors duration-200",
+                  "tab-link relative z-10 flex min-h-12 flex-col items-center justify-center gap-0.5 rounded-full px-1 py-2 font-semibold whitespace-nowrap transition-colors duration-200",
+                  // Five tabs leave about 58 px per label on a 375 px phone: "Einstellungen" needs the smaller size.
+                  tabs.length === 5 ? "text-[10px] tracking-tight" : "text-[11px]",
                   index === litIndex ? "text-primary-foreground" : "text-muted-foreground",
                 )}
               >

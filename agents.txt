@@ -92,7 +92,7 @@ V1 predicts next period start and cycle length only. Optional observations are i
 ## Web app map
 
 ```
-apps/web/app/                    App Router. Tabs: / calendar, /patterns, /learn, /settings
+apps/web/app/                    App Router. Tabs: / calendar, /patterns, /friends (only with FRIENDS_AVAILABLE, a hosted diary, and not hidden in Settings), /learn, /settings
 apps/web/app/console/            Operator panel (stats + Learn CMS). Allowlist CONSOLE_EMAILS via HMAC mailbox. Noindex.
 apps/web/app/help/               Help index + [slug]
 apps/web/app/api/                auth challenge/verify, vault, recovery register/confirm/fetch, research pool, console
@@ -113,6 +113,9 @@ apps/web/lib/features.ts         flags for built but hidden features
 apps/web/lib/friends/            Friends: keys and sealing (crypto.ts), invite links, status messages (payload.ts), friend book, size limits
 apps/web/lib/client/friends-sync.ts  Friends on the device: handshake, refresh, publish, remove, turn off (over friends-api.ts)
 apps/web/lib/server/friends.ts   Friends on the host: friend books (CAS) and sealed boxes (write tokens)
+apps/web/components/friends/     FriendsProvider (book, cards, queued changes, publishing), the friend card, the invite QR
+apps/web/app/friends/            the Friends screen (+ .android.tsx); join/ is the web-only landing page of an invite link (reads the fragment, clears it)
+apps/web/lib/client/friends-tab.ts  whether the tab bar and the desktop header show Friends (per-device Settings switch ciclo.friendsTab)
 apps/web/lib/privacy/            privacy policy and /delete-account text (ES/EN), legal-doc format, hosting region from vercel.json
 apps/web/components/legal-document.tsx  draws those documents ([label](href), **bold**); legal-page.tsx adds `?lang=`
 apps/web/components/policy-dialog.tsx  the privacy policy over the sign-up screen
@@ -219,6 +222,8 @@ Opt-in sharing of the current cycle phase with close friends, built but hidden: 
 - A status (`lib/friends/payload.ts`) carries the current cycle as start, expected next start and bleed length, built from `cycleOverview`; the viewer's device turns it into a phase with `cycleTimeline` for its own date. Never send symptoms, diary notes, flow or past cycles. With the forecast off only bleeding logged today is sent. After the expected start the card says "period expected about now" for a few days, never "days late".
 - Delete routes (`/api/friends/book/delete`, `/api/friends/boxes/delete`) skip `rejectOutdatedClient`: leaving must always work. Deleting an account cascades the book; boxes have no account, so the device tells friends and deletes what it can first (`turnOffFriends`), and the rest expires.
 - Not offered for an on-device diary ("Only on this device" means nothing leaves the phone).
+- Screen: `FriendsProvider` (`components/friends/friends-provider.tsx`, in both root layouts) runs every change through one queue and publishes the status when what friends would get changes: at once after a change on the Friends screen, after a random 20–80 s wait after a diary change (so the write does not sit next to the vault save). A device that has seen Friends on (`ciclo.friends.<pubkeyHash>` = "on") loads it at start; others when the screen opens. The context gives it `friendsRun` (calls through `liveSessionRetry`); `wipe` and the hosted → device move call `leaveFriends` before the account delete. The tab bar takes 4 or 5 tabs (literal `grid-cols-4/5` and `w-1/4`/`w-1/5`; 10 px labels with 5). The privacy policy's Friends parts, `/delete-account`'s line and the Help article `friends` appear only with the flag on.
+- Turning it on in production: apply `0008_friends.sql` (Neon snapshot first), set `FRIENDS_AVAILABLE = true` and `PRIVACY_POLICY_UPDATED` in one change, after the policy's legal read.
 
 ## Research pool
 

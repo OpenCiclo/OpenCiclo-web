@@ -466,6 +466,16 @@ export async function removeFriendAndTell(
 }
 
 /**
+ * Before the account is deleted (or moved to the device): turns Friends off if
+ * it is on. Best effort for the caller; a book this build cannot read is left
+ * to the account's cascade.
+ */
+export async function leaveFriends(session: FriendsSession, today: string): Promise<void> {
+  const state = await loadBook(session);
+  if (state) await turnOffFriends(session, state, today);
+}
+
+/**
  * Turns Friends off: tells every friend it ended and deletes pending invites
  * (best effort: what is missed nobody can read, and expires), then deletes the
  * book (must succeed). Also run before the account is deleted.

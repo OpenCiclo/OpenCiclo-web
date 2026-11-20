@@ -14,7 +14,8 @@ import { storeBrowserPassword } from "@/lib/client/credentials";
 import { saveFile } from "@/lib/client/save-file";
 import { NewerDiaryError } from "@/lib/diary";
 import { diaryToCsv, mergeDiaries, parseImportedFile, previewImport } from "@/lib/diary-io";
-import { VISUAL_SEASONS_AVAILABLE } from "@/lib/features";
+import { FRIENDS_AVAILABLE, VISUAL_SEASONS_AVAILABLE } from "@/lib/features";
+import { useFriendsTabChoice } from "@/lib/client/friends-tab";
 import { AppShell } from "@/components/app-shell";
 import { AddEmailSignIn } from "@/components/add-email-sign-in";
 import { useConfirmDialog } from "@/components/confirm-dialog";
@@ -108,6 +109,7 @@ export default function SettingsPage() {
   // Android 11+ (the app lock needs it). Asked from the device when an on-device diary is open.
   const [lockSupported, setLockSupported] = useState(true);
   const [confirm, confirmDialog] = useConfirmDialog();
+  const [friendsTabVisible, setFriendsTabVisible] = useFriendsTabChoice();
   // The diary says whether this account has an email sign-in. The last email
   // typed on this device does not: it outlives sign-out and other accounts.
   const canChangePassword = !onDevice && diary.recoveryEmailSet;
@@ -282,6 +284,22 @@ export default function SettingsPage() {
             className="h-7 w-12 shrink-0 cursor-pointer appearance-none rounded-full bg-muted-foreground/30 p-1 transition-colors before:block before:size-5 before:rounded-full before:bg-white before:shadow-sm before:transition-transform checked:bg-primary checked:before:translate-x-5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
           />
         </label>
+        {FRIENDS_AVAILABLE && storageMode === "hosted" ? (
+          <label
+            htmlFor="friends-tab"
+            className="flex cursor-pointer items-center justify-between gap-4 rounded-2xl bg-muted/60 p-3"
+          >
+            <p className="text-sm font-semibold text-card-foreground">{t.friendsTabSetting}</p>
+            <input
+              id="friends-tab"
+              type="checkbox"
+              role="switch"
+              checked={friendsTabVisible}
+              onChange={(event) => setFriendsTabVisible(event.target.checked)}
+              className={SWITCH_CLASS}
+            />
+          </label>
+        ) : null}
         <div>
           <p className="text-sm font-semibold text-card-foreground">{t.weekStartsOn}</p>
           <div className="mt-2 grid grid-cols-2 gap-2">

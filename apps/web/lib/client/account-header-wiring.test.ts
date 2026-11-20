@@ -69,7 +69,11 @@ describe("account header wiring in ciclo-context.tsx", () => {
   });
 
   it("account deletes name the account of the retry's wallet", () => {
-    expect(source).toContain("deleteHosted: (baseVersion) => deleteSession((account) => deleteAccount(account, baseVersion)),");
+    expect(source).toContain("return deleteSession((account) => deleteAccount(account, baseVersion));");
+    // Friends hears first (best effort), through the same retry, then the account goes.
+    expect(source).toMatch(
+      /deleteHosted: async \(baseVersion\) => \{[\s\S]*?retryingFriendsApi\(deleteSession\)[\s\S]*?return deleteSession\(\(account\) => deleteAccount\(account, baseVersion\)\);/,
+    );
     expect(source).toContain("const deleteSession = sessionRetry(wallet,");
     expect(source).toContain("await liveSessionRetry(wallet)((account) => deleteAccount(account));");
   });
