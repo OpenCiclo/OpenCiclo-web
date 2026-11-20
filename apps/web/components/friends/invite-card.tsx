@@ -4,7 +4,7 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowLeft, QrCode, ScanLine, Ticket, UserPlus } from "lucide-react";
+import { ArrowLeft, QrCode, ScanLine, Settings2, Ticket, UserPlus } from "lucide-react";
 
 import { apiUrl } from "@/lib/app-target";
 import { inviteFingerprint } from "@/lib/client/friends-sync";
@@ -32,9 +32,9 @@ function siteOrigin(): string {
 type Mode = "choose" | "invite" | "join";
 
 /**
- * Inviting and joining in one card: two choices, and the card becomes the one
- * tapped (with a way back). Inviting reuses the newest invite still open, so
- * going back and forth does not pile up links.
+ * Inviting, joining and settings in one card of three columns. Tapping invite
+ * or join turns the card into that choice (with a way back); settings opens
+ * the settings sheet.
  */
 export function InviteCard({
   book,
@@ -46,6 +46,7 @@ export function InviteCard({
   initialCode,
   act,
   onUnreadable,
+  onOpenSettings,
 }: {
   book: FriendBook;
   today: string;
@@ -57,6 +58,8 @@ export function InviteCard({
   initialCode: string | null;
   act: (work: () => Promise<void>) => Promise<void>;
   onUnreadable: () => void;
+  /** The third choice: opens the Friends settings sheet. */
+  onOpenSettings: () => void;
 }) {
   const friends = useFriends();
   const [mode, setMode] = useState<Mode>(initialCode ? "join" : "choose");
@@ -127,11 +130,13 @@ export function InviteCard({
   return (
     <Card className="overflow-hidden rounded-3xl p-0">
       {mode === "choose" ? (
-        <div className="grid grid-cols-2 divide-x divide-border">
+        <div className="grid grid-cols-3 divide-x divide-border">
           {(
             [
-              { key: "invite", icon: UserPlus, title: t.friendsInvite, hint: t.friendsInviteOptionHint, onClick: () => openInvite() },
-              { key: "join", icon: Ticket, title: t.friendsHaveInvite, hint: t.friendsJoinOptionHint, onClick: () => setMode("join") },
+              { key: "invite", icon: UserPlus, title: t.friendsInvite, hint: t.friendsInviteOptionHint, onClick: () => openInvite(), needsWrite: true },
+              { key: "join", icon: Ticket, title: t.friendsHaveInvite, hint: t.friendsJoinOptionHint, onClick: () => setMode("join"), needsWrite: true },
+              // Opens the settings sheet (it shows its controls disabled when nothing can be saved).
+              { key: "settings", icon: Settings2, title: t.settings, hint: t.friendsSettingsHint, onClick: onOpenSettings, needsWrite: false },
             ] as const
           ).map((option) => {
             const Icon = option.icon;
@@ -139,15 +144,16 @@ export function InviteCard({
               <button
                 key={option.key}
                 type="button"
-                disabled={!writable}
+                disabled={option.needsWrite && !writable}
                 onClick={option.onClick}
-                className="flex flex-col items-start gap-2 p-4 text-left transition-colors hover:bg-muted/60 active:bg-muted disabled:opacity-50"
+                className="flex min-w-0 flex-col items-center gap-2 px-2.5 pt-4 pb-3.5 text-center transition-colors hover:bg-muted/60 active:bg-muted disabled:opacity-50"
               >
-                <span className="flex size-10 items-center justify-center rounded-2xl bg-primary/12 text-primary">
-                  <Icon className="size-5" aria-hidden />
+                <span className="flex size-10 items-center justify-center rounded-full bg-primary/12 text-primary">
+                  <Icon className="size-[18px]" aria-hidden />
                 </span>
-                <span className="font-semibold leading-tight">{option.title}</span>
-                <span className="text-xs leading-snug text-muted-foreground">{option.hint}</span>
+                {/* Two lines tall whatever the length, so the three hints start level. */}
+                <span className="flex min-h-[2lh] items-center text-sm leading-tight font-semibold text-balance">{option.title}</span>
+                <span className="text-[11px] leading-snug text-balance text-muted-foreground">{option.hint}</span>
               </button>
             );
           })}
