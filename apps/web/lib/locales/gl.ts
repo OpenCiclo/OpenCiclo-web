@@ -19,6 +19,8 @@ const locale: LocaleModule = {
     createWithEmail: "Correo e contrasinal",
     createWithEmailHint:
       "Entra en calquera dispositivo co mesmo correo e contrasinal. Ao crear a conta confirmas a caixa de correo cun código. O diario cífrase no teu navegador; nós non podemos lelo nin restablecer o teu contrasinal.",
+    createWithEmailHintAndroid:
+      "Entra en calquera dispositivo co mesmo correo e contrasinal. Ao crear a conta confirmas a caixa de correo cun código. O diario cífrase neste móbil; nós non podemos lelo nin restablecer o teu contrasinal.",
     superPrivateMode: "Modo superprivado",
     superPrivateHint:
       "Sen correo. Gardas 12 palabras. Máxima privacidade. Se as perdes, non hai recuperación — exporta unha copia de seguranza.",
@@ -75,6 +77,8 @@ const locale: LocaleModule = {
     onboardingTitle: "A túa frase de 12 palabras",
     onboardingBody:
       "Estas 12 palabras son a chave do teu diario. Gárdaas no navegador ou nun lugar seguro. Ciclo non pode recuperalas.",
+    onboardingBodyAndroid:
+      "Estas 12 palabras son a chave do teu diario. Apúntaas ou gárdaas nun lugar seguro. Ciclo non pode recuperalas.",
     emailAccountTitle: "Correo e contrasinal",
     emailAccountBody:
       "Escolle un correo e un contrasinal (mín. 8 caracteres). Enviarémosche un código de 6 díxitos a ese correo para confirmar que é teu. Non é unha ligazón para restablecer o contrasinal. Ciclo cifra o diario aquí. O contrasinal nunca sae do teu dispositivo sen cifrar.",
@@ -105,11 +109,15 @@ const locale: LocaleModule = {
     password: "Contrasinal",
     confirmPassword: "Confirmar contrasinal",
     passwordHint: "Mínimo 8 caracteres. O navegador pode gardalo coma calquera outro contrasinal.",
+    passwordHintAndroid:
+      "Mínimo 8 caracteres. O teu xestor de contrasinais pode gardalo coma calquera outro.",
     showPassword: "Amosar contrasinal",
     hidePassword: "Ocultar contrasinal",
     keepLoggedIn: "Manter a sesión iniciada",
     keepLoggedInHint:
       "Neste navegador o diario queda aberto ata que peches a sesión. Calquera persoa con acceso a este perfil pode abrilo.",
+    keepLoggedInHintAndroid:
+      "Neste móbil o diario queda aberto ata que peches a sesión. Calquera persoa que use este móbil desbloqueado pode abrilo.",
     saveInBrowser: "Gardar no navegador",
     savedInBrowser: "O navegador pode pedirche que gardes isto. Se aparece o aviso, acéptao.",
     savePhraseInBrowserHint:
@@ -168,6 +176,7 @@ const locale: LocaleModule = {
     nextMonth: "Mes seguinte",
     today: "Hoxe",
     clearDay: "Quitar rexistro",
+    clearDayConfirm: "Quitar todo o rexistrado neste día?",
     nextStart: "Próximo inicio máis probable",
     expectedToStart: "Agardábase que a túa regra comezase...",
     cycleLength: "Duración do ciclo",
@@ -203,8 +212,10 @@ const locale: LocaleModule = {
     importOk: "Datos importados.",
     importInvalid: "Non se puido ler o ficheiro.",
     deleteAccount: "Borrar conta e diario",
+    deleting: "Borrando…",
     deleteConfirm:
       "Isto borra os datos cifrados do servidor e os datos deste dispositivo. As achegas ao banco de datos anónimo de investigación non se poden desfacer. Continuar?",
+    deleteAction: "Borrar",
     email: "Correo",
     researchTitle: "Contribuír ao banco de datos anónimo",
     researchBenefit:
@@ -222,12 +233,16 @@ const locale: LocaleModule = {
     address: "Identidade pública",
     logout: "Pechar sesión neste dispositivo",
     errorGeneric: "Algo fallou. Téntao de novo.",
+    screenErrorTitle: "Algo fallou nesta pantalla",
+    screenErrorBody: "O teu diario non se tocou. Se tentalo de novo non o arranxa, exporta unha copia.",
     invalidPhrase: "Frase non válida.",
     noAccountForPhrase: "Non hai ningunha conta con esa frase. Revisa as 12 palabras ou crea unha conta nova.",
     wordMismatch: "Esa palabra non coincide.",
     privacyTitle: "Privacidade",
     privacyBody1:
       "As datas cífranse no navegador con AES-GCM. O servidor garda só texto cifrado. Podes usar correo e contrasinal ou o modo superprivado con 12 palabras.",
+    privacyBody1Android:
+      "As datas cífranse neste móbil con AES-GCM. O servidor garda só texto cifrado. Podes usar correo e contrasinal ou o modo superprivado con 12 palabras.",
     privacyBody2:
       "Ciclo non pode restablecer o teu contrasinal nin a túa frase. Se os perdes, o diario aloxado pérdese. Isto protexe a túa privacidade: ninguén — nin sequera nós — pode ler o teu diario no servidor.",
     privacyBody3:
@@ -237,6 +252,7 @@ const locale: LocaleModule = {
     privacyBody5:
       "O banco de datos de investigación non garda ningunha relación entre a túa conta e o identificador anónimo.",
     welcomeCta: "Comeza no navegador. As datas cífranse antes de saíren do dispositivo.",
+    welcomeCtaAndroid: "Comeza aquí. As datas cífranse antes de saíren deste móbil.",
     restoreFailedTitle: "Non puidemos abrir o teu diario",
     restoreFailedBody:
       "Pode ser a conexión ou o servidor. O teu acceso segue gardado neste dispositivo e os teus datos non se tocaron.",
@@ -253,6 +269,9 @@ const locale: LocaleModule = {
     updateBodyCopy: "Esta versión de Ciclo é demasiado antiga para o servidor, así que ves a copia gardada neste móbil ({date}). Actualízaa desde Google Play para ver as entradas máis novas e seguir editando.",
     updateSignInBodyWeb: "Recarga a páxina para ter a última versión de Ciclo e volve iniciar sesión.",
     updateOpenStore: "Abrir Google Play",
+    webviewUpdateTitle: "Actualiza Android System WebView",
+    webviewUpdateBody:
+      "Ciclo necesita unha versión máis recente de Android System WebView. Actualízaa desde Google Play, e tamén Google Chrome se o tes, e volve abrir Ciclo.",
     updateReload: "Recargar",
     updateDayHint: "Actualiza Ciclo para cambiar este día.",
     updateNeededAction: "Actualiza Ciclo para facer isto.",
@@ -287,12 +306,13 @@ const locale: LocaleModule = {
     moveToDeviceHint:
       "Garda o teu diario cifrado neste móbil e borra a túa conta do servidor, tamén o acceso con correo e contrasinal.",
     moveToDeviceConfirm:
-      "O teu diario gardarase só neste móbil e borrarase a túa conta do servidor, tamén o acceso con correo e contrasinal. Antes, apunta a túa frase de 12 palabras (Gardar no navegador → Ver QR da frase) e fai unha exportación. Continuar?",
+      "O teu diario gardarase só neste móbil e borrarase a túa conta do servidor, tamén o acceso con correo e contrasinal. Antes, apunta a túa frase de 12 palabras (A túa frase de 12 palabras → Ver QR da frase) e fai unha exportación. Continuar?",
     moveToDeviceDone: "O teu diario xa está só neste móbil.",
     appLock: "Bloquear con pegada dactilar ou PIN",
     appLockHint:
       "Pide a túa pegada dactilar ou o bloqueo de pantalla ao abrir Ciclo e tras 30 segundos fóra. Tamén oculta a aplicación nas aplicacións recentes e nas capturas de pantalla.",
     appLockUnavailable: "Configura unha pegada dactilar ou un bloqueo de pantalla en Android para usalo.",
+    appLockNeedsAndroid11: "O bloqueo da app necesita Android 11 ou posterior.",
     appLockPromptTitle: "Abrir Ciclo",
     appLockPromptSubtitle: "Confirma que es ti para ver o teu diario.",
     deleteDeviceDiary: "Borrar o diario deste dispositivo",
@@ -389,6 +409,9 @@ const locale: LocaleModule = {
     backToLearn: "Volver a Aprender",
     noPatternsYet: "Rexistra polo menos un inicio de regra para ver patróns.",
     saveEntry: "Gardar",
+    discardDraftConfirm: "Descartar os cambios deste día?",
+    discardDraft: "Descartar",
+    keepEditing: "Seguir editando",
     mucusHintDry: "Pouco ou nada",
     mucusHintSticky: "Denso, pegañento",
     mucusHintCreamy: "Tipo loción",
@@ -399,6 +422,8 @@ const locale: LocaleModule = {
     favoriteSymptom: "Engadir a favoritos",
     unfavoriteSymptom: "Quitar de favoritos",
     deleteCustomSymptom: "Eliminar {name}",
+    deleteCustomSymptomConfirm:
+      "Eliminar «{name}»? Quitarase de todos os días en que o rexistraches. Non se pode desfacer.",
     addCustomSymptom: "Crear síntoma personalizado",
     customSymptomName: "Nome",
     customSymptomEmoji: "Emoji",

@@ -1,9 +1,13 @@
 package com.openciclo.app;
 
+import android.content.ClipData;
+import android.content.ClipDescription;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
+import android.os.PersistableBundle;
 import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyPermanentlyInvalidatedException;
 import android.security.keystore.KeyProperties;
@@ -68,6 +72,8 @@ public class DeviceVaultPlugin extends Plugin {
     // Never a device diary: status() and readDiary() do not look at it.
     private static final String HOSTED_COPY_FILE = "hosted-diary-copy.json";
     private static final String EXPORT_DIR = "exports";
+    // Names the clip copySensitive() writes, so clearCopied() only removes that one.
+    private static final String PHRASE_CLIP_LABEL = "Ciclo recovery phrase";
     private static final byte PHRASE_FORMAT = 1;
     private static final byte MODE_PLAIN = 0;
     private static final byte MODE_AUTH = 1;
@@ -119,6 +125,9 @@ public class DeviceVaultPlugin extends Plugin {
             result.put("hasPhrase", phrase != null);
             result.put("phraseNeedsAuth", phrase != null && phrase.length > 1 && phrase[1] == MODE_AUTH);
             result.put("lockAvailable", lockAvailable());
+            // Below Android 11 the app lock cannot work at all; Settings says so instead
+            // of asking for a fingerprint or screen lock.
+            result.put("lockSupported", Build.VERSION.SDK_INT >= Build.VERSION_CODES.R);
             call.resolve(result);
         } catch (IOException e) {
             call.reject("Could not read the device diary", "IO_ERROR");
@@ -359,6 +368,64 @@ public class DeviceVaultPlugin extends Plugin {
                 getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_SECURE);
             }
             call.resolve();
+        });
+    }
+
+    /**
+     * Copies the 12-word phrase. The clip is marked sensitive, so Android 13+ hides it
+     * in the clipboard preview and keyboards do not suggest it. Its label lets
+     * clearCopied() recognise it later without reading the phrase back.
+     */
+    @PluginMethod
+    public void copySensitive(PluginCall call) {
+        String text = call.getString("text");
+        if (text == null || text.isEmpty()) {
+            call.reject("Nothing to copy", "INVALID_ARGUMENT");
+            return;
+        }
+        getActivity().runOnUiThread(() -> {
+            ClipboardManager clipboard = ContextCompat.getSystemService(getContext(), ClipboardManager.class);
+            if (clipboard == null) {
+                call.reject("No clipboard", "UNAVAILABLE");
+                return;
+            }
+            ClipData clip = ClipData.newPlainText(PHRASE_CLIP_LABEL, text);
+            PersistableBundle extras = new PersistableBundle();
+            // ClipDescription.EXTRA_IS_SENSITIVE on Android 13+; older versions ignore it.
+            extras.putBoolean("android.content.extra.IS_SENSITIVE", true);
+            clip.getDescription().setExtras(extras);
+            clipboard.setPrimaryClip(clip);
+            call.resolve();
+        });
+    }
+
+    /**
+     * Empties the clipboard if it still holds the phrase copied above (same label).
+     * Resolves { checked: false } when it could not look: Android 10+ lets only the
+     * app with the focus read the clipboard. The caller then tries again once the
+     * app is back in front.
+     */
+    @PluginMethod
+    public void clearCopied(PluginCall call) {
+        getActivity().runOnUiThread(() -> {
+            JSObject result = new JSObject();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && !getActivity().hasWindowFocus()) {
+                result.put("checked", false);
+                call.resolve(result);
+                return;
+            }
+            ClipboardManager clipboard = ContextCompat.getSystemService(getContext(), ClipboardManager.class);
+            ClipDescription description = clipboard == null ? null : clipboard.getPrimaryClipDescription();
+            CharSequence label = description == null ? null : description.getLabel();
+            if (label != null && PHRASE_CLIP_LABEL.contentEquals(label)) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    clipboard.clearPrimaryClip();
+                } else {
+                    clipboard.setPrimaryClip(ClipData.newPlainText("", ""));
+                }
+            }
+            result.put("checked", true);
+            call.resolve(result);
         });
     }
 

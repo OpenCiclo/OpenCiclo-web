@@ -11,6 +11,7 @@ import { useCiclo } from "@/lib/client/ciclo-context";
 import { consoleCopy } from "@/lib/console/copy";
 import { LEARN_CATEGORIES, isLearnCategory, type LearnArticle, type LearnArticleCopy, type LearnCategory } from "@/lib/learn/articles";
 import { isLearnSlug, isPublishReady, type LearnEditorPayload } from "@/lib/learn/catalog";
+import { useConfirmDialog } from "@/components/confirm-dialog";
 import { Button } from "@/components/ui/button";
 import { Input, Textarea } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -33,6 +34,7 @@ export function LearnEditor({ initial }: { initial: LearnEditorPayload }) {
   const router = useRouter();
   const { locale } = useCiclo();
   const copy = consoleCopy(locale);
+  const [confirm, confirmDialog] = useConfirmDialog();
   const [slug, setSlug] = useState(initial.article.slug);
   const [category, setCategory] = useState<LearnCategory>(
     isLearnCategory(initial.article.category) ? initial.article.category : "cycle",
@@ -95,7 +97,13 @@ export function LearnEditor({ initial }: { initial: LearnEditorPayload }) {
 
   async function removeRow() {
     if (!initial.slug || initial.origin !== "database") return;
-    if (!window.confirm(copy.confirmDelete)) return;
+    const confirmed = await confirm({
+      message: copy.confirmDelete,
+      confirmLabel: copy.remove,
+      cancelLabel: copy.cancel,
+      destructive: true,
+    });
+    if (!confirmed) return;
     try {
       setBusy(true);
       const response = await fetch(`/api/console/learn/${initial.slug}`, { method: "DELETE" });
@@ -297,6 +305,7 @@ export function LearnEditor({ initial }: { initial: LearnEditorPayload }) {
           </Button>
         </div>
       ) : null}
+      {confirmDialog}
     </form>
   );
 }

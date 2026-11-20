@@ -10,6 +10,7 @@ import { CalendarScreen } from "@/components/calendar/calendar-screen";
 import { OfflineNotice } from "@/components/offline-notice";
 import { UpdateNotice } from "@/components/update-notice";
 import { PatternsContent } from "@/components/patterns/patterns-content";
+import { ScreenBoundary } from "@/components/screen-error";
 
 /** Pixels from the top of the window to the calendar when it sticks: the desktop header (4rem) and a gap. */
 const STICK_TOP = 96;
@@ -51,14 +52,21 @@ export function CycleDashboard({ tab }: { tab: "calendar" | "patterns" }) {
       <UpdateNotice className="mb-5" />
       <OfflineNotice className="mb-5" />
       <div className="desktop:grid desktop:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] desktop:items-start desktop:gap-10">
+        {/* One error boundary per column: on the desktop a failure in one leaves the other usable. */}
         {tab === "calendar" || desktop ? (
           <div ref={calendarRef} className="desktop:sticky">
-            <Suspense fallback={<p className="text-sm text-muted-foreground">…</p>}>
-              <CalendarScreen />
-            </Suspense>
+            <ScreenBoundary>
+              <Suspense fallback={<p className="text-sm text-muted-foreground">…</p>}>
+                <CalendarScreen />
+              </Suspense>
+            </ScreenBoundary>
           </div>
         ) : null}
-        {tab === "patterns" || desktop ? <PatternsContent /> : null}
+        {tab === "patterns" || desktop ? (
+          <ScreenBoundary>
+            <PatternsContent />
+          </ScreenBoundary>
+        ) : null}
       </div>
     </>
   );

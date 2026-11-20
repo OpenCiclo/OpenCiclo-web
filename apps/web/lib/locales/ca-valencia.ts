@@ -15,6 +15,8 @@ const locale: LocaleModule = {
     ...ca.messages,
     createWithEmailHint:
       "Entra des de qualsevol dispositiu amb el mateix correu i la mateixa contrasenya. En crear el compte, confirmes la bústia amb un codi. El diari es xifra al navegador; nosaltres no podem llegir-lo ni restablir la teua contrasenya.",
+    createWithEmailHintAndroid:
+      "Entra des de qualsevol dispositiu amb el mateix correu i la mateixa contrasenya. En crear el compte, confirmes la bústia amb un codi. El diari es xifra en este mòbil; nosaltres no podem llegir-lo ni restablir la teua contrasenya.",
     superPrivateHint:
       "Sense correu. Guardes 12 paraules. Màxima privacitat. Si les perds, no hi ha manera de recuperar-les — exporta'n una còpia de seguretat.",
     chooseModeIntro:
@@ -33,6 +35,8 @@ const locale: LocaleModule = {
     onboardingTitle: "La teua frase de 12 paraules",
     onboardingBody:
       "Estes 12 paraules són la clau del teu diari. Guarda-les al navegador o en un lloc segur. Ciclo no les pot recuperar.",
+    onboardingBodyAndroid:
+      "Estes 12 paraules són la clau del teu diari. Apunta-les o guarda-les en un lloc segur. Ciclo no les pot recuperar.",
     emailAccountBody:
       "Tria un correu i una contrasenya (mín. 8 caràcters). T'enviarem un codi de 6 xifres a esta bústia per a confirmar que és teua. No és un enllaç de restabliment. Ciclo xifra el diari ací. La contrasenya no ix mai del teu dispositiu sense xifrar.",
     verifyEmailBody:
@@ -47,8 +51,11 @@ const locale: LocaleModule = {
     confirmTitle: "Confirma que l'has guardada",
     unlockBody: "Correu i contrasenya, o la teua frase de 12 paraules si vas triar el mode superprivat.",
     passwordHint: "Mínim 8 caràcters. El navegador la pot guardar com qualsevol altra contrasenya.",
+    passwordHintAndroid: "Mínim 8 caràcters. El gestor de contrasenyes la pot guardar com qualsevol altra.",
     keepLoggedInHint:
       "En este navegador el diari queda obert fins que tanques la sessió. Qualsevol persona amb accés a este perfil el pot obrir.",
+    keepLoggedInHintAndroid:
+      "En este mòbil el diari queda obert fins que tanques la sessió. Qualsevol persona que use este mòbil desbloquejat el pot obrir.",
     saveInBrowser: "Guarda al navegador",
     savedInBrowser: "És possible que el navegador et demane guardar-ho. Si apareix l'avís, accepta'l.",
     savePhraseInBrowserHint:
@@ -68,6 +75,7 @@ const locale: LocaleModule = {
     flowPeriodHint:
       "Marca ací només els dies de la regla. El sagnat entre regles no compta com a inici ni com a durada.",
     today: "Hui",
+    clearDayConfirm: "Vols traure tot el que has registrat este dia?",
     nextStart: "Pròxim inici més probable",
     expectedToStart: "S'esperava que la regla començara...",
     withinDaysOne: "En el pròxim dia",
@@ -94,11 +102,14 @@ const locale: LocaleModule = {
     poolOptInLabel: "Contribuïx automàticament (1 vegada al mes)",
     poolNeedCycle: "Necessites almenys un cicle complet (dos inicis de regla) per a contribuir.",
     logout: "Tanca la sessió en este dispositiu",
+    screenErrorTitle: "Alguna cosa ha fallat en esta pantalla",
     noAccountForPhrase: "No hi ha cap compte amb esta frase. Revisa les 12 paraules o crea un compte nou.",
     wordMismatch: "Esta paraula no coincidix.",
     privacyTitle: "Privacitat",
     privacyBody1:
       "Les dates es xifren al navegador amb AES-GCM. El servidor només guarda text xifrat. Pots usar correu i contrasenya o el mode superprivat amb 12 paraules.",
+    privacyBody1Android:
+      "Les dates es xifren en este mòbil amb AES-GCM. El servidor només guarda text xifrat. Pots usar correu i contrasenya o el mode superprivat amb 12 paraules.",
     privacyBody2:
       "Ciclo no pot restablir la teua contrasenya ni la teua frase. Si les perds, el diari del núvol es perd. Açò protegix la teua privacitat: ningú — ni tan sols nosaltres — pot llegir el teu diari al servidor.",
     privacyBody3:
@@ -107,6 +118,7 @@ const locale: LocaleModule = {
       "Els símptomes, el flux, el moc cervical i les notes breus del dia es queden dins del diari xifrat. El servidor no hi afig columnes de salut. El recull anònim només rep durades del cicle (nombres enters); les notes no s'envien ni s'analitzen mai.",
     privacyBody5: "El recull de recerca no guarda cap correspondència entre el teu compte i l'identificador anònim.",
     welcomeCta: "Comença al navegador. Les dates es xifren abans d'eixir del dispositiu.",
+    welcomeCtaAndroid: "Comença ací. Les dates es xifren abans d'eixir d'este mòbil.",
     restoreFailedBody:
       "Pot ser la connexió o el servidor. El teu accés continua guardat en este dispositiu i les teues dades no s'han tocat.",
     offlineBody:
@@ -148,7 +160,7 @@ const locale: LocaleModule = {
     moveToDeviceHint:
       "Guarda el teu diari xifrat en este mòbil i esborra el teu compte del servidor, inclòs l'accés amb correu i contrasenya.",
     moveToDeviceConfirm:
-      "El teu diari es guardarà només en este mòbil i s'esborrarà el teu compte del servidor, inclòs l'accés amb correu i contrasenya. Abans, apunta la teua frase de 12 paraules (Guarda al navegador → Mostra el QR de la frase) i fes una exportació. Vols continuar?",
+      "El teu diari es guardarà només en este mòbil i s'esborrarà el teu compte del servidor, inclòs l'accés amb correu i contrasenya. Abans, apunta la teua frase de 12 paraules (La teua frase de 12 paraules → Mostra el QR de la frase) i fes una exportació. Vols continuar?",
     moveToDeviceDone: "El teu diari ara només està en este mòbil.",
     appLockUnavailable: "Configura una empremta o un bloqueig de pantalla a Android per a usar-ho.",
     appLockPromptTitle: "Obri Ciclo",
@@ -202,6 +214,7 @@ const locale: LocaleModule = {
     saving: "S'està guardant…",
     noPatternsYet: "Registra almenys un inici de regla per a veure patrons.",
     saveEntry: "Guarda",
+    discardDraftConfirm: "Vols descartar els canvis d'este dia?",
     favoriteSymptom: "Afig als preferits",
     unfavoriteSymptom: "Lleva dels preferits",
     customSymptomRequired: "Escriu un nom per a crear l'etiqueta.",

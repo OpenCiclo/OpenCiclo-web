@@ -19,6 +19,8 @@ const locale: LocaleModule = {
     createWithEmail: "E-mail e senha",
     createWithEmailHint:
       "Entre em qualquer dispositivo com o mesmo e-mail e senha. Ao criar a conta, você confirma a caixa de entrada com um código. O diário é criptografado no seu navegador; nós não podemos lê-lo nem redefinir sua senha.",
+    createWithEmailHintAndroid:
+      "Entre em qualquer dispositivo com o mesmo e-mail e senha. Ao criar a conta, você confirma a caixa de entrada com um código. O diário é criptografado neste celular; nós não podemos lê-lo nem redefinir sua senha.",
     superPrivateMode: "Modo superprivado",
     superPrivateHint:
       "Sem e-mail. Você guarda 12 palavras. Privacidade máxima. Se perdê-las, não há recuperação — exporte uma cópia de segurança.",
@@ -75,6 +77,8 @@ const locale: LocaleModule = {
     onboardingTitle: "Sua frase de 12 palavras",
     onboardingBody:
       "Estas 12 palavras são a chave do seu diário. Salve-as no navegador ou em um lugar seguro. O Ciclo não pode recuperá-las.",
+    onboardingBodyAndroid:
+      "Estas 12 palavras são a chave do seu diário. Anote-as ou guarde-as em um lugar seguro. O Ciclo não pode recuperá-las.",
     emailAccountTitle: "E-mail e senha",
     emailAccountBody:
       "Escolha um e-mail e uma senha (mín. 8 caracteres). Enviaremos uma vez um código de 6 dígitos para essa caixa de entrada, para confirmar que ela é sua. Não é um link de redefinição. O Ciclo criptografa o diário aqui. Sua senha nunca sai do dispositivo sem criptografia.",
@@ -105,11 +109,15 @@ const locale: LocaleModule = {
     password: "Senha",
     confirmPassword: "Confirmar senha",
     passwordHint: "Mínimo de 8 caracteres. O navegador pode salvá-la como qualquer outra senha.",
+    passwordHintAndroid:
+      "Mínimo de 8 caracteres. Seu gerenciador de senhas pode salvá-la como qualquer outra senha.",
     showPassword: "Mostrar senha",
     hidePassword: "Ocultar senha",
     keepLoggedIn: "Manter a sessão iniciada",
     keepLoggedInHint:
       "Neste navegador, o diário fica aberto até você sair. Qualquer pessoa com acesso a este perfil do navegador pode abri-lo.",
+    keepLoggedInHintAndroid:
+      "Neste celular, o diário fica aberto até você sair. Qualquer pessoa que use este celular desbloqueado pode abri-lo.",
     saveInBrowser: "Salvar no navegador",
     savedInBrowser: "O navegador pode pedir para salvar isto. Se aparecer o aviso, aceite.",
     savePhraseInBrowserHint:
@@ -167,6 +175,7 @@ const locale: LocaleModule = {
     nextMonth: "Próximo mês",
     today: "Hoje",
     clearDay: "Apagar registro",
+    clearDayConfirm: "Apagar tudo o que foi registrado neste dia?",
     nextStart: "Próximo início mais provável",
     expectedToStart: "Sua menstruação era esperada para...",
     cycleLength: "Duração do ciclo",
@@ -202,8 +211,10 @@ const locale: LocaleModule = {
     importOk: "Dados importados.",
     importInvalid: "Não foi possível ler o arquivo.",
     deleteAccount: "Excluir conta e diário",
+    deleting: "Excluindo…",
     deleteConfirm:
       "Isto exclui os dados criptografados no servidor e os dados deste dispositivo. As contribuições à base de pesquisa anônima não podem ser desfeitas. Continuar?",
+    deleteAction: "Excluir",
     email: "E-mail",
     researchTitle: "Contribuir com a base anônima",
     researchBenefit:
@@ -221,12 +232,16 @@ const locale: LocaleModule = {
     address: "Identidade pública",
     logout: "Sair neste dispositivo",
     errorGeneric: "Algo deu errado. Tente de novo.",
+    screenErrorTitle: "Algo deu errado nesta tela",
+    screenErrorBody: "Seu diário não foi alterado. Se tentar de novo não resolver, exporte uma cópia.",
     invalidPhrase: "Frase inválida.",
     noAccountForPhrase: "Nenhuma conta usa essa frase. Confira as 12 palavras ou crie uma conta nova.",
     wordMismatch: "Essa palavra não confere.",
     privacyTitle: "Privacidade",
     privacyBody1:
       "As datas são criptografadas no navegador com AES-GCM. O servidor guarda só texto cifrado. Você pode usar e-mail e senha ou o modo superprivado com 12 palavras.",
+    privacyBody1Android:
+      "As datas são criptografadas neste celular com AES-GCM. O servidor guarda só texto cifrado. Você pode usar e-mail e senha ou o modo superprivado com 12 palavras.",
     privacyBody2:
       "O Ciclo não pode redefinir sua senha nem sua frase. Se você perdê-las, o diário na nuvem se perde. Isso protege sua privacidade: ninguém — nem nós — pode ler seu diário no servidor.",
     privacyBody3:
@@ -235,6 +250,7 @@ const locale: LocaleModule = {
       "Os sintomas, o fluxo, o muco cervical e as notas curtas do dia ficam dentro do diário criptografado. O servidor não adiciona colunas de saúde. A base anônima só recebe durações de ciclo (números inteiros); as notas nunca são enviadas nem analisadas.",
     privacyBody5: "A base de pesquisa não guarda um mapa da sua conta para o identificador anônimo.",
     welcomeCta: "Comece no navegador. As datas são criptografadas antes de sair do dispositivo.",
+    welcomeCtaAndroid: "Comece aqui. As datas são criptografadas antes de sair deste celular.",
     restoreFailedTitle: "Não conseguimos abrir seu diário",
     restoreFailedBody:
       "Pode ser a conexão ou o servidor. Seu acesso continua salvo neste dispositivo e seus dados não foram alterados.",
@@ -251,6 +267,9 @@ const locale: LocaleModule = {
     updateBodyCopy: "Esta versão do Ciclo é antiga demais para o servidor, então esta é a cópia salva neste celular ({date}). Atualize pelo Google Play para ver as entradas mais novas e continuar editando.",
     updateSignInBodyWeb: "Recarregue a página para ter a versão mais recente do Ciclo e entre de novo.",
     updateOpenStore: "Abrir o Google Play",
+    webviewUpdateTitle: "Atualize o Android System WebView",
+    webviewUpdateBody:
+      "O Ciclo precisa de uma versão mais recente do Android System WebView. Atualize-o pelo Google Play, e também o Google Chrome se você tiver, e abra o Ciclo de novo.",
     updateReload: "Recarregar",
     updateDayHint: "Atualize o Ciclo para mudar este dia.",
     updateNeededAction: "Atualize o Ciclo para fazer isso.",
@@ -285,12 +304,13 @@ const locale: LocaleModule = {
     moveToDeviceHint:
       "Salva seu diário criptografado neste celular e exclui sua conta do servidor, incluindo o acesso com e-mail e senha.",
     moveToDeviceConfirm:
-      "Seu diário ficará só neste celular e sua conta será excluída do servidor, incluindo o acesso com e-mail e senha. Antes, anote sua frase de 12 palavras (Salvar no navegador → Ver QR da frase) e faça uma exportação. Continuar?",
+      "Seu diário ficará só neste celular e sua conta será excluída do servidor, incluindo o acesso com e-mail e senha. Antes, anote sua frase de 12 palavras (Sua frase de 12 palavras → Ver QR da frase) e faça uma exportação. Continuar?",
     moveToDeviceDone: "Seu diário agora está só neste celular.",
     appLock: "Bloquear com digital ou PIN",
     appLockHint:
       "Pede sua digital ou o bloqueio de tela ao abrir o Ciclo e depois de 30 segundos fora dele. Também oculta o app nos apps recentes e nas capturas de tela.",
     appLockUnavailable: "Configure uma digital ou um bloqueio de tela no Android para usar isto.",
+    appLockNeedsAndroid11: "O bloqueio do app precisa do Android 11 ou superior.",
     appLockPromptTitle: "Abrir o Ciclo",
     appLockPromptSubtitle: "Confirme que é você para ver seu diário.",
     deleteDeviceDiary: "Excluir o diário deste dispositivo",
@@ -387,6 +407,9 @@ const locale: LocaleModule = {
     backToLearn: "Voltar para Aprender",
     noPatternsYet: "Registre pelo menos um início de menstruação para ver padrões.",
     saveEntry: "Salvar",
+    discardDraftConfirm: "Descartar as alterações deste dia?",
+    discardDraft: "Descartar",
+    keepEditing: "Continuar editando",
     mucusHintDry: "Pouco ou nada",
     mucusHintSticky: "Espesso, pegajoso",
     mucusHintCreamy: "Tipo loção",
@@ -397,6 +420,8 @@ const locale: LocaleModule = {
     favoriteSymptom: "Adicionar aos favoritos",
     unfavoriteSymptom: "Remover dos favoritos",
     deleteCustomSymptom: "Excluir {name}",
+    deleteCustomSymptomConfirm:
+      "Excluir “{name}”? Ele será removido de todos os dias em que você o registrou. Não dá para desfazer.",
     addCustomSymptom: "Criar sintoma personalizado",
     customSymptomName: "Nome",
     customSymptomEmoji: "Emoji",
