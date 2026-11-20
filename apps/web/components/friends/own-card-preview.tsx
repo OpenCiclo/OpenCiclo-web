@@ -11,7 +11,7 @@ import { FriendPhaseCard } from "@/components/friends/friend-card";
 import type { Diary } from "@/lib/diary";
 import type { FriendBook } from "@/lib/friends/book";
 import { buildStatus } from "@/lib/friends/payload";
-import type { Messages } from "@/lib/i18n";
+import type { Locale, Messages } from "@/lib/i18n";
 
 /**
  * "How friends see me": the person's own card, drawn from the status this
@@ -25,12 +25,14 @@ export function OwnCardPreview({
   diary,
   today,
   t,
+  locale,
   onClose,
 }: {
   book: FriendBook;
   diary: Diary;
   today: string;
   t: Messages;
+  locale: Locale;
   onClose: () => void;
 }) {
   const titleId = useId();
@@ -82,6 +84,7 @@ export function OwnCardPreview({
             }}
             today={today}
             t={t}
+            locale={locale}
             youPaused={false}
           />
           <p className="text-xs leading-5 text-muted-foreground">{t.friendsPreviewHint}</p>

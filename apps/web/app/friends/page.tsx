@@ -117,14 +117,14 @@ export default function FriendsPage() {
 
   return (
     <AppShell size="narrow">
-      <div className="mb-4 flex items-center gap-2.5 desktop:mb-8">
-        <h1 className="font-serif text-xl text-foreground desktop:text-4xl desktop:tracking-tight">{t.friends}</h1>
+      <div className="mb-[18px] flex items-center gap-2.5 desktop:mb-8">
+        <h1 className="font-serif text-[30px] leading-none font-medium tracking-[-0.01em] text-foreground desktop:text-4xl desktop:tracking-tight">{t.friends}</h1>
         {/* While Friends is new: the sentence that goes with it is in the settings sheet. Remove both once it settles. */}
         <span
           title={t.friendsExperimental}
-          className="rounded-full border border-primary/45 px-2 py-0.5 text-[10px] leading-tight font-extrabold tracking-[0.06em] text-primary uppercase"
+          className="rounded-full border border-primary/60 px-[9px] py-[3px] text-[11px] leading-tight font-extrabold tracking-[0.06em] whitespace-nowrap text-primary uppercase"
         >
-          {t.friendsExperimentalTitle}
+          {t.friendsExperimentalBadge}
         </span>
         <span className="grow" />
         {status === "on" ? (
@@ -190,7 +190,7 @@ export default function FriendsPage() {
           </Button>
         </Card>
       ) : book ? (
-        <div className="flex flex-col gap-5">
+        <div className="flex flex-col gap-[18px]">
           <NoteComposer
             name={book.name}
             note={book.note}
@@ -212,6 +212,7 @@ export default function FriendsPage() {
                   card={card}
                   today={today}
                   t={t}
+                  locale={locale}
                   youPaused={!sharesWith(book, card.friend)}
                   actions={{
                     disabled: !writable || busy,
@@ -254,7 +255,7 @@ export default function FriendsPage() {
             onClose={() => setSettingsOpen(false)}
             onTurnOff={() => void turnOff()}
           />
-          {previewOpen ? <OwnCardPreview book={book} diary={diary} today={today} t={t} onClose={() => setPreviewOpen(false)} /> : null}
+          {previewOpen ? <OwnCardPreview book={book} diary={diary} today={today} t={t} locale={locale} onClose={() => setPreviewOpen(false)} /> : null}
         </div>
       ) : null}
     </AppShell>
