@@ -34,11 +34,26 @@ export type DeviceVaultPlugin = {
   /** No `phrase` when none is kept. Rejects when Keystore cannot open the file. */
   readHostedPhrase(): Promise<{ phrase?: string }>;
   clearHostedPhrase(): Promise<void>;
+  /**
+   * An email sign-up waiting for its code (phrase, email, wrapped kit), sealed by its
+   * own Keystore key, so an app killed while the person reads the email can finish it.
+   * See lib/client/pending-signup.ts. No `data` when there is none; rejects when Keystore
+   * cannot open the file.
+   */
+  storePendingSignup(options: { data: string }): Promise<void>;
+  readPendingSignup(): Promise<{ data?: string }>;
+  clearPendingSignup(): Promise<void>;
   /** The offline copy of a hosted diary. See lib/hosted-copy.ts. No `data` when there is none. */
   readHostedCopy(): Promise<{ data?: string }>;
   writeHostedCopy(options: { data: string }): Promise<void>;
   clearHostedCopy(): Promise<void>;
   setSecureScreen(options: { enabled: boolean }): Promise<void>;
+  /**
+   * Clears the session cookies (`ciclo_session`, legacy `oddy_session`) for the API host in
+   * the cookie jar native HTTP uses: a sign-out that cannot reach the host still ends the
+   * session on this device.
+   */
+  clearSessionCookie(options: { url: string }): Promise<void>;
   shareFile(options: { filename: string; data: string; mimeType: string }): Promise<void>;
   /** Copies the phrase to the clipboard, marked sensitive (Android 13+ hides it from the preview). */
   copySensitive(options: { text: string }): Promise<void>;
@@ -61,9 +76,23 @@ export function encodeDeviceDiary(blob: VaultBlob, version: number): string {
   });
 }
 
+/** The device diary file is there but cannot be read (damaged, or written by an unknown format). */
+export class UnreadableDeviceDiaryError extends Error {
+  constructor() {
+    super("Unreadable device diary");
+    this.name = "UnreadableDeviceDiaryError";
+  }
+}
+
 /** Throws on anything unexpected. A damaged file must never read as "no diary", or the next save would replace it. */
 export function decodeDeviceDiary(data: string): { blob: VaultBlob; version: number } {
-  const parsed = JSON.parse(data) as Record<string, unknown>;
+  let parsed: Record<string, unknown>;
+  try {
+    parsed = JSON.parse(data) as Record<string, unknown>;
+  } catch {
+    throw new UnreadableDeviceDiaryError();
+  }
+  if (!parsed || typeof parsed !== "object") throw new UnreadableDeviceDiaryError();
   const { format, version, ciphertext, nonce, schemaVersion } = parsed;
   if (
     format !== FILE_FORMAT ||
@@ -76,9 +105,48 @@ export function decodeDeviceDiary(data: string): { blob: VaultBlob; version: num
     nonce.length === 0 ||
     typeof schemaVersion !== "number"
   ) {
-    throw new Error("Unreadable device diary");
+    throw new UnreadableDeviceDiaryError();
   }
   return { blob: { ciphertext, nonce, schemaVersion }, version };
+}
+
+/**
+ * Why an on-device diary stayed locked at start, for the lock screen:
+ * - "canceled": the fingerprint or screen-lock check did not finish. Unlocking again can work.
+ * - "key-invalidated": the screen lock was removed or a new fingerprint was enrolled. The
+ *   app-lock key can never open the sealed phrase again; only the 12 words open the diary.
+ * - "no-key": the sealed phrase or its key is gone. Only the 12 words open the diary.
+ * - "key-error": Keystore failed in another way. Trying again may work.
+ * - "unreadable": the diary file cannot be read. Trying again may work (a read error);
+ *   the phrase cannot help with a damaged file.
+ */
+export type DeviceLockReason = "canceled" | "key-invalidated" | "no-key" | "key-error" | "unreadable";
+
+/** Maps a DeviceVaultPlugin rejection (its `code`) or a load error to a DeviceLockReason. */
+export function deviceLockReason(cause: unknown): DeviceLockReason {
+  if (cause instanceof UnreadableDeviceDiaryError) return "unreadable";
+  const code =
+    typeof cause === "object" && cause !== null && "code" in cause ? String((cause as { code: unknown }).code) : "";
+  switch (code) {
+    case "AUTH_CANCELED":
+    case "AUTH_ERROR":
+      return "canceled";
+    case "KEY_INVALIDATED":
+      return "key-invalidated";
+    case "KEY_MISSING":
+    case "NO_PHRASE":
+      return "no-key";
+    case "IO_ERROR":
+      return "unreadable";
+    default:
+      return "key-error";
+  }
+}
+
+/** Whether the sealed phrase can never open again (only the 12 words help), as opposed to a canceled or failed check. */
+export function phraseKeyIsGone(cause: unknown): boolean {
+  const reason = deviceLockReason(cause);
+  return reason === "key-invalidated" || reason === "no-key";
 }
 
 export function deviceVaultBackend(plugin: Pick<DeviceVaultPlugin, "readDiary" | "writeDiary">): VaultBackend {

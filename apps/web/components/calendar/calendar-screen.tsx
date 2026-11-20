@@ -29,6 +29,7 @@ import {
 import { formatIsoUtc } from "@/lib/format-date";
 import type { Locale, Messages } from "@/lib/i18n";
 import { useCiclo, useTodayIso } from "@/lib/client/ciclo-context";
+import { VaultTooLargeError } from "@/lib/client/api";
 import { UpdateRequiredError } from "@/lib/client/http";
 import { IS_ANDROID_APP } from "@/lib/app-target";
 import { useIsGhost } from "@/lib/client/ghost";
@@ -225,7 +226,9 @@ export function CalendarScreen() {
       setSheetOpen(false);
     } catch (cause) {
       // An update is needed: the sheet turns read-only and its hint says so.
-      setError(cause instanceof UpdateRequiredError ? null : t.errorGeneric);
+      setError(
+        cause instanceof UpdateRequiredError ? null : cause instanceof VaultTooLargeError ? t.vaultTooLarge : t.errorGeneric,
+      );
       setSaving(false);
     }
   }
@@ -243,7 +246,9 @@ export function CalendarScreen() {
       );
       setError(null);
     } catch (cause) {
-      setError(cause instanceof UpdateRequiredError ? null : t.errorGeneric);
+      setError(
+        cause instanceof UpdateRequiredError ? null : cause instanceof VaultTooLargeError ? t.vaultTooLarge : t.errorGeneric,
+      );
     } finally {
       setSaving(false);
     }

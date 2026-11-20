@@ -19,11 +19,14 @@ Settings → Where your diary is stored. With the lock on:
 
 - Ciclo asks for your fingerprint or screen lock when it opens, and again after 30 seconds in the background.
 - The key that holds the phrase only works right after that check.
-- The app is hidden in recent apps, and screenshots are blocked.
+- The app is hidden in recent apps, and screenshots are blocked. The screen is covered as soon as Ciclo goes to the background, so the calendar does not flash when you come back.
+- Turning the lock off asks for the same check.
 
 It needs Android 11 or newer, with a fingerprint or a screen lock set up. On Android 7 to 10, Settings says the lock needs Android 11.
 
 With or without the lock, on Android 13 and newer the recent apps screen shows the app without its content, for every account.
+
+If you remove the screen lock or change your fingerprints, the key stops working for good. The lock screen says so and asks for your 12 words instead. If you no longer have them, the lock screen can delete the diary on this phone; you type a word to confirm, and the diary is gone for good.
 
 ## Backups
 
