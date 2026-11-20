@@ -24,8 +24,9 @@ const IDEAS = [
 
 /**
  * The person's own note for their friends, at the top of the Friends screen:
- * a speech bubble above their name. Tap it to write; quick ideas fill it in
- * one tap. Friends see a note for NOTE_DAYS days.
+ * a bubble, and under it their initial and until when friends see the note
+ * (NOTE_DAYS days: the day it was written and the next). Tap the bubble to
+ * write; quick ideas fill it in one tap.
  */
 export function NoteComposer({
   name,
@@ -52,6 +53,12 @@ export function NoteComposer({
   const [saved, setSaved] = useState(0);
   const textRef = useRef<HTMLTextAreaElement>(null);
   const editing = draft !== null;
+  // Under the bubble: until when the note shows; while writing, how long one lasts.
+  const caption = editing
+    ? `${t.friendsNoteYours} · ${t.friendsNoteHint}`
+    : live
+      ? `${t.friendsNoteYours} · ${live.date === today ? t.friendsNoteUntilTomorrow : t.friendsNoteUntilToday}`
+      : t.friendsNoteYours;
 
   useEffect(() => {
     if (editing) textRef.current?.focus();
@@ -89,7 +96,7 @@ export function NoteComposer({
                   void save();
                 }
               }}
-              className="block w-full resize-none bg-transparent font-serif text-[19px] leading-snug outline-none placeholder:text-muted-foreground/70"
+              className="block w-full resize-none bg-transparent font-serif text-xl leading-tight outline-none placeholder:text-muted-foreground/70"
             />
           ) : (
             <button
@@ -97,23 +104,23 @@ export function NoteComposer({
               disabled={disabled}
               onClick={() => setDraft(live?.text ?? "")}
               aria-label={t.friendsNoteEdit}
-              className="flex w-full items-start justify-between gap-3 text-left"
+              className="flex w-full items-center justify-between gap-3 text-left"
             >
               <span className={cn(!live && "text-muted-foreground/80 italic")}>{live?.text ?? t.friendsNotePrompt}</span>
-              <PencilLine className="mt-1 size-4 shrink-0 text-muted-foreground" aria-hidden />
+              <PencilLine className="size-[18px] shrink-0 text-muted-foreground" aria-hidden />
             </button>
           )}
         </SpeechBubble>
       </div>
-      <div className="flex items-center justify-between gap-3 pl-4">
-        <p className="flex min-w-0 items-center gap-2 text-xs leading-snug font-bold text-muted-foreground">
+      <div className="flex items-center justify-between gap-2 pl-3.5">
+        <p className="flex min-w-0 items-center gap-2 text-[13px] leading-snug font-bold text-muted-foreground">
           <span
             aria-hidden
             className="flex size-6 shrink-0 items-center justify-center rounded-full bg-primary text-[11px] text-primary-foreground"
           >
             {Array.from(name)[0]?.toUpperCase() ?? "?"}
           </span>
-          {t.friendsYou} · {t.friendsNoteHint}
+          {caption}
         </p>
         {editing ? (
           <span className="text-[11px] tabular-nums text-muted-foreground">
@@ -123,7 +130,7 @@ export function NoteComposer({
           <button
             type="button"
             onClick={onPreview}
-            className="-my-2 min-h-11 shrink-0 text-xs font-extrabold text-primary underline-offset-2 hover:underline"
+            className="-my-2 min-h-11 shrink-0 text-[13px] font-extrabold text-primary underline-offset-2 hover:underline"
           >
             {t.friendsPreview}
           </button>

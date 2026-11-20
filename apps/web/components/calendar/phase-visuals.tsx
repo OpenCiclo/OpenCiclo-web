@@ -90,12 +90,15 @@ export function PhaseRing({
   phase,
   due = false,
   animate,
+  delay = 0,
 }: {
   timeline: CycleTimeline | null;
   day: number;
   phase: CyclePhase;
   due?: boolean;
   animate: boolean;
+  /** Milliseconds to hold the first-show animation back (one ring after another in a list). */
+  delay?: number;
 }) {
   const progress = timeline ? (due ? timeline.spans.map(() => 1) : phaseProgress(timeline, day)) : [];
   const current = timeline ? timeline.spans.findIndex((span) => span.phase === phase) : -1;
@@ -113,19 +116,19 @@ export function PhaseRing({
           filled: `${filled} ${CIRCUMFERENCE.toFixed(2)}`,
           offset: (-((from + gap / 2) / 360) * CIRCUMFERENCE).toFixed(2),
           shown: progress[index] > 0,
-          delay: FILL_START_MS + index * FILL_PAST_MS,
+          delay: delay + FILL_START_MS + index * FILL_PAST_MS,
           duration: index === current ? FILL_NOW_MS : FILL_PAST_MS,
         };
       })
     : [];
-  const glyphDelay = FILL_START_MS + Math.max(0, current) * FILL_PAST_MS + FILL_NOW_MS - 200;
+  const glyphDelay = delay + FILL_START_MS + Math.max(0, current) * FILL_PAST_MS + FILL_NOW_MS - 200;
   const rootRef = useRef<HTMLDivElement>(null);
   useSharedClock(rootRef);
 
   return (
     <div ref={rootRef} className="relative shrink-0" style={{ width: SIZE, height: SIZE }} aria-hidden>
       <svg width={SIZE} height={SIZE} viewBox={`0 0 ${SIZE} ${SIZE}`} className="absolute inset-0 overflow-visible">
-        <g className={animate ? "phase-ring-in" : undefined}>
+        <g className={animate ? "phase-ring-in" : undefined} style={animate && delay ? { animationDelay: `${100 + delay}ms` } : undefined}>
           <g transform={`rotate(-90 ${SIZE / 2} ${SIZE / 2})`}>
             {timeline ? (
               arcs.map((arc) => (
@@ -173,7 +176,7 @@ export function PhaseRing({
       </svg>
       <div
         className={cn("absolute inset-0 flex items-center justify-center", animate && "phase-glyph-in")}
-        style={{ color: PHASE_INK[due ? "menstrual" : phase], animationDelay: animate ? `${due ? 600 : glyphDelay}ms` : undefined }}
+        style={{ color: PHASE_INK[due ? "menstrual" : phase], animationDelay: animate ? `${due ? delay + 600 : glyphDelay}ms` : undefined }}
       >
         <span className={cn("flex", due ? "phase-beat" : "phase-float")}>
           <PhaseGlyph phase={due ? "menstrual" : phase} className="size-5" />
