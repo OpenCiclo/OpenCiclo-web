@@ -42,6 +42,69 @@ function Stat({ label, value }: { label: string; value: string }) {
   );
 }
 
+/**
+ * The forecast's finer print: the chance of a start within the next days and
+ * around the most likely date, the 80% interval, and the note about the
+ * population prior. Shown behind "more info" on the forecast card and on the
+ * Patterns screen. Renders nothing without a forecast.
+ */
+export function ForecastDetails() {
+  const { diary, t, locale } = useCiclo();
+  const today = useTodayIso();
+  const overview = cycleOverview(diary, today);
+  const forecast = overview.forecast;
+  if (!overview.forecastingEnabled || diary.periodStarts.length === 0 || !forecast) return null;
+  const late = overview.nextPeriodInDays !== null && overview.nextPeriodInDays < 0;
+  const interval = coverageInterval(forecast.dailyProbabilities, 0.8);
+  return (
+    <>
+      {late ? null : (
+        <Card>
+          <p className="mb-3 text-sm font-medium">{t.fromToday}</p>
+          <div className="grid grid-cols-2 gap-4">
+            {NEXT_WINDOWS.map((window) => {
+              const value =
+                forecast.probabilityWithinNextNDays[window] ??
+                probabilityWithinNextDays(forecast.dailyProbabilities, today, Number(window));
+              return (
+                <Stat
+                  key={`next-${window}`}
+                  label={withinDays(t, locale, Number(window))}
+                  value={percent(value)}
+                />
+              );
+            })}
+          </div>
+        </Card>
+      )}
+      <Card>
+        <p className="mb-3 text-sm font-medium">{t.aroundLikely}</p>
+        <div className="grid grid-cols-2 gap-4">
+          {AROUND_WINDOWS.map((window) => (
+            <Stat
+              key={`around-${window}`}
+              label={t.plusMinusDays.replace("{n}", window)}
+              value={percent(forecast.probabilityWithinNDaysOfPoint[window] ?? 0)}
+            />
+          ))}
+        </div>
+      </Card>
+      {interval ? (
+        <Card>
+          <p className="text-sm font-medium">{t.interval80}</p>
+          <p className="mt-2 text-xl font-semibold tracking-tight">
+            {formatDate(interval.lower, locale)} – {formatDate(interval.upper, locale)}
+          </p>
+          <p className="mt-2 text-xs text-muted-foreground">{t.interval80Hint}</p>
+        </Card>
+      ) : null}
+      {forecast.usedPrior ? (
+        <p className="text-sm text-muted-foreground">{t.priorNote}</p>
+      ) : null}
+    </>
+  );
+}
+
 export function ForecastCard() {
   const { diary, t, locale } = useCiclo();
   const [showMoreInfo, setShowMoreInfo] = useState(false);
@@ -127,53 +190,7 @@ export function ForecastCard() {
       >
         {showMoreInfo ? t.forecastLessInfo : t.forecastMoreInfo}
       </button>
-      {showMoreInfo ? (
-        <>
-          {late ? null : (
-            <Card>
-              <p className="mb-3 text-sm font-medium">{t.fromToday}</p>
-              <div className="grid grid-cols-2 gap-4">
-                {NEXT_WINDOWS.map((window) => {
-                  const value =
-                    forecast.probabilityWithinNextNDays[window] ??
-                    probabilityWithinNextDays(forecast.dailyProbabilities, today, Number(window));
-                  return (
-                    <Stat
-                      key={`next-${window}`}
-                      label={withinDays(t, locale, Number(window))}
-                      value={percent(value)}
-                    />
-                  );
-                })}
-              </div>
-            </Card>
-          )}
-          <Card>
-            <p className="mb-3 text-sm font-medium">{t.aroundLikely}</p>
-            <div className="grid grid-cols-2 gap-4">
-              {AROUND_WINDOWS.map((window) => (
-                <Stat
-                  key={`around-${window}`}
-                  label={t.plusMinusDays.replace("{n}", window)}
-                  value={percent(forecast.probabilityWithinNDaysOfPoint[window] ?? 0)}
-                />
-              ))}
-            </div>
-          </Card>
-          {interval ? (
-            <Card>
-              <p className="text-sm font-medium">{t.interval80}</p>
-              <p className="mt-2 text-xl font-semibold tracking-tight">
-                {formatDate(interval.lower, locale)} – {formatDate(interval.upper, locale)}
-              </p>
-              <p className="mt-2 text-xs text-muted-foreground">{t.interval80Hint}</p>
-            </Card>
-          ) : null}
-          {forecast.usedPrior ? (
-            <p className="text-sm text-muted-foreground">{t.priorNote}</p>
-          ) : null}
-        </>
-      ) : null}
+      {showMoreInfo ? <ForecastDetails /> : null}
     </div>
   );
 }
