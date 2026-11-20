@@ -82,9 +82,9 @@ function Advice({ tip, t }: { tip: TipCard | undefined; t: Messages }) {
 }
 
 /**
- * The Patterns tab. Top to bottom: a sentence that sums up the cycle, the last
- * cycles one under another (each starts at day 1, so what lines up repeats),
- * the forecast, cycle lengths with the averages, recurring symptoms, notes
+ * The Patterns tab. Top to bottom: a sentence that sums up the cycle, the
+ * forecast, the last cycles one under another (each starts at day 1, so what
+ * lines up repeats), cycle lengths with the averages, recurring symptoms, notes
  * from similar days, and a tip at the foot of the card it is about. On the
  * desktop it is the right-hand column of the calendar (see CycleDashboard).
  * Needs an unlocked diary.
@@ -284,58 +284,10 @@ export function PatternsContent() {
               </section>
             ) : null}
 
-            {showsCycles ? (
-              <section
-                className={cn(CARD, "gap-3.5")}
-                style={{
-                  animationDelay: "60ms",
-                  backgroundImage: `linear-gradient(170deg, color-mix(in oklch, ${INK.cycles} 16%, var(--card)) 0%, var(--card) 46%)`,
-                }}
-              >
-                <SectionLabel color={INK.cycles}>{t.patternsCyclesLabel}</SectionLabel>
-                <Headline>{timingLines.length ? timingLines.join(" ") : t.patternsCyclesTitle}</Headline>
-                <p className="text-[13px] leading-[1.4] text-muted-foreground">{t.patternsCyclesHint}</p>
-                <div className="flex flex-col gap-2.5">
-                  {pattern.current ? cycleRow(pattern.current) : null}
-                  {[...history].reverse().map((cycle) => cycleRow(cycle))}
-                  <div aria-hidden className="flex gap-2.5">
-                    <span className="w-10 shrink-0" />
-                    <div className="relative h-4 min-w-0 grow text-[11px] font-bold text-muted-foreground">
-                      {[1, 7, 14, 21, 28, 35, 42].filter((day) => day <= scale).map((day) => (
-                        <span key={day} className="absolute whitespace-nowrap" style={{ left: pct(day - 1) }}>
-                          {day === 1 ? t.patternsAxisDay.replace("{day}", "1") : day}
-                        </span>
-                      ))}
-                    </div>
-                    <span className="w-[22px] shrink-0" />
-                  </div>
-                </div>
-                <div className="flex flex-wrap gap-x-3.5 gap-y-1.5 border-t border-border pt-3 text-xs font-bold text-muted-foreground">
-                  <span className="flex items-center gap-1.5">
-                    <span className="h-2 w-[18px] rounded-full" style={{ background: INK.cycles }} />
-                    {t.patternsLegendPeriod}
-                  </span>
-                  {pattern.symptoms.map((id) => (
-                    <span key={id} className="flex items-center gap-1.5">
-                      <span className="size-2 rounded-full" style={{ background: inkOf(id) }} />
-                      {label(id)}
-                    </span>
-                  ))}
-                  {expectedSpan ? (
-                    <span className="flex items-center gap-1.5">
-                      <span className="h-2 w-[18px] rounded-full bg-primary/55" />
-                      {t.patternsLegendExpected}
-                    </span>
-                  ) : null}
-                </div>
-                <Advice tip={cyclesTip} t={t} />
-              </section>
-            ) : null}
-
             {stats.forecastingEnabled ? (
               upcoming && stats.nextPeriodDate && stats.nextPeriodInDays !== null ? (
                 <>
-                  <section className={CARD} style={{ animationDelay: "120ms" }}>
+                  <section className={CARD} style={{ animationDelay: "60ms" }}>
                     <SectionLabel color={INK.forecast}>{t.forecastSection}</SectionLabel>
                     <div className="flex items-end gap-3">
                       <p className="grow font-serif text-[44px] leading-[1.05]">
@@ -381,11 +333,59 @@ export function PatternsContent() {
                   ) : null}
                 </>
               ) : (
-                <section className="animate-fade-up flex flex-col gap-3" style={{ animationDelay: "120ms" }}>
+                <section className="animate-fade-up flex flex-col gap-3" style={{ animationDelay: "60ms" }}>
                   <SectionLabel color={INK.forecast}>{t.forecastSection}</SectionLabel>
                   <ForecastCard />
                 </section>
               )
+            ) : null}
+
+            {showsCycles ? (
+              <section
+                className={cn(CARD, "gap-3.5")}
+                style={{
+                  animationDelay: "120ms",
+                  backgroundImage: `linear-gradient(170deg, color-mix(in oklch, ${INK.cycles} 16%, var(--card)) 0%, var(--card) 46%)`,
+                }}
+              >
+                <SectionLabel color={INK.cycles}>{t.patternsCyclesLabel}</SectionLabel>
+                <Headline>{timingLines.length ? timingLines.join(" ") : t.patternsCyclesTitle}</Headline>
+                <p className="text-[13px] leading-[1.4] text-muted-foreground">{t.patternsCyclesHint}</p>
+                <div className="flex flex-col gap-2.5">
+                  {pattern.current ? cycleRow(pattern.current) : null}
+                  {[...history].reverse().map((cycle) => cycleRow(cycle))}
+                  <div aria-hidden className="flex gap-2.5">
+                    <span className="w-10 shrink-0" />
+                    <div className="relative h-4 min-w-0 grow text-[11px] font-bold text-muted-foreground">
+                      {[1, 7, 14, 21, 28, 35, 42].filter((day) => day <= scale).map((day) => (
+                        <span key={day} className="absolute whitespace-nowrap" style={{ left: pct(day - 1) }}>
+                          {day === 1 ? t.patternsAxisDay.replace("{day}", "1") : day}
+                        </span>
+                      ))}
+                    </div>
+                    <span className="w-[22px] shrink-0" />
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-x-3.5 gap-y-1.5 border-t border-border pt-3 text-xs font-bold text-muted-foreground">
+                  <span className="flex items-center gap-1.5">
+                    <span className="h-2 w-[18px] rounded-full" style={{ background: INK.cycles }} />
+                    {t.patternsLegendPeriod}
+                  </span>
+                  {pattern.symptoms.map((id) => (
+                    <span key={id} className="flex items-center gap-1.5">
+                      <span className="size-2 rounded-full" style={{ background: inkOf(id) }} />
+                      {label(id)}
+                    </span>
+                  ))}
+                  {expectedSpan ? (
+                    <span className="flex items-center gap-1.5">
+                      <span className="h-2 w-[18px] rounded-full bg-primary/55" />
+                      {t.patternsLegendExpected}
+                    </span>
+                  ) : null}
+                </div>
+                <Advice tip={cyclesTip} t={t} />
+              </section>
             ) : null}
 
             <section className={cn(CARD, "gap-0 p-0")} style={{ animationDelay: "180ms" }}>
