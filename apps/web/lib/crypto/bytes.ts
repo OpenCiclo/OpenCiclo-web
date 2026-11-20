@@ -17,20 +17,39 @@ export function hexToBytes(hex: string): Uint8Array {
   return out;
 }
 
+type NodeBuffer = {
+  from(data: Uint8Array): { toString(encoding: "base64"): string };
+  from(data: string, encoding: "base64"): Uint8Array;
+};
+
+/**
+ * Node's Buffer on the server; undefined in browsers, which use btoa/atob.
+ * Read through globalThis on purpose: a bare `Buffer` in this file makes the
+ * bundler ship a Buffer polyfill with the crypto code to every page.
+ */
+function nodeBuffer(): NodeBuffer | undefined {
+  return (globalThis as { Buffer?: NodeBuffer }).Buffer;
+}
+
+/** Bytes per String.fromCharCode call: well under any engine's argument limit. */
+const BINARY_CHUNK = 0x8000;
+
 export function bytesToBase64(bytes: Uint8Array): string {
-  if (typeof Buffer !== "undefined") {
-    return Buffer.from(bytes).toString("base64");
+  const buffer = nodeBuffer();
+  if (buffer) {
+    return buffer.from(bytes).toString("base64");
   }
   let binary = "";
-  bytes.forEach((byte) => {
-    binary += String.fromCharCode(byte);
-  });
+  for (let start = 0; start < bytes.length; start += BINARY_CHUNK) {
+    binary += String.fromCharCode(...bytes.subarray(start, start + BINARY_CHUNK));
+  }
   return btoa(binary);
 }
 
 export function base64ToBytes(value: string): Uint8Array {
-  if (typeof Buffer !== "undefined") {
-    return new Uint8Array(Buffer.from(value, "base64"));
+  const buffer = nodeBuffer();
+  if (buffer) {
+    return new Uint8Array(buffer.from(value, "base64"));
   }
   const binary = atob(value);
   const out = new Uint8Array(binary.length);

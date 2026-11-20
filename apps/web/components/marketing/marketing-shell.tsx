@@ -8,7 +8,7 @@ import { useState, type ReactNode } from "react";
 import { ArrowUpRight } from "lucide-react";
 
 import { useCiclo } from "@/lib/client/ciclo-context";
-import { marketingCopy } from "@/lib/locales/registry";
+import { marketingCopy } from "@/lib/marketing/locale";
 import { MARKETING_LINKS } from "@/lib/marketing/copy";
 import { LanguageSelect } from "@/components/language-select";
 import { BrandMark } from "@/components/brand-mark";

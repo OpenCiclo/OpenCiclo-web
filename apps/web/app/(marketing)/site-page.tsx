@@ -19,9 +19,9 @@ import {
 } from "lucide-react";
 
 import { useCiclo } from "@/lib/client/ciclo-context";
-import { marketingCopy } from "@/lib/locales/registry";
+import { marketingCopy } from "@/lib/marketing/locale";
 import { MARKETING_LINKS } from "@/lib/marketing/copy";
-import { articleCopy, articleLang, type LearnArticle } from "@/lib/learn/articles";
+import { articleCopy, articleLang, type LearnArticleSummary } from "@/lib/learn/articles";
 import { Reveal } from "@/components/marketing/reveal";
 import { AppDemo } from "@/components/marketing/app-demo";
 import { GithubMark } from "@/components/marketing/github-mark";
@@ -42,7 +42,7 @@ const ICONS: Record<string, IconComponent> = {
   "message-circle": MessageCircle as IconComponent,
 };
 
-export function SitePage({ featured }: { featured: LearnArticle[] }) {
+export function SitePage({ featured, renderedOn }: { featured: LearnArticleSummary[]; renderedOn: string }) {
   const { locale } = useCiclo();
   const copy = marketingCopy(locale);
 
@@ -96,7 +96,7 @@ export function SitePage({ featured }: { featured: LearnArticle[] }) {
           </div>
 
                 <div className="flex w-full justify-center lg:justify-end lg:pb-0 lg:[margin-bottom:-2.5rem]">
-                  <AppDemo locale={locale} learnArticles={featured} />
+                  <AppDemo locale={locale} learnArticles={featured} renderedOn={renderedOn} />
                 </div>
         </div>
       </section>

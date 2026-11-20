@@ -1,7 +1,7 @@
 // Copyright © 2026 Emma Flora Harbison & Luis Rey Sánchez
 // SPDX-License-Identifier: Apache-2.0
 
-import { MARKETING_LINKS } from "@/lib/marketing/copy";
+import { MARKETING_LINKS } from "@/lib/marketing/links";
 import type { LocaleModule } from "@/lib/locales/registry";
 
 // Dutch (nl): the app, the landing and the code email.
@@ -642,6 +642,9 @@ const locale: LocaleModule = {
     forecastSection: "Voorspelling",
     learnTitle: "Leren",
     learnSubtitle: "Algemene informatie over de cyclus, symptomen en wanneer je naar een arts gaat.",
+    learnDesktopTitle: "Duidelijke informatie, om te lezen en te delen.",
+    learnDesktopSubtitle:
+      "Algemene informatie over de cyclus, symptomen en wanneer je hulp zoekt, met bronnen. Openbaar en zonder account.",
     learnReviewed: "Gecontroleerd",
     learnSources: "Bronnen",
     learnAll: "Alles",

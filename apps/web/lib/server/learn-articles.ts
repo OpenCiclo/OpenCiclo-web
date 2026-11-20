@@ -2,10 +2,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { eq } from "drizzle-orm";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 
 import { isLearnCategory } from "@/lib/learn/articles";
 import { LEARN_ARTICLES } from "@/lib/learn/content";
+import { LEARN_CACHE_TAG } from "@/lib/learn/load";
 import {
   dbRowToCatalogEntry,
   emptyLearnArticle,
@@ -25,9 +26,12 @@ import { getDb } from "@/lib/db";
 
 export type { LearnEditorPayload };
 
+// The landing, every page under /learn and the sitemap are cached and carry
+// the Learn catalog's tag (lib/learn/load.ts). "max" marks them stale, not
+// gone: each keeps being served until a visit regenerates it, and if that
+// regeneration cannot read the database, the last good version stays.
 function revalidateLearn(): void {
-  revalidatePath("/learn");
-  revalidatePath("/");
+  revalidateTag(LEARN_CACHE_TAG, "max");
   revalidatePath("/console/learn");
 }
 

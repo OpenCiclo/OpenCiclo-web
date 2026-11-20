@@ -1,7 +1,7 @@
 // Copyright © 2026 Emma Flora Harbison & Luis Rey Sánchez
 // SPDX-License-Identifier: Apache-2.0
 
-import { MARKETING_LINKS } from "@/lib/marketing/copy";
+import { MARKETING_LINKS } from "@/lib/marketing/links";
 import type { LocaleModule } from "@/lib/locales/registry";
 
 // Catalan (ca): the app, the landing and the code email.
@@ -641,6 +641,9 @@ const locale: LocaleModule = {
     forecastSection: "Previsió",
     learnTitle: "Aprendre",
     learnSubtitle: "Informació general sobre el cicle, els símptomes i quan cal consultar.",
+    learnDesktopTitle: "Informació clara, per llegir i compartir.",
+    learnDesktopSubtitle:
+      "Educació general sobre el cicle, els símptomes i quan cal demanar ajuda, amb les seves fonts. Pública i sense necessitat de compte.",
     learnReviewed: "Revisat",
     learnSources: "Fonts",
     learnAll: "Tot",
