@@ -42,20 +42,37 @@ function createQrDetector(): QrDetector | null {
   }
 }
 
+/**
+ * Full-screen camera that reads a QR code. By default it reads the 12-word
+ * phrase QR; `parse`, `invalidText` and `title` let it read another code (the
+ * Friends invite): `parse` returns the value to hand to `onPhrase`, or null
+ * when the code is not one.
+ */
 export function PhraseQrScanner({
   t,
   onPhrase,
   onCancel,
+  parse = parsePhraseQr,
+  invalidText,
+  title,
+  hint,
+  deniedText,
 }: {
   t: Messages;
-  onPhrase: (mnemonic: string) => void;
+  onPhrase: (value: string) => void;
   onCancel: () => void;
+  parse?: (raw: string) => string | null;
+  invalidText?: string;
+  title?: string;
+  hint?: string;
+  deniedText?: string;
 }) {
   const titleId = useId();
   const videoRef = useRef<HTMLVideoElement>(null);
   const onPhraseRef = useLatest(onPhrase);
   const onCancelRef = useLatest(onCancel);
-  const notAPhraseRef = useLatest(t.qrNotAPhrase);
+  const notAPhraseRef = useLatest(invalidText ?? t.qrNotAPhrase);
+  const parseRef = useLatest(parse);
 
   const [status, setStatus] = useState<"starting" | "live" | "denied" | "unavailable">("starting");
   const [scanError, setScanError] = useState<string | null>(null);
@@ -102,7 +119,7 @@ export function PhraseQrScanner({
       void readFrame(detector, decodeJsQr).then((raw) => {
         if (stopped) return;
         if (raw) {
-          const phrase = parsePhraseQr(raw);
+          const phrase = parseRef.current(raw);
           if (phrase) {
             stopped = true;
             onPhraseRef.current(phrase);
@@ -168,10 +185,14 @@ export function PhraseQrScanner({
       stopStream(stream);
     };
     // The refs are stable (useLatest), so this runs once and the camera starts once.
-  }, [notAPhraseRef, onPhraseRef]);
+  }, [notAPhraseRef, onPhraseRef, parseRef]);
 
   const statusMessage =
-    status === "denied" ? t.qrCameraDenied : status === "unavailable" ? t.qrCameraUnavailable : t.scanningQr;
+    status === "denied"
+      ? (deniedText ?? t.qrCameraDenied)
+      : status === "unavailable"
+        ? t.qrCameraUnavailable
+        : (hint ?? t.scanningQr);
 
   const overlay = (
     <div
@@ -182,7 +203,7 @@ export function PhraseQrScanner({
     >
       <div className="flex items-center justify-between gap-3 px-4 pt-[max(1rem,env(safe-area-inset-top))] pb-3">
         <h2 id={titleId} className="text-base font-medium">
-          {t.scanBackupQr}
+          {title ?? t.scanBackupQr}
         </h2>
         <button
           type="button"
@@ -212,7 +233,7 @@ export function PhraseQrScanner({
         className="px-5 pt-3 pb-[max(1.25rem,env(safe-area-inset-bottom))] text-center text-sm leading-6 text-white/80"
         aria-live="polite"
       >
-        {scanError ?? (status === "live" || status === "starting" ? t.scanningQr : statusMessage)}
+        {scanError ?? (status === "live" || status === "starting" ? (hint ?? t.scanningQr) : statusMessage)}
       </p>
     </div>
   );
