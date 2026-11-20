@@ -10,6 +10,7 @@ import { MAX_FRIENDS, MAX_PENDING_INVITES } from "@/lib/friends/limits";
 import {
   addFriend,
   addInvite,
+  liveInvites,
   FriendBookFullError,
   newFriendBook,
   NewerFriendBookError,
@@ -49,6 +50,16 @@ describe("friend book", () => {
     const again = addFriend(book, friend(1), key(9));
     expect(again.friends).toHaveLength(1);
     expect(again.invites).toEqual([]);
+  });
+
+  it("lists only the invites a friend could still open, oldest first", () => {
+    let book = addInvite(newFriendBook("Emma"), invite(1), "2026-09-20");
+    book = addInvite(book, invite(2), "2026-09-24");
+    book = addInvite(book, invite(3), "2026-09-30");
+    expect(liveInvites(book, "2026-09-30").map((entry) => entry.secret)).toEqual(book.invites.slice(1).map((entry) => entry.secret));
+    // Seven days old is already refused by the joiner.
+    expect(liveInvites(book, "2026-10-01").map((entry) => entry.secret)).toEqual([book.invites[2].secret]);
+    expect(liveInvites(book, "2026-10-07")).toEqual([]);
   });
 
   it("stops at its limits", () => {
