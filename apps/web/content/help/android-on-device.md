@@ -24,7 +24,7 @@ Settings → Where your diary is stored. With the lock on:
 
 It needs Android 11 or newer, with a fingerprint or a screen lock set up. On Android 7 to 10, Settings says the lock needs Android 11.
 
-With or without the lock, on Android 13 and newer the recent apps screen shows the app without its content, for every account.
+On Android 13 and newer, for every account, the recent apps screen shows Ciclo without its content once you have left the app. If you open recent apps while Ciclo is on screen, Android still shows what is on screen; only the lock above hides it then.
 
 If you remove the screen lock or change your fingerprints, the key stops working for good. The lock screen says so and asks for your 12 words instead. If you no longer have them, the lock screen can delete the diary on this phone; you type a word to confirm, and the diary is gone for good.
 

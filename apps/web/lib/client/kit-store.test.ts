@@ -3,10 +3,21 @@
 
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { HttpError } from "@/lib/client/api";
+import { ACCOUNT_HEADER, ACCOUNT_MISMATCH_CODE } from "@/lib/auth-codes";
+import { AccountMismatchError, HttpError } from "@/lib/client/api";
 import { UpdateRequiredError } from "@/lib/client/http";
 import { UnsupportedKitError, type WrappedKit } from "@/lib/crypto/wrap";
-import { InvalidCredentialsError, RateLimitedError, fetchRemoteKit, maskEmail, normalizeEmail, openKit } from "./kit-store";
+import {
+  InvalidConfirmError,
+  InvalidCredentialsError,
+  RateLimitedError,
+  confirmRecoveryCode,
+  fetchRemoteKit,
+  maskEmail,
+  normalizeEmail,
+  openKit,
+  postRecoveryKit,
+} from "./kit-store";
 
 describe("kit-store", () => {
   afterEach(() => {
@@ -119,5 +130,55 @@ describe("openKit", () => {
     await expect(openKit("a@example.com", "new password", deps({ cached: null, remote: newer }))).rejects.toBeInstanceOf(
       UpdateRequiredError,
     );
+  });
+});
+
+describe("recovery register and confirm name their account (x-ciclo-account, C15)", () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  const ACCOUNT = "ab".repeat(32);
+  const kit: WrappedKit = {
+    wrappedSecret: "abc",
+    wrapNonce: "def",
+    wrapSalt: "ghi",
+    wrapParams: { kdf: "pbkdf2-sha256", iterations: 600_000, hash: "SHA-256" },
+  };
+  const mismatch = () => Response.json({ error: "x", code: ACCOUNT_MISMATCH_CODE }, { status: 409 });
+
+  function stub(response: () => Response) {
+    const fetchMock = vi.fn<typeof fetch>(async () => response());
+    vi.stubGlobal("fetch", fetchMock);
+    return fetchMock;
+  }
+
+  it("send the account with the request", async () => {
+    const fetchMock = stub(() => Response.json({ pending: true }));
+    await expect(postRecoveryKit("a@example.test", kit, "en", ACCOUNT)).resolves.toEqual({ pending: true });
+    await confirmRecoveryCode("123456", ACCOUNT);
+    for (const [, init] of fetchMock.mock.calls) {
+      expect(new Headers(init?.headers).get(ACCOUNT_HEADER)).toBe(ACCOUNT);
+      expect(new Headers(init?.headers).get("content-type")).toBe("application/json");
+    }
+  });
+
+  it("report a session of another account as such (signs in again), never as a wrong code", async () => {
+    stub(mismatch);
+    await expect(postRecoveryKit("a@example.test", kit, "en", ACCOUNT)).rejects.toBeInstanceOf(AccountMismatchError);
+    await expect(confirmRecoveryCode("123456", ACCOUNT)).rejects.toBeInstanceOf(AccountMismatchError);
+  });
+
+  it("keep their other answers", async () => {
+    stub(() => Response.json({ error: "Could not confirm" }, { status: 400 }));
+    await expect(confirmRecoveryCode("123456", ACCOUNT)).rejects.toBeInstanceOf(InvalidConfirmError);
+    stub(() => Response.json({ error: "Not authenticated" }, { status: 401 }));
+    await expect(confirmRecoveryCode("123456", ACCOUNT)).rejects.toMatchObject({ status: 401 });
+    await expect(postRecoveryKit("a@example.test", kit, "en", ACCOUNT)).rejects.toMatchObject({ status: 401 });
+    stub(() => new Response(null, { status: 429 }));
+    await expect(postRecoveryKit("a@example.test", kit, "en", ACCOUNT)).rejects.toBeInstanceOf(RateLimitedError);
+    // A 409 without the code is not taken for a session of another account.
+    stub(() => Response.json({ error: "Conflict" }, { status: 409 }));
+    await expect(postRecoveryKit("a@example.test", kit, "en", ACCOUNT)).rejects.not.toBeInstanceOf(AccountMismatchError);
   });
 });

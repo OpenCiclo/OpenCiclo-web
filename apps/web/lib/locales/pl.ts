@@ -253,6 +253,7 @@ const locale: LocaleModule = {
     screenErrorTitle: "Coś poszło nie tak na tym ekranie",
     screenErrorBody: "Twój dziennik nie został zmieniony. Jeśli ponowna próba nie pomoże, wyeksportuj kopię.",
     vaultTooLarge: "Twój dziennik jest za duży dla chmury Ciclo, więc nie został tam zapisany. Najpierw zrób eksport; krótsze notatki zajmują mniej miejsca.",
+    accountMismatch: "Nic nie zostało zapisane ani zmienione: w tamtej chwili na tym urządzeniu było zalogowane inne konto Ciclo. Spróbuj ponownie.",
     invalidPhrase: "Nieprawidłowa fraza.",
     noAccountForPhrase: "Żadne konto nie używa tej frazy. Sprawdź 12 słów lub utwórz nowe konto.",
     vaultUnreadable: "Nie udało się otworzyć dziennika zapisanego dla tego konta. Na serwerze nic się nie zmieniło.",

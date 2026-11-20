@@ -6,7 +6,7 @@ import Link from "next/link";
 import { ChevronDown } from "lucide-react";
 
 import { IS_ANDROID_APP, apiHostLabel } from "@/lib/app-target";
-import { VaultChangedError, VaultTooLargeError } from "@/lib/client/api";
+import { AccountMismatchError, VaultChangedError, VaultTooLargeError } from "@/lib/client/api";
 import { InvalidCredentialsError, useCiclo } from "@/lib/client/ciclo-context";
 import { UpdateRequiredError } from "@/lib/client/http";
 import { lastEmail } from "@/lib/client/kit-store";
@@ -140,7 +140,10 @@ export default function SettingsPage() {
   }
 
   function errorText(cause: unknown) {
-    return cause instanceof UpdateRequiredError ? t.updateNeededAction : t.errorGeneric;
+    if (cause instanceof UpdateRequiredError) return t.updateNeededAction;
+    // The session on this device was another account's, even after signing in again: nothing was written.
+    if (cause instanceof AccountMismatchError) return t.accountMismatch;
+    return t.errorGeneric;
   }
 
   // `action` may return the message to show when it is done.
@@ -579,7 +582,9 @@ export default function SettingsPage() {
                         ? t.updateNeededAction
                         : cause instanceof VaultTooLargeError
                           ? t.vaultTooLarge
-                          : t.importInvalid,
+                          : cause instanceof AccountMismatchError
+                            ? t.accountMismatch
+                            : t.importInvalid,
                   );
                 }
               }}
@@ -697,7 +702,14 @@ export default function SettingsPage() {
                   try {
                     await enablePoolOptIn();
                   } catch (cause) {
-                    say("research", cause instanceof UpdateRequiredError ? t.updateNeededAction : t.poolNeedCycle);
+                    say(
+                      "research",
+                      cause instanceof UpdateRequiredError
+                        ? t.updateNeededAction
+                        : cause instanceof AccountMismatchError
+                          ? t.accountMismatch
+                          : t.poolNeedCycle,
+                    );
                     event.target.checked = false;
                   }
                 }}
@@ -741,8 +753,8 @@ export default function SettingsPage() {
             try {
               await wipe();
               router.push("/app");
-            } catch {
-              say("account", t.errorGeneric);
+            } catch (cause) {
+              say("account", cause instanceof AccountMismatchError ? t.accountMismatch : t.errorGeneric);
             } finally {
               setDeleting(false);
             }
