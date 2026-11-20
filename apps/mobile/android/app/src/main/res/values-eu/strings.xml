@@ -1,0 +1,5 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!-- Machine-assisted translation; needs a native review before release. -->
+<resources>
+    <string name="no_webview_message">Ciclok Android System WebView behar du, eta telefono honetan desaktibatuta dago edo ez dago. Aktibatu edo instalatu Google Play-tik, eta ireki Ciclo berriro.</string>
+</resources>

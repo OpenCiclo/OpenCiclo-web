@@ -43,7 +43,7 @@ The password never leaves the browser in the clear. Login is a short-lived crypt
 
 By default: no period dates in the clear, no symptom lists, no notes.
 
-These display settings stay in this browser and are not sent to the server: appearance, visual seasons, moon phases, week start, and time zone. The interface language is saved in the encrypted diary too, so it follows you to other devices.
+These display settings stay in this browser and are not sent to the server: appearance, visual seasons, moon phases, week start, and time zone. The interface language is saved in the encrypted diary too, so it follows you to other devices. Before any language is saved, Ciclo starts in your device language when it has it (Portuguese from Portugal gets Brazilian Portuguese), and in English otherwise.
 
 The research pool is a separate, off-by-default consent. It sends lengths only. It is not a backup.
 

@@ -11,7 +11,7 @@ The Android app can keep your diary only on the phone, with no account and no se
 
 ## The 12 words
 
-You still get a 12-word phrase. Write it down. The app asks for it only when it cannot open the diary by itself, for example after you enroll a new fingerprint with the app lock on.
+You still get a 12-word phrase. Write it down. If you copy it, the app marks the copy as sensitive (Android 13 and newer hide it in the clipboard preview) and clears the clipboard about a minute later if it still holds the phrase. The app asks for it only when it cannot open the diary by itself, for example after you enroll a new fingerprint with the app lock on.
 
 ## Lock with fingerprint or PIN
 
@@ -21,7 +21,9 @@ Settings → Where your diary is stored. With the lock on:
 - The key that holds the phrase only works right after that check.
 - The app is hidden in recent apps, and screenshots are blocked.
 
-It needs Android 11 or newer, with a fingerprint or a screen lock set up.
+It needs Android 11 or newer, with a fingerprint or a screen lock set up. On Android 7 to 10, Settings says the lock needs Android 11.
+
+With or without the lock, on Android 13 and newer the recent apps screen shows the app without its content, for every account.
 
 ## Backups
 

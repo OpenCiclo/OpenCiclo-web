@@ -1,7 +1,9 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">Ciclo</string>
-    <string name="title_activity_main">Ciclo</string>
-    <string name="package_name">com.openciclo.app</string>
-    <string name="custom_url_scheme">com.openciclo.app</string>
+    <string name="app_name" translatable="false">Ciclo</string>
+    <string name="title_activity_main" translatable="false">Ciclo</string>
+    <string name="package_name" translatable="false">com.openciclo.app</string>
+    <string name="custom_url_scheme" translatable="false">com.openciclo.app</string>
+    <!-- MainActivity, when the phone has no usable WebView. Same text in values-<language>/. -->
+    <string name="no_webview_message">Ciclo needs Android System WebView, which is turned off or missing on this phone. Turn it on or install it from Google Play, then open Ciclo again.</string>
 </resources>

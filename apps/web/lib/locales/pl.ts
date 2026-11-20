@@ -19,6 +19,8 @@ const locale: LocaleModule = {
     createWithEmail: "E-mail i hasło",
     createWithEmailHint:
       "Logujesz się na każdym urządzeniu tym samym e-mailem i hasłem. Przy zakładaniu konta potwierdzasz skrzynkę kodem. Dziennik jest szyfrowany w przeglądarce; nie możemy go przeczytać ani zresetować twojego hasła.",
+    createWithEmailHintAndroid:
+      "Logujesz się na każdym urządzeniu tym samym e-mailem i hasłem. Przy zakładaniu konta potwierdzasz skrzynkę kodem. Dziennik jest szyfrowany na tym telefonie; nie możemy go przeczytać ani zresetować twojego hasła.",
     superPrivateMode: "Tryb superprywatny",
     superPrivateHint:
       "Bez e-maila. Przechowujesz 12 słów. Maksymalna prywatność. Jeśli je zgubisz, nie ma odzyskiwania — wyeksportuj kopię zapasową.",
@@ -75,6 +77,8 @@ const locale: LocaleModule = {
     onboardingTitle: "Twoja fraza z 12 słów",
     onboardingBody:
       "Te 12 słów to klucz do twojego dziennika. Zapisz je w przeglądarce lub w bezpiecznym miejscu. Ciclo nie może ich odzyskać.",
+    onboardingBodyAndroid:
+      "Te 12 słów to klucz do twojego dziennika. Zapisz je lub przechowuj w bezpiecznym miejscu. Ciclo nie może ich odzyskać.",
     emailAccountTitle: "E-mail i hasło",
     emailAccountBody:
       "Wybierz e-mail i hasło (min. 8 znaków). Raz wyślemy na tę skrzynkę 6-cyfrowy kod, by potwierdzić, że należy do ciebie. To nie jest link do resetu. Ciclo szyfruje dziennik tutaj. Twoje hasło nigdy nie opuszcza urządzenia w postaci jawnej.",
@@ -105,11 +109,14 @@ const locale: LocaleModule = {
     password: "Hasło",
     confirmPassword: "Potwierdź hasło",
     passwordHint: "Co najmniej 8 znaków. Przeglądarka może je zapisać jak każde inne hasło.",
+    passwordHintAndroid: "Co najmniej 8 znaków. Menedżer haseł może je zapisać jak każde inne hasło.",
     showPassword: "Pokaż hasło",
     hidePassword: "Ukryj hasło",
     keepLoggedIn: "Nie wylogowuj mnie",
     keepLoggedInHint:
       "W tej przeglądarce dziennik pozostaje otwarty, dopóki się nie wylogujesz. Każdy, kto ma dostęp do tego profilu przeglądarki, może go otworzyć.",
+    keepLoggedInHintAndroid:
+      "Na tym telefonie dziennik pozostaje otwarty, dopóki się nie wylogujesz. Każdy, kto używa tego telefonu odblokowanego, może go otworzyć.",
     saveInBrowser: "Zapisz w przeglądarce",
     savedInBrowser: "Przeglądarka może zaproponować zapisanie. Jeśli zobaczysz komunikat, zaakceptuj go.",
     savePhraseInBrowserHint:
@@ -167,6 +174,7 @@ const locale: LocaleModule = {
     nextMonth: "Następny miesiąc",
     today: "Dziś",
     clearDay: "Wyczyść wpis",
+    clearDayConfirm: "Usunąć wszystko, co zapisano tego dnia?",
     nextStart: "Najbardziej prawdopodobny następny początek",
     expectedToStart: "Miesiączka miała się zacząć...",
     cycleLength: "Długość cyklu",
@@ -202,8 +210,10 @@ const locale: LocaleModule = {
     importOk: "Dane zaimportowane.",
     importInvalid: "Nie udało się odczytać pliku.",
     deleteAccount: "Usuń konto i dziennik",
+    deleting: "Usuwanie…",
     deleteConfirm:
       "To usuwa zaszyfrowane dane z serwera i dane z tego urządzenia. Danych przekazanych do anonimowej puli badawczej nie da się wycofać. Kontynuować?",
+    deleteAction: "Usuń",
     email: "E-mail",
     researchTitle: "Wspieraj anonimową pulę badawczą",
     researchBenefit:
@@ -221,12 +231,16 @@ const locale: LocaleModule = {
     address: "Tożsamość publiczna",
     logout: "Wyloguj się na tym urządzeniu",
     errorGeneric: "Coś poszło nie tak. Spróbuj ponownie.",
+    screenErrorTitle: "Coś poszło nie tak na tym ekranie",
+    screenErrorBody: "Twój dziennik nie został zmieniony. Jeśli ponowna próba nie pomoże, wyeksportuj kopię.",
     invalidPhrase: "Nieprawidłowa fraza.",
     noAccountForPhrase: "Żadne konto nie używa tej frazy. Sprawdź 12 słów lub utwórz nowe konto.",
     wordMismatch: "To słowo się nie zgadza.",
     privacyTitle: "Prywatność",
     privacyBody1:
       "Daty są szyfrowane w przeglądarce za pomocą AES-GCM. Serwer przechowuje tylko zaszyfrowane dane. Możesz używać e-maila i hasła albo trybu superprywatnego z 12 słowami.",
+    privacyBody1Android:
+      "Daty są szyfrowane na tym telefonie za pomocą AES-GCM. Serwer przechowuje tylko zaszyfrowane dane. Możesz używać e-maila i hasła albo trybu superprywatnego z 12 słowami.",
     privacyBody2:
       "Ciclo nie może zresetować twojego hasła ani frazy. Jeśli je zgubisz, dziennik w chmurze przepadnie. To chroni twoją prywatność: nikt — nawet my — nie może przeczytać twojego dziennika na serwerze.",
     privacyBody3:
@@ -235,6 +249,7 @@ const locale: LocaleModule = {
       "Objawy, krwawienie, śluz szyjkowy i krótkie notatki dnia zostają w zaszyfrowanym dzienniku. Serwer nie dodaje kolumn z danymi o zdrowiu. Anonimowa pula badawcza otrzymuje tylko długości cykli (liczby całkowite); notatki nigdy nie są wysyłane ani analizowane.",
     privacyBody5: "Pula badawcza nie przechowuje powiązania twojego konta z anonimowym identyfikatorem.",
     welcomeCta: "Zacznij w przeglądarce. Daty są szyfrowane, zanim opuszczą urządzenie.",
+    welcomeCtaAndroid: "Zacznij tutaj. Daty są szyfrowane, zanim opuszczą ten telefon.",
     restoreFailedTitle: "Nie udało nam się otworzyć twojego dziennika",
     restoreFailedBody:
       "Może to być kwestia połączenia lub naszego serwera. Twoje logowanie jest nadal zapisane na tym urządzeniu, a dane pozostały nienaruszone.",
@@ -251,6 +266,9 @@ const locale: LocaleModule = {
     updateBodyCopy: "Ta wersja Ciclo jest zbyt stara dla serwera, więc widzisz kopię zapisaną na tym telefonie ({date}). Zaktualizuj ją w Google Play, aby zobaczyć nowsze wpisy i dalej edytować.",
     updateSignInBodyWeb: "Odśwież stronę, aby mieć najnowszą wersję Ciclo, i zaloguj się ponownie.",
     updateOpenStore: "Otwórz Google Play",
+    webviewUpdateTitle: "Zaktualizuj Android System WebView",
+    webviewUpdateBody:
+      "Ciclo potrzebuje nowszej wersji Android System WebView. Zaktualizuj ją w Google Play, a także Google Chrome, jeśli go masz, i otwórz Ciclo ponownie.",
     updateReload: "Odśwież",
     updateDayHint: "Zaktualizuj Ciclo, aby zmienić ten dzień.",
     updateNeededAction: "Zaktualizuj Ciclo, aby to zrobić.",
@@ -285,12 +303,13 @@ const locale: LocaleModule = {
     moveToDeviceHint:
       "Zapisuje twój zaszyfrowany dziennik na tym telefonie i usuwa twoje konto z serwera, łącznie z logowaniem e-mailem i hasłem.",
     moveToDeviceConfirm:
-      "Twój dziennik będzie przechowywany tylko na tym telefonie, a twoje konto na serwerze zostanie usunięte, łącznie z logowaniem e-mailem i hasłem. Najpierw zapisz frazę z 12 słów (Zapisz w przeglądarce → Pokaż kod QR frazy) i zrób eksport. Kontynuować?",
+      "Twój dziennik będzie przechowywany tylko na tym telefonie, a twoje konto na serwerze zostanie usunięte, łącznie z logowaniem e-mailem i hasłem. Najpierw zapisz frazę z 12 słów (Twoja fraza z 12 słów → Pokaż kod QR frazy) i zrób eksport. Kontynuować?",
     moveToDeviceDone: "Twój dziennik jest już tylko na tym telefonie.",
     appLock: "Blokada odciskiem palca lub PIN-em",
     appLockHint:
       "Prosi o odcisk palca lub blokadę ekranu przy otwieraniu Ciclo i po 30 sekundach poza aplikacją. Ukrywa też aplikację na liście ostatnich aplikacji i na zrzutach ekranu.",
     appLockUnavailable: "Aby z tego korzystać, ustaw odcisk palca lub blokadę ekranu w Androidzie.",
+    appLockNeedsAndroid11: "Blokada aplikacji wymaga Androida 11 lub nowszego.",
     appLockPromptTitle: "Otwórz Ciclo",
     appLockPromptSubtitle: "Potwierdź, że to ty, aby zobaczyć swój dziennik.",
     deleteDeviceDiary: "Usuń dziennik z tego urządzenia",
@@ -387,6 +406,9 @@ const locale: LocaleModule = {
     backToLearn: "Wróć do Wiedzy",
     noPatternsYet: "Zapisz co najmniej jeden początek miesiączki, aby zobaczyć wzorce.",
     saveEntry: "Zapisz wpis",
+    discardDraftConfirm: "Odrzucić zmiany w tym dniu?",
+    discardDraft: "Odrzuć",
+    keepEditing: "Edytuj dalej",
     mucusHintDry: "Brak lub niewiele",
     mucusHintSticky: "Gęsty, lepki",
     mucusHintCreamy: "Jak balsam",
@@ -397,6 +419,8 @@ const locale: LocaleModule = {
     favoriteSymptom: "Dodaj do ulubionych",
     unfavoriteSymptom: "Usuń z ulubionych",
     deleteCustomSymptom: "Usuń „{name}”",
+    deleteCustomSymptomConfirm:
+      "Usunąć „{name}”? Zniknie ze wszystkich dni, w których go zapisano. Tego nie można cofnąć.",
     addCustomSymptom: "Utwórz własny objaw",
     customSymptomName: "Nazwa",
     customSymptomEmoji: "Emoji",

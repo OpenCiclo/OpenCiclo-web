@@ -9,6 +9,8 @@ import { ThemeClass } from "@/components/theme-class";
 import { API_BASE } from "@/lib/app-target";
 import { bootSplashScript } from "@/lib/brand/boot-splash-script";
 import { themeBootScript } from "@/lib/client/color-scheme";
+import { localeBootScript } from "@/lib/client/initial-locale";
+import { webviewGuardScript } from "@/lib/webview-update-page";
 import { fraunces, nunito } from "./fonts";
 import "./globals.css";
 
@@ -46,9 +48,13 @@ export default function AndroidRootLayout({ children }: { children: React.ReactN
     <html lang="es" data-target="android" suppressHydrationWarning className={`${fraunces.variable} ${nunito.variable} h-full antialiased`}>
       <head>
         <meta httpEquiv="Content-Security-Policy" content={csp} />
+        {/* First, before the bundle: a WebView too old for it goes to webview-update.html. */}
+        <script dangerouslySetInnerHTML={{ __html: webviewGuardScript() }} />
       </head>
       <body className="min-h-full bg-background font-sans text-foreground">
         <script dangerouslySetInnerHTML={{ __html: themeBootScript() }} />
+        {/* `lang` follows the saved or the device language before the bundle runs. */}
+        <script dangerouslySetInnerHTML={{ __html: localeBootScript() }} />
         <CicloProvider>
           <BootSplash />
           <script dangerouslySetInnerHTML={{ __html: bootSplashScript() }} />

@@ -64,7 +64,7 @@ With "Keep me signed in" on, the app keeps a copy of the hosted diary on the pho
 
 `MainActivity` asks the page first (`window.cicloBack`, `lib/client/android-back.ts`):
 
-- An open sheet or dialog closes. Back sends the Escape key that each one already listens for, so a new overlay must close on Escape too.
+- An open sheet or dialog closes. Back sends the Escape key that each one already listens for, so a new overlay must close on Escape too. Confirmations use the app's own dialog (`useConfirmDialog`), never `window.confirm`, whose buttons the WebView draws in English; it takes Escape first, so Back closes the dialog and not the sheet under it.
 - Onboarding goes back one step (`useBackStep`).
 - On the lock screen of an on-device diary, the app leaves.
 - Otherwise the WebView goes back in history. At the first screen, Android's default runs and the app goes to the background.
@@ -209,6 +209,10 @@ CI builds the release APK unsigned the same way (export for `https://www.opencic
 - WebView debugging is on in debug builds only (Capacitor's default).
 - Capacitor's bridge logging is off in every build (`loggingBehavior: "none"`). With it on, logcat would get every request and response body (emails on the recovery endpoints) and every plugin result, including the phrase from `DeviceVault.readPhrase`. Debug through `chrome://inspect` instead.
 - The app has a Content Security Policy in a meta tag (`layout.android.tsx`), since a static export sends no headers.
+- On Android 13+ the recents screen never shows the app's content (`setRecentsScreenshotEnabled(false)` in `MainActivity`, every account). Screenshots stay allowed unless the app lock is on (`FLAG_SECURE`).
+- A copied phrase is marked sensitive (`DeviceVault.copySensitive`; Android 13+ hides it in the clipboard preview) and cleared about a minute later if the clipboard still holds it (`clearCopied`). If the app is in the background then, Android 10+ hides the clipboard from it, so it tries again when the app is back in front.
+- The bundle needs Chrome 111. A script at the top of the Android root layout reads the WebView's Chrome version from its user agent and sends an older one to `webview-update.html` (exported by `apps/web/app/webview-update.html/route.android.tsx`): plain HTML in every UI language that asks to update Android System WebView. Capacitor's own `minWebViewVersion` check is not used: below Android 8 it reads the Chrome package's version, not the WebView in use. With no WebView at all, `MainActivity` shows a short message instead of crashing.
+- `configChanges` includes `fontScale` and `fontWeightAdjustment`, so changing the system font size or bold text does not recreate the activity (which would reload the page and close a session not kept signed in). `MainActivity.onConfigurationChanged` sets the WebView's text zoom from the new font scale instead.
 - The launcher icon (adaptive, themed, and bitmaps for Android 7) and the splash screen are the brand mark. The system splash shows the still mark, then the web loading screen draws the same mark at the same size and moves it. `npm run icons` in `apps/web` regenerates them. See `docs/brand/logo.md`.
 
 ## Old app builds

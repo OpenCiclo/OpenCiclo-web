@@ -8,6 +8,7 @@ import { type Wallet } from "@/lib/crypto/wallet";
 import { useBackStep } from "@/lib/client/android-back";
 import { goBack, returnTo } from "@/lib/client/back-navigation";
 import { storeBrowserPassword } from "@/lib/client/credentials";
+import { copyPhrase } from "@/lib/client/phrase-clipboard";
 import { HttpError } from "@/lib/client/api";
 import { UpdateRequiredError } from "@/lib/client/http";
 import { saveFile } from "@/lib/client/save-file";
@@ -358,7 +359,8 @@ export default function OnboardingPage() {
                   variant="secondary"
                   className="flex-1"
                   onClick={async () => {
-                    await navigator.clipboard.writeText(wallet.mnemonic);
+                    // Marked sensitive in the app, and cleared from the clipboard a minute later.
+                    await copyPhrase(wallet.mnemonic);
                     setCopied(true);
                   }}
                 >
@@ -391,6 +393,9 @@ export default function OnboardingPage() {
                   value={guess}
                   onChange={(event) => setGuess(event.target.value)}
                   autoComplete="off"
+                  autoCapitalize="off"
+                  autoCorrect="off"
+                  spellCheck={false}
                 />
                 {error ? <p className="text-sm text-destructive">{error}</p> : null}
                 <Button type="submit" disabled={busy}>

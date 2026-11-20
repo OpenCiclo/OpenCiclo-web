@@ -19,6 +19,8 @@ const locale: LocaleModule = {
     createWithEmail: "Correu i contrasenya",
     createWithEmailHint:
       "Entra des de qualsevol dispositiu amb el mateix correu i la mateixa contrasenya. En crear el compte, confirmes la bústia amb un codi. El diari es xifra al navegador; nosaltres no podem llegir-lo ni restablir la teva contrasenya.",
+    createWithEmailHintAndroid:
+      "Entra des de qualsevol dispositiu amb el mateix correu i la mateixa contrasenya. En crear el compte, confirmes la bústia amb un codi. El diari es xifra en aquest mòbil; nosaltres no podem llegir-lo ni restablir la teva contrasenya.",
     superPrivateMode: "Mode superprivat",
     superPrivateHint:
       "Sense correu. Guardes 12 paraules. Màxima privadesa. Si les perds, no hi ha manera de recuperar-les — exporta'n una còpia de seguretat.",
@@ -75,6 +77,8 @@ const locale: LocaleModule = {
     onboardingTitle: "La teva frase de 12 paraules",
     onboardingBody:
       "Aquestes 12 paraules són la clau del teu diari. Desa-les al navegador o en un lloc segur. Ciclo no les pot recuperar.",
+    onboardingBodyAndroid:
+      "Aquestes 12 paraules són la clau del teu diari. Apunta-les o desa-les en un lloc segur. Ciclo no les pot recuperar.",
     emailAccountTitle: "Correu i contrasenya",
     emailAccountBody:
       "Tria un correu i una contrasenya (mín. 8 caràcters). T'enviarem un codi de 6 xifres a aquesta bústia per confirmar que és teva. No és un enllaç de restabliment. Ciclo xifra el diari aquí. La contrasenya no surt mai del teu dispositiu sense xifrar.",
@@ -105,11 +109,14 @@ const locale: LocaleModule = {
     password: "Contrasenya",
     confirmPassword: "Confirma la contrasenya",
     passwordHint: "Mínim 8 caràcters. El navegador la pot desar com qualsevol altra contrasenya.",
+    passwordHintAndroid: "Mínim 8 caràcters. El gestor de contrasenyes la pot desar com qualsevol altra.",
     showPassword: "Mostra la contrasenya",
     hidePassword: "Amaga la contrasenya",
     keepLoggedIn: "Mantén la sessió iniciada",
     keepLoggedInHint:
       "En aquest navegador el diari queda obert fins que tanquis la sessió. Qualsevol persona amb accés a aquest perfil el pot obrir.",
+    keepLoggedInHintAndroid:
+      "En aquest mòbil el diari queda obert fins que tanquis la sessió. Qualsevol persona que faci servir aquest mòbil desbloquejat el pot obrir.",
     saveInBrowser: "Desa al navegador",
     savedInBrowser: "És possible que el navegador et demani desar-ho. Si apareix l'avís, accepta'l.",
     savePhraseInBrowserHint:
@@ -167,6 +174,7 @@ const locale: LocaleModule = {
     nextMonth: "Mes següent",
     today: "Avui",
     clearDay: "Esborra el registre",
+    clearDayConfirm: "Vols treure tot el que has registrat aquest dia?",
     nextStart: "Proper inici més probable",
     expectedToStart: "S'esperava que la regla comencés...",
     cycleLength: "Durada del cicle",
@@ -202,8 +210,10 @@ const locale: LocaleModule = {
     importOk: "Dades importades.",
     importInvalid: "No s'ha pogut llegir el fitxer.",
     deleteAccount: "Esborra el compte i el diari",
+    deleting: "S'està esborrant…",
     deleteConfirm:
       "Això esborra les dades xifrades del servidor i les d'aquest dispositiu. Les aportacions al recull de recerca anònim no es poden desfer. Vols continuar?",
+    deleteAction: "Esborra",
     email: "Correu",
     researchTitle: "Contribueix al recull anònim",
     researchBenefit:
@@ -221,12 +231,16 @@ const locale: LocaleModule = {
     address: "Identitat pública",
     logout: "Tanca la sessió en aquest dispositiu",
     errorGeneric: "Alguna cosa ha fallat. Torna-ho a provar.",
+    screenErrorTitle: "Alguna cosa ha fallat en aquesta pantalla",
+    screenErrorBody: "El teu diari no s'ha tocat. Si tornar-ho a provar no ho arregla, exporta'n una còpia.",
     invalidPhrase: "La frase no és vàlida.",
     noAccountForPhrase: "No hi ha cap compte amb aquesta frase. Revisa les 12 paraules o crea un compte nou.",
     wordMismatch: "Aquesta paraula no coincideix.",
     privacyTitle: "Privadesa",
     privacyBody1:
       "Les dates es xifren al navegador amb AES-GCM. El servidor només desa text xifrat. Pots fer servir correu i contrasenya o el mode superprivat amb 12 paraules.",
+    privacyBody1Android:
+      "Les dates es xifren en aquest mòbil amb AES-GCM. El servidor només desa text xifrat. Pots fer servir correu i contrasenya o el mode superprivat amb 12 paraules.",
     privacyBody2:
       "Ciclo no pot restablir la teva contrasenya ni la teva frase. Si les perds, el diari del núvol es perd. Això protegeix la teva privadesa: ningú — ni tan sols nosaltres — pot llegir el teu diari al servidor.",
     privacyBody3:
@@ -235,6 +249,7 @@ const locale: LocaleModule = {
       "Els símptomes, el flux, el moc cervical i les notes breus del dia es queden dins del diari xifrat. El servidor no hi afegeix columnes de salut. El recull anònim només rep durades del cicle (nombres enters); les notes no s'envien ni s'analitzen mai.",
     privacyBody5: "El recull de recerca no desa cap correspondència entre el teu compte i l'identificador anònim.",
     welcomeCta: "Comença al navegador. Les dates es xifren abans de sortir del dispositiu.",
+    welcomeCtaAndroid: "Comença aquí. Les dates es xifren abans de sortir d'aquest mòbil.",
     restoreFailedTitle: "No hem pogut obrir el teu diari",
     restoreFailedBody:
       "Pot ser la connexió o el servidor. El teu accés continua desat en aquest dispositiu i les teves dades no s'han tocat.",
@@ -251,6 +266,9 @@ const locale: LocaleModule = {
     updateBodyCopy: "Aquesta versió de Ciclo és massa antiga per al servidor, així que veus la còpia desada en aquest mòbil ({date}). Actualitza-la des de Google Play per veure les entrades més noves i continuar editant.",
     updateSignInBodyWeb: "Torna a carregar la pàgina per tenir la versió més nova de Ciclo i torna a iniciar la sessió.",
     updateOpenStore: "Obre Google Play",
+    webviewUpdateTitle: "Actualitza Android System WebView",
+    webviewUpdateBody:
+      "Ciclo necessita una versió més recent d'Android System WebView. Actualitza-la des de Google Play, i també Google Chrome si el tens, i torna a obrir Ciclo.",
     updateReload: "Torna a carregar",
     updateDayHint: "Actualitza Ciclo per canviar aquest dia.",
     updateNeededAction: "Actualitza Ciclo per fer això.",
@@ -285,12 +303,13 @@ const locale: LocaleModule = {
     moveToDeviceHint:
       "Desa el teu diari xifrat en aquest mòbil i esborra el teu compte del servidor, inclòs l'accés amb correu i contrasenya.",
     moveToDeviceConfirm:
-      "El teu diari es desarà només en aquest mòbil i s'esborrarà el teu compte del servidor, inclòs l'accés amb correu i contrasenya. Abans, apunta la teva frase de 12 paraules (Desa al navegador → Mostra el QR de la frase) i fes una exportació. Vols continuar?",
+      "El teu diari es desarà només en aquest mòbil i s'esborrarà el teu compte del servidor, inclòs l'accés amb correu i contrasenya. Abans, apunta la teva frase de 12 paraules (La teva frase de 12 paraules → Mostra el QR de la frase) i fes una exportació. Vols continuar?",
     moveToDeviceDone: "El teu diari ara només és en aquest mòbil.",
     appLock: "Bloqueja amb empremta o PIN",
     appLockHint:
       "Demana l'empremta o el bloqueig de pantalla en obrir Ciclo i després de 30 segons fora. També amaga l'app a les recents i a les captures de pantalla.",
     appLockUnavailable: "Configura una empremta o un bloqueig de pantalla a Android per fer-ho servir.",
+    appLockNeedsAndroid11: "El bloqueig de l'app necessita Android 11 o posterior.",
     appLockPromptTitle: "Obre Ciclo",
     appLockPromptSubtitle: "Confirma que ets tu per veure el teu diari.",
     deleteDeviceDiary: "Esborra el diari d'aquest dispositiu",
@@ -387,6 +406,9 @@ const locale: LocaleModule = {
     backToLearn: "Torna a Aprendre",
     noPatternsYet: "Registra almenys un inici de regla per veure patrons.",
     saveEntry: "Desa",
+    discardDraftConfirm: "Vols descartar els canvis d'aquest dia?",
+    discardDraft: "Descarta",
+    keepEditing: "Continua editant",
     mucusHintDry: "Poc o gens",
     mucusHintSticky: "Dens, enganxós",
     mucusHintCreamy: "Com una loció",
@@ -397,6 +419,8 @@ const locale: LocaleModule = {
     favoriteSymptom: "Afegeix als preferits",
     unfavoriteSymptom: "Treu dels preferits",
     deleteCustomSymptom: "Elimina {name}",
+    deleteCustomSymptomConfirm:
+      "Vols eliminar «{name}»? Es traurà de tots els dies en què l'has registrat. No es pot desfer.",
     addCustomSymptom: "Crea un símptoma personalitzat",
     customSymptomName: "Nom",
     customSymptomEmoji: "Emoji",

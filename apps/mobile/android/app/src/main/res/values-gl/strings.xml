@@ -1,0 +1,5 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!-- Machine-assisted translation; needs a native review before release. -->
+<resources>
+    <string name="no_webview_message">Ciclo necesita Android System WebView, que está desactivado ou non está neste móbil. Actívao ou instálao desde Google Play e volve abrir Ciclo.</string>
+</resources>
