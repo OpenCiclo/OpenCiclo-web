@@ -6,6 +6,7 @@
 // English; other UI languages read one of them (contentLocale), like /privacy.
 // Keep it in step with Settings (button labels) and the privacy policy.
 
+import { FRIENDS_AVAILABLE } from "@/lib/features";
 import type { BaseLocale } from "@/lib/i18n";
 import { PRIVACY_EMAIL } from "@/lib/marketing/copy";
 import type { LegalDoc } from "@/lib/privacy/legal-doc";
@@ -107,6 +108,11 @@ function guideEn({ email }: DeleteAccountContext): LegalDoc {
             kind: "list",
             items: [
               "**Research pool rows** already uploaded, if you turned the pool on. They hold only cycle lengths and cannot be linked to your account, so we cannot find or delete them.",
+              ...(FRIENDS_AVAILABLE
+                ? [
+                    "**Messages for friends** that your device could not delete first, if you used Friends. They are encrypted with keys only you and each friend hold and are not linked to your account; they expire within 7 weeks.",
+                  ]
+                : []),
               "**Abuse-protection records**: a keyed hash of your IP address (never the address itself), and for email sign-in and email codes a keyed hash of the email address. They are usually deleted about a day later, at the next automatic cleanup.",
               "**Sign-in challenges** that were never used. They expire after 5 minutes and are deleted at a later automatic cleanup.",
               "**Request logs** at our hosting provider, Vercel, kept for a short period that Vercel sets.",
@@ -235,6 +241,11 @@ function guideEs({ email }: DeleteAccountContext): LegalDoc {
             kind: "list",
             items: [
               "**Filas del pool de investigación** ya enviadas, si lo activaste. Solo contienen duraciones de ciclo y no se pueden vincular a tu cuenta, así que no podemos encontrarlas ni borrarlas.",
+              ...(FRIENDS_AVAILABLE
+                ? [
+                    "**Mensajes para amigas** que tu dispositivo no pudo borrar antes, si usaste Amigas. Están cifrados con claves que solo tenéis tú y cada amiga y no están vinculados a tu cuenta; caducan en 7 semanas como mucho.",
+                  ]
+                : []),
               "**Registros de protección contra abusos**: un hash con clave de tu dirección IP (nunca la IP en sí) y, en el acceso con correo y los códigos por correo, un hash con clave del correo. Normalmente se borran al cabo de alrededor de un día, en la siguiente limpieza automática.",
               "**Desafíos de acceso** que no se usaron. Caducan a los 5 minutos y se borran en una limpieza automática posterior.",
               "**Registros de peticiones** en nuestro proveedor de alojamiento, Vercel, que los guarda un periodo breve que fija Vercel.",

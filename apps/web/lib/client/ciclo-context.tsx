@@ -84,7 +84,9 @@ import {
   type Diary,
 } from "@/lib/diary";
 import { mergeDiaryEdits } from "@/lib/diary-merge";
-import { VISUAL_SEASONS_AVAILABLE } from "@/lib/features";
+import { FRIENDS_AVAILABLE, VISUAL_SEASONS_AVAILABLE } from "@/lib/features";
+import { retryingFriendsApi, type SessionRun } from "@/lib/client/friends-api";
+import { leaveFriends } from "@/lib/client/friends-sync";
 import { type Locale, type Messages } from "@/lib/i18n";
 import { initialLocale } from "@/lib/client/initial-locale";
 import { loadLocale, messagesFor } from "@/lib/locales/registry";
@@ -96,7 +98,7 @@ import {
   resolveTimeZone,
   type TimeZoneSetting,
 } from "@/lib/time-zone";
-import { useTodayIn } from "@/lib/client/today";
+import { todayInSavedZone, useTodayIn } from "@/lib/client/today";
 
 type UnlockOptions = { create?: boolean; persist?: boolean };
 type PersistOptions = { persist?: boolean };
@@ -247,6 +249,13 @@ type CicloContextValue = {
   persistDiary: (next: Diary) => Promise<void>;
   enablePoolOptIn: () => Promise<void>;
   disablePoolOptIn: () => Promise<void>;
+  /**
+   * Runs a Friends call for the hosted account open now (signs in once and
+   * retries on a 401 or account-mismatch; the call names that account). Null
+   * while Friends is not available, nothing is open, or the diary lives only
+   * on this device. FriendsProvider builds its session from it.
+   */
+  friendsRun: SessionRun | null;
   wipe: () => Promise<void>;
   signOut: () => Promise<void>;
   setError: (message: string | null) => void;
@@ -1438,7 +1447,14 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
                 requireAuth: false,
               }),
             clearDevice: () => device.deviceVault.clear(),
-            deleteHosted: (baseVersion) => deleteSession((account) => deleteAccount(account, baseVersion)),
+            deleteHosted: async (baseVersion) => {
+              // Right before the account goes, tell friends (best effort).
+              if (FRIENDS_AVAILABLE) {
+                const session = { api: retryingFriendsApi(deleteSession), account: wallet.pubkeyHash, friendsKey: wallet.friendsKey };
+                await leaveFriends(session, todayInSavedZone()).catch(() => undefined);
+              }
+              return deleteSession((account) => deleteAccount(account, baseVersion));
+            },
             probeHosted: async () => {
               await loginWithWallet(wallet, undefined, true, { isLive: live });
             },
@@ -1561,6 +1577,28 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
     return <T,>(run: (account: string) => Promise<T>): Promise<T> =>
       live() ? retry(run) : Promise.reject(new Error("Locked"));
   }, []);
+
+  // Friends calls for the open wallet, each through a live session retry made
+  // when it runs (so a call kept after a sign-out sends nothing).
+  const friendsOpen = FRIENDS_AVAILABLE && wallet !== null && storageMode === "hosted";
+  const friendsRun = useCallback<SessionRun>(
+    (call) => (wallet ? liveSessionRetry(wallet)(call) : Promise.reject(new Error("Locked"))),
+    [liveSessionRetry, wallet],
+  );
+  // Before the hosted account goes: tell friends and delete the friend book
+  // and invites. Best effort: what is missed nobody can read, and expires.
+  const leaveFriendsFirst = useCallback(
+    async (who: Wallet) => {
+      if (!FRIENDS_AVAILABLE) return;
+      const session = {
+        api: retryingFriendsApi((call) => liveSessionRetry(who)(call)),
+        account: who.pubkeyHash,
+        friendsKey: who.friendsKey,
+      };
+      await leaveFriends(session, todayInSavedZone()).catch(() => undefined);
+    },
+    [liveSessionRetry],
+  );
 
   // A refusal from the host matters for a hosted diary (or before one opens),
   // never for an on-device diary.
@@ -1810,6 +1848,7 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
           poolOptIn: false,
         });
       },
+      friendsRun: friendsOpen ? friendsRun : null,
       wipe: async () => {
         assertHostReachable(backendRef.current, serverOutdatedRef.current);
         // A retry of the start-up restore still running must never open the diary after this.
@@ -1827,6 +1866,7 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
             // A session that expired while the app was open, or a cookie another
             // sign-in left (409 account-mismatch: nothing deleted), signs in once and
             // asks again. The delete names this wallet's account, never another.
+            await leaveFriendsFirst(wallet);
             try {
               await liveSessionRetry(wallet)((account) => deleteAccount(account));
             } catch (cause) {
@@ -1916,7 +1956,10 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
       endHostSession,
       error,
       forgetSavedSignIn,
+      friendsOpen,
+      friendsRun,
       keepCopies,
+      leaveFriendsFirst,
       liveSessionRetry,
       locale,
       moveToDevice,
