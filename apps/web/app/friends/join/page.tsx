@@ -29,10 +29,10 @@ export default function JoinFriendsPage() {
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    const secret = parseInvite(window.location.hash);
+    const link = parseInvite(window.location.hash);
     window.history.replaceState(null, "", window.location.pathname);
-    if (!secret) return;
-    const text = inviteCode(secret);
+    if (!link) return;
+    const text = inviteCode(link.secret, link.fingerprint);
     keepPendingInvite(text);
     // Reading the fragment happens once, after the first paint; the state only shows it.
     // eslint-disable-next-line react-hooks/set-state-in-effect

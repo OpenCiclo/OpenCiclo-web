@@ -15,7 +15,10 @@
 //
 // Anyone holding the link can open the invite and handshake boxes (they are
 // sealed under S) and see both public keys, but not K: that needs one of the
-// private halves. So the link alone never reads or writes the pair's statuses.
+// private halves. The link also carries a fingerprint of A's public half, and
+// only the inviter can write the invite box (its token comes from A's private
+// half), so a link holder cannot swap in their own key either. What remains is
+// inherent to a bearer link: whoever accepts first is the friend.
 //
 // Each box has an id (its address; the host stores SHA-256 of it), a write
 // token (the host stores SHA-256 of it and lets only its holder replace or
@@ -66,12 +69,35 @@ function deriveHex(ikm: Uint8Array, label: string): string {
   return bytesToHex(derive(ikm, label));
 }
 
-export function inviteAddress(secret: Uint8Array): BoxAddress {
+/** Where the invite box is and how to open it: from S, so the joiner can read it. */
+export function inviteLocation(secret: Uint8Array): { id: string; key: Uint8Array } {
   return {
     id: deriveHex(secret, "ciclo-friends-invite-id-v1"),
-    token: deriveHex(secret, "ciclo-friends-invite-token-v1"),
     key: derive(secret, "ciclo-friends-invite-seal-v1"),
   };
+}
+
+/**
+ * The invite box with its write token. The token comes from the invite's
+ * private exchange key, which only the inviter's sealed book holds, never from
+ * S: someone with the link can read the invite but never replace or delete it.
+ */
+export function inviteAddress(secret: Uint8Array, privateKey: string): BoxAddress {
+  const privateBytes = fromBase64Url(privateKey);
+  if (!privateBytes) throw new BadExchangeKeyError();
+  return { ...inviteLocation(secret), token: deriveHex(privateBytes, "ciclo-friends-invite-token-v2") };
+}
+
+/**
+ * A short fingerprint of an exchange public key (the first 16 bytes of its
+ * SHA-256, URL-safe base64). The invite link carries the inviter's, so the
+ * joiner accepts only the public key the inviter put there: a key swapped in
+ * the box by anyone else is refused.
+ */
+export function keyFingerprint(publicKey: string): string {
+  const bytes = fromBase64Url(publicKey);
+  if (!bytes) throw new BadExchangeKeyError();
+  return toBase64Url(sha256(bytes).slice(0, 16));
 }
 
 /**

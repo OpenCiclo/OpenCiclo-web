@@ -8,9 +8,11 @@
 -- friend_boxes: sealed messages between two devices (an invite, the answer to
 -- it, each friend's current status). Addressed by a hash of an id only the two
 -- devices can derive. No account column and no write time on purpose: the
--- table must not say who wrote a box or who reads it. Every ciphertext has the
--- same length, so the kinds cannot be told apart. expires_at is rounded up to
--- a week. Never add an account column or a join table to accounts.
+-- table must not say who wrote a box or who reads it. (Known residual: the
+-- per-account rate_limit_hits row written just before a box write can link it
+-- to its writer for about a day, never to its reader.) Every ciphertext has
+-- the same length, so the kinds cannot be told apart. expires_at is rounded up
+-- to a week. Never add an account column or a join table to accounts.
 --
 -- Additive. Nothing reads or writes these tables while FRIENDS_AVAILABLE is
 -- false (routes answer 404, the cleanup skips them), so the code may deploy

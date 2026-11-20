@@ -9,12 +9,12 @@ import { RefreshCw } from "lucide-react";
 
 import { apiUrl } from "@/lib/app-target";
 import { useCiclo, useTodayIso } from "@/lib/client/ciclo-context";
-import { InviteNotFoundError, InviteUsedError, OwnInviteError } from "@/lib/client/friends-sync";
+import { inviteFingerprint, InviteNotFoundError, InviteUsedError, OwnInviteError } from "@/lib/client/friends-sync";
 import { takePendingInvite } from "@/lib/client/pending-invite";
 import { FRIENDS_AVAILABLE } from "@/lib/features";
 import { FriendBookFullError, sharesWith } from "@/lib/friends/book";
-import { fromBase64Url } from "@/lib/friends/crypto";
-import { inviteCode, inviteLink, parseInvite } from "@/lib/friends/invite";
+import { fromBase64Url, toBase64Url } from "@/lib/friends/crypto";
+import { inviteLink, parseInvite } from "@/lib/friends/invite";
 import { MAX_NAME_LENGTH, MAX_NOTE_LENGTH } from "@/lib/friends/limits";
 import type { InviteMessage } from "@/lib/friends/payload";
 import { formatIsoUtc } from "@/lib/format-date";
@@ -48,7 +48,7 @@ export default function FriendsPage() {
   const [busy, setBusy] = useState(false);
   const [consent, setConsent] = useState(false);
   const [name, setName] = useState("");
-  const [invite, setInvite] = useState<{ secret: Uint8Array; link: string } | null>(null);
+  const [invite, setInvite] = useState<{ secret: string; link: string } | null>(null);
   const [copied, setCopied] = useState<"link" | null>(null);
   const [pasted, setPasted] = useState("");
   const [received, setReceived] = useState<{ secret: Uint8Array; message: InviteMessage } | null>(null);
@@ -245,9 +245,12 @@ export default function FriendsPage() {
                 disabled={!writable || busy}
                 onClick={() =>
                   void act(async () => {
-                    const secret = await friends.createInvite();
+                    const created = await friends.createInvite();
                     setCopied(null);
-                    setInvite({ secret, link: inviteLink(siteOrigin(), secret) });
+                    setInvite({
+                      secret: toBase64Url(created.secret),
+                      link: inviteLink(siteOrigin(), created.secret, created.fingerprint),
+                    });
                   })
                 }
               >
@@ -297,12 +300,12 @@ export default function FriendsPage() {
                   disabled={!pasted.trim() || busy || !writable}
                   onClick={() =>
                     void act(async () => {
-                      const secret = parseInvite(pasted);
-                      if (!secret) {
+                      const link = parseInvite(pasted);
+                      if (!link) {
                         setMessage(t.friendsInviteUnreadable);
                         return;
                       }
-                      setReceived({ secret, message: await friends.readInvite(secret) });
+                      setReceived({ secret: link.secret, message: await friends.readInvite(link) });
                     })
                   }
                 >
@@ -328,7 +331,9 @@ export default function FriendsPage() {
                           type="button"
                           variant="ghost"
                           className="h-8 px-2 text-xs"
-                          onClick={() => setInvite({ secret, link: inviteLink(siteOrigin(), secret) })}
+                          onClick={() =>
+                            setInvite({ secret: pending.secret, link: inviteLink(siteOrigin(), secret, inviteFingerprint(pending)) })
+                          }
                         >
                           {t.friendsCopyLink}
                         </Button>
@@ -341,7 +346,7 @@ export default function FriendsPage() {
                         onClick={() =>
                           void act(async () => {
                             await friends.revokeInvite(pending.secret);
-                            if (invite && inviteCode(invite.secret) === `v1.${pending.secret}`) setInvite(null);
+                            if (invite?.secret === pending.secret) setInvite(null);
                           })
                         }
                       >

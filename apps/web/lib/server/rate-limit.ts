@@ -62,10 +62,11 @@ export const RATE_LIMITS = {
   "friends-box-read": { max: 600, windowMs: HOUR },
   "friends-box-write-global": { max: 20_000, windowMs: HOUR, alert: true },
   // New box addresses (what takes storage): a person needs a handful a day
-  // (invites, answers, one status per new friend). Host-wide, a cap sized
-  // against the database plan, to alert on.
+  // (invites, answers, one status per new friend). Host-wide, at most about
+  // 6 MB of new boxes a day (2752-character ciphertext each); a refusal is
+  // the alert to look at, since boxes cannot be attributed to purge them.
   "friends-box-create": { max: 60, windowMs: DAY },
-  "friends-box-create-global": { max: 5_000, windowMs: DAY, alert: true },
+  "friends-box-create-global": { max: 2_000, windowMs: DAY, alert: true },
 } as const satisfies Record<string, RateLimit>;
 
 export type RateLimitBucket = keyof typeof RATE_LIMITS;
@@ -135,7 +136,10 @@ export function sourceKey(request: Request): string {
 /**
  * Keyed hash for a non-IP limit (an account id, an email lookup). The raw value
  * never reaches `rate_limit_hits` or the logs, and the hash differs from the
- * value stored in other tables, so the rows cannot be joined to them.
+ * value stored in other tables, so the rows cannot be joined to them by value.
+ * Timing is another matter: a per-account hit written right before a friend
+ * box write can link that box to its writer for as long as the hit is kept
+ * (about a day); docs/threat-model.md and the privacy policy say so.
  */
 export function limitKey(kind: "account" | "email", value: string): string {
   const secret = requireSecret("EMAIL_LOOKUP_SECRET");
