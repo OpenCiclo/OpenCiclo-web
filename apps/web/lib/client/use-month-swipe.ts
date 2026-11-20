@@ -8,7 +8,7 @@ import type { MouseEvent, PointerEvent } from "react";
 import { flushSync } from "react-dom";
 
 import { useLatest } from "@/lib/client/hooks";
-import { SlideMotion } from "@/lib/client/screen-carousel";
+import { SlideMotion } from "@/lib/client/slide-motion";
 import { VelocityTracker, monthSwipeIntent, monthSwipeStep } from "@/lib/client/swipe";
 
 /** A swipe can end in a click on the day it started on; that is not a tap. */

@@ -3,8 +3,7 @@
 
 // Touch swipes on screen content: the calendar card turns the month, and a
 // bottom sheet closes when dragged down by its handle. Thresholds and
-// decisions only, no DOM, so they can be tested. The tab bar has its own
-// (lib/client/tab-drag.ts).
+// decisions only, no DOM, so they can be tested.
 
 /** Finger travel, in px, before a press counts as a swipe one way or the other. */
 export const SWIPE_SLOP = 10;

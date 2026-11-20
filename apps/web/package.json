@@ -9,8 +9,7 @@
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",
-    "icons": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/brand-icons.mjs",
-    "learn-index": "vitest run lib/learn/shipped-index.test.ts -u"
+    "icons": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/brand-icons.mjs"
   },
   "dependencies": {
     "@capacitor/core": "8.6.2",
