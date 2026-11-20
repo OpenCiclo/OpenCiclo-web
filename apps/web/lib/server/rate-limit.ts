@@ -8,7 +8,7 @@ import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 
 import { bytesToHex, utf8ToBytes } from "@/lib/crypto/bytes";
 import type * as schema from "@/lib/db/schema";
-import { authChallenges, mailboxPending, rateLimitHits, recoveryAttempts } from "@/lib/db/schema";
+import { authChallenges, friendBoxes, mailboxPending, rateLimitHits, recoveryAttempts } from "@/lib/db/schema";
 import { hashIp, jsonError, requireSecret } from "@/lib/server/env";
 
 type Db = PostgresJsDatabase<typeof schema>;
@@ -51,6 +51,13 @@ export const RATE_LIMITS = {
   // Per account. Every day-sheet save is one PUT; this is far above what a
   // person editing all day sends, and stops a loop from churning the table.
   "vault-write": { max: 600, windowMs: HOUR },
+  // Friends, per account: a device publishes its status to each friend a few
+  // times a day and reads all of them when the Friends tab opens. Plus a
+  // host-wide cap on box writes, far above real use, to alert on.
+  "friends-book-write": { max: 300, windowMs: HOUR },
+  "friends-box-write": { max: 300, windowMs: HOUR },
+  "friends-box-read": { max: 600, windowMs: HOUR },
+  "friends-box-write-global": { max: 20_000, windowMs: HOUR, alert: true },
 } as const satisfies Record<string, RateLimit>;
 
 export type RateLimitBucket = keyof typeof RATE_LIMITS;
@@ -234,7 +241,8 @@ async function applyLimits(
 /**
  * Deletes bookkeeping that can no longer matter: rate-limit hits and recovery
  * attempts older than a day, auth challenges and pending email confirmations
- * that have expired. None of these rows hold diary data; a pending row holds a
+ * that have expired, and expired friend boxes (sealed, no account; reads skip
+ * them already). None of these rows hold diary data; a pending row holds a
  * wrapped kit and HMAC(email) for a sign-up that was never confirmed.
  */
 export async function pruneEphemeralRows(db: Db, now = new Date()) {
@@ -243,6 +251,7 @@ export async function pruneEphemeralRows(db: Db, now = new Date()) {
   await db.delete(recoveryAttempts).where(lt(recoveryAttempts.createdAt, cutoff));
   await db.delete(authChallenges).where(lt(authChallenges.expiresAt, now));
   await db.delete(mailboxPending).where(lt(mailboxPending.expiresAt, now));
+  await db.delete(friendBoxes).where(lt(friendBoxes.expiresAt, now));
 }
 
 export function tooManyRequests(): Response {
