@@ -21,6 +21,41 @@ const TABS = [
   { href: "/settings", icon: Settings },
 ] as const;
 
+/**
+ * The code of each tab screen, in tab order. Next prefetches a tab's data but
+ * loads its JavaScript only when it opens, so the first tap on each tab would
+ * wait for it (about 100 ms more on a phone, and a rougher slide). The bar
+ * loads it ahead, while the app is idle, without drawing anything.
+ */
+const SCREEN_CODE = [
+  () => import("@/components/home-view"),
+  () => import("@/app/patterns/page"),
+  () => import("@/components/learn/learn-index"),
+  () => import("@/app/settings/page"),
+];
+
+let screenCodeRequested = false;
+
+/** Waits for the browser to be idle, or `ms` at most. */
+function whenIdle(callback: () => void, ms: number) {
+  if (typeof window.requestIdleCallback === "function") window.requestIdleCallback(callback, { timeout: ms });
+  else window.setTimeout(callback, ms);
+}
+
+/** Loads the tab screens' code one at a time, each in an idle moment. Once per app session. */
+function loadScreenCodeWhenIdle() {
+  if (screenCodeRequested) return;
+  screenCodeRequested = true;
+  let next = 0;
+  const loadNext = () => {
+    const load = SCREEN_CODE[next++];
+    // A chunk that fails to load (offline) loads again when its tab opens.
+    if (load) void load().then(step, step);
+  };
+  const step = () => whenIdle(loadNext, 2000);
+  step();
+}
+
 function tabIndex(pathname: string) {
   return TABS.findIndex(({ href }) => pathname === href || pathname.startsWith(`${href}/`));
 }
@@ -159,6 +194,7 @@ export function FloatingTabBar() {
 
   useEffect(() => {
     if (hidden) return;
+    loadScreenCodeWhenIdle();
     const onClick = (event: MouseEvent) => onClickUnderSlide(event);
     document.addEventListener("click", onClick);
     return () => document.removeEventListener("click", onClick);
