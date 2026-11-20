@@ -140,7 +140,8 @@ apps/web/components/boot-splash.tsx  loading screen with the moving mark until `
 apps/web/lib/client/desktop.ts   useIsDesktop() and DESKTOP_QUERY, the JS side of the `desktop:` CSS variant. See "Desktop web"
 apps/web/components/desktop-header.tsx  desktop web navigation, in place of the tab bar
 apps/web/components/cycle-dashboard.tsx  Calendar + Patterns: one tab each on a phone, side by side on the desktop
-apps/web/components/patterns/patterns-content.tsx  the Patterns tab body (forecast, stats, notes, tips)
+apps/web/components/patterns/patterns-content.tsx  the Patterns tab body: a summary sentence, the last cycles one under another, forecast, lengths and averages, recurring symptoms, similar notes; each tip sits in the card it is about
+apps/web/lib/patterns/cycle-rows.ts  what that screen draws from the diary as logged: one row per cycle (length, bleeding days, first day of each recurring symptom), symptom timing, variation
 apps/web/content/help/           Help markdown (canonical)
 apps/web/app/**/*.android.tsx    Android routes (static export). See "Android app"
 apps/web/lib/app-target.ts       IS_ANDROID_APP (build-time flag), apiUrl() for every client /api call
