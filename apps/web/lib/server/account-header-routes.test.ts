@@ -110,6 +110,7 @@ vi.mock("@/lib/server/friends", async (importOriginal) => ({
   deleteFriendBook: async () => {
     state.effects.push("book-delete");
   },
+  boxExists: async () => true,
   putBox: async () => {
     state.effects.push("box-write");
     return "written";
@@ -229,7 +230,7 @@ const ROUTES: Route[] = [
     name: "PUT /api/friends/boxes",
     send: (headers) => friendBoxesRoute.PUT(jsonRequest("/api/friends/boxes", "PUT", BOX, headers)),
     effects: ["box-write"],
-    buckets: [["friends-box-write", "friends-box-write-global"]],
+    buckets: [["friends-box-write", "friends-box-write-day", "friends-box-write-global"]],
   },
   {
     name: "POST /api/friends/boxes/read",

@@ -10,7 +10,7 @@
 //   No account column: nothing here may record who wrote or read a box.
 
 import { sha256 } from "@noble/hashes/sha2.js";
-import { and, eq, gt, inArray, lte, or, sql } from "drizzle-orm";
+import { and, eq, gt, inArray, sql } from "drizzle-orm";
 import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 
 import { bytesToHex, utf8ToBytes } from "@/lib/crypto/bytes";
@@ -147,10 +147,22 @@ export async function readBoxes(db: Db, ids: string[], now = new Date()): Promis
   return found;
 }
 
+/** Whether a box (expired or not) is stored at this id: a write there replaces, it does not create. */
+export async function boxExists(db: Db, id: string): Promise<boolean> {
+  const rows = await db
+    .select({ boxHash: friendBoxes.boxHash })
+    .from(friendBoxes)
+    .where(eq(friendBoxes.boxHash, boxHash(id)))
+    .limit(1);
+  return rows.length > 0;
+}
+
 /**
- * Writes a box: creates it when there is none (or the one there expired),
- * replaces it when `token` is the one it was created with, and otherwise
- * changes nothing ("conflict": someone else holds this address).
+ * Writes a box: creates it when there is none, replaces it when `token` is the
+ * one it was created with (also after it expired, which revives it), and
+ * otherwise changes nothing ("conflict": someone else holds this address).
+ * Another token never takes over an address, expired or not, until the
+ * cleanup has removed the row.
  */
 export async function putBox(
   db: Db,
@@ -175,7 +187,7 @@ export async function putBox(
         nonce: box.nonce,
         expiresAt: boxExpiry(box.kind, now),
       },
-      setWhere: or(eq(friendBoxes.writeHash, writeHash), lte(friendBoxes.expiresAt, now)),
+      setWhere: eq(friendBoxes.writeHash, writeHash),
     })
     .returning({ boxHash: friendBoxes.boxHash });
   return rows.length > 0 ? "written" : "conflict";

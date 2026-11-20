@@ -15,6 +15,7 @@ import {
   newFriendBook,
   NewerFriendBookError,
   parseFriendBook,
+  publishesTo,
   removeFriend,
   setProfile,
   sharesWith,
@@ -24,6 +25,9 @@ import {
 
 const key = (byte: number) => toBase64Url(new Uint8Array(32).fill(byte));
 
+// Shapes only (the parser checks lengths); real keys come from newExchangeKeys.
+const invite = (byte: number) => ({ secret: key(byte), key: "P".repeat(184), pub: "Q".repeat(87) });
+
 function friend(byte: number, selfId: string | null = null) {
   return { selfId, name: `F${byte}`, key: key(byte), role: "inviter" as const, state: "active" as const, since: "2026-09-30" };
 }
@@ -31,7 +35,7 @@ function friend(byte: number, selfId: string | null = null) {
 describe("friend book", () => {
   it("survives sealing and parsing unchanged", async () => {
     let book = newFriendBook("  Emma ");
-    book = addInvite(book, key(9), "2026-09-30");
+    book = addInvite(book, invite(9), "2026-09-30");
     book = addFriend(book, friend(1, "a".repeat(32)));
     book = setProfile(book, { note: { text: "sore", date: "2026-09-30" }, show: { day: false, expected: true } });
     expect(book.name).toBe("Emma");
@@ -41,7 +45,7 @@ describe("friend book", () => {
   });
 
   it("adds a friend once, and drops the invite it came from", () => {
-    let book = addInvite(newFriendBook("Emma"), key(9), "2026-09-30");
+    let book = addInvite(newFriendBook("Emma"), invite(9), "2026-09-30");
     book = addFriend(book, friend(1), key(9));
     const again = addFriend(book, friend(1), key(9));
     expect(again.friends).toHaveLength(1);
@@ -50,8 +54,8 @@ describe("friend book", () => {
 
   it("stops at its limits", () => {
     let book = newFriendBook("Emma");
-    for (let i = 0; i < MAX_PENDING_INVITES; i += 1) book = addInvite(book, key(100 + i), "2026-09-30");
-    expect(() => addInvite(book, key(200), "2026-09-30")).toThrow(FriendBookFullError);
+    for (let i = 0; i < MAX_PENDING_INVITES; i += 1) book = addInvite(book, invite(100 + i), "2026-09-30");
+    expect(() => addInvite(book, invite(200), "2026-09-30")).toThrow(FriendBookFullError);
     let full = newFriendBook("Emma");
     for (let i = 0; i < MAX_FRIENDS; i += 1) full = addFriend(full, friend(i + 1));
     expect(() => addFriend(full, friend(250))).toThrow(FriendBookFullError);
@@ -77,6 +81,22 @@ describe("friend book", () => {
     expect(a.book.friends.map((entry) => entry.key)).toEqual([key(3)]);
     expect(b.book.friends.map((entry) => entry.key)).toEqual([key(3)]);
     expect(a.dropped.map((entry) => entry.key)).toEqual([key(7)]);
+  });
+
+  it("never drops a working friendship for a waiting entry of the same person", () => {
+    const person = "c".repeat(32);
+    const book = addFriend(addFriend(newFriendBook("Ana"), friend(7, person)), { ...friend(3, person), state: "waiting" });
+    const { book: kept, dropped } = dropDuplicates(book);
+    expect(dropped).toEqual([]);
+    expect(kept.friends.map((entry) => entry.key).sort()).toEqual([key(3), key(7)].sort());
+  });
+
+  it("keeps an ended friend, and publishes nothing to them", async () => {
+    let book = addFriend(newFriendBook("Emma"), friend(1, "d".repeat(32)));
+    book = updateFriend(book, book.friends[0].id, { state: "ended" });
+    expect(publishesTo(book.friends[0])).toBe(false);
+    const sealingKey = hexToBytes("66".repeat(32));
+    expect(parseFriendBook(await openBook(sealingKey, await sealBook(sealingKey, book))).friends[0].state).toBe("ended");
   });
 
   it("refuses a book from a newer version, and a damaged one", () => {

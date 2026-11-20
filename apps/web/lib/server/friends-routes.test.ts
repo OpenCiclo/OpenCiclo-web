@@ -30,6 +30,20 @@ const routes = {
   "POST /api/friends/boxes/delete": async () => (await import("@/app/api/friends/boxes/delete/route")).POST,
 };
 
+describe.skipIf(FRIENDS_AVAILABLE)("the cleanup while Friends is off", () => {
+  // Production may not have friend_boxes yet: the cleanup that rides on
+  // rate-limited requests (sign-in, vault saves) must never touch it then.
+  it("never deletes from friend_boxes", async () => {
+    const { pruneEphemeralRows } = await import("@/lib/server/rate-limit");
+    const { friendBoxes } = await import("@/lib/db/schema");
+    const tables: unknown[] = [];
+    const db = { delete: (table: unknown) => (tables.push(table), { where: async () => undefined }) };
+    await pruneEphemeralRows(db as never);
+    expect(tables.length).toBeGreaterThan(0);
+    expect(tables).not.toContain(friendBoxes);
+  });
+});
+
 describe.skipIf(FRIENDS_AVAILABLE)("Friends routes while the feature is off", () => {
   it.each(Object.entries(routes))("%s answers 404 and touches nothing", async (_name, load) => {
     touched.length = 0;

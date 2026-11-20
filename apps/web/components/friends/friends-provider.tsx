@@ -12,7 +12,7 @@ import {
   createInvite as createInviteCall,
   enableFriends,
   FriendsOffError,
-  loadBook,
+  publishFromLatest,
   publishStatus,
   readInvite as readInviteCall,
   refreshFriends,
@@ -163,12 +163,15 @@ export function FriendsProvider({ children }: { children: ReactNode }) {
       run(async (session) => {
         if (!stateRef.current) setStatus("loading");
         try {
-          const loaded = stateRef.current ?? (await loadBook(session));
-          if (!loaded) {
+          // Reads the host's book itself: another device may have removed, paused or turned off since.
+          let result;
+          try {
+            result = await refreshFriends(session, stateRef.current, todayRef.current);
+          } catch (error) {
+            if (!(error instanceof FriendsOffError)) throw error;
             apply(session, null);
             return;
           }
-          const result = await refreshFriends(session, loaded, todayRef.current);
           apply(session, result.state);
           if (sessionRef.current === session) setCards(result.cards);
           await publishNow(session, result.state.book).catch(() => undefined);
@@ -214,10 +217,21 @@ export function FriendsProvider({ children }: { children: ReactNode }) {
     if (!session || !book || readOnly) return;
     if (statusFingerprint(book, diary, today) === publishedRef.current) return;
     const timer = window.setTimeout(() => {
-      run((current) => publishNow(current, stateRef.current?.book ?? book)).catch(() => undefined);
+      // From the host's book, not this tab's copy: if Friends was turned off or
+      // a friend removed elsewhere, nothing is written over it.
+      run(async (current) => {
+        if (!stateRef.current) return;
+        const fingerprint = statusFingerprint(stateRef.current.book, diaryRef.current, todayRef.current);
+        if (fingerprint === publishedRef.current) return;
+        const latest = await publishFromLatest(current, diaryRef.current, todayRef.current);
+        apply(current, latest);
+        if (latest && sessionRef.current === current) {
+          publishedRef.current = statusFingerprint(latest.book, diaryRef.current, todayRef.current);
+        }
+      }).catch(() => undefined);
     }, publishDelay());
     return () => window.clearTimeout(timer);
-  }, [book, diary, today, readOnly, publishNow, run]);
+  }, [apply, book, diary, today, readOnly, run]);
 
   const value = useMemo<FriendsValue>(
     () => ({

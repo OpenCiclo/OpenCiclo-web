@@ -6,7 +6,7 @@ import { BOX_KINDS, type BoxKind } from "@/lib/friends/limits";
 import { requireAccount } from "@/lib/server/account";
 import { rejectOutdatedClient } from "@/lib/server/client-version";
 import { jsonError } from "@/lib/server/env";
-import { isBoxKey, isSealedBox, putBox, friendsUnavailable } from "@/lib/server/friends";
+import { boxExists, isBoxKey, isSealedBox, putBox, friendsUnavailable } from "@/lib/server/friends";
 import { apiRoute, readJson } from "@/lib/server/http";
 import { GLOBAL_KEY, limitKey, takeRateLimits, tooManyRequests } from "@/lib/server/rate-limit";
 
@@ -27,9 +27,18 @@ export const PUT = apiRoute(async (request: Request) => {
   if (typeof kind !== "string" || !BOX_KINDS.includes(kind as BoxKind)) return jsonError("Invalid box kind", 400);
   if (!isSealedBox(ciphertext, nonce)) return jsonError("Invalid box", 400);
   const db = getDb();
+  const accountKey = limitKey("account", account.id);
+  const creates = !(await boxExists(db, id));
   const allowed = await takeRateLimits(db, [
-    { bucket: "friends-box-write", keyHash: limitKey("account", account.id) },
+    { bucket: "friends-box-write", keyHash: accountKey },
+    { bucket: "friends-box-write-day", keyHash: accountKey },
     { bucket: "friends-box-write-global", keyHash: GLOBAL_KEY },
+    ...(creates
+      ? [
+          { bucket: "friends-box-create" as const, keyHash: accountKey },
+          { bucket: "friends-box-create-global" as const, keyHash: GLOBAL_KEY },
+        ]
+      : []),
   ]);
   if (!allowed) return tooManyRequests();
   const result = await putBox(db, {

@@ -14,6 +14,7 @@ import { cycleOverview, type CyclePhase, type PhaseSource } from "@/lib/cycle/ph
 import { cycleTimeline } from "@/lib/cycle/phase-timeline";
 import { isIsoDate, type Diary } from "@/lib/diary";
 import { daysBetween } from "@/lib/forecast/math";
+import { isExchangePublicKey } from "@/lib/friends/crypto";
 import { MAX_NAME_LENGTH, MAX_NOTE_LENGTH } from "@/lib/friends/limits";
 
 export const MESSAGE_VERSION = 1;
@@ -23,11 +24,11 @@ export type ShareChoices = { day: boolean; expected: boolean };
 
 export type FriendNote = { text: string; date: string };
 
-/** The invite box: who invites. */
-export type InviteMessage = { t: "invite"; v: number; selfId: string; name: string; at: string };
+/** The invite box: who invites, and the public half of the invite's exchange key. */
+export type InviteMessage = { t: "invite"; v: number; selfId: string; name: string; at: string; pub: string };
 
-/** The handshake box: the joiner's answer, with the secret R (URL-safe base64). */
-export type HandshakeMessage = { t: "handshake"; v: number; selfId: string; name: string; at: string; r: string };
+/** The handshake box: the joiner's answer, with the public half of its exchange key. */
+export type HandshakeMessage = { t: "handshake"; v: number; selfId: string; name: string; at: string; pub: string };
 
 export type StatusCycle = { start: string; next: string; bleed: number };
 
@@ -51,8 +52,16 @@ export type StatusMessage = {
 export const NOTE_DAYS = 2;
 /** After the expected start, how long the card says "period expected about now". */
 export const DUE_DAYS = 5;
-/** A status written longer ago than this reads as "no recent update". */
-export const STALE_AFTER_DAYS = 60;
+/**
+ * A status written longer ago than this reads as "no recent update". Below the
+ * status box's life (BOX_TTL_DAYS.status), so a card says "no recent update"
+ * before the box can expire.
+ */
+export const STALE_AFTER_DAYS = 30;
+
+/** The bleed lengths a status may carry; the writer clamps, the reader refuses others. */
+const MIN_BLEED = 1;
+const MAX_BLEED = 30;
 
 const DEFAULT_BLEED = 5;
 
@@ -94,7 +103,7 @@ export function buildStatus(diary: Diary, today: string, profile: SharerProfile)
     cycle = {
       start: phase.cycleStart,
       next: overview.nextPeriodDate,
-      bleed: overview.expectedPeriodLength ?? DEFAULT_BLEED,
+      bleed: Math.min(MAX_BLEED, Math.max(MIN_BLEED, Math.round(overview.expectedPeriodLength ?? DEFAULT_BLEED))),
     };
   }
   const note = profile.note ? { text: cleanText(profile.note.text, MAX_NOTE_LENGTH), date: profile.note.date } : null;
@@ -214,21 +223,22 @@ function isVersion(value: unknown): boolean {
 export function parseInviteMessage(value: unknown): InviteMessage | null {
   if (!isObject(value) || value.t !== "invite" || !isVersion(value.v)) return null;
   if (!isHexId(value.selfId) || !isName(value.name) || !isDate(value.at)) return null;
-  return { t: "invite", v: value.v as number, selfId: value.selfId, name: value.name, at: value.at };
+  if (!isExchangePublicKey(value.pub)) return null;
+  return { t: "invite", v: value.v as number, selfId: value.selfId, name: value.name, at: value.at, pub: value.pub };
 }
 
 export function parseHandshakeMessage(value: unknown): HandshakeMessage | null {
   if (!isObject(value) || value.t !== "handshake" || !isVersion(value.v)) return null;
   if (!isHexId(value.selfId) || !isName(value.name) || !isDate(value.at)) return null;
-  if (typeof value.r !== "string" || !/^[A-Za-z0-9_-]{43}$/.test(value.r)) return null;
-  return { t: "handshake", v: value.v as number, selfId: value.selfId, name: value.name, at: value.at, r: value.r };
+  if (!isExchangePublicKey(value.pub)) return null;
+  return { t: "handshake", v: value.v as number, selfId: value.selfId, name: value.name, at: value.at, pub: value.pub };
 }
 
 function parseCycle(value: unknown): StatusCycle | null | undefined {
   if (value === null) return null;
   if (!isObject(value) || !isDate(value.start) || !isDate(value.next)) return undefined;
   if (!(value.next > value.start) || daysBetween(value.start, value.next) > 400) return undefined;
-  if (typeof value.bleed !== "number" || !Number.isFinite(value.bleed) || value.bleed < 1 || value.bleed > 30) {
+  if (typeof value.bleed !== "number" || !Number.isFinite(value.bleed) || value.bleed < MIN_BLEED || value.bleed > MAX_BLEED) {
     return undefined;
   }
   return { start: value.start, next: value.next, bleed: value.bleed };

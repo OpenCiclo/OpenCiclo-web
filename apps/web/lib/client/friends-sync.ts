@@ -7,16 +7,22 @@
 //
 // Order matters wherever a crash or a lost answer could lose a key: the friend
 // book is saved before any box that depends on it is written, and a box is
-// deleted only after the book no longer needs it.
+// deleted only after the book no longer needs it. Removing a friend or turning
+// Friends off changes the book first, and every publish reads the book from the
+// host first (publishFromLatest), so a device with an old copy never writes
+// over an "ended" or "paused".
 //
 //   Inviter                                   Joiner
-//   1. book += invite S; write invite box
+//   1. book += invite (S, key pair A);
+//      write invite box (name, A's public half)
 //                                             2. read invite box (shows the name)
-//                                             3. book += friend (waiting, S, R)
-//                                                write handshake box; publish
-//   4. refresh: handshake found → book += friend
-//      (active), invite dropped; delete the
-//      invite box; publish
+//                                             3. make key pair B; K = HKDF(S ‖ ECDH(B, A));
+//                                                book += friend (waiting, K, S, B's
+//                                                public half); write handshake box
+//                                                (name, B's public half); publish
+//   4. refresh: handshake found → K = HKDF(S ‖ ECDH(A, B));
+//      book += friend (active), invite (and A)
+//      dropped; delete the invite box; publish
 //                                             5. refresh: inviter's status found →
 //                                                friend active
 
@@ -29,6 +35,7 @@ import {
   FriendBookFullError,
   newFriendBook,
   parseFriendBook,
+  publishesTo,
   removeFriend,
   removeInvite,
   sharesWith,
@@ -37,10 +44,12 @@ import {
   type FriendBook,
 } from "@/lib/friends/book";
 import {
+  exchangeSecret,
   fromBase64Url,
   handshakeAddress,
   handshakeLocation,
   inviteAddress,
+  newExchangeKeys,
   openBook,
   openBox,
   otherRole,
@@ -163,9 +172,9 @@ export async function enableFriends(session: FriendsSession, name: string): Prom
   throw new BookConflictError();
 }
 
-async function writeInviteBox(session: FriendsSession, secret: Uint8Array, book: FriendBook, today: string) {
+async function writeInviteBox(session: FriendsSession, secret: Uint8Array, pub: string, book: FriendBook, today: string) {
   const address = inviteAddress(secret);
-  const message: InviteMessage = { t: "invite", v: MESSAGE_VERSION, selfId: book.selfId, name: book.name, at: today };
+  const message: InviteMessage = { t: "invite", v: MESSAGE_VERSION, selfId: book.selfId, name: book.name, at: today, pub };
   await session.api.putBox(
     { id: address.id, token: address.token, kind: "invite", ...(await sealBox(address.key, message)) },
     session.account,
@@ -179,8 +188,11 @@ export async function createInvite(
   today: string,
 ): Promise<{ state: BookState; secret: Uint8Array }> {
   const secret = randomSecret();
-  const next = await updateBook(session, state, (book) => addInvite(book, toBase64Url(secret), today));
-  await writeInviteBox(session, secret, next.book, today);
+  const keys = await newExchangeKeys();
+  const next = await updateBook(session, state, (book) =>
+    addInvite(book, { secret: toBase64Url(secret), key: keys.privateKey, pub: keys.publicKey }, today),
+  );
+  await writeInviteBox(session, secret, keys.publicKey, next.book, today);
   return { state: next, secret };
 }
 
@@ -208,21 +220,22 @@ export async function readInvite(
   return message;
 }
 
+/** The handshake box for the joiner entry `friend` (it holds K and, while waiting, S and its public key). */
 async function writeHandshake(
   session: FriendsSession,
-  secret: Uint8Array,
-  r: Uint8Array,
+  friend: Pick<Friend, "key" | "handshake">,
   book: FriendBook,
   today: string,
 ): Promise<"written" | "conflict"> {
-  const address = handshakeAddress(secret, pairKey(secret, r));
+  if (!friend.handshake) throw new Error("No handshake to write");
+  const address = handshakeAddress(secretBytes(friend.handshake.secret), secretBytes(friend.key));
   const message: HandshakeMessage = {
     t: "handshake",
     v: MESSAGE_VERSION,
     selfId: book.selfId,
     name: book.name,
     at: today,
-    r: toBase64Url(r),
+    pub: friend.handshake.pub,
   };
   return session.api.putBox(
     { id: address.id, token: address.token, kind: "handshake", ...(await sealBox(address.key, message)) },
@@ -231,9 +244,12 @@ async function writeHandshake(
 }
 
 /**
- * Accepts an invite: saves the friend (waiting, with S and R) first, then writes
- * the handshake box. Accepting the same invite again resumes with the same R,
- * so a retry after a lost answer is never "already used".
+ * Accepts an invite: makes this device's exchange key, derives K from S and
+ * the ECDH secret with the inviter's public key, saves the friend (waiting,
+ * with K, S and our public key) first, then writes the handshake box. The
+ * private half is used once and dropped: K is all the friendship needs.
+ * Accepting the same invite again resumes with the saved entry, so a retry
+ * after a lost answer is never "already used".
  */
 export async function acceptInvite(
   session: FriendsSession,
@@ -246,14 +262,11 @@ export async function acceptInvite(
   if (state.book.invites.some((pending) => pending.secret === encoded) || invite.selfId === state.book.selfId) {
     throw new OwnInviteError();
   }
-  const earlier = state.book.friends.find((friend) => friend.handshake?.secret === encoded);
   let next = state;
-  let r: Uint8Array;
-  if (earlier?.handshake) {
-    r = secretBytes(earlier.handshake.r);
-  } else {
-    r = randomSecret();
-    const key = toBase64Url(pairKey(secret, r));
+  let entry = state.book.friends.find((friend) => friend.handshake?.secret === encoded);
+  if (!entry) {
+    const keys = await newExchangeKeys();
+    const key = toBase64Url(pairKey(secret, await exchangeSecret(keys.privateKey, invite.pub)));
     next = await updateBook(session, state, (book) =>
       addFriend(book, {
         selfId: invite.selfId,
@@ -262,12 +275,14 @@ export async function acceptInvite(
         role: "joiner",
         state: "waiting",
         since: today,
-        handshake: { secret: encoded, r: toBase64Url(r) },
+        handshake: { secret: encoded, pub: keys.publicKey },
       }),
     );
+    entry = next.book.friends.find((friend) => friend.key === key);
+    if (!entry) throw new Error("Friend not saved");
   }
-  if ((await writeHandshake(session, secret, r, next.book, today)) === "conflict") {
-    const key = toBase64Url(pairKey(secret, r));
+  const key = entry.key;
+  if ((await writeHandshake(session, entry, next.book, today)) === "conflict") {
     await updateBook(session, next, (book) => ({ ...book, friends: book.friends.filter((friend) => friend.key !== key) }));
     throw new InviteUsedError();
   }
@@ -301,9 +316,14 @@ async function bestEffort(work: () => Promise<unknown>): Promise<void> {
  */
 export async function refreshFriends(
   session: FriendsSession,
-  state: BookState,
+  _known: BookState | null,
   today: string,
 ): Promise<{ state: BookState; cards: FriendCard[] }> {
+  // Always from the host's book, never the caller's copy: another device may
+  // have revoked an invite, removed a friend, or turned Friends off and on
+  // (a new book starts at version 1 again). FriendsOffError if it is gone.
+  const state = await loadBook(session);
+  if (!state) throw new FriendsOffError();
   const invites = state.book.invites.map((invite) => {
     const secret = secretBytes(invite.secret);
     return { invite, secret, handshake: handshakeLocation(secret), box: inviteAddress(secret) };
@@ -324,16 +344,18 @@ export async function refreshFriends(
 
   const answered: { secret: string; pair: string; message: HandshakeMessage }[] = [];
   const expired: string[] = [];
-  const missingInviteBoxes: Uint8Array[] = [];
+  const missingInviteBoxes: { secret: string; pub: string }[] = [];
   for (const item of invites) {
-    const message = await openOrNull(item.handshake.key, boxes[item.handshake.id], parseHandshakeMessage);
-    const r = message ? fromBase64Url(message.r) : null;
-    if (message && r) {
-      answered.push({ secret: item.invite.secret, pair: toBase64Url(pairKey(item.secret, r)), message });
-    } else if (daysBetween(item.invite.createdAt, today) >= BOX_TTL_DAYS.invite) {
+    const expiredNow = daysBetween(item.invite.createdAt, today) >= BOX_TTL_DAYS.invite;
+    const message = expiredNow ? null : await openOrNull(item.handshake.key, boxes[item.handshake.id], parseHandshakeMessage);
+    const shared = message ? await exchangeSecret(item.invite.key, message.pub).catch(() => null) : null;
+    if (message && shared) {
+      answered.push({ secret: item.invite.secret, pair: toBase64Url(pairKey(item.secret, shared)), message });
+    } else if (expiredNow) {
+      // Past the invite's life even if someone answers later: never accepted.
       expired.push(item.invite.secret);
-    } else if (!boxes[item.box.id]) {
-      missingInviteBoxes.push(item.secret);
+    } else if (!boxes[item.box.id] && !boxes[item.handshake.id]) {
+      missingInviteBoxes.push({ secret: item.invite.secret, pub: item.invite.pub });
     }
   }
 
@@ -341,8 +363,10 @@ export async function refreshFriends(
   const lostHandshakes: Friend[] = [];
   for (const item of friends) {
     const status = await openOrNull(item.theirs.key, boxes[item.theirs.id], parseStatusMessage);
-    if (status) statuses.set(item.friend.key, status);
-    else if (item.handshakeId && !boxes[item.handshakeId]) lostHandshakes.push(item.friend);
+    // The friend's id is pinned when the friendship starts (invite or
+    // handshake): a status naming another person is not theirs to send.
+    if (status && (!item.friend.selfId || status.selfId === item.friend.selfId)) statuses.set(item.friend.key, status);
+    else if (!status && item.handshakeId && !boxes[item.handshakeId]) lostHandshakes.push(item.friend);
   }
 
   let dropped: Friend[] = [];
@@ -368,13 +392,28 @@ export async function refreshFriends(
     for (const secret of expired) next = removeInvite(next, secret);
     for (const friend of next.friends) {
       const status = statuses.get(friend.key);
-      if (!status) continue;
+      if (!status || friend.state === "ended") continue;
       const update: Parameters<typeof updateFriend>[2] = {};
-      if (friend.selfId !== status.selfId) update.selfId = status.selfId;
-      if (status.state !== "ended" && status.name && status.name !== friend.name) update.name = status.name;
-      if (friend.state === "waiting") {
-        update.state = "active";
+      if (!friend.selfId) update.selfId = status.selfId;
+      const duplicate =
+        status.state === "ended" &&
+        next.friends.some((other) => other.id !== friend.id && other.selfId === status.selfId && other.state !== "ended");
+      if (duplicate) {
+        // The other device merged two entries for us (both invited each
+        // other) and ended this one: drop it quietly, the other stays.
+        next = removeFriend(next, friend.id);
+        continue;
+      }
+      if (status.state === "ended") {
+        // Kept in the book so the card still says so once their box expires.
+        update.state = "ended";
         update.handshake = undefined;
+      } else {
+        if (status.name && status.name !== friend.name) update.name = status.name;
+        if (friend.state === "waiting") {
+          update.state = "active";
+          update.handshake = undefined;
+        }
       }
       if (Object.keys(update).length > 0) next = updateFriend(next, friend.id, update);
     }
@@ -397,17 +436,19 @@ export async function refreshFriends(
       session.account,
     ),
   );
-  for (const secret of missingInviteBoxes) await bestEffort(() => writeInviteBox(session, secret, saved.book, today));
+  // Only invites the saved book still holds: one revoked on another device stays revoked.
+  for (const { secret, pub } of missingInviteBoxes) {
+    if (!saved.book.invites.some((invite) => invite.secret === secret)) continue;
+    await bestEffort(() => writeInviteBox(session, secretBytes(secret), pub, saved.book, today));
+  }
   for (const friend of lostHandshakes) {
     const current = saved.book.friends.find((entry) => entry.key === friend.key);
-    if (!current?.handshake) continue;
-    const { secret, r } = current.handshake;
-    await bestEffort(() => writeHandshake(session, secretBytes(secret), secretBytes(r), saved.book, today));
+    if (!current?.handshake || current.state !== "waiting") continue;
+    await bestEffort(() => writeHandshake(session, current, saved.book, today));
   }
-  for (const friend of dropped) {
-    const mine = statusAddress(secretBytes(friend.key), friend.role);
-    await bestEffort(() => session.api.deleteBoxes([{ id: mine.id, token: mine.token }], session.account));
-  }
+  // A merged duplicate: tell the other device, which drops its entry for this
+  // pair too (it may still be waiting on it).
+  for (const friend of dropped) await bestEffort(() => tellEnded(session, saved.book, friend, today));
 
   return {
     state: saved,
@@ -417,7 +458,9 @@ export async function refreshFriends(
 
 /** The messages publishStatus would write, as one string: publish again only when it changes. */
 export function statusFingerprint(book: FriendBook, diary: Diary, today: string): string {
-  return JSON.stringify(book.friends.map((friend) => [friend.key, statusFor(book, friend, diary, today)]));
+  return JSON.stringify(
+    book.friends.filter(publishesTo).map((friend) => [friend.key, statusFor(book, friend, diary, today)]),
+  );
 }
 
 function statusFor(book: FriendBook, friend: Friend, diary: Diary, today: string): StatusMessage {
@@ -440,10 +483,28 @@ export async function publishStatus(
 ): Promise<void> {
   for (const friend of book.friends) {
     if (only && !only.includes(friend.id)) continue;
+    if (!publishesTo(friend)) continue;
     const mine = statusAddress(secretBytes(friend.key), friend.role);
     const sealed = await sealBox(mine.key, statusFor(book, friend, diary, today));
     await session.api.putBox({ id: mine.id, token: mine.token, kind: "status", ...sealed }, session.account);
   }
+}
+
+/**
+ * Publishes from the book as the host has it now, never from a copy another
+ * device may have changed since (a friend removed or paused there, Friends
+ * turned off). Returns that book, or null when Friends is off (nothing written).
+ */
+export async function publishFromLatest(
+  session: FriendsSession,
+  diary: Diary,
+  today: string,
+  only?: string[],
+): Promise<BookState | null> {
+  const latest = await loadBook(session);
+  if (!latest) return null;
+  await publishStatus(session, latest.book, diary, today, only);
+  return latest;
 }
 
 async function tellEnded(session: FriendsSession, book: FriendBook, friend: Friend, today: string) {
@@ -452,7 +513,11 @@ async function tellEnded(session: FriendsSession, book: FriendBook, friend: Frie
   await session.api.putBox({ id: mine.id, token: mine.token, kind: "status", ...sealed }, session.account);
 }
 
-/** Removes a friend: tells their device first, then drops them from the book. */
+/**
+ * Removes a friend: drops them from the book first (so no device that reloads
+ * the book publishes to them again), then tells their device (best effort; if
+ * that is lost, their card goes to "no recent update" and the box expires).
+ */
 export async function removeFriendAndTell(
   session: FriendsSession,
   state: BookState,
@@ -461,8 +526,9 @@ export async function removeFriendAndTell(
 ): Promise<BookState> {
   const friend = state.book.friends.find((entry) => entry.id === friendId);
   if (!friend) return state;
-  await tellEnded(session, state.book, friend, today);
-  return updateBook(session, state, (book) => removeFriend(book, friendId));
+  const next = await updateBook(session, state, (book) => removeFriend(book, friendId));
+  if (publishesTo(friend)) await bestEffort(() => tellEnded(session, next.book, friend, today));
+  return next;
 }
 
 /**
@@ -476,12 +542,17 @@ export async function leaveFriends(session: FriendsSession, today: string): Prom
 }
 
 /**
- * Turns Friends off: tells every friend it ended and deletes pending invites
- * (best effort: what is missed nobody can read, and expires), then deletes the
- * book (must succeed). Also run before the account is deleted.
+ * Turns Friends off: deletes the book first (must succeed; from then on no
+ * device that reloads it publishes anything), then tells every friend it ended
+ * and deletes pending invites, with the keys still in memory (best effort:
+ * what is missed nobody can read, and expires). Also run before the account
+ * is deleted.
  */
 export async function turnOffFriends(session: FriendsSession, state: BookState, today: string): Promise<void> {
-  for (const friend of state.book.friends) await bestEffort(() => tellEnded(session, state.book, friend, today));
+  await session.api.deleteBook(session.account);
+  for (const friend of state.book.friends) {
+    if (publishesTo(friend)) await bestEffort(() => tellEnded(session, state.book, friend, today));
+  }
   await bestEffort(() =>
     session.api.deleteBoxes(
       state.book.invites.map((invite) => {
@@ -491,5 +562,4 @@ export async function turnOffFriends(session: FriendsSession, state: BookState, 
       session.account,
     ),
   );
-  await session.api.deleteBook(session.account);
 }

@@ -44,13 +44,18 @@ export const MAX_NOTE_LENGTH = 140;
 /**
  * How long each kind of box lives, in days, before the host may drop it. The
  * host rounds the expiry up to a whole week, so the stored time says little
- * about when the box was written.
+ * about when the box was written, and a box can live up to 7 days more. The
+ * privacy policy promises at most 7 weeks (MAX_BOX_LIFE_DAYS): keep every
+ * value plus 7 within it (limits.test.ts checks).
  */
 export const BOX_TTL_DAYS = {
   invite: 7,
   handshake: 30,
-  status: 45,
+  status: 42,
 } as const;
+
+/** The longest any box may live, rounding included, as the privacy policy says ("7 weeks"). */
+export const MAX_BOX_LIFE_DAYS = 49;
 
 export type BoxKind = keyof typeof BOX_TTL_DAYS;
 

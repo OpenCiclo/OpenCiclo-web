@@ -6,6 +6,8 @@ import { describe, expect, it } from "vitest";
 import { cycleOverview } from "@/lib/cycle/phases";
 import { showsPeriodDue } from "@/lib/cycle/phase-timeline";
 import { addDaysIso, parseDiary } from "@/lib/diary";
+import { newExchangeKeys } from "@/lib/friends/crypto";
+import { BOX_TTL_DAYS } from "@/lib/friends/limits";
 
 import {
   buildStatus,
@@ -14,6 +16,7 @@ import {
   parseInviteMessage,
   parseStatusMessage,
   readStatus,
+  STALE_AFTER_DAYS,
   visibleNote,
   type SharerProfile,
   type StatusMessage,
@@ -137,9 +140,10 @@ describe("friend status", () => {
     expect(visibleNote(status, "2026-10-02")).toBeNull();
   });
 
-  it("reads an old status as no recent update", () => {
+  it("reads an old status as no recent update, before its box could expire", () => {
     const status = buildStatus(diaryWithStarts(STARTS), "2026-09-30", profile);
     expect(readStatus(status, "2026-12-15")).toEqual({ kind: "stale" });
+    expect(STALE_AFTER_DAYS).toBeLessThan(BOX_TTL_DAYS.status);
   });
 });
 
@@ -171,12 +175,27 @@ describe("parsing a friend's messages", () => {
     expect(parseStatusMessage({ ...status, show: { day: "yes" } })?.show).toEqual({ day: false, expected: false });
   });
 
-  it("checks invites and handshakes", () => {
-    const invite = { t: "invite", v: 1, selfId: SELF, name: "Emma", at: "2026-09-30" };
+  it("checks invites and handshakes, which carry a public exchange key and never a secret", async () => {
+    const { publicKey } = await newExchangeKeys();
+    const invite = { t: "invite", v: 1, selfId: SELF, name: "Emma", at: "2026-09-30", pub: publicKey };
     expect(parseInviteMessage(invite)).toEqual(invite);
     expect(parseInviteMessage({ ...invite, selfId: 3 })).toBeNull();
-    const handshake = { t: "handshake", v: 1, selfId: SELF, name: "Ana", at: "2026-09-30", r: "A".repeat(43) };
+    expect(parseInviteMessage({ ...invite, pub: undefined })).toBeNull();
+    const handshake = { t: "handshake", v: 1, selfId: SELF, name: "Ana", at: "2026-09-30", pub: publicKey };
     expect(parseHandshakeMessage(handshake)).toEqual(handshake);
-    expect(parseHandshakeMessage({ ...handshake, r: "short" })).toBeNull();
+    expect(parseHandshakeMessage({ ...handshake, pub: "short" })).toBeNull();
+    // The old shape with a joiner secret R is refused.
+    expect(parseHandshakeMessage({ ...handshake, pub: undefined, r: "A".repeat(43) })).toBeNull();
+  });
+
+  it("always writes what it reads back, whatever the bleed length in the diary", () => {
+    const days: Record<string, object> = {};
+    // A 35-day bleed logged by mistake: the status clamps it rather than becoming unreadable.
+    for (let offset = 0; offset < 35; offset += 1) days[addDaysIso("2026-09-23", offset)] = { flow: "light", symptoms: {} };
+    const diary = diaryWithStarts(STARTS, days);
+    for (let offset = 0; offset < 40; offset += 1) {
+      const built = buildStatus(diary, addDaysIso("2026-09-23", offset), profile);
+      expect(parseStatusMessage(JSON.parse(JSON.stringify(built)))).toEqual(built);
+    }
   });
 });

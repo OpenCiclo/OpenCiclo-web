@@ -7,7 +7,7 @@ import { describe, expect, it } from "vitest";
 
 import { MIGRATIONS_DIR } from "@/lib/db/migration-files";
 
-import { BOX_CIPHERTEXT_LENGTH, MAX_BOOK_CIPHERTEXT_LENGTH, NONCE_LENGTH } from "./limits";
+import { BOX_CIPHERTEXT_LENGTH, BOX_TTL_DAYS, MAX_BOOK_CIPHERTEXT_LENGTH, MAX_BOX_LIFE_DAYS, NONCE_LENGTH } from "./limits";
 
 describe("friend size limits", () => {
   const sql = readFileSync(join(MIGRATIONS_DIR, "0008_friends.sql"), "utf8");
@@ -18,6 +18,11 @@ describe("friend size limits", () => {
     expect(sql).toContain(`length(ciphertext) = ${BOX_CIPHERTEXT_LENGTH}`);
     expect(sql).toContain(`length(nonce) = ${NONCE_LENGTH}`);
     expect(sql).toContain(`length(ciphertext) <= ${MAX_BOOK_CIPHERTEXT_LENGTH}`);
+  });
+
+  it("keep every box within the 7 weeks the privacy policy promises, weekly rounding included", () => {
+    for (const days of Object.values(BOX_TTL_DAYS)) expect(days + 7).toBeLessThanOrEqual(MAX_BOX_LIFE_DAYS);
+    expect(MAX_BOX_LIFE_DAYS).toBe(7 * 7);
   });
 
   it("give friend_boxes no account column and no write time", () => {

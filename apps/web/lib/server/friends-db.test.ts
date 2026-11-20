@@ -2,7 +2,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { eq, sql } from "drizzle-orm";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+
+// The cleanup prunes friend boxes only once Friends is available.
+vi.mock("@/lib/features", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/lib/features")>()),
+  FRIENDS_AVAILABLE: true,
+}));
 
 import * as schema from "@/lib/db/schema";
 import { inRolledBackTransaction, insertTestAccount, testDatabaseUrl } from "@/lib/db/test-db";
@@ -10,6 +16,7 @@ import { BOX_CIPHERTEXT_LENGTH } from "@/lib/friends/limits";
 import { pruneEphemeralRows } from "@/lib/server/rate-limit";
 
 import {
+  boxExists,
   boxExpiry,
   boxHash,
   deleteBoxes,
@@ -88,15 +95,21 @@ describe.skipIf(!testDatabaseUrl)("friend boxes against Postgres", () => {
     });
   });
 
-  it("hides expired boxes, lets their address be taken again, and prunes them", async () => {
+  it("hides expired boxes, never hands their address to another token, and prunes them", async () => {
     await inRolledBackTransaction(async (db) => {
-      await putBox(db, { id: ID, token: TOKEN, kind: "invite", ...sealed("a") }, NOW);
-      const later = new Date(boxExpiry("invite", NOW).getTime() + 1000);
+      await putBox(db, { id: ID, token: TOKEN, kind: "handshake", ...sealed("a") }, NOW);
+      const later = new Date(boxExpiry("handshake", NOW).getTime() + 1000);
       expect(await readBoxes(db, [ID], later)).toEqual({});
-      expect(await putBox(db, { id: ID, token: OTHER_TOKEN, kind: "invite", ...sealed("b") }, later)).toBe("written");
+      expect(await boxExists(db, ID)).toBe(true);
+      // An old invite link must not let someone else answer once the used handshake expired.
+      expect(await putBox(db, { id: ID, token: OTHER_TOKEN, kind: "handshake", ...sealed("b") }, later)).toBe("conflict");
+      // Its own writer can revive it.
+      expect(await putBox(db, { id: ID, token: TOKEN, kind: "handshake", ...sealed("c") }, later)).toBe("written");
+      expect(await readBoxes(db, [ID], later)).toEqual({ [ID]: sealed("c") });
       await pruneEphemeralRows(db, new Date(later.getTime() + 60 * 24 * 60 * 60 * 1000));
       const left = await db.select().from(schema.friendBoxes).where(eq(schema.friendBoxes.boxHash, boxHash(ID)));
       expect(left).toEqual([]);
+      expect(await boxExists(db, ID)).toBe(false);
     });
   });
 

@@ -1,20 +1,28 @@
 // Copyright © 2026 Emma Flora Harbison & Luis Rey Sánchez
 // SPDX-License-Identifier: Apache-2.0
 
-// Keys and addresses for Friends. Everything comes from two random secrets
-// with HKDF-SHA-256 and is sealed with AES-256-GCM (lib/crypto/aes.ts):
+// Keys and addresses for Friends. HKDF-SHA-256, AES-256-GCM (lib/crypto/aes.ts)
+// and an ECDH P-256 exchange (WebCrypto), no other primitive:
 //
 //   S  32 random bytes the inviter puts in the invite link's fragment (never
 //      sent to the host). Gives the invite box and the handshake box.
-//   R  32 random bytes the joiner puts in the handshake box (sealed under S).
-//   K  = HKDF(S ‖ R): the pair key. Gives one status box per direction.
+//   A  an ECDH key pair the inviter makes for this invite: the private half
+//      stays in the inviter's sealed friend book, the public half goes in the
+//      invite box.
+//   B  an ECDH key pair the joiner makes when accepting: its public half goes
+//      in the handshake box, its private half is used once and dropped.
+//   K  = HKDF(S ‖ ECDH(A, B)): the pair key. Gives one status box per direction.
+//
+// Anyone holding the link can open the invite and handshake boxes (they are
+// sealed under S) and see both public keys, but not K: that needs one of the
+// private halves. So the link alone never reads or writes the pair's statuses.
 //
 // Each box has an id (its address; the host stores SHA-256 of it), a write
 // token (the host stores SHA-256 of it and lets only its holder replace or
-// delete the box) and a seal key. All are separate derivations; S, R and K are
-// never used as keys directly. The handshake token comes from K, so only the
-// joiner who chose R can ever replace the handshake box, and a second person
-// with the same link gets 409.
+// delete the box) and a seal key. All are separate derivations; S, the shared
+// secret and K are never used as keys directly. The handshake token comes from
+// K, so only the joiner who made B can ever replace the handshake box, and a
+// second person with the same link gets 409.
 //
 // Labels are part of the format: changing one breaks every friendship.
 
@@ -22,7 +30,7 @@ import { hkdf } from "@noble/hashes/hkdf.js";
 import { sha256 } from "@noble/hashes/sha2.js";
 
 import { decryptAesGcm, encryptAesGcm } from "@/lib/crypto/aes";
-import { base64ToBytes, bytesToBase64, bytesToHex, bytesToUtf8, utf8ToBytes } from "@/lib/crypto/bytes";
+import { base64ToBytes, bytesToBase64, bytesToHex, bytesToUtf8, toBufferSource, utf8ToBytes } from "@/lib/crypto/bytes";
 import {
   BOOK_PAD_STEP_BYTES,
   BOX_PLAINTEXT_BYTES,
@@ -82,11 +90,55 @@ export function handshakeLocation(secret: Uint8Array): { id: string; key: Uint8A
   };
 }
 
-export function pairKey(secret: Uint8Array, joinerSecret: Uint8Array): Uint8Array {
-  const ikm = new Uint8Array(secret.length + joinerSecret.length);
+/** K from the invite secret and the ECDH shared secret of the two key pairs. */
+export function pairKey(secret: Uint8Array, shared: Uint8Array): Uint8Array {
+  const ikm = new Uint8Array(secret.length + shared.length);
   ikm.set(secret, 0);
-  ikm.set(joinerSecret, secret.length);
+  ikm.set(shared, secret.length);
   return derive(ikm, "ciclo-friends-pair-v1");
+}
+
+const ECDH = { name: "ECDH", namedCurve: "P-256" } as const;
+
+/** An ECDH P-256 key pair: private half as PKCS#8, public half raw (65 bytes), both URL-safe base64. */
+export type ExchangeKeys = { privateKey: string; publicKey: string };
+
+/** A public key read from a message that is not one (wrong length or not on the curve). */
+export class BadExchangeKeyError extends Error {
+  constructor() {
+    super("Not an exchange key");
+    this.name = "BadExchangeKeyError";
+  }
+}
+
+export async function newExchangeKeys(): Promise<ExchangeKeys> {
+  const pair = await crypto.subtle.generateKey(ECDH, true, ["deriveBits"]);
+  const privateKey = new Uint8Array(await crypto.subtle.exportKey("pkcs8", pair.privateKey));
+  const publicKey = new Uint8Array(await crypto.subtle.exportKey("raw", pair.publicKey));
+  return { privateKey: toBase64Url(privateKey), publicKey: toBase64Url(publicKey) };
+}
+
+/** Whether `value` looks like a raw P-256 public key (uncompressed point, 65 bytes). */
+export function isExchangePublicKey(value: unknown): value is string {
+  if (typeof value !== "string" || !/^[A-Za-z0-9_-]{87}$/.test(value)) return false;
+  const bytes = fromBase64Url(value);
+  return bytes !== null && bytes.length === 65 && bytes[0] === 0x04;
+}
+
+/** The 32-byte ECDH shared secret of our private key and their public key. */
+export async function exchangeSecret(privateKey: string, peerPublicKey: string): Promise<Uint8Array> {
+  const privateBytes = fromBase64Url(privateKey);
+  const publicBytes = isExchangePublicKey(peerPublicKey) ? fromBase64Url(peerPublicKey) : null;
+  if (!privateBytes || !publicBytes) throw new BadExchangeKeyError();
+  let ours: CryptoKey;
+  let theirs: CryptoKey;
+  try {
+    ours = await crypto.subtle.importKey("pkcs8", toBufferSource(privateBytes), ECDH, false, ["deriveBits"]);
+    theirs = await crypto.subtle.importKey("raw", toBufferSource(publicBytes), ECDH, false, []);
+  } catch {
+    throw new BadExchangeKeyError();
+  }
+  return new Uint8Array(await crypto.subtle.deriveBits({ name: "ECDH", public: theirs }, ours, 256));
 }
 
 /** The status box written by `role`: only that side has its token. */

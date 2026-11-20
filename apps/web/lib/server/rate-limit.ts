@@ -9,7 +9,9 @@ import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 import { bytesToHex, utf8ToBytes } from "@/lib/crypto/bytes";
 import type * as schema from "@/lib/db/schema";
 import { authChallenges, friendBoxes, mailboxPending, rateLimitHits, recoveryAttempts } from "@/lib/db/schema";
+import { FRIENDS_AVAILABLE } from "@/lib/features";
 import { hashIp, jsonError, requireSecret } from "@/lib/server/env";
+import { describeError } from "@/lib/server/http";
 
 type Db = PostgresJsDatabase<typeof schema>;
 
@@ -56,8 +58,14 @@ export const RATE_LIMITS = {
   // host-wide cap on box writes, far above real use, to alert on.
   "friends-book-write": { max: 300, windowMs: HOUR },
   "friends-box-write": { max: 300, windowMs: HOUR },
+  "friends-box-write-day": { max: 1500, windowMs: DAY },
   "friends-box-read": { max: 600, windowMs: HOUR },
   "friends-box-write-global": { max: 20_000, windowMs: HOUR, alert: true },
+  // New box addresses (what takes storage): a person needs a handful a day
+  // (invites, answers, one status per new friend). Host-wide, a cap sized
+  // against the database plan, to alert on.
+  "friends-box-create": { max: 60, windowMs: DAY },
+  "friends-box-create-global": { max: 5_000, windowMs: DAY, alert: true },
 } as const satisfies Record<string, RateLimit>;
 
 export type RateLimitBucket = keyof typeof RATE_LIMITS;
@@ -251,7 +259,14 @@ export async function pruneEphemeralRows(db: Db, now = new Date()) {
   await db.delete(recoveryAttempts).where(lt(recoveryAttempts.createdAt, cutoff));
   await db.delete(authChallenges).where(lt(authChallenges.expiresAt, now));
   await db.delete(mailboxPending).where(lt(mailboxPending.expiresAt, now));
-  await db.delete(friendBoxes).where(lt(friendBoxes.expiresAt, now));
+  // Only once Friends is on: until then production may not have 0008 yet, and
+  // a missing table must never fail the request this cleanup rides on.
+  if (FRIENDS_AVAILABLE) {
+    await db
+      .delete(friendBoxes)
+      .where(lt(friendBoxes.expiresAt, now))
+      .catch((error: unknown) => console.error(`FRIEND_BOX_PRUNE_FAILED ${describeError(error)}`));
+  }
 }
 
 export function tooManyRequests(): Response {
