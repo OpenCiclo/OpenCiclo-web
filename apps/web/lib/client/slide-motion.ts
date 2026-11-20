@@ -1,20 +1,20 @@
 // Copyright © 2026 Emma Flora Harbison & Luis Rey Sánchez
 // SPDX-License-Identifier: Apache-2.0
 
-// The spring that moves the strip of screens while the tab bar selection is
-// dragged (see FloatingTabBar and TabGhosts).
+// The spring that moves a strip of panels with the finger and lands it when
+// the finger lifts: the months beside the calendar during a swipe (see
+// useMonthSwipe).
 
-import { type Spring, stepSpring } from "@/lib/client/tab-drag";
+import { type Spring, stepSpring } from "@/lib/client/tab-motion";
 
 /**
- * Stiffness of the spring that keeps the screens with the finger: critically
+ * Stiffness of the spring that keeps the panels with the finger: critically
  * damped, it trails by about 20 ms, enough to smooth out uneven touch events.
  */
 const FOLLOW_STIFFNESS = 2400;
 /**
- * Softer when the screens are far from the finger, as when a drag starts on
- * another tab and they have a screen or two to cover: they get there with the
- * selection, instead of snapping across.
+ * Softer when the panels are far from the finger: they catch up smoothly
+ * instead of snapping across.
  */
 const CATCH_UP_STIFFNESS = 420;
 /** Distances, in screens, over which following turns into catching up. */
@@ -32,7 +32,7 @@ const STEP = 1 / 240;
 const MAX_FRAME = 0.05;
 
 /**
- * A position along the tabs on a critically damped spring, one animation
+ * A position along a strip of panels on a critically damped spring, one animation
  * frame at a time: it never bounces. `paint` gets each frame, clamped to
  * 0..`max`.
  */

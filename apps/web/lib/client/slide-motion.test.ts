@@ -3,9 +3,9 @@
 
 import { describe, expect, it } from "vitest";
 
-import { followStiffness } from "@/lib/client/screen-carousel";
+import { followStiffness } from "@/lib/client/slide-motion";
 
-describe("screen carousel", () => {
+describe("slide motion", () => {
   it("keeps up with the finger close by, and catches up softer from far away", () => {
     expect(followStiffness(0)).toBe(followStiffness(0.1));
     expect(followStiffness(2)).toBeLessThan(followStiffness(0.1));

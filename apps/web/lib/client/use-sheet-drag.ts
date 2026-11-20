@@ -7,7 +7,7 @@ import { useRef } from "react";
 import type { MouseEvent, PointerEvent } from "react";
 
 import { useLatest } from "@/lib/client/hooks";
-import { resist } from "@/lib/client/tab-drag";
+import { resist } from "@/lib/client/tab-motion";
 import { VelocityTracker, sheetDragIntent, sheetShouldClose } from "@/lib/client/swipe";
 
 /** A drag can end in a click on the button it started on; that is not a tap. */
