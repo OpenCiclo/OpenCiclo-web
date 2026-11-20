@@ -798,6 +798,18 @@
   }
 }
 
+/* Friends: a light drifting along the far side of a friend's card (components/friends/friend-card.tsx). */
+@keyframes friend-drift {
+  from {
+    transform: translate3d(-150px, 0, 0) scale(0.85);
+    opacity: 0.16;
+  }
+  to {
+    transform: translate3d(24px, 26px, 0) scale(1.1);
+    opacity: 0.34;
+  }
+}
+
 @keyframes phase-nudge {
   to {
     transform: translateY(-2px);
@@ -851,6 +863,11 @@
   transform-box: fill-box;
   transform-origin: center;
   animation: phase-halo 2.2s ease-out infinite;
+}
+
+.friend-drift {
+  opacity: 0.25;
+  animation: friend-drift 17s ease-in-out infinite alternate;
 }
 
 .phase-nudge {
@@ -909,6 +926,7 @@ html.boot-splash #boot-splash {
   .phase-beat,
   .phase-halo,
   .phase-nudge,
+  .friend-drift,
   .phase-bar-grow {
     animation: none;
   }

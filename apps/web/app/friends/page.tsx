@@ -205,9 +205,10 @@ export default function FriendsPage() {
             <Card className="rounded-3xl p-4 text-sm text-muted-foreground">{t.friendsEmpty}</Card>
           ) : (
             <div className="flex flex-col gap-3">
-              {friends.cards.map((card) => (
+              {friends.cards.map((card, index) => (
                 <FriendPhaseCard
                   key={card.friend.id}
+                  index={index}
                   card={card}
                   today={today}
                   t={t}
