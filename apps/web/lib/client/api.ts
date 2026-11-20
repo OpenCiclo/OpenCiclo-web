@@ -50,16 +50,121 @@ async function parseJson(response: Response) {
   return payload;
 }
 
+/** A save the host refused because the encrypted diary is over its size cap (413). */
+export class VaultTooLargeError extends Error {
+  constructor() {
+    super("The diary is too large for the host");
+    this.name = "VaultTooLargeError";
+  }
+}
+
+/**
+ * The largest vault ciphertext the host takes: the server's
+ * `MAX_VAULT_CIPHERTEXT_LENGTH` (lib/server/vault-limits.ts), above which PUT
+ * /api/vault answers 413. Kept equal to it, never larger (lib/client/api.test.ts
+ * checks). Used to refuse a move to the host up front.
+ */
+export const MAX_HOSTED_VAULT_CIPHERTEXT_LENGTH = 512 * 1024;
+
+/** A sign-in skipped because the session it was for ended (signed out, another account opened). */
+export class SignInCancelledError extends Error {
+  constructor() {
+    super("The session this sign-in was for has ended");
+    this.name = "SignInCancelledError";
+  }
+}
+
+// A sign-out that could not reach the host leaves the session cookie (httpOnly:
+// only the host can clear it). This marks it, so it is cleared later.
+const LOGOUT_PENDING_KEY = "ciclo.logoutPending";
+
+// Sign-ins and sign-outs run one at a time, in the order they were asked for:
+// the session cookie is one slot, and the last Set-Cookie wins. A sign-out must
+// never clear the cookie of a sign-in that came after it, nor a late sign-in
+// replace the cookie of a newer one.
+let authChain: Promise<unknown> = Promise.resolve();
+let signInsPending = 0;
+let logoutsPending = 0;
+
+function inAuthOrder<T>(task: () => Promise<T>): Promise<T> {
+  const queued = authChain.then(task, task);
+  authChain = queued.catch(() => undefined);
+  return queued;
+}
+
+/** Resolves once the sign-ins and sign-outs asked for so far have finished. */
+export function authSettled(): Promise<void> {
+  return authChain.then(() => undefined);
+}
+
+// Android: clears the session cookie in the app's own cookie jar (the one native
+// HTTP uses), for a sign-out that cannot reach the host. Null on the web, where
+// only the host can clear an httpOnly cookie.
+let localSessionCookieClearer: (() => Promise<void>) | null = null;
+
+/** Android only: how to clear the session cookie on this device without the host. */
+export function setLocalSessionCookieClearer(clear: (() => Promise<void>) | null) {
+  localSessionCookieClearer = clear;
+}
+
+function writeLogoutPending(pending: boolean) {
+  try {
+    if (typeof localStorage === "undefined") return;
+    if (pending) localStorage.setItem(LOGOUT_PENDING_KEY, "1");
+    else localStorage.removeItem(LOGOUT_PENDING_KEY);
+  } catch {
+    // Storage off: the cookie expires on its own (30 days at most).
+  }
+}
+
+function logoutPending(): boolean {
+  try {
+    return typeof localStorage !== "undefined" && localStorage.getItem(LOGOUT_PENDING_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
 /**
  * Signs in. With `vault`, a sign-up: creates the account, with `vault` as its
  * first blob, if the host has none. Without it, a phrase with no account
  * throws AccountNotFoundError and nothing is created. Returns whether the
  * account was created.
+ *
+ * `isLive`: whether the session this sign-in is for is still the one open. If it
+ * ended before the sign-in starts, nothing is sent (SignInCancelledError). If it
+ * ended while the request was out, the cookie just set is marked for clearing
+ * (`retryPendingLogout`) instead of counting as a fresh session.
  */
 export async function loginWithWallet(
   wallet: Wallet,
   vault?: { ciphertext: string; nonce: string; schemaVersion: number },
   persist = true,
+  options: { isLive?: () => boolean } = {},
+): Promise<boolean> {
+  const live = () => !options.isLive || options.isLive();
+  signInsPending += 1;
+  let ended = false;
+  try {
+    return await inAuthOrder(async () => {
+      if (!live()) throw new SignInCancelledError();
+      const created = await signIn(wallet, vault, persist);
+      ended = !live();
+      // This session replaced any cookie a sign-out could not clear. A session
+      // that ended meanwhile must not stay signed in: its cookie is marked.
+      writeLogoutPending(ended);
+      return created;
+    });
+  } finally {
+    signInsPending -= 1;
+    if (ended) void retryPendingLogout();
+  }
+}
+
+async function signIn(
+  wallet: Wallet,
+  vault: { ciphertext: string; nonce: string; schemaVersion: number } | undefined,
+  persist: boolean,
 ): Promise<boolean> {
   const challenge = await parseJson(
     await apiFetch("/api/auth/challenge", {
@@ -95,9 +200,10 @@ export type VaultBlob = { ciphertext: string; nonce: string; schemaVersion: numb
 export type StorageMode = "hosted" | "device";
 
 export async function fetchVault(): Promise<{ blob: VaultBlob | null; version: number }> {
-  // Only called right after a successful sign-in, so 401/404 are failures, not
-  // "no diary yet". Returning null here would show an empty diary that the next
-  // save could upload over the real one.
+  // 401 (no session) and 404 (no account for the session) throw HttpError, never
+  // "no diary yet": returning null here would show an empty diary that the next
+  // save could upload over the real one. The caller signs in and asks again
+  // (lib/client/vault-sync.ts).
   const response = await apiFetch("/api/vault", {}, VAULT_LOAD_TIMEOUT_MS);
   const payload = (await parseJson(response)) as VaultBlob & { version?: number };
   return {
@@ -127,6 +233,7 @@ export async function putVault(blob: VaultBlob, baseVersion: number): Promise<Pu
     const current = (await response.json()) as VaultBlob & { version: number };
     return { ok: false, current };
   }
+  if (response.status === 413) throw new VaultTooLargeError();
   const payload = (await parseJson(response)) as { version: number };
   return { ok: true, version: payload.version };
 }
@@ -171,6 +278,53 @@ export async function deleteAccount(baseVersion?: number) {
   await parseJson(response);
 }
 
-export async function logoutSession() {
-  await apiFetch("/api/auth/logout", { method: "POST" });
+/**
+ * Ends the host session (clears the session cookie). Never throws: sign-out
+ * removes what this device keeps first, with or without a connection. Returns
+ * false when the cookie may still be on this device: the host could not be
+ * reached and (web) only it can clear the cookie. `retryPendingLogout` tries
+ * again (next start, back online). A later sign-in replaces the cookie anyway.
+ * In the Android app the cookie is then cleared in the app's own jar.
+ */
+export async function logoutSession(): Promise<boolean> {
+  logoutsPending += 1;
+  try {
+    return await inAuthOrder(async () => {
+      try {
+        const response = await apiFetch("/api/auth/logout", { method: "POST" });
+        if (!response.ok) throw new HttpError(response.status, `HTTP ${response.status}`);
+        writeLogoutPending(false);
+        return true;
+      } catch {
+        if (localSessionCookieClearer) {
+          try {
+            await localSessionCookieClearer();
+            writeLogoutPending(false);
+            return true;
+          } catch {
+            // Fall through: the next start tries the host again.
+          }
+        }
+        writeLogoutPending(true);
+        return false;
+      }
+    });
+  } finally {
+    logoutsPending -= 1;
+  }
+}
+
+/** A sign-out could not reach the host yet: its session cookie may still be in this browser. */
+export function isLogoutPending(): boolean {
+  return logoutPending();
+}
+
+/**
+ * Clears a session cookie that an offline sign-out left behind. Never throws.
+ * Skipped while a sign-in is running or waiting: its new cookie replaces the old
+ * one, and a sign-out ordered after it would end the new session.
+ */
+export async function retryPendingLogout(): Promise<boolean> {
+  if (!logoutPending() || signInsPending > 0 || logoutsPending > 0) return !logoutPending();
+  return logoutSession();
 }

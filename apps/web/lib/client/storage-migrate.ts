@@ -25,6 +25,11 @@ export type UnlockStoreState = {
   mnemonic: string | null;
   persist: boolean;
   persistCookie: boolean;
+  /**
+   * A phrase is kept but could not be read (Android Keystore failed). It may be
+   * the only copy: nothing may replace it until it is read or forgotten on purpose.
+   */
+  unreadable?: boolean;
 };
 
 export function readUnlockState(): UnlockStoreState {

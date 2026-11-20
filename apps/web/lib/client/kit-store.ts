@@ -1,8 +1,9 @@
 // Copyright © 2026 Emma Flora Harbison & Luis Rey Sánchez
 // SPDX-License-Identifier: Apache-2.0
 
-import { apiFetch } from "@/lib/client/http";
-import type { WrappedKit } from "@/lib/crypto/wrap";
+import { HttpError } from "@/lib/client/api";
+import { UpdateRequiredError, apiFetch } from "@/lib/client/http";
+import { UnsupportedKitError, unwrapMnemonic, type WrappedKit } from "@/lib/crypto/wrap";
 
 const KITS_KEY = "ciclo.kits";
 const LAST_EMAIL_KEY = "ciclo.lastEmail";
@@ -95,8 +96,55 @@ export async function fetchRemoteKit(email: string): Promise<WrappedKit> {
     body: JSON.stringify({ email: normalizeEmail(email) }),
   });
   // The server answers every email the same way (decoy kit if there is no
-  // account), so only the rate limit gets its own message.
+  // account), so only the rate limit gets its own message. A 5xx says nothing
+  // about the email either: it is the host failing, not a wrong password.
   if (response.status === 429) throw new RateLimitedError();
+  if (response.status >= 500) throw new HttpError(response.status, `HTTP ${response.status}`);
   if (!response.ok) throw new InvalidCredentialsError();
   return (await response.json()) as WrappedKit;
+}
+
+type OpenKitDeps = {
+  loadLocal: (email: string) => WrappedKit | null;
+  fetchRemote: (email: string) => Promise<WrappedKit>;
+  unwrap: (kit: WrappedKit, password: string) => Promise<string>;
+};
+
+const defaultOpenKitDeps: OpenKitDeps = {
+  loadLocal: loadLocalKit,
+  fetchRemote: fetchRemoteKit,
+  unwrap: unwrapMnemonic,
+};
+
+/**
+ * Opens the phrase with an email and password. Tries the kit cached on this
+ * device first; when it does not open (the password may have been changed on
+ * another device), asks the host for its kit. Only a kit that does not open is
+ * "wrong email or password" (InvalidCredentialsError; a decoy never opens, so
+ * unknown emails look the same). A kit with parameters this build does not take
+ * asks for an update. Network and host failures are thrown as they come. The
+ * caller saves `kit` on this device only once the sign-in it opens succeeds.
+ */
+export async function openKit(
+  email: string,
+  password: string,
+  deps: OpenKitDeps = defaultOpenKitDeps,
+): Promise<{ mnemonic: string; kit: WrappedKit }> {
+  const normalized = normalizeEmail(email);
+  const cached = deps.loadLocal(normalized);
+  if (cached) {
+    try {
+      return { mnemonic: await deps.unwrap(cached, password), kit: cached };
+    } catch (cause) {
+      if (cause instanceof UnsupportedKitError) throw new UpdateRequiredError("kit");
+      // Fall through to the host's kit.
+    }
+  }
+  const kit = await deps.fetchRemote(normalized);
+  try {
+    return { mnemonic: await deps.unwrap(kit, password), kit };
+  } catch (cause) {
+    if (cause instanceof UnsupportedKitError) throw new UpdateRequiredError("kit");
+    throw new InvalidCredentialsError();
+  }
 }

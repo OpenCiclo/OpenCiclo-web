@@ -3,6 +3,7 @@
 
 import { registerPlugin } from "@capacitor/core";
 
+import { androidPendingSignupStore } from "@/lib/client/pending-signup";
 import { androidPhraseStore } from "@/lib/client/phrase-store";
 import { deviceVaultBackend, type DeviceVaultPlugin } from "@/lib/device-vault";
 import { androidHostedCopyStore } from "@/lib/hosted-copy";
@@ -18,3 +19,6 @@ export const hostedPhraseStore = androidPhraseStore(deviceVault, { local: localS
 
 /** The sealed copy of a hosted diary that opens read-only without a connection. */
 export const hostedCopyStore = androidHostedCopyStore(deviceVault);
+
+/** An email sign-up waiting for its code, sealed in Keystore. */
+export const pendingSignupStore = androidPendingSignupStore(deviceVault);
