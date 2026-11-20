@@ -5,10 +5,11 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BookOpen, CalendarDays, Settings } from "lucide-react";
+import { BookOpen, CalendarDays, Settings, Users } from "lucide-react";
 
 import { hidesAppChrome } from "@/lib/client/app-chrome";
 import { useCiclo } from "@/lib/client/ciclo-context";
+import { useShowsFriendsTab } from "@/lib/client/friends-tab";
 import { type Messages } from "@/lib/i18n";
 import { LanguageSelect } from "@/components/language-select";
 import { cn } from "@/lib/utils";
@@ -23,6 +24,9 @@ const NAV: { href: string; label: keyof Messages; icon: typeof CalendarDays; pat
   { href: "/settings", label: "settings", icon: Settings, paths: ["/settings"] },
 ];
 
+// Between Calendar and Learn, when Friends is shown (useShowsFriendsTab).
+const NAV_WITH_FRIENDS = [NAV[0], { href: "/friends", label: "friends" as const, icon: Users, paths: ["/friends"] }, ...NAV.slice(1)];
+
 function isActive(pathname: string, paths: string[]) {
   return paths.some((path) => pathname === path || pathname.startsWith(`${path}/`));
 }
@@ -35,6 +39,7 @@ function isActive(pathname: string, paths: string[]) {
 export function DesktopHeader() {
   const { t, wallet } = useCiclo();
   const pathname = usePathname();
+  const nav = useShowsFriendsTab() ? NAV_WITH_FRIENDS : NAV;
   if (hidesAppChrome(pathname)) return null;
 
   return (
@@ -46,7 +51,7 @@ export function DesktopHeader() {
         </Link>
         {wallet ? (
           <nav aria-label={t.appName} className="flex items-center gap-1 rounded-full border border-border bg-card p-1 shadow-sm">
-            {NAV.map((item) => {
+            {nav.map((item) => {
               const Icon = item.icon;
               const active = isActive(pathname, item.paths);
               return (

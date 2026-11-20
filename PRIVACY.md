@@ -17,10 +17,11 @@ Ciclo provides cycle **forecasts**. Forecasts can be wrong. Ciclo is not a medic
 
 ## Consent
 
-Ciclo asks for consent twice, and each time it is separate and optional:
+Ciclo asks for consent separately for each of these, and each is optional:
 
 1. **Your diary.** Before a new diary is created (email and password, 12-word phrase, or "Only on this device" on Android), Ciclo shows what it stores and where, and asks you to tick "I agree"; the policy opens over the same screen. Diary data is health data and data about your sex life, so the legal basis is your explicit consent (GDPR articles 6(1)(a) and 9(2)(a)). Without the tick you cannot create a diary. The tick is not recorded anywhere: not in the diary, not on the server. You withdraw consent by deleting your account.
 2. **The anonymous research pool.** Off by default. You turn it on in Settings, with two boxes. It sends cycle lengths only (see below). Turning it off stops future uploads.
+3. **Friends** (built, not yet available). Off by default. You turn it on with a box on the Friends screen, then invite friends with a one-time link. Turning it off tells your friends and deletes your friend list.
 
 The sign-up step is new. People who created their diary before it existed never saw it and are not asked now; whether to ask them, and whether to keep a record of consent, are open questions for the legal review (docs/play/privacy-checklist.md).
 
@@ -57,6 +58,7 @@ In a Neon Postgres database in Frankfurt, Germany (or your own Postgres if you s
 | **Abuse protection**: an HMAC of your IP address (never the IP), with time and kind of request; for email codes and email sign-in also the email HMAC | Stop scripts from flooding the service | Usually about a day: deleted at the next automatic cleanup |
 | **Daily activity**: one row per account per UTC day it signs in (account id + date). The console shows counts only. | Count daily users, plan capacity | Until you delete the account |
 | **Research pool** (only if you opt in): whole-number cycle lengths, a hash of a random pool key that lives inside your encrypted diary, and the upload time. No dates, symptoms, notes, email, or account key. No link to your account. | An open, combined set of cycle lengths for the forecast model, later | Stays after you delete the account; we cannot find "your" rows |
+| **Friends** (built, not yet available; only if you turn it on): your friend list as one encrypted blob linked to your account; for each friend, an encrypted message with your name, your current phase inputs (current cycle start, expected next start, bleed length), your display choices and your note. Messages are sealed with a key only you and that friend hold (it travels in the invite link's fragment, never to us), carry no account, all have the same size, and expire. No symptoms, diary notes or past cycles. | Let you and the friends you invite see each other's cycle phase | Friend list: until you turn Friends off or delete the account. Messages: until you remove the friend or turn Friends off, at most about 7 weeks after the last write |
 
 The plaintext email reaches the server when you create the account, sign in on a device that does not have your wrapped phrase yet, change your password, or add an email sign-in. It is used in memory (to send the code or find the account) and never stored in Postgres. Our host, Vercel, also sees your IP address and ordinary request details to answer requests, and keeps short logs. Ciclo never logs diary contents, emails, phrases, or passwords.
 

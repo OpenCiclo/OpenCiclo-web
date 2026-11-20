@@ -11,6 +11,7 @@
 // the same commit. The owner's details (controller, email) come from
 // lib/marketing/copy.ts; the server region from vercel.json (lib/privacy/hosting.ts).
 
+import { FRIENDS_AVAILABLE } from "@/lib/features";
 import { formatIsoUtc } from "@/lib/format-date";
 import type { BaseLocale } from "@/lib/i18n";
 import { CONTROLLER, MARKETING_LINKS, PRIVACY_EMAIL, type Controller } from "@/lib/marketing/copy";
@@ -185,6 +186,17 @@ function policyEn(context: PolicyContext, updated: string): LegalDoc {
             "Your explicit consent (GDPR articles 6(1)(a) and 9(2)(a)), given with the two boxes in Settings. Turn it off at any time to stop future uploads.",
             "Rows already uploaded stay in the pool; no end date has been set. Because they cannot be linked to your account, we cannot find or delete them when you delete your account or ask us to. Settings says so before you agree.",
           ),
+          ...(FRIENDS_AVAILABLE
+            ? [
+                item(
+                  "Friends (optional, off by default)",
+                  "Only if you turn on Friends and add friends with an invite. Your friend list (the names and keys of your friends, your pending invites, the name your friends see, your note and your sharing choices) is encrypted on your device and stored as one blob linked to your account. For each friend, your device also stores a message for them: your name, your current phase and the estimated dates of your current cycle (its start, the expected next start and the expected length of a period), whether to show your cycle day and expected period, and your note. It is encrypted with a key only you and that friend hold, which travels in the invite link and never reaches us. These messages are stored with no account, all with the same size, and with an expiry date rounded to a week. Symptoms, diary notes and past cycles are never shared. We cannot read any of it, or see who your friends are; we can see that your account uses Friends and when your device makes requests.",
+                  "To show you and your friends each other's cycle phase, as you asked.",
+                  "Your explicit consent (GDPR articles 6(1)(a) and 9(2)(a)), given with the box on the Friends screen. Turn Friends off or remove a friend at any time.",
+                  "Your friend list: until you turn Friends off or delete your account. Messages to friends: until you remove the friend or turn Friends off, and otherwise they expire 7 weeks at most after your device last wrote them. A friend's device keeps showing what it last received until then.",
+                ),
+              ]
+            : []),
         ],
       },
       {
@@ -259,6 +271,11 @@ function policyEn(context: PolicyContext, updated: string): LegalDoc {
               "An email sign-up that was never confirmed (an account with an empty diary and a pending entry): until it is deleted on request. There is no automatic cleanup.",
               "Sign-in challenges expire after 5 minutes; abuse-protection records are kept for usually about a day. Both are deleted at the next automatic cleanup after that.",
               "Research pool rows: see “Research pool” above; they cannot be deleted by account.",
+              ...(FRIENDS_AVAILABLE
+                ? [
+                    "Friends: your friend list until you turn Friends off or delete your account; messages to friends expire 7 weeks at most after they were last written, sooner when you remove the friend.",
+                  ]
+                : []),
               "Backups: our database provider keeps a short restore history, and we may keep backup copies to recover from failures. Deleted data disappears from them as they expire or are replaced. Backups hold your diary encrypted, as it is stored.",
             ],
           },
@@ -272,6 +289,14 @@ function policyEn(context: PolicyContext, updated: string): LegalDoc {
             kind: "p",
             text: "You can delete your account and all data linked to it at any time, without reinstalling anything: sign in on the web or in the app, open Settings and choose **Delete account and diary**. Your encrypted diary, account key, email sign-in and daily activity rows are deleted at once.",
           },
+          ...(FRIENDS_AVAILABLE
+            ? [
+                {
+                  kind: "p" as const,
+                  text: "With Friends on, the app first tells your friends and deletes your friend list and invites. Messages your device left for friends are not linked to your account, so if they cannot be deleted then (no connection, an older app version), nobody can read them and they expire within 7 weeks.",
+                },
+              ]
+            : []),
           {
             kind: "p",
             text: "A diary kept only on your Android phone never reaches us: delete it in the app's Settings, clear the app's data, or uninstall the app.",
@@ -479,6 +504,17 @@ function policyEs(context: PolicyContext, updated: string): LegalDoc {
             "Tu consentimiento explícito (artículos 6.1.a y 9.2.a del RGPD), que das con las dos casillas de Ajustes. Desactívalo cuando quieras para que no se envíe nada más.",
             "Las filas ya enviadas se quedan en el pool; no se ha fijado una fecha de fin. Como no se pueden vincular a tu cuenta, no podemos encontrarlas ni borrarlas cuando borras la cuenta o nos lo pides. Ajustes lo avisa antes de que aceptes.",
           ),
+          ...(FRIENDS_AVAILABLE
+            ? [
+                item(
+                  "Amigas (opcional, desactivado por defecto)",
+                  "Solo si activas Amigas y añades amigas con una invitación. Tu lista de amigas (los nombres y claves de tus amigas, tus invitaciones pendientes, el nombre que ven tus amigas, tu nota y lo que eliges compartir) se cifra en tu dispositivo y se guarda como un único bloque vinculado a tu cuenta. Para cada amiga, tu dispositivo guarda además un mensaje para ella: tu nombre, tu fase actual y las fechas estimadas de tu ciclo actual (su inicio, el próximo inicio esperado y la duración esperada del periodo), si mostrar tu día del ciclo y tu periodo esperado, y tu nota. Se cifra con una clave que solo tenéis tú y esa amiga, que viaja en el enlace de invitación y nunca nos llega. Estos mensajes se guardan sin cuenta, todos del mismo tamaño y con una fecha de caducidad redondeada a la semana. Nunca se comparten síntomas, notas del diario ni ciclos pasados. No podemos leer nada de esto ni saber quiénes son tus amigas; sí vemos que tu cuenta usa Amigas y cuándo hace peticiones tu dispositivo.",
+                  "Para mostraros a ti y a tus amigas la fase del ciclo de cada una, como pediste.",
+                  "Tu consentimiento explícito (artículos 6.1.a y 9.2.a del RGPD), que das con la casilla de la pantalla Amigas. Desactiva Amigas o quita a una amiga cuando quieras.",
+                  "Tu lista de amigas: hasta que desactives Amigas o borres tu cuenta. Los mensajes para amigas: hasta que quites a la amiga o desactives Amigas y, si no, caducan como mucho 7 semanas después de que tu dispositivo los escribiera por última vez. Hasta entonces, el dispositivo de tu amiga sigue mostrando lo último que recibió.",
+                ),
+              ]
+            : []),
         ],
       },
       {
@@ -553,6 +589,11 @@ function policyEs(context: PolicyContext, updated: string): LegalDoc {
               "Un alta con correo que nunca se confirmó (una cuenta con el diario vacío y una entrada pendiente): hasta que se borra a petición. No hay limpieza automática.",
               "Los desafíos de acceso caducan a los 5 minutos; los registros de protección contra abusos se guardan normalmente alrededor de un día. Los dos se borran en la siguiente limpieza automática.",
               "Filas del pool de investigación: mira «Pool de investigación» arriba; no se pueden borrar por cuenta.",
+              ...(FRIENDS_AVAILABLE
+                ? [
+                    "Amigas: tu lista de amigas hasta que desactives Amigas o borres tu cuenta; los mensajes para amigas caducan como mucho 7 semanas después de su última escritura, antes si quitas a la amiga.",
+                  ]
+                : []),
               "Copias de seguridad: nuestro proveedor de base de datos guarda un historial breve para restaurar, y podemos guardar copias para recuperarnos de fallos. Lo borrado desaparece de ellas cuando caducan o se sustituyen. Las copias guardan tu diario cifrado, tal como está almacenado.",
             ],
           },
@@ -566,6 +607,14 @@ function policyEs(context: PolicyContext, updated: string): LegalDoc {
             kind: "p",
             text: "Puedes borrar tu cuenta y todos los datos vinculados a ella cuando quieras, sin reinstalar nada: entra en la web o en la app, abre Ajustes y elige **Borrar cuenta y diario**. Tu diario cifrado, la clave de la cuenta, el acceso con correo y las filas de actividad diaria se borran en el acto.",
           },
+          ...(FRIENDS_AVAILABLE
+            ? [
+                {
+                  kind: "p" as const,
+                  text: "Con Amigas activado, la app primero avisa a tus amigas y borra tu lista de amigas y tus invitaciones. Los mensajes que tu dispositivo dejó para tus amigas no están vinculados a tu cuenta; si no se pueden borrar en ese momento (sin conexión, una versión antigua de la app), nadie puede leerlos y caducan en 7 semanas como mucho.",
+                },
+              ]
+            : []),
           {
             kind: "p",
             text: "Un diario guardado solo en tu móvil Android nunca nos llega: bórralo en los Ajustes de la app, borra los datos de la app o desinstálala.",
