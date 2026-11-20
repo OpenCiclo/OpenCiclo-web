@@ -21,7 +21,13 @@ Phases are estimates from each person's own logs, the same as on your Calendar c
 3. Your friend opens the link, or pastes it in **Friends** → **I have an invite**, and accepts.
 4. The next time you open Friends, you see each other.
 
-Whoever opens a link first becomes your friend; anyone else gets "already used". A link works for 7 days. You can cancel an invite nobody has opened. Sharing is mutual: accepting means both of you see each other.
+Whoever opens a link first becomes your friend; anyone else gets "already used". A link works for 7 days. **Invite a friend** shows the link that is still waiting, if there is one; tap **New link for another friend** to invite someone else. Links nobody has opened are listed under **Invites waiting to be opened**, on the Friends screen and under each link, where you can cancel them. Sharing is mutual: accepting means both of you see each other.
+
+## How friends see you
+
+Under your note, **How friends see me** shows your own card as a friend you share with sees it today. Opening it sends nothing.
+
+The settings button at the top of the screen opens your name, what friends see, and **Turn off Friends**.
 
 ## Pausing, removing, turning off
 

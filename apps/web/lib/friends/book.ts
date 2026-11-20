@@ -13,7 +13,8 @@
 
 import { isIsoDate } from "@/lib/diary";
 import { randomId, type PairRole } from "@/lib/friends/crypto";
-import { MAX_FRIENDS, MAX_NAME_LENGTH, MAX_NOTE_LENGTH, MAX_PENDING_INVITES } from "@/lib/friends/limits";
+import { daysBetween } from "@/lib/forecast/math";
+import { BOX_TTL_DAYS, MAX_FRIENDS, MAX_NAME_LENGTH, MAX_NOTE_LENGTH, MAX_PENDING_INVITES } from "@/lib/friends/limits";
 import { cleanText, type FriendNote, type ShareChoices } from "@/lib/friends/payload";
 
 export const FRIEND_BOOK_FORMAT = 1;
@@ -107,6 +108,14 @@ export function addInvite(
     throw new FriendBookFullError();
   }
   return { ...book, invites: [...book.invites, { ...invite, createdAt: today }] };
+}
+
+/**
+ * The invites a friend could still open, oldest first: the joiner refuses one
+ * that is BOX_TTL_DAYS.invite days old or more, so the screen never offers it.
+ */
+export function liveInvites(book: FriendBook, today: string): PendingInvite[] {
+  return book.invites.filter((invite) => daysBetween(invite.createdAt, today) < BOX_TTL_DAYS.invite);
 }
 
 export function removeInvite(book: FriendBook, secret: string): FriendBook {

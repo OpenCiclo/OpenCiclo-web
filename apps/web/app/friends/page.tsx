@@ -5,7 +5,7 @@
 
 import { useEffect, useState } from "react";
 import { notFound } from "next/navigation";
-import { FlaskConical, RefreshCw } from "lucide-react";
+import { RefreshCw, Settings2 } from "lucide-react";
 
 import { useCiclo, useTodayIso } from "@/lib/client/ciclo-context";
 import { InviteNotFoundError, InviteUsedError, OwnInviteError } from "@/lib/client/friends-sync";
@@ -20,6 +20,7 @@ import { useFriends } from "@/components/friends/friends-provider";
 import { FriendsSettingsSheet } from "@/components/friends/friends-settings-sheet";
 import { InviteCard } from "@/components/friends/invite-card";
 import { NoteComposer } from "@/components/friends/note-composer";
+import { OwnCardPreview } from "@/components/friends/own-card-preview";
 import { OfflineNotice } from "@/components/offline-notice";
 import { UpdateNotice } from "@/components/update-notice";
 import { Button } from "@/components/ui/button";
@@ -27,14 +28,18 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
+// Refresh and settings, in the header: round, and a full tap target.
+const HEADER_BUTTON = "size-11 shrink-0 rounded-full bg-card px-0";
+
 /**
- * The Friends screen. Top to bottom: the person's own note (a speech bubble),
- * their friends' cards, and one card of three choices: invite, join, settings
- * (a sheet).
+ * The Friends screen. The header holds refresh and settings (a sheet). Below,
+ * top to bottom: the person's own note (a speech bubble, with a link to how
+ * friends see them), their friends' cards, and the two ways to add a friend:
+ * invite and join.
  */
 export default function FriendsPage() {
   if (!FRIENDS_AVAILABLE) notFound();
-  const { t, wallet, storageMode, readOnly, locale } = useCiclo();
+  const { t, wallet, storageMode, readOnly, locale, diary } = useCiclo();
   const today = useTodayIso();
   const friends = useFriends();
   const [confirm, confirmDialog] = useConfirmDialog();
@@ -44,6 +49,7 @@ export default function FriendsPage() {
   const [name, setName] = useState("");
   const [pendingCode, setPendingCode] = useState<string | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
 
   const { refresh, status } = friends;
   const hosted = Boolean(wallet) && storageMode === "hosted";
@@ -111,23 +117,27 @@ export default function FriendsPage() {
 
   return (
     <AppShell size="narrow">
-      {/* While Friends is new. Remove with the friendsExperimental* strings once it settles. */}
-      <div
-        role="note"
-        className="mb-4 flex items-start gap-3 rounded-2xl border border-primary/25 bg-primary/8 px-4 py-3 text-sm leading-snug"
-      >
-        <FlaskConical className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden />
-        <p>
-          <span className="font-bold text-primary">{t.friendsExperimentalTitle}</span>
-          <span className="text-muted-foreground"> · {t.friendsExperimental}</span>
-        </p>
-      </div>
-      <div className="mb-3 flex items-center justify-between gap-3 desktop:mb-8">
+      <div className="mb-4 flex items-center gap-2.5 desktop:mb-8">
         <h1 className="font-serif text-xl text-foreground desktop:text-4xl desktop:tracking-tight">{t.friends}</h1>
+        {/* While Friends is new: the sentence that goes with it is in the settings sheet. Remove both once it settles. */}
+        <span
+          title={t.friendsExperimental}
+          className="rounded-full border border-primary/45 px-2 py-0.5 text-[10px] leading-tight font-extrabold tracking-[0.06em] text-primary uppercase"
+        >
+          {t.friendsExperimentalTitle}
+        </span>
+        <span className="grow" />
         {status === "on" ? (
-          <Button type="button" variant="ghost" aria-label={t.friendsRefresh} disabled={busy} onClick={() => void act(() => refresh())}>
-            <RefreshCw className="size-4" aria-hidden />
-          </Button>
+          <>
+            <Button type="button" variant="outline" className={HEADER_BUTTON} aria-label={t.friendsRefresh} disabled={busy} onClick={() => void act(() => refresh())}>
+              <RefreshCw className="size-[18px]" aria-hidden />
+            </Button>
+            {book ? (
+              <Button type="button" variant="outline" className={HEADER_BUTTON} aria-label={t.friendsSettingsTitle} onClick={() => setSettingsOpen(true)}>
+                <Settings2 className="size-[18px]" aria-hidden />
+              </Button>
+            ) : null}
+          </>
         ) : null}
       </div>
       <UpdateNotice className="mb-4" />
@@ -189,6 +199,7 @@ export default function FriendsPage() {
             disabled={!writable || busy}
             onSave={(text) => attempt(() => friends.setProfile({ note: { text, date: today } }))}
             onClear={() => attempt(() => friends.setProfile({ note: null }))}
+            onPreview={() => setPreviewOpen(true)}
           />
 
           {friends.cards.length === 0 ? (
@@ -231,7 +242,6 @@ export default function FriendsPage() {
             initialCode={pendingCode}
             act={act}
             onUnreadable={() => setMessage(t.friendsInviteUnreadable)}
-            onOpenSettings={() => setSettingsOpen(true)}
           />
 
           <FriendsSettingsSheet
@@ -244,6 +254,7 @@ export default function FriendsPage() {
             onClose={() => setSettingsOpen(false)}
             onTurnOff={() => void turnOff()}
           />
+          {previewOpen ? <OwnCardPreview book={book} diary={diary} today={today} t={t} onClose={() => setPreviewOpen(false)} /> : null}
         </div>
       ) : null}
     </AppShell>
