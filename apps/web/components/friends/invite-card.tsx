@@ -4,15 +4,13 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowLeft, QrCode, ScanLine, Settings2, Ticket, UserPlus } from "lucide-react";
+import { ArrowLeft, QrCode, ScanLine, Ticket, UserPlus } from "lucide-react";
 
 import { apiUrl } from "@/lib/app-target";
 import { inviteFingerprint } from "@/lib/client/friends-sync";
-import { daysBetween } from "@/lib/forecast/math";
-import type { FriendBook } from "@/lib/friends/book";
+import { liveInvites, type FriendBook, type PendingInvite } from "@/lib/friends/book";
 import { fromBase64Url, toBase64Url } from "@/lib/friends/crypto";
 import { inviteLink, parseInvite } from "@/lib/friends/invite";
-import { BOX_TTL_DAYS } from "@/lib/friends/limits";
 import type { InviteMessage } from "@/lib/friends/payload";
 import { formatIsoUtc } from "@/lib/format-date";
 import type { Locale, Messages } from "@/lib/i18n";
@@ -31,10 +29,13 @@ function siteOrigin(): string {
 
 type Mode = "choose" | "invite" | "join";
 
+// The two choices: tall enough for a comfortable tap, and a long label may take two lines.
+const CHOICE_CLASS = "h-auto min-h-13 gap-2 rounded-2xl px-3 py-2 text-center text-[15px] leading-tight font-bold text-balance";
+
 /**
- * Inviting, joining and settings in one card of three columns. Tapping invite
- * or join turns the card into that choice (with a way back); settings opens
- * the settings sheet.
+ * Inviting and joining: two buttons side by side, and under them a line that
+ * opens the invites still waiting. Tapping a button turns the pair into a card
+ * for that choice (with a way back).
  */
 export function InviteCard({
   book,
@@ -46,7 +47,6 @@ export function InviteCard({
   initialCode,
   act,
   onUnreadable,
-  onOpenSettings,
 }: {
   book: FriendBook;
   today: string;
@@ -58,8 +58,6 @@ export function InviteCard({
   initialCode: string | null;
   act: (work: () => Promise<void>) => Promise<void>;
   onUnreadable: () => void;
-  /** The third choice: opens the Friends settings sheet. */
-  onOpenSettings: () => void;
 }) {
   const friends = useFriends();
   const [mode, setMode] = useState<Mode>(initialCode ? "join" : "choose");
@@ -76,44 +74,62 @@ export function InviteCard({
     setMode("join");
   }
 
+  const live = liveInvites(book, today);
+
+  // The link on show left the book (the friend opened it, or it was cancelled
+  // or expired, here or on another device): never keep offering a dead link.
+  if (invite && !live.some((pending) => pending.secret === invite.secret)) {
+    setInvite(null);
+    setCopied(false);
+    if (mode === "invite") setMode("choose");
+  }
+
   function back() {
     setMode("choose");
     setReceived(null);
     setCopied(false);
   }
 
+  /** Puts a waiting invite's link on show, to send it (again). */
+  function show(pending: PendingInvite) {
+    const bytes = fromBase64Url(pending.secret);
+    if (!bytes) return;
+    setCopied(false);
+    setInvite({ secret: pending.secret, link: inviteLink(siteOrigin(), bytes, inviteFingerprint(pending)) });
+  }
+
   /**
-   * One link is for one friend (whoever opens it first). So each time the card
-   * opens "Invite" it makes a new link, unless the one this card already showed
-   * is still waiting (going back and forth by mistake). "New link" makes
-   * another on purpose; links still waiting stay listed with Cancel.
+   * One link is for one friend (whoever opens it first). Opening "Invite"
+   * shows the link already waiting (the one last on show here, else the
+   * newest) and makes one only when none waits, so taps never pile up invites.
+   * "New link" makes another on purpose; if that fails (the book is full) the
+   * card stays on the waiting links, where each can be cancelled.
    */
   function openInvite(fresh = false) {
     setMode("invite");
     setCopied(false);
-    const shown = invite ? book.invites.find((pending) => pending.secret === invite.secret) : null;
-    if (!fresh && shown && daysBetween(shown.createdAt, today) < BOX_TTL_DAYS.invite) return;
-    setInvite(null);
-    if (!writable) return;
+    if (!fresh) {
+      if (invite) return;
+      const newest = live.at(-1);
+      if (newest) {
+        show(newest);
+        return;
+      }
+    }
+    if (!writable) {
+      if (!fresh) setMode("choose");
+      return;
+    }
     void act(async () => {
       try {
         const created = await friends.createInvite();
+        setCopied(false);
         setInvite({ secret: toBase64Url(created.secret), link: inviteLink(siteOrigin(), created.secret, created.fingerprint) });
       } catch (error) {
-        setMode("choose");
+        if (!fresh) setMode("choose");
         throw error;
       }
     });
-  }
-
-  /** The link of a pending invite listed below, to send it again. */
-  function showPending(secret: string) {
-    const pending = book.invites.find((entry) => entry.secret === secret);
-    const bytes = pending ? fromBase64Url(pending.secret) : null;
-    if (pending && bytes) {
-      setCopied(false);
-      setInvite({ secret: pending.secret, link: inviteLink(siteOrigin(), bytes, inviteFingerprint(pending)) });
-    }
   }
 
   async function readCode(text: string) {
@@ -127,157 +143,149 @@ export function InviteCard({
     });
   }
 
+  if (mode === "choose") {
+    return (
+      <div className="flex flex-col gap-1.5">
+        <div className="grid grid-cols-2 gap-2.5">
+          <Button type="button" className={CHOICE_CLASS} disabled={!writable || busy} onClick={() => openInvite()}>
+            <UserPlus className="size-[18px] shrink-0" aria-hidden />
+            {t.friendsInvite}
+          </Button>
+          <Button type="button" variant="outline" className={cn(CHOICE_CLASS, "bg-card")} disabled={!writable} onClick={() => setMode("join")}>
+            <Ticket className="size-[18px] shrink-0" aria-hidden />
+            {t.friendsHaveInvite}
+          </Button>
+        </div>
+        {live.length > 0 ? (
+          <button
+            type="button"
+            disabled={busy}
+            onClick={() => openInvite()}
+            className="min-h-11 self-center rounded-full px-3 text-[13px] font-bold text-primary underline-offset-2 hover:underline disabled:opacity-50"
+          >
+            {t.friendsPendingInvites} · {live.length}
+          </button>
+        ) : null}
+      </div>
+    );
+  }
+
   return (
     <Card className="overflow-hidden rounded-3xl p-0">
-      {mode === "choose" ? (
-        <div className="grid grid-cols-3 divide-x divide-border">
-          {(
-            [
-              { key: "invite", icon: UserPlus, title: t.friendsInvite, hint: t.friendsInviteOptionHint, onClick: () => openInvite(), needsWrite: true },
-              { key: "join", icon: Ticket, title: t.friendsHaveInvite, hint: t.friendsJoinOptionHint, onClick: () => setMode("join"), needsWrite: true },
-              // Opens the settings sheet (it shows its controls disabled when nothing can be saved).
-              { key: "settings", icon: Settings2, title: t.settings, hint: t.friendsSettingsHint, onClick: onOpenSettings, needsWrite: false },
-            ] as const
-          ).map((option) => {
-            const Icon = option.icon;
-            return (
-              <button
-                key={option.key}
-                type="button"
-                disabled={option.needsWrite && !writable}
-                onClick={option.onClick}
-                className="flex min-w-0 flex-col items-center gap-2 px-2.5 pt-4 pb-3.5 text-center transition-colors hover:bg-muted/60 active:bg-muted disabled:opacity-50"
-              >
-                <span className="flex size-10 items-center justify-center rounded-full bg-primary/12 text-primary">
-                  <Icon className="size-[18px]" aria-hidden />
-                </span>
-                {/* Two lines tall whatever the length, so the three hints start level. */}
-                <span className="flex min-h-[2lh] items-center text-sm leading-tight font-semibold text-balance">{option.title}</span>
-                <span className="text-[11px] leading-snug text-balance text-muted-foreground">{option.hint}</span>
-              </button>
-            );
-          })}
+      <div className="animate-fade-up flex flex-col gap-3 p-4">
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={back}
+            aria-label={t.back}
+            className="flex size-9 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground transition-transform active:scale-90"
+          >
+            <ArrowLeft className="size-5" aria-hidden />
+          </button>
+          <p className="font-semibold">{mode === "invite" ? t.friendsInvite : t.friendsHaveInvite}</p>
         </div>
-      ) : (
-        <div className="animate-fade-up flex flex-col gap-3 p-4">
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={back}
-              aria-label={t.back}
-              className="flex size-9 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground transition-transform active:scale-90"
-            >
-              <ArrowLeft className="size-5" aria-hidden />
-            </button>
-            <p className="font-semibold">{mode === "invite" ? t.friendsInvite : t.friendsHaveInvite}</p>
-          </div>
 
-          {mode === "invite" ? (
-            <>
-              <p className="text-sm leading-6 text-muted-foreground">{t.friendsInviteHint}</p>
-              {invite ? (
-                <>
-                  <div className="flex justify-center">
-                    <LinkQrCode text={invite.link} label={t.friendsInvite} />
-                  </div>
-                  <Input readOnly value={invite.link} onFocus={(event) => event.currentTarget.select()} aria-label={t.friendsCopyLink} />
-                  <Button
-                    type="button"
-                    onClick={async () => {
-                      await navigator.clipboard?.writeText(invite.link).catch(() => undefined);
-                      setCopied(true);
-                    }}
-                  >
-                    {copied ? t.friendsLinkCopied : t.friendsCopyLink}
-                  </Button>
-                  <Button type="button" variant="ghost" disabled={!writable || busy} onClick={() => openInvite(true)}>
-                    <UserPlus className="size-4" aria-hidden />
-                    {t.friendsNewLink}
-                  </Button>
-                </>
-              ) : (
-                <p className="flex items-center gap-2 text-sm text-muted-foreground" aria-live="polite">
-                  <QrCode className="size-4 animate-pulse" aria-hidden />…
-                </p>
-              )}
-              {book.invites.length > 0 ? (
-                <div className="mt-1 flex flex-col gap-1 border-t border-border pt-3">
-                  <p className="text-xs font-bold tracking-wide text-muted-foreground uppercase">{t.friendsPendingInvites}</p>
-                  {book.invites.map((pending) => (
-                    <div key={pending.secret} className="flex items-center justify-between gap-3 text-sm">
-                      <button
-                        type="button"
-                        onClick={() => showPending(pending.secret)}
-                        className={cn("text-left text-muted-foreground underline-offset-2 hover:underline", invite?.secret === pending.secret && "font-semibold text-card-foreground")}
-                      >
-                        {t.friendsInviteSince.replace("{date}", formatIsoUtc(pending.createdAt, locale, { day: "numeric", month: "short" }))}
-                      </button>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        className="h-8 px-2 text-xs text-muted-foreground"
-                        disabled={!writable || busy}
-                        onClick={() =>
-                          void act(async () => {
-                            await friends.revokeInvite(pending.secret);
-                            if (invite?.secret === pending.secret) back();
-                          })
-                        }
-                      >
-                        {t.friendsCancelInvite}
-                      </Button>
-                    </div>
-                  ))}
+        {mode === "invite" ? (
+          <>
+            <p className="text-sm leading-6 text-muted-foreground">{t.friendsInviteHint}</p>
+            {invite ? (
+              <>
+                <div className="flex justify-center">
+                  <LinkQrCode text={invite.link} label={t.friendsInvite} />
                 </div>
-              ) : null}
-            </>
-          ) : received ? (
-            <>
-              <p className="text-sm leading-6">{t.friendsInvitedBy.replace("{name}", received.message.name)}</p>
-              <div className="grid grid-cols-2 gap-2">
-                <Button type="button" variant="outline" onClick={() => setReceived(null)}>
-                  {t.cancel}
-                </Button>
+                <Input readOnly value={invite.link} onFocus={(event) => event.currentTarget.select()} aria-label={t.friendsCopyLink} />
                 <Button
                   type="button"
-                  disabled={!writable || busy}
-                  onClick={() =>
-                    void act(async () => {
-                      await friends.acceptInvite(received.secret, received.message);
-                      setReceived(null);
-                      setPasted("");
-                      setMode("choose");
-                    })
-                  }
+                  onClick={async () => {
+                    await navigator.clipboard?.writeText(invite.link).catch(() => undefined);
+                    setCopied(true);
+                  }}
                 >
-                  {t.friendsAccept}
+                  {copied ? t.friendsLinkCopied : t.friendsCopyLink}
                 </Button>
+                <Button type="button" variant="ghost" disabled={!writable || busy} onClick={() => openInvite(true)}>
+                  <UserPlus className="size-4" aria-hidden />
+                  {t.friendsNewLink}
+                </Button>
+              </>
+            ) : (
+              <p className="flex items-center gap-2 text-sm text-muted-foreground" aria-live="polite">
+                <QrCode className="size-4 animate-pulse" aria-hidden />…
+              </p>
+            )}
+            {live.length > 0 ? (
+              <div className="mt-1 flex flex-col gap-1 border-t border-border pt-3">
+                <p className="text-xs font-bold tracking-wide text-muted-foreground uppercase">{t.friendsPendingInvites}</p>
+                {live.map((pending) => (
+                  <div key={pending.secret} className="flex items-center justify-between gap-3 text-sm">
+                    <button
+                      type="button"
+                      onClick={() => show(pending)}
+                      aria-current={invite?.secret === pending.secret ? "true" : undefined}
+                      className={cn("text-left text-muted-foreground underline-offset-2 hover:underline", invite?.secret === pending.secret && "font-semibold text-card-foreground")}
+                    >
+                      {t.friendsInviteSince.replace("{date}", formatIsoUtc(pending.createdAt, locale, { day: "numeric", month: "short" }))}
+                    </button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      className="h-8 px-2 text-xs text-muted-foreground"
+                      disabled={!writable || busy}
+                      onClick={() => void act(() => friends.revokeInvite(pending.secret))}
+                    >
+                      {t.friendsCancelInvite}
+                    </Button>
+                  </div>
+                ))}
               </div>
-            </>
-          ) : (
-            <>
-              <Input
-                value={pasted}
-                placeholder={t.friendsPasteInvite}
-                aria-label={t.friendsPasteInvite}
-                autoCapitalize="none"
-                autoCorrect="off"
-                spellCheck={false}
-                onChange={(event) => setPasted(event.target.value)}
-              />
-              <div className="grid grid-cols-2 gap-2">
-                <Button type="button" variant="outline" disabled={!writable || busy} onClick={() => setScanning(true)}>
-                  <ScanLine className="size-4" aria-hidden />
-                  {t.scanBackupQr}
-                </Button>
-                <Button type="button" disabled={!pasted.trim() || busy || !writable} onClick={() => void readCode(pasted)}>
-                  {t.friendsOpenInvite}
-                </Button>
-              </div>
-            </>
-          )}
-        </div>
-      )}
+            ) : null}
+          </>
+        ) : received ? (
+          <>
+            <p className="text-sm leading-6">{t.friendsInvitedBy.replace("{name}", received.message.name)}</p>
+            <div className="grid grid-cols-2 gap-2">
+              <Button type="button" variant="outline" onClick={() => setReceived(null)}>
+                {t.cancel}
+              </Button>
+              <Button
+                type="button"
+                disabled={!writable || busy}
+                onClick={() =>
+                  void act(async () => {
+                    await friends.acceptInvite(received.secret, received.message);
+                    setReceived(null);
+                    setPasted("");
+                    setMode("choose");
+                  })
+                }
+              >
+                {t.friendsAccept}
+              </Button>
+            </div>
+          </>
+        ) : (
+          <>
+            <Input
+              value={pasted}
+              placeholder={t.friendsPasteInvite}
+              aria-label={t.friendsPasteInvite}
+              autoCapitalize="none"
+              autoCorrect="off"
+              spellCheck={false}
+              onChange={(event) => setPasted(event.target.value)}
+            />
+            <div className="grid grid-cols-2 gap-2">
+              <Button type="button" variant="outline" disabled={!writable || busy} onClick={() => setScanning(true)}>
+                <ScanLine className="size-4" aria-hidden />
+                {t.scanBackupQr}
+              </Button>
+              <Button type="button" disabled={!pasted.trim() || busy || !writable} onClick={() => void readCode(pasted)}>
+                {t.friendsOpenInvite}
+              </Button>
+            </div>
+          </>
+        )}
+      </div>
       {scanning ? (
         <PhraseQrScanner
           t={t}
