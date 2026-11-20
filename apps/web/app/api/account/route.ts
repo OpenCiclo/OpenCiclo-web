@@ -5,6 +5,7 @@ import { VAULT_CHANGED_CODE } from "@/lib/auth-codes";
 import { getDb } from "@/lib/db";
 import { requireAccount } from "@/lib/server/account";
 import { jsonError } from "@/lib/server/env";
+import { apiRoute } from "@/lib/server/http";
 import { clearSessionCookie } from "@/lib/server/session";
 import { deleteAccountRow } from "@/lib/server/vault";
 
@@ -19,8 +20,9 @@ function parseQueryVersion(value: string | null): number | null | "invalid" {
 
 // Never refused for an outdated app build (no rejectOutdatedClient): deleting
 // the account does not depend on what the build can read, and an old build must
-// still let the person delete their data.
-export async function DELETE(request: Request) {
+// still let the person delete their data. No body, so no Content-Type check
+// (another site cannot send a DELETE with the cookie: SameSite=Lax, no CORS).
+export const DELETE = apiRoute(async (request: Request) => {
   const baseVersion = parseQueryVersion(new URL(request.url).searchParams.get("baseVersion"));
   if (baseVersion === "invalid") return jsonError("baseVersion must be a non-negative integer", 400);
   const { error, account } = await requireAccount();
@@ -37,4 +39,4 @@ export async function DELETE(request: Request) {
   }
   await clearSessionCookie();
   return Response.json({ ok: true });
-}
+});

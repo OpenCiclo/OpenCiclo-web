@@ -32,6 +32,22 @@ jobs:
     defaults:
       run:
         working-directory: apps/web
+    # Throwaway Postgres for the database tests (rate limits, email
+    # confirmation, vault writes), same version as docker-compose.yml.
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: openciclo
+          POSTGRES_PASSWORD: openciclo
+          POSTGRES_DB: openciclo
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U openciclo -d openciclo"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -45,7 +61,18 @@ jobs:
       # installed package (docs/threat-model.md, compromised npm package).
       - name: Verify registry signatures
         run: npm audit signatures
+      # Every migration in order, each in one transaction, the way production
+      # gets them (Help: Host on Vercel, "Change the schema of a live database").
+      - name: Apply migrations to the test database
+        env:
+          PGPASSWORD: openciclo
+        run: |
+          for file in drizzle/*.sql; do
+            psql -h localhost -U openciclo -d openciclo -v ON_ERROR_STOP=1 -1 -q -f "$file"
+          done
       - name: Tests
+        env:
+          DATABASE_URL: postgres://openciclo:openciclo@localhost:5432/openciclo
         run: npm test
       - name: Lint
         run: npm run lint

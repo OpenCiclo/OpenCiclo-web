@@ -3,12 +3,13 @@
 
 import { requireConsoleApi } from "@/lib/server/console";
 import { loadConsoleStats } from "@/lib/server/console-stats";
+import { apiRoute } from "@/lib/server/http";
 
 export const dynamic = "force-dynamic";
 
-export async function GET() {
+export const GET = apiRoute(async () => {
   const access = await requireConsoleApi();
   if (!access.ok) return access.response;
   const stats = await loadConsoleStats();
   return Response.json(stats);
-}
+});

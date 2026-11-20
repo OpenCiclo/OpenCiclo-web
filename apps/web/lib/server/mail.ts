@@ -12,6 +12,20 @@ export function mailTransportConfigured(): boolean {
   return Boolean(process.env.RESEND_API_KEY?.trim() || process.env.SMTP_HOST?.trim());
 }
 
+/**
+ * The mail provider refused a message. `code` is the provider's error name (for
+ * Resend: `rate_limit_exceeded`, `daily_quota_exceeded`, `validation_error`…),
+ * safe to log; the provider's message is dropped because it can quote the address.
+ */
+export class MailSendError extends Error {
+  readonly code: string;
+  constructor(code: unknown) {
+    super("Mail send failed");
+    this.name = "MailSendError";
+    this.code = typeof code === "string" && /^[a-z0-9_]{1,48}$/i.test(code) ? code : "unknown";
+  }
+}
+
 export async function sendMail(to: string, subject: string, text: string, html?: string): Promise<void> {
   const from = mailFrom();
   const resendKey = process.env.RESEND_API_KEY?.trim();
@@ -19,7 +33,7 @@ export async function sendMail(to: string, subject: string, text: string, html?:
     const resend = new Resend(resendKey);
     const result = await resend.emails.send({ from, to, subject, text, html });
     if (result.error) {
-      throw new Error("Mail send failed");
+      throw new MailSendError(result.error.name);
     }
     return;
   }

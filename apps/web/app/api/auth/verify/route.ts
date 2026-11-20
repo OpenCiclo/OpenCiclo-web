@@ -1,53 +1,51 @@
 // Copyright © 2026 Emma Flora Harbison & Luis Rey Sánchez
 // SPDX-License-Identifier: Apache-2.0
 
+import { after } from "next/server";
+
 import { NO_ACCOUNT_CODE } from "@/lib/auth-codes";
 import { verifyChallenge } from "@/lib/crypto/wallet";
 import { getDb } from "@/lib/db";
 import { consumeChallenge } from "@/lib/server/auth-challenges";
 import { accountExists, createAccountIfMissing } from "@/lib/server/create-account";
 import { jsonError } from "@/lib/server/env";
-import { sourceKey, takeRateLimit, tooManyRequests } from "@/lib/server/rate-limit";
+import { apiRoute, readJson } from "@/lib/server/http";
+import { sourceKey, takeRateLimit, takeRateLimits, tooManyRequests } from "@/lib/server/rate-limit";
 import {
   isValidSchemaVersion,
   MAX_INITIAL_VAULT_CIPHERTEXT_LENGTH,
   MAX_VAULT_NONCE_LENGTH,
+  VAULT_BODY_OVERHEAD_BYTES,
 } from "@/lib/server/vault-limits";
 import { setSessionCookie } from "@/lib/server/session";
 import { recordAccountOpen } from "@/lib/server/account-activity";
 import { rejectOutdatedClient } from "@/lib/server/client-version";
 
+function hexField(value: unknown): string {
+  return typeof value === "string" ? value.trim().toLowerCase() : "";
+}
+
 // A plain sign-in is served to every app build: it writes no diary data, and its
 // session is what lets an outdated build still sign out and delete the account.
 // Only creating an account refuses an outdated build (below).
-export async function POST(request: Request) {
-  const body = (await request.json()) as {
-    pubkeyHash?: string;
-    pubkey?: string;
-    nonce?: string;
-    signature?: string;
-    ciphertext?: string;
-    nonceVault?: string;
-    schemaVersion?: number;
-    persist?: boolean;
-  };
-  const pubkeyHash = body.pubkeyHash?.trim().toLowerCase();
-  const pubkey = body.pubkey?.trim().toLowerCase();
-  const nonce = body.nonce?.trim();
-  const signature = body.signature?.trim().toLowerCase();
+export const POST = apiRoute(async (request: Request) => {
+  const parsed = await readJson(request, MAX_INITIAL_VAULT_CIPHERTEXT_LENGTH + VAULT_BODY_OVERHEAD_BYTES);
+  if (!parsed.ok) return parsed.response;
+  const body = parsed.body;
+  const pubkeyHash = hexField(body.pubkeyHash);
+  const pubkey = hexField(body.pubkey);
+  const nonce = typeof body.nonce === "string" ? body.nonce.trim() : "";
+  const signature = hexField(body.signature);
   if (
-    !pubkeyHash ||
-    !pubkey ||
-    !nonce ||
-    !signature ||
     !/^[0-9a-f]{64}$/.test(pubkeyHash) ||
     !/^[0-9a-f]{64}$/.test(pubkey) ||
-    !/^[0-9a-f]+$/.test(signature)
+    // Challenge nonces are 64 hex characters; the cap keeps hashing cheap.
+    nonce.length === 0 ||
+    nonce.length > 128 ||
+    // An Ed25519 signature is 64 bytes.
+    !/^[0-9a-f]{128}$/.test(signature)
   ) {
     return jsonError("Invalid authentication payload", 400);
-  }
-  if (!verifyChallenge(pubkey, pubkeyHash, nonce, signature)) {
-    return jsonError("Signature rejected", 401);
   }
 
   const initialCiphertext = body.ciphertext ?? "";
@@ -65,7 +63,15 @@ export async function POST(request: Request) {
     return jsonError("Vault too large", 413);
   }
 
+  // Before any signature check: up to two Ed25519 verifications per request is
+  // the costliest thing an unauthenticated caller can ask for.
   const db = getDb();
+  if (!(await takeRateLimit(db, "auth-verify", sourceKey(request)))) {
+    return tooManyRequests();
+  }
+  if (!verifyChallenge(pubkey, pubkeyHash, nonce, signature)) {
+    return jsonError("Signature rejected", 401);
+  }
   if (!(await consumeChallenge(db, pubkeyHash, nonce))) {
     return jsonError("Challenge expired", 401);
   }
@@ -83,7 +89,12 @@ export async function POST(request: Request) {
     const outdated = rejectOutdatedClient(request);
     if (outdated) return outdated;
     // Only new accounts count: signing in again is never limited here.
-    if (!(await takeRateLimit(db, "account-create", sourceKey(request)))) {
+    const source = sourceKey(request);
+    const allowed = await takeRateLimits(db, [
+      { bucket: "account-create", keyHash: source },
+      { bucket: "account-create-burst", keyHash: source },
+    ]);
+    if (!allowed) {
       return tooManyRequests();
     }
     created = await createAccountIfMissing(db, {
@@ -95,6 +106,6 @@ export async function POST(request: Request) {
     });
   }
   await setSessionCookie(pubkeyHash, body.persist !== false);
-  await recordAccountOpen(pubkeyHash);
+  after(() => recordAccountOpen(db, pubkeyHash));
   return Response.json({ ok: true, created });
-}
+});

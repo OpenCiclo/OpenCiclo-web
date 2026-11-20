@@ -88,7 +88,11 @@ const locale: LocaleModule = {
     mailNotConfigured:
       "Zerbitzari honek ezin du orain posta bidali. Saiatu geroago edo erabili modu superpribatua.",
     tooManyEmailCodes: "Saiakera gehiegi. Itxaron pixka bat eta saiatu berriro.",
+    tooManySignups: "Sare honetatik kontu berri gehiegi sortu dira. Saiatu berriro geroago. Egunkari bat baduzu jada, sartu zure 12 hitzeko esaldiarekin.",
+    tooManySignupsDevice: "«Gailu honetan bakarrik» ere aukeratu dezakezu; ez du konturik behar.",
     verifyEmailInvalid: "Kode hori ez da baliozkoa edo iraungi egin da. Eskatu beste bat.",
+    codeDelayedSignup: "Kodea ez da iritsi minutu batzuen ondoren? Itzuli atzera eta aukeratu «Modu superpribatua»: zure 12 hitzeko esaldia baino ez duzu behar.",
+    codeDelayedAddEmail: "Kodea ez da iritsi minutu batzuen ondoren? Zure 12 hitzeko esaldiarekin sartzen jarrai dezakezu.",
     copy: "Kopiatu",
     download: "Deskargatu",
     copied: "Kopiatuta",

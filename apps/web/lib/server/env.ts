@@ -5,10 +5,24 @@ import { hmac } from "@noble/hashes/hmac.js";
 import { sha256 } from "@noble/hashes/sha2.js";
 import { bytesToHex, utf8ToBytes } from "@/lib/crypto/bytes";
 
+/**
+ * A setting the host needs is missing. `code` (for example
+ * `SESSION_SECRET_MISSING`) names only the variable, never its value, so the
+ * API's error log (`describeError`) prints it.
+ */
+export class ConfigError extends Error {
+  readonly code: string;
+  constructor(variable: string) {
+    super(`${variable} is not set`);
+    this.name = "ConfigError";
+    this.code = `${variable}_MISSING`;
+  }
+}
+
 export function requireSecret(name: string): string {
   const value = process.env[name];
   if (!value) {
-    throw new Error(`${name} is not set`);
+    throw new ConfigError(name);
   }
   return value;
 }
