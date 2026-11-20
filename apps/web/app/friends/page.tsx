@@ -5,7 +5,7 @@
 
 import { useEffect, useState } from "react";
 import { notFound } from "next/navigation";
-import { FlaskConical, RefreshCw, Settings2 } from "lucide-react";
+import { FlaskConical, RefreshCw } from "lucide-react";
 
 import { useCiclo, useTodayIso } from "@/lib/client/ciclo-context";
 import { InviteNotFoundError, InviteUsedError, OwnInviteError } from "@/lib/client/friends-sync";
@@ -29,8 +29,8 @@ import { Label } from "@/components/ui/label";
 
 /**
  * The Friends screen. Top to bottom: the person's own note (a speech bubble),
- * their friends' cards, one card to invite or join, and a button that opens
- * the settings sheet.
+ * their friends' cards, and one card of three choices: invite, join, settings
+ * (a sheet).
  */
 export default function FriendsPage() {
   if (!FRIENDS_AVAILABLE) notFound();
@@ -207,7 +207,7 @@ export default function FriendsPage() {
                     onTogglePause: () => void act(() => friends.setFriendPaused(card.friend.id, !card.friend.paused)),
                     onRemove: async () => {
                       const ok = await confirm({
-                        message: t.friendsRemoveConfirm.replace("{name}", card.friend.name),
+                        message: t.friendsRemoveConfirm.replaceAll("{name}", card.friend.name),
                         confirmLabel: t.friendsRemove.replace("{name}", card.friend.name),
                         cancelLabel: t.cancel,
                         destructive: true,
@@ -231,12 +231,8 @@ export default function FriendsPage() {
             initialCode={pendingCode}
             act={act}
             onUnreadable={() => setMessage(t.friendsInviteUnreadable)}
+            onOpenSettings={() => setSettingsOpen(true)}
           />
-
-          <Button type="button" variant="outline" className="self-center rounded-full px-5" onClick={() => setSettingsOpen(true)}>
-            <Settings2 className="size-4" aria-hidden />
-            {t.friendsSettingsTitle}
-          </Button>
 
           <FriendsSettingsSheet
             open={settingsOpen}
