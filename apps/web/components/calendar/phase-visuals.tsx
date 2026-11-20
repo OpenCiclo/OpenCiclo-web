@@ -90,15 +90,12 @@ export function PhaseRing({
   phase,
   due = false,
   animate,
-  label,
 }: {
   timeline: CycleTimeline | null;
   day: number;
   phase: CyclePhase;
   due?: boolean;
   animate: boolean;
-  /** Text for the middle of the ring in place of the phase icon (a friend's cycle day). */
-  label?: string;
 }) {
   const progress = timeline ? (due ? timeline.spans.map(() => 1) : phaseProgress(timeline, day)) : [];
   const current = timeline ? timeline.spans.findIndex((span) => span.phase === phase) : -1;
@@ -178,13 +175,9 @@ export function PhaseRing({
         className={cn("absolute inset-0 flex items-center justify-center", animate && "phase-glyph-in")}
         style={{ color: PHASE_INK[due ? "menstrual" : phase], animationDelay: animate ? `${due ? 600 : glyphDelay}ms` : undefined }}
       >
-        {label ? (
-          <span className="font-serif text-[19px] leading-none text-card-foreground">{label}</span>
-        ) : (
-          <span className={cn("flex", due ? "phase-beat" : "phase-float")}>
-            <PhaseGlyph phase={due ? "menstrual" : phase} className="size-5" />
-          </span>
-        )}
+        <span className={cn("flex", due ? "phase-beat" : "phase-float")}>
+          <PhaseGlyph phase={due ? "menstrual" : phase} className="size-5" />
+        </span>
       </div>
     </div>
   );
