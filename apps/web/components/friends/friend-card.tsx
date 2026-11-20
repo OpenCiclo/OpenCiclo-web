@@ -61,7 +61,16 @@ export function FriendPhaseCard({
   children?: React.ReactNode;
 }) {
   const { friend, status } = card;
-  const view = status ? readStatus(status, today) : null;
+  // Without a status: still waiting for the handshake, ended (kept in the
+  // book), or an active friend whose box is gone (no recent update).
+  const view: FriendView | null =
+    friend.state === "ended"
+      ? { kind: "ended" }
+      : status
+        ? readStatus(status, today)
+        : friend.state === "active"
+          ? { kind: "stale" }
+          : null;
   const waiting = t.friendsWaiting.replace("{name}", friend.name);
   const { title, meta, phase } = describe(view, waiting, t);
   const note = status ? visibleNote(status, today) : null;

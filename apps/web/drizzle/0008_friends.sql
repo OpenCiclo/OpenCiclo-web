@@ -12,7 +12,9 @@
 -- same length, so the kinds cannot be told apart. expires_at is rounded up to
 -- a week. Never add an account column or a join table to accounts.
 --
--- Additive. Apply before deploying code that reads the tables.
+-- Additive. Nothing reads or writes these tables while FRIENDS_AVAILABLE is
+-- false (routes answer 404, the cleanup skips them), so the code may deploy
+-- first; apply this (after a Neon snapshot) before turning the flag on.
 
 CREATE TABLE IF NOT EXISTS friend_books (
   account_id UUID PRIMARY KEY REFERENCES accounts(id) ON DELETE CASCADE,

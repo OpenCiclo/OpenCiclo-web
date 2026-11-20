@@ -115,6 +115,11 @@ export default function FriendsPage() {
       <UpdateNotice className="mb-4" />
       <OfflineNotice className="mb-4" />
       {confirmDialog}
+      {message ? (
+        <p role="alert" className="mb-4 rounded-2xl bg-destructive/10 px-3 py-2 text-sm text-destructive">
+          {message}
+        </p>
+      ) : null}
 
       {storageMode === "device" ? (
         <Card className="rounded-3xl p-4 text-sm leading-6 text-muted-foreground">{t.friendsDeviceOnly}</Card>
@@ -181,15 +186,17 @@ export default function FriendsPage() {
                   t={t}
                   youPaused={!sharesWith(book, card.friend)}
                 >
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="h-8 px-3 text-xs"
-                    disabled={!writable || busy}
-                    onClick={() => void act(() => friends.setFriendPaused(card.friend.id, !card.friend.paused))}
-                  >
-                    {(card.friend.paused ? t.friendsResumeOne : t.friendsPauseOne).replace("{name}", card.friend.name)}
-                  </Button>
+                  {card.friend.state !== "ended" ? (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="h-8 px-3 text-xs"
+                      disabled={!writable || busy}
+                      onClick={() => void act(() => friends.setFriendPaused(card.friend.id, !card.friend.paused))}
+                    >
+                      {(card.friend.paused ? t.friendsResumeOne : t.friendsPauseOne).replace("{name}", card.friend.name)}
+                    </Button>
+                  ) : null}
                   <Button
                     type="button"
                     variant="ghost"
@@ -212,12 +219,6 @@ export default function FriendsPage() {
             </div>
           )}
           <p className="text-xs leading-5 text-muted-foreground">{t.friendsEstimatesNote}</p>
-
-          {message ? (
-            <p role="alert" className="rounded-2xl bg-destructive/10 px-3 py-2 text-sm text-destructive">
-              {message}
-            </p>
-          ) : null}
 
           <Card className="flex flex-col gap-3 rounded-3xl p-4">
             <p className="font-medium">{t.friendsInvite}</p>

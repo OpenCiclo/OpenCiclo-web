@@ -28,22 +28,31 @@ export type Friend = {
   key: string;
   /** Which side of the invite this device was. */
   role: PairRole;
-  /** "waiting": the joiner answered, the inviter's device has not seen it yet. */
-  state: "waiting" | "active";
+  /**
+   * "waiting": the joiner answered, the inviter's device has not seen it yet.
+   * "ended": the friend removed this friendship (their last status said so);
+   * kept so the card still says so after their box expires. Nothing is
+   * published to an ended friend.
+   */
+  state: "waiting" | "active" | "ended";
   /** Not sharing with this friend. */
   paused: boolean;
   since: string;
   /**
-   * Joiner side, while "waiting": the invite secret S and this device's R, to
-   * write the handshake box again if the first write was lost. Dropped once the
-   * inviter's status arrives.
+   * Joiner side, while "waiting": the invite secret S and the public half of
+   * this device's exchange key, to write the handshake box again if the first
+   * write was lost (K is already in `key`). Dropped once the inviter's status
+   * arrives.
    */
-  handshake?: { secret: string; r: string };
+  handshake?: { secret: string; pub: string };
 };
 
 export type PendingInvite = {
   /** The invite secret S, URL-safe base64. */
   secret: string;
+  /** This invite's exchange key (private half PKCS#8, public half raw; URL-safe base64). Dropped with the invite. */
+  key: string;
+  pub: string;
   createdAt: string;
 };
 
@@ -88,12 +97,16 @@ export function newFriendBook(name: string): FriendBook {
   };
 }
 
-export function addInvite(book: FriendBook, secret: string, today: string): FriendBook {
+export function addInvite(
+  book: FriendBook,
+  invite: { secret: string; key: string; pub: string },
+  today: string,
+): FriendBook {
+  if (book.invites.some((pending) => pending.secret === invite.secret)) return book;
   if (book.invites.length >= MAX_PENDING_INVITES || book.friends.length >= MAX_FRIENDS) {
     throw new FriendBookFullError();
   }
-  if (book.invites.some((invite) => invite.secret === secret)) return book;
-  return { ...book, invites: [...book.invites, { secret, createdAt: today }] };
+  return { ...book, invites: [...book.invites, { ...invite, createdAt: today }] };
 }
 
 export function removeInvite(book: FriendBook, secret: string): FriendBook {
@@ -155,19 +168,30 @@ export function sharesWith(book: FriendBook, friend: Friend): boolean {
   return !book.pausedAll && !friend.paused;
 }
 
+/** Whether this device writes a status for `friend` at all (not to a friend who ended it). */
+export function publishesTo(friend: Friend): boolean {
+  return friend.state !== "ended";
+}
+
 /**
- * Two entries for the same person (both invited each other). Both devices keep
- * the pair whose key sorts first, so they always agree on which one stays.
- * Returns the book without the others, and the entries dropped.
+ * Two active entries for the same person (both invited each other). Both
+ * devices keep the pair whose key sorts first, so they always agree on which
+ * one stays. Only active entries count: a "waiting" pair may never complete,
+ * and dropping the working one for it would end the friendship on both sides
+ * (each device becomes active only after seeing the other's status, so both
+ * converge once both pairs are active). Returns the book without the others,
+ * and the entries dropped.
  */
 export function dropDuplicates(book: FriendBook): { book: FriendBook; dropped: Friend[] } {
   const keep = new Map<string, Friend>();
   for (const friend of book.friends) {
-    if (!friend.selfId) continue;
+    if (!friend.selfId || friend.state !== "active") continue;
     const current = keep.get(friend.selfId);
     if (!current || friend.key < current.key) keep.set(friend.selfId, friend);
   }
-  const dropped = book.friends.filter((friend) => friend.selfId && keep.get(friend.selfId) !== friend);
+  const dropped = book.friends.filter(
+    (friend) => friend.selfId && friend.state === "active" && keep.get(friend.selfId) !== friend,
+  );
   if (dropped.length === 0) return { book, dropped };
   return { book: { ...book, friends: book.friends.filter((friend) => !dropped.includes(friend)) }, dropped };
 }
@@ -187,6 +211,8 @@ function isDate(value: unknown): value is string {
 
 const ID = /^[0-9a-f]{32}$/;
 const KEY = /^[A-Za-z0-9_-]{43}$/;
+const PUBLIC_KEY = /^[A-Za-z0-9_-]{87}$/;
+const PRIVATE_KEY = /^[A-Za-z0-9_-]{100,400}$/;
 
 function parseFriend(value: unknown): Friend | null {
   if (!isObject(value)) return null;
@@ -195,14 +221,14 @@ function parseFriend(value: unknown): Friend | null {
   if (selfId !== null && (typeof selfId !== "string" || !ID.test(selfId))) return null;
   if (typeof name !== "string" || typeof key !== "string" || !KEY.test(key)) return null;
   if (role !== "inviter" && role !== "joiner") return null;
-  if (state !== "waiting" && state !== "active") return null;
+  if (state !== "waiting" && state !== "active" && state !== "ended") return null;
   if (!isDate(since)) return null;
   const friend: Friend = { id, selfId, name, key, role, state, paused: paused === true, since };
   const handshake = value.handshake;
   if (handshake !== undefined) {
     if (!isObject(handshake) || typeof handshake.secret !== "string" || !KEY.test(handshake.secret)) return null;
-    if (typeof handshake.r !== "string" || !KEY.test(handshake.r)) return null;
-    friend.handshake = { secret: handshake.secret, r: handshake.r };
+    if (typeof handshake.pub !== "string" || !PUBLIC_KEY.test(handshake.pub)) return null;
+    friend.handshake = { secret: handshake.secret, pub: handshake.pub };
   }
   return friend;
 }
@@ -211,7 +237,9 @@ function parseInvite(value: unknown): PendingInvite | null {
   if (!isObject(value) || typeof value.secret !== "string" || !KEY.test(value.secret) || !isDate(value.createdAt)) {
     return null;
   }
-  return { secret: value.secret, createdAt: value.createdAt };
+  if (typeof value.key !== "string" || !PRIVATE_KEY.test(value.key)) return null;
+  if (typeof value.pub !== "string" || !PUBLIC_KEY.test(value.pub)) return null;
+  return { secret: value.secret, key: value.key, pub: value.pub, createdAt: value.createdAt };
 }
 
 /** A book read from the host. Throws NewerFriendBookError for a newer format, Error when damaged. */

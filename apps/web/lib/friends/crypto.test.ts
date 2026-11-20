@@ -7,8 +7,12 @@ import { bytesToHex, hexToBytes } from "@/lib/crypto/bytes";
 import { BOX_CIPHERTEXT_LENGTH, NONCE_LENGTH, sealedBase64Length } from "@/lib/friends/limits";
 
 import {
+  BadExchangeKeyError,
   BoxTooLargeError,
+  exchangeSecret,
   fromBase64Url,
+  isExchangePublicKey,
+  newExchangeKeys,
   handshakeAddress,
   handshakeLocation,
   inviteAddress,
@@ -53,6 +57,31 @@ describe("friend keys", () => {
     const otherJoiner = handshakeAddress(S, pairKey(S, hexToBytes("33".repeat(32))));
     expect(otherJoiner.id).toBe(full.id);
     expect(otherJoiner.token).not.toBe(full.token);
+  });
+});
+
+describe("key exchange", () => {
+  it("gives both sides the same secret, and anyone else a different one", async () => {
+    const inviter = await newExchangeKeys();
+    const joiner = await newExchangeKeys();
+    const stranger = await newExchangeKeys();
+    const ours = await exchangeSecret(joiner.privateKey, inviter.publicKey);
+    const theirs = await exchangeSecret(inviter.privateKey, joiner.publicKey);
+    expect(bytesToHex(ours)).toBe(bytesToHex(theirs));
+    expect(ours).toHaveLength(32);
+    // Someone with both public keys (both are in boxes anyone with the link can open) gets nowhere.
+    expect(bytesToHex(await exchangeSecret(stranger.privateKey, joiner.publicKey))).not.toBe(bytesToHex(ours));
+    expect(bytesToHex(pairKey(S, ours))).not.toBe(bytesToHex(pairKey(S, await exchangeSecret(stranger.privateKey, inviter.publicKey))));
+  });
+
+  it("refuses a public key that is not a point on the curve", async () => {
+    const mine = await newExchangeKeys();
+    expect(isExchangePublicKey(mine.publicKey)).toBe(true);
+    const bad = toBase64Url(new Uint8Array(65).fill(4));
+    expect(isExchangePublicKey(bad)).toBe(true);
+    await expect(exchangeSecret(mine.privateKey, bad)).rejects.toBeInstanceOf(BadExchangeKeyError);
+    expect(isExchangePublicKey("short")).toBe(false);
+    await expect(exchangeSecret(mine.privateKey, "short")).rejects.toBeInstanceOf(BadExchangeKeyError);
   });
 });
 
