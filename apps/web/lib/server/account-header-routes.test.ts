@@ -5,7 +5,8 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vites
 
 import { ACCOUNT_HEADER, ACCOUNT_MISMATCH_CODE } from "@/lib/auth-codes";
 
-// The four routes that change an account, with the real requireAccount and the
+// The routes that change an account (and the Friends routes, which all name
+// their account), with the real requireAccount and the
 // database stubbed (C15): a request whose x-ciclo-account names another account
 // than the session cookie's gets 409 account-mismatch before the account lookup,
 // any rate limit, write, cookie change or mail. Without the header (builds from
@@ -92,6 +93,36 @@ vi.mock("@/lib/server/mailbox-store", () => ({
     return "confirmed";
   },
 }));
+vi.mock("@/lib/features", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/lib/features")>()),
+  FRIENDS_AVAILABLE: true,
+}));
+vi.mock("@/lib/server/friends", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/lib/server/friends")>()),
+  readFriendBook: async () => {
+    state.effects.push("book-read");
+    return { ciphertext: "sealed", nonce: "n", version: 1 };
+  },
+  writeFriendBook: async () => {
+    state.effects.push("book-write");
+    return { ok: true, version: 2 };
+  },
+  deleteFriendBook: async () => {
+    state.effects.push("book-delete");
+  },
+  putBox: async () => {
+    state.effects.push("box-write");
+    return "written";
+  },
+  readBoxes: async () => {
+    state.effects.push("box-read");
+    return {};
+  },
+  deleteBoxes: async () => {
+    state.effects.push("box-delete");
+    return 1;
+  },
+}));
 vi.mock("@/lib/server/mail", () => ({
   mailTransportConfigured: () => true,
   sendMailboxCode: async () => {
@@ -103,6 +134,19 @@ const vaultRoute = await import("@/app/api/vault/route");
 const accountRoute = await import("@/app/api/account/route");
 const registerRoute = await import("@/app/api/recovery/register/route");
 const confirmRoute = await import("@/app/api/recovery/confirm/route");
+const friendBookRoute = await import("@/app/api/friends/book/route");
+const friendBookDeleteRoute = await import("@/app/api/friends/book/delete/route");
+const friendBoxesRoute = await import("@/app/api/friends/boxes/route");
+const friendBoxesReadRoute = await import("@/app/api/friends/boxes/read/route");
+const friendBoxesDeleteRoute = await import("@/app/api/friends/boxes/delete/route");
+
+const BOX = {
+  id: "1".repeat(64),
+  token: "2".repeat(64),
+  kind: "status",
+  ciphertext: "A".repeat(2752),
+  nonce: "B".repeat(16),
+};
 
 const kit = {
   wrappedSecret: "d3JhcHBlZA==",
@@ -158,6 +202,50 @@ const ROUTES: Route[] = [
     send: (headers) => confirmRoute.POST(jsonRequest("/api/recovery/confirm", "POST", { code: "123456" }, headers)),
     effects: ["confirm-claim"],
     buckets: [["recovery-confirm", "recovery-confirm-account"]],
+  },
+  {
+    name: "GET /api/friends/book",
+    send: (headers) => friendBookRoute.GET(new Request("http://localhost/api/friends/book", { headers })),
+    effects: ["book-read"],
+    buckets: [],
+  },
+  {
+    name: "PUT /api/friends/book",
+    send: (headers) =>
+      friendBookRoute.PUT(
+        jsonRequest("/api/friends/book", "PUT", { ciphertext: "c2VhbGVk", nonce: "B".repeat(16), baseVersion: 1 }, headers),
+      ),
+    effects: ["book-write"],
+    buckets: [["friends-book-write"]],
+  },
+  {
+    name: "POST /api/friends/book/delete",
+    send: (headers) =>
+      friendBookDeleteRoute.POST(new Request("http://localhost/api/friends/book/delete", { method: "POST", headers })),
+    effects: ["book-delete"],
+    buckets: [],
+  },
+  {
+    name: "PUT /api/friends/boxes",
+    send: (headers) => friendBoxesRoute.PUT(jsonRequest("/api/friends/boxes", "PUT", BOX, headers)),
+    effects: ["box-write"],
+    buckets: [["friends-box-write", "friends-box-write-global"]],
+  },
+  {
+    name: "POST /api/friends/boxes/read",
+    send: (headers) =>
+      friendBoxesReadRoute.POST(jsonRequest("/api/friends/boxes/read", "POST", { ids: [BOX.id] }, headers)),
+    effects: ["box-read"],
+    buckets: [["friends-box-read"]],
+  },
+  {
+    name: "POST /api/friends/boxes/delete",
+    send: (headers) =>
+      friendBoxesDeleteRoute.POST(
+        jsonRequest("/api/friends/boxes/delete", "POST", { items: [{ id: BOX.id, token: BOX.token }] }, headers),
+      ),
+    effects: ["box-delete"],
+    buckets: [],
   },
 ];
 

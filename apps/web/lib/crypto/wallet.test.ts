@@ -4,7 +4,7 @@
 import { describe, expect, it } from "vitest";
 
 import { decryptAesGcm, encryptAesGcm } from "./aes";
-import { utf8ToBytes, bytesToUtf8 } from "./bytes";
+import { bytesToHex, utf8ToBytes, bytesToUtf8 } from "./bytes";
 import { createWallet, LEGACY_AUTH_MESSAGE_PREFIX, signChallenge, unlockWallet, verifyChallenge } from "./wallet";
 import {
   MAX_KIT_ITERATIONS,
@@ -29,6 +29,15 @@ describe("wallet crypto", () => {
     expect(
       verifyChallenge(created.publicKeyHex, created.pubkeyHash, "other", signature),
     ).toBe(false);
+  });
+
+  it("derives the friend book key from the phrase, apart from the diary key", () => {
+    // A fixed vector: a changed label would lock every friend book.
+    const wallet = unlockWallet(
+      "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+    );
+    expect(bytesToHex(wallet.friendsKey)).toBe("d1052fa363e43c553051e788e2db7efe1b3a0e5f88ab48b44c2e96947c8a1308");
+    expect(bytesToHex(wallet.friendsKey)).not.toBe(bytesToHex(wallet.aesKey));
   });
 
   it("accepts legacy ODDY auth prefix for existing accounts", () => {
