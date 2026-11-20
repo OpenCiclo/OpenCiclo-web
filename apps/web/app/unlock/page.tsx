@@ -5,10 +5,13 @@ import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 
 import { PHRASE_USERNAME, getBrowserPassword, storeBrowserPassword } from "@/lib/client/credentials";
+import { HttpError } from "@/lib/client/api";
 import {
   AccountNotFoundError,
   InvalidCredentialsError,
   RateLimitedError,
+  SavedSignInError,
+  VaultUnreadableError,
   lastEmail,
   useCiclo,
 } from "@/lib/client/ciclo-context";
@@ -64,6 +67,18 @@ export default function UnlockPage() {
     });
   }, [deviceLocked]);
 
+  // What a failed sign-in says beyond the cases each form handles: too many
+  // attempts, a saved sign-in in the way, a diary that does not open, and
+  // otherwise the connection or the host (never "wrong password").
+  function signInFailureMessage(cause: unknown): string {
+    if (cause instanceof RateLimitedError || (cause instanceof HttpError && cause.status === 429)) {
+      return t.tooManyEmailCodes;
+    }
+    if (cause instanceof SavedSignInError) return t.restoreSavedSignInBlocks;
+    if (cause instanceof VaultUnreadableError) return t.vaultUnreadable;
+    return t.signInUnreachable;
+  }
+
   async function submitEmail(event: React.FormEvent) {
     event.preventDefault();
     try {
@@ -73,14 +88,14 @@ export default function UnlockPage() {
       await storeBrowserPassword(email.trim().toLowerCase(), password);
       returnTo(router, unlockDestination(new URLSearchParams(window.location.search).get("next")));
     } catch (cause) {
+      // "Wrong email or password" only when the kit did not open. Anything else
+      // (no connection, a timeout, the host failing) is not about the password.
       if (cause instanceof InvalidCredentialsError) {
         setError(t.invalidCredentials);
-      } else if (cause instanceof RateLimitedError) {
-        setError(t.tooManyEmailCodes);
       } else if (cause instanceof UpdateRequiredError) {
         setError(updateErrorMessage(cause, t));
       } else {
-        setError(t.errorGeneric);
+        setError(signInFailureMessage(cause));
       }
     } finally {
       setBusy(false);
@@ -103,7 +118,9 @@ export default function UnlockPage() {
             ? t.noAccountForPhrase
             : cause instanceof UpdateRequiredError
               ? updateErrorMessage(cause, t)
-              : t.errorGeneric,
+              : deviceLocked
+                ? t.errorGeneric
+                : signInFailureMessage(cause),
       );
     } finally {
       setBusy(false);

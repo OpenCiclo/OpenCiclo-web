@@ -118,6 +118,14 @@ const locale: LocaleModule = {
     welcomeCtaAndroid: "Comença ací. Les dates es xifren abans d'eixir d'este mòbil.",
     restoreFailedBody:
       "Pot ser la connexió o el servidor. El teu accés continua guardat en este dispositiu i les teues dades no s'han tocat.",
+    restoreShowPhrase: "Mostra la frase guardada en este dispositiu",
+    restoreForget: "Oblida l'inici de sessió guardat",
+    restoreForgetConfirm: "Açò esborra d'este dispositiu la frase guardada. Sense estes 12 paraules no podràs tornar a obrir este diari, així que apunta-les abans. Vols oblidar-la?",
+    restoreSavedSignInBlocks: "Este dispositiu guarda un inici de sessió que no s'ha pogut obrir. Torna a la pantalla d'inici per a tornar-ho a provar, o oblida'l abans d'entrar amb un altre compte.",
+    restoreUnreadableBody: "Ciclo no ha pogut obrir l'inici de sessió guardat en este dispositiu. No s'ha esborrat res. Torna-ho a provar; si continua fallant, oblida'l i entra amb el teu correu o les teues 12 paraules.",
+    signOutPendingNote: "Has tancat la sessió en este dispositiu. La sessió del servidor acaba quan este navegador torne a tindre connexió.",
+    vaultUnreadable: "No s'ha pogut obrir el diari guardat en este compte. No s'ha canviat res al servidor.",
+    vaultTooLarge: "El teu diari és massa gran per al núvol de Ciclo, així que no s'hi ha guardat. Fes abans una exportació; les notes més curtes ocupen menys.",
     offlineBody:
       "Estàs veient la còpia guardada en este mòbil ({date}). Pots consultar-la, però no podràs guardar canvis fins que tornes a tindre connexió.",
     offlineDayHint: "Sense connexió: pots veure este dia, però no canviar-lo.",
@@ -169,6 +177,12 @@ const locale: LocaleModule = {
       "El teu diari està guardat en este dispositiu. Desbloqueja'l amb la teua empremta o el bloqueig de pantalla, o escriu la teua frase de 12 paraules.",
     deviceUsePhrase: "Usa la meua frase",
     deviceUnlockHint: "Este diari només està guardat en este dispositiu. Obri'l amb la seua frase de 12 paraules.",
+    deviceLockedKeyInvalidated: "El bloqueig de pantalla o les empremtes d'este mòbil han canviat, així que Ciclo ja no pot obrir el teu diari a soles. Obri'l amb la teua frase de 12 paraules.",
+    deviceLockedNoKey: "Ciclo no troba en este mòbil la clau que obri el teu diari. Obri'l amb la teua frase de 12 paraules.",
+    deviceLockedKeyError: "Ciclo no ha pogut utilitzar la clau del teu diari. Torna-ho a provar o escriu la teua frase de 12 paraules.",
+    deviceLockedUnreadable: "Ciclo no pot llegir el fitxer del teu diari en este mòbil. Torna-ho a provar.",
+    deviceStatusFailedBody: "Ciclo no ha pogut llegir què hi ha guardat en este mòbil. No s'ha tocat res. Torna-ho a provar.",
+    deviceDeleteLockedConfirm: "Sense la seua frase de 12 paraules, este diari no es pot obrir. Esborrar-lo és per a sempre: no hi ha cap còpia en cap servidor. Per a esborrar-lo, escriu {word}.",
     installTitle: "Afig-la a la pantalla d'inici",
     // Browser menu items below stay as the browsers' own Catalan labels (there is no Valencian Chrome/Samsung/Edge UI).
     installIosChrome:

@@ -36,7 +36,12 @@ import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.security.Key;
 import java.security.KeyStore;
+import java.security.MessageDigest;
 import java.security.ProviderException;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.UUID;
 
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
@@ -53,7 +58,14 @@ import javax.crypto.spec.GCMParameterSpec;
  * after a fingerprint or screen-lock check.
  *
  * It also keeps the phrase of a hosted account that chose "Keep me signed in", in its
- * own file under its own Keystore key, so that phrase never sits in WebView storage.
+ * own file under its own Keystore key, so that phrase never sits in WebView storage, and
+ * the same way an email sign-up waiting for its code (phrase, email, wrapped kit), so an
+ * app closed while the person reads the email can finish it.
+ *
+ * Re-sealing the device phrase (or the waiting sign-up) generates its new key under a new alias
+ * and writes the new file before the old keys are deleted: a canceled fingerprint check or a
+ * failed write leaves the old file and key as they were. The file names the alias that opens it
+ * (format 2). It can also clear the session cookie in the app's cookie jar for an offline sign-out.
  *
  * Files live in the app's private storage, which data_extraction_rules.xml keeps out of
  * backups. Never log the phrase, file contents, or exception details from crypto calls.
@@ -65,9 +77,17 @@ public class DeviceVaultPlugin extends Plugin {
     private static final String KEY_PLAIN = "ciclo-device-phrase-v1";
     private static final String KEY_AUTH = "ciclo-device-phrase-auth-v1";
     private static final String KEY_HOSTED = "ciclo-hosted-phrase-v1";
+    private static final String KEY_PENDING = "ciclo-pending-signup-v1";
     private static final String DIARY_FILE = "device-diary.json";
     private static final String PHRASE_FILE = "device-phrase.bin";
     private static final String HOSTED_PHRASE_FILE = "hosted-phrase.bin";
+    private static final String PENDING_SIGNUP_FILE = "pending-signup.bin";
+    // The aliases each store's keys are made from (the fixed one, or "<base>-<uuid>").
+    private static final String[] DEVICE_PHRASE_KEYS = {KEY_PLAIN, KEY_AUTH};
+    private static final String[] PENDING_KEYS = {KEY_PENDING};
+    private static final String[] HOSTED_KEYS = {KEY_HOSTED};
+    // The session cookie and its legacy name (lib/server/session.ts).
+    private static final String[] SESSION_COOKIES = {"ciclo_session", "oddy_session"};
     // The hosted diary as last seen on the host (still sealed), for reading without a connection.
     // Never a device diary: status() and readDiary() do not look at it.
     private static final String HOSTED_COPY_FILE = "hosted-diary-copy.json";
@@ -75,6 +95,8 @@ public class DeviceVaultPlugin extends Plugin {
     // Names the clip copySensitive() writes, so clearCopied() only removes that one.
     private static final String PHRASE_CLIP_LABEL = "Ciclo recovery phrase";
     private static final byte PHRASE_FORMAT = 1;
+    // Like PHRASE_FORMAT, plus the Keystore alias that opens the file (device phrase only).
+    private static final byte PHRASE_FORMAT_ALIAS = 2;
     private static final byte MODE_PLAIN = 0;
     private static final byte MODE_AUTH = 1;
     private static final int GCM_TAG_BITS = 128;
@@ -85,14 +107,20 @@ public class DeviceVaultPlugin extends Plugin {
         void run(Cipher cipher) throws GeneralSecurityException, IOException;
     }
 
-    /** A phrase file: format byte, mode byte, IV length, IV, AES-GCM ciphertext. */
+    /**
+     * A phrase file: format byte, mode byte, [format 2: alias length, alias in ASCII], IV length,
+     * IV, AES-GCM ciphertext. Format 1 files are opened by the fixed alias of their mode.
+     */
     private static final class SealedPhrase {
         final byte mode;
+        /** Null for format 1. */
+        final String alias;
         final byte[] iv;
         final byte[] sealed;
 
-        private SealedPhrase(byte mode, byte[] iv, byte[] sealed) {
+        private SealedPhrase(byte mode, String alias, byte[] iv, byte[] sealed) {
             this.mode = mode;
+            this.alias = alias;
             this.iv = iv;
             this.sealed = sealed;
         }
@@ -100,13 +128,22 @@ public class DeviceVaultPlugin extends Plugin {
         /** Throws GeneralSecurityException for an unknown format, a RuntimeException for a truncated file. */
         static SealedPhrase parse(byte[] raw) throws GeneralSecurityException {
             ByteBuffer buffer = ByteBuffer.wrap(raw);
-            if (buffer.get() != PHRASE_FORMAT) throw new GeneralSecurityException("Unknown phrase format");
+            byte format = buffer.get();
+            if (format != PHRASE_FORMAT && format != PHRASE_FORMAT_ALIAS) {
+                throw new GeneralSecurityException("Unknown phrase format");
+            }
             byte mode = buffer.get();
+            String alias = null;
+            if (format == PHRASE_FORMAT_ALIAS) {
+                byte[] name = new byte[buffer.get() & 0xFF];
+                buffer.get(name);
+                alias = new String(name, StandardCharsets.US_ASCII);
+            }
             byte[] iv = new byte[buffer.get()];
             buffer.get(iv);
             byte[] sealed = new byte[buffer.remaining()];
             buffer.get(sealed);
-            return new SealedPhrase(mode, iv, sealed);
+            return new SealedPhrase(mode, alias, iv, sealed);
         }
     }
 
@@ -161,7 +198,12 @@ public class DeviceVaultPlugin extends Plugin {
         }
     }
 
-    /** Seals the phrase with a new Keystore key. With requireAuth, asks for a fingerprint or the screen lock first. */
+    /**
+     * Seals the phrase with a new Keystore key. With requireAuth, asks for a fingerprint or the
+     * screen lock first. The new key gets a new alias: the old file and its key keep working until
+     * the new file is written, and only then are the old keys deleted. A canceled check or a failed
+     * write deletes the new key and leaves everything else as it was.
+     */
     @PluginMethod
     public void storePhrase(PluginCall call) {
         String phrase = call.getString("phrase");
@@ -171,27 +213,34 @@ public class DeviceVaultPlugin extends Plugin {
             return;
         }
         byte[] plain = phrase.getBytes(StandardCharsets.UTF_8);
+        if (!requireAuth) {
+            storePlainSealed(call, PHRASE_FILE, DEVICE_PHRASE_KEYS, KEY_PLAIN, plain, "Could not protect the phrase");
+            return;
+        }
+        if (!lockAvailable()) {
+            call.reject("No fingerprint or screen lock set up", "LOCK_UNAVAILABLE");
+            return;
+        }
+        String alias = KEY_AUTH + "-" + UUID.randomUUID();
         try {
-            if (requireAuth) {
-                if (!lockAvailable()) {
-                    call.reject("No fingerprint or screen lock set up", "LOCK_UNAVAILABLE");
+            Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
+            cipher.init(Cipher.ENCRYPT_MODE, freshKey(alias, true));
+            authenticate(call, cipher, (authorized) -> {
+                byte[] written;
+                try {
+                    written = writePhrase(PHRASE_FILE, MODE_AUTH, alias, authorized.getIV(), authorized.doFinal(plain));
+                } catch (GeneralSecurityException | IOException | ProviderException e) {
+                    // Nothing replaced the old file (AtomicFile): it and its key stay.
+                    deleteKey(alias);
+                    call.reject("Could not protect the phrase", "KEY_ERROR");
                     return;
                 }
-                Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
-                cipher.init(Cipher.ENCRYPT_MODE, freshKey(KEY_AUTH, true));
-                authenticate(call, cipher, (authorized) -> {
-                    writePhrase(PHRASE_FILE, MODE_AUTH, authorized.getIV(), authorized.doFinal(plain));
-                    deleteKey(KEY_PLAIN);
-                    call.resolve();
-                });
-                return;
-            }
-            Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
-            cipher.init(Cipher.ENCRYPT_MODE, freshKey(KEY_PLAIN, false));
-            writePhrase(PHRASE_FILE, MODE_PLAIN, cipher.getIV(), cipher.doFinal(plain));
-            deleteKey(KEY_AUTH);
-            call.resolve();
-        } catch (GeneralSecurityException | IOException | ProviderException e) {
+                // A key behind the fingerprint check cannot be opened again here without
+                // asking once more: the bytes on disk are what is checked.
+                commitSealed(call, PHRASE_FILE, DEVICE_PHRASE_KEYS, alias, written, null, "Could not protect the phrase");
+            }, () -> deleteKey(alias));
+        } catch (GeneralSecurityException | ProviderException e) {
+            deleteKey(alias);
             call.reject("Could not protect the phrase", "KEY_ERROR");
         }
     }
@@ -209,7 +258,9 @@ public class DeviceVaultPlugin extends Plugin {
             byte[] iv = file.iv;
             byte[] sealed = file.sealed;
 
-            SecretKey key = existingKey(mode == MODE_AUTH ? KEY_AUTH : KEY_PLAIN);
+            String alias = file.alias != null ? file.alias : (mode == MODE_AUTH ? KEY_AUTH : KEY_PLAIN);
+            if (!isDevicePhraseAlias(alias, mode)) throw new GeneralSecurityException("Unexpected key alias");
+            SecretKey key = existingKey(alias);
             if (key == null) {
                 call.reject("The key for this phrase is gone", "KEY_MISSING");
                 return;
@@ -228,7 +279,7 @@ public class DeviceVaultPlugin extends Plugin {
                 call.resolve(result);
             };
             if (mode == MODE_AUTH) {
-                authenticate(call, cipher, open);
+                authenticate(call, cipher, open, null);
             } else {
                 open.run(cipher);
             }
@@ -238,17 +289,20 @@ public class DeviceVaultPlugin extends Plugin {
         }
     }
 
-    /** Deletes the diary, the sealed phrase, and both Keystore keys. */
+    /**
+     * Deletes the diary, then (only once the diary is gone) the sealed phrase and every Keystore
+     * key of the device phrase. A diary that could not be deleted keeps its phrase, so it still opens.
+     */
     @PluginMethod
     public void clear(PluginCall call) {
-        atomic(DIARY_FILE).delete();
-        atomic(PHRASE_FILE).delete();
-        deleteKey(KEY_PLAIN);
-        deleteKey(KEY_AUTH);
-        if (readOrNullQuietly(DIARY_FILE) != null) {
+        AtomicFile diary = atomic(DIARY_FILE);
+        diary.delete();
+        if (diary.getBaseFile().exists() || readOrNullQuietly(DIARY_FILE) != null) {
             call.reject("Could not delete the device diary", "IO_ERROR");
             return;
         }
+        atomic(PHRASE_FILE).delete();
+        deleteKeysExcept(DEVICE_PHRASE_KEYS, null);
         call.resolve();
     }
 
@@ -256,6 +310,8 @@ public class DeviceVaultPlugin extends Plugin {
      * Seals the phrase of a hosted account kept signed in. There is no app lock here: like a
      * browser that keeps you signed in, the app opens the diary on start. The point is that the
      * phrase is never stored in plaintext: a copy of the app's files is useless off this phone.
+     * Like the device phrase, each write gets a new key and the old one goes only once the new
+     * file reads back and opens, so a failed write never loses the phrase kept so far.
      */
     @PluginMethod
     public void storeHostedPhrase(PluginCall call) {
@@ -264,15 +320,9 @@ public class DeviceVaultPlugin extends Plugin {
             call.reject("Missing phrase", "INVALID_ARGUMENT");
             return;
         }
-        try {
-            Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
-            cipher.init(Cipher.ENCRYPT_MODE, freshKey(KEY_HOSTED, false));
-            byte[] sealed = cipher.doFinal(phrase.getBytes(StandardCharsets.UTF_8));
-            writePhrase(HOSTED_PHRASE_FILE, MODE_PLAIN, cipher.getIV(), sealed);
-            call.resolve();
-        } catch (GeneralSecurityException | IOException | ProviderException e) {
-            call.reject("Could not protect the phrase", "KEY_ERROR");
-        }
+        storePlainSealed(
+            call, HOSTED_PHRASE_FILE, HOSTED_KEYS, KEY_HOSTED, phrase.getBytes(StandardCharsets.UTF_8),
+            "Could not protect the phrase");
     }
 
     /** Resolves with no phrase when none is kept. */
@@ -287,7 +337,9 @@ public class DeviceVaultPlugin extends Plugin {
             }
             SealedPhrase file = SealedPhrase.parse(raw);
             if (file.mode != MODE_PLAIN) throw new GeneralSecurityException("Unexpected mode");
-            SecretKey key = existingKey(KEY_HOSTED);
+            String alias = file.alias != null ? file.alias : KEY_HOSTED;
+            if (!isAliasOf(alias, KEY_HOSTED)) throw new GeneralSecurityException("Unexpected key alias");
+            SecretKey key = existingKey(alias);
             if (key == null) {
                 call.reject("The key for this phrase is gone", "KEY_MISSING");
                 return;
@@ -307,9 +359,69 @@ public class DeviceVaultPlugin extends Plugin {
     public void clearHostedPhrase(PluginCall call) {
         AtomicFile file = atomic(HOSTED_PHRASE_FILE);
         file.delete();
-        deleteKey(KEY_HOSTED);
+        deleteKeysExcept(HOSTED_KEYS, null);
         if (file.getBaseFile().exists()) {
             call.reject("Could not delete the phrase", "IO_ERROR");
+            return;
+        }
+        call.resolve();
+    }
+
+    /**
+     * Seals an email sign-up waiting for its code (JSON with the phrase, the email and the wrapped
+     * kit; see lib/client/pending-signup.ts) under its own plain Keystore key. Like the device
+     * phrase, the new key gets a new alias and the old keys go only once the new file reads back
+     * and opens, so a failed write leaves the sign-up kept so far readable.
+     */
+    @PluginMethod
+    public void storePendingSignup(PluginCall call) {
+        String data = call.getString("data");
+        if (data == null || data.isEmpty()) {
+            call.reject("Nothing to save", "INVALID_ARGUMENT");
+            return;
+        }
+        storePlainSealed(
+            call, PENDING_SIGNUP_FILE, PENDING_KEYS, KEY_PENDING, data.getBytes(StandardCharsets.UTF_8),
+            "Could not protect the sign-up");
+    }
+
+    /** Resolves with no data when no sign-up is waiting. */
+    @PluginMethod
+    public void readPendingSignup(PluginCall call) {
+        try {
+            byte[] raw = readOrNull(PENDING_SIGNUP_FILE);
+            JSObject result = new JSObject();
+            if (raw == null) {
+                call.resolve(result);
+                return;
+            }
+            SealedPhrase file = SealedPhrase.parse(raw);
+            if (file.mode != MODE_PLAIN) throw new GeneralSecurityException("Unexpected mode");
+            String alias = file.alias != null ? file.alias : KEY_PENDING;
+            if (!isAliasOf(alias, KEY_PENDING)) throw new GeneralSecurityException("Unexpected key alias");
+            SecretKey key = existingKey(alias);
+            if (key == null) {
+                call.reject("The key for this sign-up is gone", "KEY_MISSING");
+                return;
+            }
+            Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
+            cipher.init(Cipher.DECRYPT_MODE, key, new GCMParameterSpec(GCM_TAG_BITS, file.iv));
+            result.put("data", new String(cipher.doFinal(file.sealed), StandardCharsets.UTF_8));
+            call.resolve(result);
+        } catch (GeneralSecurityException | IOException | RuntimeException e) {
+            // RuntimeException covers a truncated file (BufferUnderflowException) and Keystore ProviderExceptions.
+            call.reject("Could not open the sign-up", "KEY_ERROR");
+        }
+    }
+
+    /** Deletes the waiting sign-up and its key: it finished, or another sign-in replaced it. */
+    @PluginMethod
+    public void clearPendingSignup(PluginCall call) {
+        AtomicFile file = atomic(PENDING_SIGNUP_FILE);
+        file.delete();
+        deleteKeysExcept(PENDING_KEYS, null);
+        if (file.getBaseFile().exists()) {
+            call.reject("Could not delete the sign-up", "IO_ERROR");
             return;
         }
         call.resolve();
@@ -429,6 +541,32 @@ public class DeviceVaultPlugin extends Plugin {
         });
     }
 
+    /**
+     * Clears the session cookies for the API host in the WebView cookie store, which is the jar
+     * CapacitorHttp's native requests use (CapacitorCookieManager). For a sign-out that cannot reach
+     * the host: the httpOnly cookie is cleared here instead. Names as in lib/server/session.ts.
+     */
+    @PluginMethod
+    public void clearSessionCookie(PluginCall call) {
+        String url = call.getString("url");
+        if (url == null || !(url.startsWith("https://") || url.startsWith("http://"))) {
+            call.reject("Invalid URL", "INVALID_ARGUMENT");
+            return;
+        }
+        String attributes = "; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Path=/; HttpOnly"
+            + (url.startsWith("https://") ? "; Secure" : "");
+        getActivity().runOnUiThread(() -> {
+            try {
+                android.webkit.CookieManager cookies = android.webkit.CookieManager.getInstance();
+                for (String name : SESSION_COOKIES) cookies.setCookie(url, name + "=" + attributes);
+                cookies.flush();
+                call.resolve();
+            } catch (RuntimeException e) {
+                call.reject("Could not clear the session cookie", "IO_ERROR");
+            }
+        });
+    }
+
     /** Opens the share sheet for a text file (diary export, phrase backup). A WebView cannot download. */
     @PluginMethod
     public void shareFile(PluginCall call) {
@@ -463,7 +601,8 @@ public class DeviceVaultPlugin extends Plugin {
         }
     }
 
-    private void authenticate(PluginCall call, Cipher cipher, CipherAction onAuthorized) {
+    /** `onFailure` (may be null) runs when the check or `onAuthorized` fails, before the call is rejected. */
+    private void authenticate(PluginCall call, Cipher cipher, CipherAction onAuthorized, Runnable onFailure) {
         String title = call.getString("title", "Ciclo");
         String subtitle = call.getString("subtitle");
         getActivity().runOnUiThread(() -> {
@@ -482,6 +621,7 @@ public class DeviceVaultPlugin extends Plugin {
                             if (crypto == null || crypto.getCipher() == null) throw new GeneralSecurityException();
                             onAuthorized.run(crypto.getCipher());
                         } catch (GeneralSecurityException | IOException | ProviderException e) {
+                            if (onFailure != null) onFailure.run();
                             call.reject("Could not use the key", "KEY_ERROR");
                         }
                     }
@@ -491,6 +631,7 @@ public class DeviceVaultPlugin extends Plugin {
                         boolean canceled = errorCode == BiometricPrompt.ERROR_USER_CANCELED
                             || errorCode == BiometricPrompt.ERROR_NEGATIVE_BUTTON
                             || errorCode == BiometricPrompt.ERROR_CANCELED;
+                        if (onFailure != null) onFailure.run();
                         call.reject("Authentication did not finish", canceled ? "AUTH_CANCELED" : "AUTH_ERROR");
                     }
                 }
@@ -554,10 +695,121 @@ public class DeviceVaultPlugin extends Plugin {
         }
     }
 
-    private void writePhrase(String name, byte mode, byte[] iv, byte[] sealed) throws IOException {
-        ByteBuffer buffer = ByteBuffer.allocate(3 + iv.length + sealed.length);
-        buffer.put(PHRASE_FORMAT).put(mode).put((byte) iv.length).put(iv).put(sealed);
-        write(name, buffer.array());
+    /** Writes a phrase file in format 2 (it names the Keystore alias that opens it). Returns the bytes written. */
+    private byte[] writePhrase(String name, byte mode, String alias, byte[] iv, byte[] sealed) throws IOException {
+        byte[] aliasBytes = alias.getBytes(StandardCharsets.US_ASCII);
+        if (aliasBytes.length > 255) throw new IOException("Alias too long");
+        ByteBuffer buffer = ByteBuffer.allocate(4 + aliasBytes.length + iv.length + sealed.length);
+        buffer.put(PHRASE_FORMAT_ALIAS).put(mode).put((byte) aliasBytes.length).put(aliasBytes)
+            .put((byte) iv.length).put(iv).put(sealed);
+        byte[] bytes = buffer.array();
+        write(name, bytes);
+        return bytes;
+    }
+
+    /**
+     * Seals `plain` under a new plain key ("<base>-<uuid>") into `file`, then commits it with
+     * `commitSealed`. A write that throws replaces nothing (AtomicFile): the new key goes.
+     */
+    private void storePlainSealed(PluginCall call, String file, String[] keys, String base, byte[] plain, String failure) {
+        String alias = base + "-" + UUID.randomUUID();
+        byte[] written;
+        try {
+            Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
+            cipher.init(Cipher.ENCRYPT_MODE, freshKey(alias, false));
+            written = writePhrase(file, MODE_PLAIN, alias, cipher.getIV(), cipher.doFinal(plain));
+        } catch (GeneralSecurityException | IOException | ProviderException e) {
+            deleteKey(alias);
+            call.reject(failure, "KEY_ERROR");
+            return;
+        }
+        commitSealed(call, file, keys, alias, written, plain, failure);
+    }
+
+    /**
+     * AtomicFile.finishWrite can log a failed sync, close or rename instead of throwing, so a new
+     * file counts as written only once it reads back exactly as written and names `alias` (and, for
+     * a plain key, opens to `plain`). Only then do the other keys of `keys` go.
+     * - Not on disk (the old file is still there): the new key goes; the old file and keys stay.
+     * - Cannot tell (the file cannot be read, or it is there but does not open): every key stays,
+     *   so whichever file is in place still opens.
+     */
+    private void commitSealed(
+        PluginCall call, String file, String[] keys, String alias, byte[] written, byte[] plain, String failure
+    ) {
+        byte[] onDisk;
+        try {
+            onDisk = readOrNull(file);
+        } catch (IOException e) {
+            call.reject(failure, "IO_ERROR");
+            return;
+        }
+        if (onDisk == null || !MessageDigest.isEqual(onDisk, written)) {
+            deleteKey(alias);
+            call.reject(failure, "IO_ERROR");
+            return;
+        }
+        if (!namesAlias(onDisk, alias) || (plain != null && !opensTo(onDisk, alias, plain))) {
+            call.reject(failure, "KEY_ERROR");
+            return;
+        }
+        deleteKeysExcept(keys, alias);
+        call.resolve();
+    }
+
+    private static boolean namesAlias(byte[] raw, String alias) {
+        try {
+            return alias.equals(SealedPhrase.parse(raw).alias);
+        } catch (GeneralSecurityException | RuntimeException e) {
+            return false;
+        }
+    }
+
+    /** Whether the phrase file `raw` opens with the key `alias` to exactly `plain`. */
+    private boolean opensTo(byte[] raw, String alias, byte[] plain) {
+        try {
+            SealedPhrase file = SealedPhrase.parse(raw);
+            SecretKey key = existingKey(alias);
+            if (key == null) return false;
+            Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
+            cipher.init(Cipher.DECRYPT_MODE, key, new GCMParameterSpec(GCM_TAG_BITS, file.iv));
+            return MessageDigest.isEqual(cipher.doFinal(file.sealed), plain);
+        } catch (GeneralSecurityException | IOException | RuntimeException e) {
+            return false;
+        }
+    }
+
+    /** `base` itself (format 1 files), or an alias made from it ("<base>-<uuid>"). */
+    private static boolean isAliasOf(String alias, String base) {
+        return alias.equals(base) || alias.startsWith(base + "-");
+    }
+
+    /** The fixed alias of `mode` (format 1 files), or one made from it by storePhrase. */
+    private static boolean isDevicePhraseAlias(String alias, byte mode) {
+        return isAliasOf(alias, mode == MODE_AUTH ? KEY_AUTH : KEY_PLAIN);
+    }
+
+    /** Deletes every Keystore key made from one of `bases` but `keep` (null: all of them). Never throws. */
+    private void deleteKeysExcept(String[] bases, String keep) {
+        try {
+            KeyStore keyStore = KeyStore.getInstance(KEYSTORE);
+            keyStore.load(null);
+            List<String> doomed = new ArrayList<>();
+            for (Enumeration<String> names = keyStore.aliases(); names.hasMoreElements(); ) {
+                String name = names.nextElement();
+                if (name.equals(keep)) continue;
+                for (String base : bases) {
+                    if (isAliasOf(name, base)) {
+                        doomed.add(name);
+                        break;
+                    }
+                }
+            }
+            for (String name : doomed) keyStore.deleteEntry(name);
+        } catch (GeneralSecurityException | IOException | RuntimeException e) {
+            // The Keystore is unavailable (a ProviderException, say). A leftover key opens nothing
+            // without its file, and the file already written must not be reported as failed.
+        }
     }
 
     private AtomicFile atomic(String name) {
