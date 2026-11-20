@@ -7,8 +7,10 @@ import { formatIsoUtc } from "@/lib/format-date";
 import type { LearnArticleCopy } from "./articles";
 import { LEARN_ARTICLES } from "./content";
 import {
+  MAX_LEARN_SLUG_LENGTH,
   dbRowToCatalogEntry,
   emptyLearnCopy,
+  isLearnSlugParam,
   isPublishReady,
   isReviewedAt,
   isSafeLearnHref,
@@ -72,6 +74,20 @@ describe("learn catalog merge", () => {
         formatIsoUtc(article.reviewedAt, "en", { day: "numeric", month: "long", year: "numeric" }),
       ).not.toThrow();
     }
+  });
+});
+
+describe("learn slugs in public URLs", () => {
+  it("looks up only well-formed slugs of a sane length, so random URLs 404 before any read", () => {
+    for (const article of LEARN_ARTICLES) expect(isLearnSlugParam(article.slug)).toBe(true);
+    expect(isLearnSlugParam("cycle-phases")).toBe(true);
+    expect(isLearnSlugParam("Cycle-Phases")).toBe(false);
+    expect(isLearnSlugParam("cycle--phases")).toBe(false);
+    expect(isLearnSlugParam("../etc/passwd")).toBe(false);
+    expect(isLearnSlugParam("%E2%9C%93")).toBe(false);
+    expect(isLearnSlugParam("")).toBe(false);
+    expect(isLearnSlugParam("a".repeat(MAX_LEARN_SLUG_LENGTH))).toBe(true);
+    expect(isLearnSlugParam("a".repeat(MAX_LEARN_SLUG_LENGTH + 1))).toBe(false);
   });
 });
 

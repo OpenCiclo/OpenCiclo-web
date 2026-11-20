@@ -3,15 +3,26 @@
 
 import type { Locale } from "@/lib/i18n";
 
+// One formatter per language and options, made on first use: the calendar
+// formats a label for every day cell, and building an Intl.DateTimeFormat
+// costs far more than using one.
+const formatters = new Map<string, Intl.DateTimeFormat>();
+
 export function formatIsoUtc(
   iso: string,
   locale: Locale,
   options: Intl.DateTimeFormatOptions,
 ): string {
-  return new Intl.DateTimeFormat(locale, {
-    ...options,
-    timeZone: "UTC",
-  }).format(new Date(`${iso}T00:00:00Z`));
+  const key = `${locale}|${JSON.stringify(options)}`;
+  let formatter = formatters.get(key);
+  if (!formatter) {
+    formatter = new Intl.DateTimeFormat(locale, {
+      ...options,
+      timeZone: "UTC",
+    });
+    formatters.set(key, formatter);
+  }
+  return formatter.format(new Date(`${iso}T00:00:00Z`));
 }
 
 /** A forecast day on the forecast card, such as "Sat, Dec 5". */

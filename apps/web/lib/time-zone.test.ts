@@ -9,6 +9,7 @@ import {
   parseTimeZoneSetting,
   resolveTimeZone,
   timeZoneOffsetLabel,
+  timeZoneOptions,
   todayIsoIn,
 } from "@/lib/time-zone";
 
@@ -48,5 +49,28 @@ describe("time zone", () => {
     expect(timeZoneOffsetLabel("America/Mexico_City", new Date("2026-10-14T12:00:00Z"))).toBe(
       "GMT-06:00",
     );
+  });
+
+  it("keeps each zone's offset and date right when its formatter is reused", () => {
+    const summer = new Date("2026-07-01T22:30:00Z");
+    const winter = new Date("2026-01-01T22:30:00Z");
+    expect(timeZoneOffsetLabel("Europe/Madrid", summer)).toBe("GMT+02:00");
+    expect(timeZoneOffsetLabel("Europe/Madrid", winter)).toBe("GMT+01:00");
+    expect(timeZoneOffsetLabel("Asia/Tokyo", winter)).toBe("GMT+09:00");
+    expect(todayIsoIn("Europe/Madrid", summer)).toBe("2026-07-02");
+    expect(todayIsoIn("Asia/Tokyo", summer)).toBe("2026-07-02");
+    expect(todayIsoIn("America/Mexico_City", summer)).toBe("2026-07-01");
+  });
+
+  it("builds the picker's full list only when asked, and always offers the zone in use", () => {
+    const now = new Date("2026-10-14T12:00:00Z");
+    expect(timeZoneOptions(TIME_ZONE_AUTO, false, now)).toEqual([]);
+    expect(timeZoneOptions("America/Mexico_City", false, now)).toEqual([
+      { value: "America/Mexico_City", label: "America/Mexico City (GMT-06:00)" },
+    ]);
+    const full = timeZoneOptions("America/Mexico_City", true, now);
+    expect(full.length).toBe(listTimeZones().length);
+    expect(full.filter((option) => option.value === "America/Mexico_City")).toHaveLength(1);
+    expect(full).toContainEqual({ value: "Asia/Tokyo", label: "Asia/Tokyo (GMT+09:00)" });
   });
 });

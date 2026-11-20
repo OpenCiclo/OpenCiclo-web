@@ -39,6 +39,17 @@ export function isLearnSlug(value: string): boolean {
   return LEARN_SLUG_PATTERN.test(value);
 }
 
+/** Longest slug a public Learn URL may carry (the longest shipped one is under 40). */
+export const MAX_LEARN_SLUG_LENGTH = 120;
+
+/**
+ * Whether a slug from a public Learn URL is worth looking up. Anything else is
+ * a 404 before the catalog is read, so random URLs cost no cache entry or query.
+ */
+export function isLearnSlugParam(value: string): boolean {
+  return value.length <= MAX_LEARN_SLUG_LENGTH && isLearnSlug(value);
+}
+
 export function isSafeLearnHref(href: string): boolean {
   try {
     const url = new URL(href);

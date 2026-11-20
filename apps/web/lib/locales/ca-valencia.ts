@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import ca from "./ca";
-import { MARKETING_LINKS } from "@/lib/marketing/copy";
+import { MARKETING_LINKS } from "@/lib/marketing/links";
 import type { LocaleModule } from "@/lib/locales/registry";
 
 // Valencian (ca-valencia): the app, the landing and the code email.
@@ -251,6 +251,9 @@ const locale: LocaleModule = {
     untilNextPeriod: "Fins a la pròxima regla",
     tipsDisclaimer: "Ciclo oferix orientació general de benestar. No substituïx el consell mèdic.",
     learnSearchPlaceholder: "Busca articles",
+    learnDesktopTitle: "Informació clara, per a llegir i compartir.",
+    learnDesktopSubtitle:
+      "Educació general sobre el cicle, els símptomes i quan cal demanar ajuda, amb les seues fonts. Pública i sense necessitat de compte.",
     learnNoResults: "Cap article no coincidix amb la teua cerca.",
     learnEnglishOnly: "De moment, només en anglés",
     learnCategoryIntimateHealthDescription: "Flux, infeccions i com tindre cura de la zona.",

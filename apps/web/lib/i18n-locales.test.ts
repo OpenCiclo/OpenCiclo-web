@@ -6,7 +6,8 @@ import { describe, expect, it } from "vitest";
 import { emptyDiary, parseDiary } from "@/lib/diary";
 import { LOCALES, LOCALE_NAMES, LOCALE_SHORT, contentLocale, isLocale } from "@/lib/i18n";
 import { articleCopy, articleCopyLocale, articleLang, hasArticleCopy, type LearnArticle } from "@/lib/learn/articles";
-import { loadLocale, marketingCopy, messagesFor } from "@/lib/locales/registry";
+import { loadLocale, loadedLocaleModule, messagesFor } from "@/lib/locales/registry";
+import { marketingCopy } from "@/lib/marketing/locale";
 
 function article(withSpanish: boolean): LearnArticle {
   const copy = (title: string) => ({ title, summary: "s", sections: [], notice: "n" });
@@ -70,8 +71,15 @@ describe("locale registry", () => {
     // Before loading, French reads English and Galician reads Spanish.
     expect(messagesFor("en").settings).toBe("Settings");
     expect(marketingCopy("es").hero.titlePrefix).toBe("Tu ciclo,");
+    expect(marketingCopy("pl").hero.titlePrefix).toBe("Your cycle,");
     const french = await loadLocale("fr");
     expect(messagesFor("fr")).toBe(french.messages);
-    expect(marketingCopy("fr")).toBe(french.marketing);
+    expect(marketingCopy("fr")).toBe(loadedLocaleModule("fr")?.marketing);
+    expect(marketingCopy("fr")).not.toBe(marketingCopy("en"));
+  });
+
+  it("keeps the Spanish and English landing copy out of the registry the app imports", () => {
+    expect(loadedLocaleModule("es")).toBeNull();
+    expect(loadedLocaleModule("en")).toBeNull();
   });
 });

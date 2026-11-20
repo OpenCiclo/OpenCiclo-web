@@ -1,7 +1,7 @@
 // Copyright © 2026 Emma Flora Harbison & Luis Rey Sánchez
 // SPDX-License-Identifier: Apache-2.0
 
-import { MARKETING_LINKS } from "@/lib/marketing/copy";
+import { MARKETING_LINKS } from "@/lib/marketing/links";
 import type { LocaleModule } from "@/lib/locales/registry";
 
 // German (de): the app, the landing and the code email.
@@ -650,6 +650,9 @@ const locale: LocaleModule = {
     forecastSection: "Prognose",
     learnTitle: "Wissen",
     learnSubtitle: "Allgemeine Informationen zum Zyklus, zu Symptomen und dazu, wann du ärztlichen Rat suchen solltest.",
+    learnDesktopTitle: "Klare Informationen zum Lesen und Teilen.",
+    learnDesktopSubtitle:
+      "Allgemeines Wissen über den Zyklus, Symptome und dazu, wann du Hilfe suchen solltest – mit Quellen. Öffentlich und ohne Konto.",
     learnReviewed: "Geprüft",
     learnSources: "Quellen",
     learnAll: "Alle",

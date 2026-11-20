@@ -5,13 +5,15 @@ import { IS_ANDROID_APP } from "@/lib/app-target";
 import { contentLocale, messages, type BaseLocale, type Locale, type Messages } from "@/lib/i18n";
 import { withAndroidCopy } from "@/lib/locales/android-copy";
 import { enMail, esMail, type MailCopy } from "@/lib/mail-copy";
-import { enMarketing, esMarketing, type MarketingCopy } from "@/lib/marketing/copy";
+import type { MarketingCopy } from "@/lib/marketing/copy";
 
 // Every text of one language: the app (Messages), the landing (MarketingCopy),
-// and the code email (MailCopy). Spanish and English ship with every page.
-// The others are one file each in this folder, loaded the first time they are
-// needed, so a page never carries ten languages it does not show. No React here:
-// the server reads mail copy from this file (use-locale-messages.ts has the hook).
+// and the code email (MailCopy). Spanish and English app texts ship with every
+// page; their landing copy only with the public site (`marketingCopy` in
+// lib/marketing/locale.ts), so app screens never carry it. The other languages
+// are one file each in this folder, loaded the first time they are needed, so
+// a page never carries ten languages it does not show. No React here: the
+// server reads mail copy from this file (use-locale-messages.ts has the hook).
 
 export type LocaleModule = {
   messages: Messages;
@@ -21,9 +23,9 @@ export type LocaleModule = {
 
 type LoadedLocale = Exclude<Locale, BaseLocale>;
 
-const BUNDLED: Record<BaseLocale, LocaleModule> = {
-  es: { messages: messages.es, marketing: esMarketing, mail: esMail },
-  en: { messages: messages.en, marketing: enMarketing, mail: enMail },
+const BUNDLED: Record<BaseLocale, Omit<LocaleModule, "marketing">> = {
+  es: { messages: messages.es, mail: esMail },
+  en: { messages: messages.en, mail: enMail },
 };
 
 const LOADERS: Record<LoadedLocale, () => Promise<{ default: LocaleModule }>> = {
@@ -47,14 +49,18 @@ function isBundled(locale: Locale): locale is BaseLocale {
   return locale === "es" || locale === "en";
 }
 
-/** The language's texts if they are ready, or null while they still have to load. */
-export function localeModule(locale: Locale): LocaleModule | null {
-  return isBundled(locale) ? BUNDLED[locale] : (loaded.get(locale) ?? null);
+/**
+ * The texts of a language other than Spanish and English once its file has
+ * loaded, or null (always null for those two: their landing copy is not here).
+ */
+export function loadedLocaleModule(locale: Locale): LocaleModule | null {
+  return loaded.get(locale) ?? null;
 }
 
-/** Loads a language once. Resolves at once for Spanish and English. */
-export function loadLocale(locale: Locale): Promise<LocaleModule> {
-  const ready = localeModule(locale);
+/** Loads a language once. Resolves at once for Spanish and English, with no landing copy. */
+export function loadLocale(locale: Locale): Promise<Omit<LocaleModule, "marketing">> {
+  if (isBundled(locale)) return Promise.resolve(BUNDLED[locale]);
+  const ready = loaded.get(locale);
   if (ready) return Promise.resolve(ready);
   let promise = pending.get(locale);
   if (!promise) {
@@ -79,8 +85,8 @@ export function subscribeLocales(listener: () => void) {
 }
 
 /** Until a language has loaded, its texts are Spanish or English (see `contentLocale`). */
-function moduleOrFallback(locale: Locale): LocaleModule {
-  return localeModule(locale) ?? BUNDLED[contentLocale(locale)];
+function moduleOrFallback(locale: Locale): Omit<LocaleModule, "marketing"> {
+  return (isBundled(locale) ? BUNDLED[locale] : loaded.get(locale)) ?? BUNDLED[contentLocale(locale)];
 }
 
 // One swapped copy per language, so the hook's snapshot stays the same object.
@@ -96,10 +102,6 @@ export function messagesFor(locale: Locale): Messages {
     androidMessages.set(messages, android);
   }
   return android;
-}
-
-export function marketingCopy(locale: Locale): MarketingCopy {
-  return moduleOrFallback(locale).marketing;
 }
 
 /** For the server, which can wait for the file. */

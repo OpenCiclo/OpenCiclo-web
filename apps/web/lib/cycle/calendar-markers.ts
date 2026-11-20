@@ -48,6 +48,21 @@ export function isEstimatedFertileDate(
   );
 }
 
+/**
+ * Every date `isEstimatedFertileDate` accepts, worked out once: a calendar
+ * asks for each of its cells, and checking each one alone sorts the starts again.
+ */
+export function estimatedFertileDates(periodStarts: string[], predictedNext: string | null): Set<string> {
+  const dates = new Set<string>();
+  for (const anchor of fertileWindowAnchors(periodStarts, predictedNext)) {
+    const { start } = estimatedFertileWindow(anchor);
+    for (let offset = 0; offset < FERTILE_WINDOW_LENGTH_DAYS; offset += 1) {
+      dates.add(addDaysIso(start, offset));
+    }
+  }
+  return dates;
+}
+
 export function possiblePeriodStartDates(
   daily: DailyProbability[],
   today: string,

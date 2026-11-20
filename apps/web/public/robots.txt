@@ -1,0 +1,10 @@
+# The public site (landing, Learn, Help, privacy, contact) may be crawled.
+# The API, the operator console and the /dev-* playgrounds may not.
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /console
+Disallow: /dev-
+
+# Self-hosting on another domain: point this at your own APP_URL, or remove it.
+Sitemap: https://www.openciclo.com/sitemap.xml

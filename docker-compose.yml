@@ -1,3 +1,14 @@
+# Local stack and self-hosting. Every port is published on 127.0.0.1 only, so
+# nothing here is reachable from other machines. To serve the app to others,
+# put a reverse proxy with TLS in front of it (see Help "Run it yourself").
+#
+# The app needs two secrets that are not in this file or in the image. Create
+# them once, next to this file (Compose reads .env; git ignores it):
+#   printf 'SESSION_SECRET=%s\nEMAIL_LOOKUP_SECRET=%s\n' "$(openssl rand -hex 32)" "$(openssl rand -hex 32)" > .env
+# Upgrading an install that already has accounts? Put the values this file used
+# to set in .env instead (apps/web/README.md, "Self-host"): a new
+# EMAIL_LOOKUP_SECRET breaks every existing email sign-in.
+# `docker compose up -d db mailpit` (Postgres and Mailpit only) does not need them.
 services:
   db:
     image: postgres:16-alpine
@@ -6,7 +17,7 @@ services:
       POSTGRES_PASSWORD: openciclo
       POSTGRES_DB: openciclo
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./apps/web/drizzle/0000_init.sql:/docker-entrypoint-initdb.d/0000_init.sql
@@ -26,8 +37,8 @@ services:
   mailpit:
     image: axllent/mailpit:latest
     ports:
-      - "8025:8025"
-      - "1025:1025"
+      - "127.0.0.1:8025:8025"
+      - "127.0.0.1:1025:1025"
 
   web:
     build:
@@ -38,8 +49,9 @@ services:
     environment:
       HOSTNAME: 0.0.0.0
       DATABASE_URL: postgres://openciclo:openciclo@db:5432/openciclo
-      SESSION_SECRET: local-dev-session-secret-change-me
-      EMAIL_LOOKUP_SECRET: local-dev-email-hmac-secret-change-me
+      # From .env (see the top of this file). The container refuses to start without them.
+      SESSION_SECRET: ${SESSION_SECRET:-}
+      EMAIL_LOOKUP_SECRET: ${EMAIL_LOOKUP_SECRET:-}
       APP_URL: http://localhost:3000
       MAIL_FROM: Ciclo <noreply@localhost>
       SMTP_HOST: mailpit

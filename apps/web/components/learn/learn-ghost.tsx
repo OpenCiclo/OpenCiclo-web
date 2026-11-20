@@ -4,13 +4,14 @@
 "use client";
 
 import { LearnIndex } from "@/components/learn/learn-index";
-import { LEARN_ARTICLES } from "@/lib/learn/content";
+import { LEARN_SUMMARIES } from "@/lib/learn/shipped-index";
 
 /**
- * The Learn tab as a ghost (see TabGhosts), with the articles shipped in
- * code. On the web the real page also merges operator edits, which a ghost
+ * The Learn tab as a ghost (see TabGhosts), listing the articles shipped in
+ * code from their summaries (a ghost never opens one, so it never loads a
+ * body). On the web the real page also merges operator edits, which a ghost
  * on the client cannot load; the real page replaces it when the drag lands.
  */
 export default function LearnGhost() {
-  return <LearnIndex articles={LEARN_ARTICLES} />;
+  return <LearnIndex articles={LEARN_SUMMARIES} />;
 }

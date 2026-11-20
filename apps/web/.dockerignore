@@ -1,0 +1,15 @@
+# Build context of apps/web/Dockerfile (docker-compose.yml: context ./apps/web).
+# Keep secrets and local builds out of the image.
+.env
+.env.*
+!.env.template
+node_modules
+.next
+out-android
+.vercel
+coverage
+*.log
+*.tsbuildinfo
+next-env.d.ts
+Dockerfile
+.dockerignore
