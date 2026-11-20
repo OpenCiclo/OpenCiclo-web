@@ -88,7 +88,11 @@ const locale: LocaleModule = {
     mailNotConfigured:
       "Ce serveur ne peut pas envoyer d’e-mails pour le moment. Réessaie plus tard ou utilise le mode super privé.",
     tooManyEmailCodes: "Trop de tentatives. Attends un peu et réessaie.",
+    tooManySignups: "Trop de nouveaux comptes ont été créés depuis ce réseau. Réessaie plus tard. Si tu as déjà un journal, connecte-toi avec ta phrase de 12 mots.",
+    tooManySignupsDevice: "Tu peux aussi choisir « Uniquement sur cet appareil », qui ne demande pas de compte.",
     verifyEmailInvalid: "Ce code n’est pas valide ou a expiré. Demandes-en un nouveau.",
+    codeDelayedSignup: "Le code n’arrive pas après quelques minutes ? Reviens en arrière et choisis « Mode super privé » : il te suffit de ta phrase de 12 mots.",
+    codeDelayedAddEmail: "Le code n’arrive pas après quelques minutes ? Tu peux continuer à te connecter avec ta phrase de 12 mots.",
     copy: "Copier",
     download: "Télécharger",
     copied: "Copiée",

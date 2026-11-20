@@ -88,7 +88,11 @@ const locale: LocaleModule = {
     mailNotConfigured:
       "Dieser Server kann gerade keine E-Mails senden. Versuch es später noch einmal oder nutze den superprivaten Modus.",
     tooManyEmailCodes: "Zu viele Versuche. Warte kurz und versuch es noch einmal.",
+    tooManySignups: "Aus diesem Netzwerk wurden zu viele neue Konten erstellt. Versuch es später noch einmal. Wenn du schon ein Tagebuch hast, melde dich mit deiner 12-Wort-Phrase an.",
+    tooManySignupsDevice: "Du kannst auch „Nur auf diesem Gerät“ wählen, dafür brauchst du kein Konto.",
     verifyEmailInvalid: "Dieser Code ist ungültig oder abgelaufen. Fordere einen neuen an.",
+    codeDelayedSignup: "Der Code ist nach ein paar Minuten nicht da? Geh zurück und wähle „Superprivater Modus“: Du brauchst nur deine 12-Wort-Phrase.",
+    codeDelayedAddEmail: "Der Code ist nach ein paar Minuten nicht da? Du kannst dich weiter mit deiner 12-Wort-Phrase anmelden.",
     copy: "Kopieren",
     download: "Herunterladen",
     copied: "Kopiert",

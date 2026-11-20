@@ -1,6 +1,8 @@
 // Copyright © 2026 Emma Flora Harbison & Luis Rey Sánchez
 // SPDX-License-Identifier: Apache-2.0
 
+import { timingSafeEqual } from "node:crypto";
+
 import { hmac } from "@noble/hashes/hmac.js";
 import { sha256 } from "@noble/hashes/sha2.js";
 import { cookies } from "next/headers";
@@ -28,12 +30,19 @@ function sign(payload: string): string {
   return bytesToHex(hmac(sha256, utf8ToBytes(secret), utf8ToBytes(payload)));
 }
 
+/** Compares two MACs in constant time (for equal lengths; a MAC's length is public). */
+export function macsEqual(expected: string, given: string): boolean {
+  const left = Buffer.from(expected, "utf8");
+  const right = Buffer.from(given, "utf8");
+  return left.length === right.length && timingSafeEqual(left, right);
+}
+
 function parseSession(raw: string | undefined): { pubkeyHash: string } | null {
   if (!raw) return null;
   const [encoded, mac] = raw.split(".");
   if (!encoded || !mac) return null;
   const body = Buffer.from(encoded, "base64url").toString("utf8");
-  if (sign(body) !== mac) return null;
+  if (!macsEqual(sign(body), mac)) return null;
   const payload = JSON.parse(body) as SessionPayload;
   if (!payload.h || payload.e < Math.floor(Date.now() / 1000)) return null;
   if (hexToBytes(payload.h).length !== 32) return null;

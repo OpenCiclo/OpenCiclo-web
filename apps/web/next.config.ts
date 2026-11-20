@@ -16,6 +16,25 @@ const csp = [
   "frame-ancestors 'none'",
 ].join("; ");
 
+// Only the camera, for the phrase QR scanner on this origin. Everything else
+// a page could ask for is off.
+const permissionsPolicy = [
+  "camera=(self)",
+  "microphone=()",
+  "geolocation=()",
+  "display-capture=()",
+  "payment=()",
+  "usb=()",
+  "serial=()",
+  "hid=()",
+  "bluetooth=()",
+  "midi=()",
+  "accelerometer=()",
+  "gyroscope=()",
+  "magnetometer=()",
+  "browsing-topics=()",
+].join(", ");
+
 // Host the Android bundle calls for `/api`. Defaults to the local stack (reached
 // from a phone through `adb reverse tcp:3000 tcp:3000`), so a forgotten value
 // fails closed instead of pointing a dev build at production. Release builds
@@ -92,7 +111,16 @@ const webConfig: NextConfig = {
           { key: "Referrer-Policy", value: "no-referrer" },
           { key: "X-Content-Type-Options", value: "nosniff" },
           { key: "X-Frame-Options", value: "DENY" },
+          { key: "Permissions-Policy", value: permissionsPolicy },
+          // Browsers ignore it over plain http (local dev, docker on localhost).
+          // No includeSubDomains or preload: not every subdomain is known to be https.
+          ...(isDev ? [] : [{ key: "Strict-Transport-Security", value: "max-age=63072000" }]),
         ],
+      },
+      {
+        // Answers carry sessions, kits and ciphertext: no browser or CDN cache.
+        source: "/api/:path*",
+        headers: [{ key: "Cache-Control", value: "no-store" }],
       },
     ];
   },

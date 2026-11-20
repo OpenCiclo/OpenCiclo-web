@@ -5,12 +5,13 @@ import { LEARN_ARTICLES } from "@/lib/learn/content";
 import { listLearnForConsole } from "@/lib/learn/catalog";
 import { loadDbLearnEntries } from "@/lib/learn/load";
 import { requireConsoleApi } from "@/lib/server/console";
+import { apiRoute } from "@/lib/server/http";
 
 export const dynamic = "force-dynamic";
 
-export async function GET() {
+export const GET = apiRoute(async () => {
   const access = await requireConsoleApi();
   if (!access.ok) return access.response;
   const dbRows = await loadDbLearnEntries();
   return Response.json({ items: listLearnForConsole(LEARN_ARTICLES, dbRows) });
-}
+});

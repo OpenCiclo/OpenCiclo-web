@@ -23,8 +23,9 @@ On that database, run the SQL in:
 - `apps/web/drizzle/0004_account_activity.sql`
 - `apps/web/drizzle/0005_vault_version.sql`
 - `apps/web/drizzle/0006_rate_limit_hits.sql`
+- `apps/web/drizzle/0007_lookup_indexes.sql`
 
-Those files create accounts, ciphertext columns, sessions, the anonymous research pool, Learn CMS rows, and email confirmation pending. They do not create health columns. `0003` adds `verified_at` on existing mailboxes (set to `created_at`) so current accounts keep working. `0004` records one sign-in per account per UTC day so the console can count unique opens. It does not store email or diary contents. `0005` adds a version number to each diary, so a save made on top of an older copy (another device saved in between) is merged instead of overwriting it. `0006` adds a table of request counts per client, used to limit abuse of public endpoints. It stores a keyed hash of the IP address, never the address itself, and the app deletes rows older than a day.
+Those files create accounts, ciphertext columns, sessions, the anonymous research pool, Learn CMS rows, and email confirmation pending. They do not create health columns. `0003` adds `verified_at` on existing mailboxes (set to `created_at`) so current accounts keep working. `0004` records one open (sign-in or app start) per account per UTC day so the console can count unique opens. It does not store email or diary contents. `0005` adds a version number to each diary, so a save made on top of an older copy (another device saved in between) is merged instead of overwriting it. `0006` adds a table of request counts per client, used to limit abuse of public endpoints. It stores keyed hashes (of the IP address, or of the account or email for per-account and per-address limits), never the values themselves, and the app deletes rows older than a day. `0007` adds two indexes (mailboxes by account, activity by day); nothing depends on them, so it can be applied before or after deploying.
 
 ### Change the schema of a live database
 
@@ -34,7 +35,7 @@ Once real people use the instance, treat every schema change as a production mig
 2. Apply only the new file, in one transaction, and stop at the first error:
 
 ```bash
-psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -1 -f apps/web/drizzle/0007_example.sql
+psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -1 -f apps/web/drizzle/0008_example.sql
 ```
 
 `-1` wraps the file in a single transaction. If any statement fails, nothing from that file is kept.
@@ -47,7 +48,7 @@ Do not use `drizzle-kit push`. It compares `lib/db/schema.ts` with the live data
 
 Set these in Vercel (Production, and Preview if you use it):
 
-- `DATABASE_URL` — Neon connection string.
+- `DATABASE_URL` — Neon connection string. The app checks the database's TLS certificate (full verification) for any host that is not local; `DATABASE_SSL=disable` turns TLS off (local databases only) and `DATABASE_SSL=require` keeps TLS without the certificate check (a server with its own private CA).
 - `SESSION_SECRET` — long random string. Signs the session cookie.
 - `EMAIL_LOOKUP_SECRET` — long random string. Used to HMAC emails so the database is not a marketing list.
 - `APP_URL` — the public origin, for example `https://your-app.vercel.app`. No trailing slash.
