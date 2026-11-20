@@ -36,6 +36,7 @@ import { formatIsoUtc } from "@/lib/format-date";
 import type { Locale, Messages } from "@/lib/i18n";
 import {
   resolveSymptomCatalog,
+  symptomLabel,
   visibleSymptomCatalog,
 } from "@/lib/symptoms/catalog";
 import { createCustomSymptomId, isCustomSymptomId } from "@/lib/symptoms/definitions";
@@ -46,12 +47,15 @@ import {
   toggleLoggedSymptom,
 } from "@/lib/symptoms/selection";
 import { IS_ANDROID_APP } from "@/lib/app-target";
+import { isDraftChanged } from "@/lib/client/day-draft";
+import { useLatest } from "@/lib/client/hooks";
 import { useSheetDrag } from "@/lib/client/use-sheet-drag";
 import { lunarDayInfo } from "@/lib/lunar/phases";
 import { cn } from "@/lib/utils";
 import { MoonPhaseIcon, moonPhaseName, moonPhaseText } from "@/components/calendar/moon-phase-icon";
 import { MoreSymptomsView } from "@/components/calendar/more-symptoms-view";
 import { SymptomChip } from "@/components/calendar/symptom-chip";
+import { useConfirmDialog } from "@/components/confirm-dialog";
 import { Textarea } from "@/components/ui/input";
 
 const FLOW_DOTS: Record<FlowLevel, number> = {
@@ -200,16 +204,54 @@ export function DaySheet({
   const busy = saving || closing;
   // Controls that change the day. Moving around the sheet only waits for `busy`.
   const locked = busy || readOnly || future;
+  const [confirm, confirmDialog] = useConfirmDialog();
+  // Edits not saved yet: closing the sheet asks before dropping them.
+  const dirty = !readOnly && !future && isDraftChanged(draft, log);
+
+  // The close button, a tap outside, Escape, Android Back and the drag handle.
+  async function requestClose() {
+    if (busy) return;
+    if (
+      dirty &&
+      !(await confirm({
+        message: t.discardDraftConfirm,
+        confirmLabel: t.discardDraft,
+        cancelLabel: t.keepEditing,
+        destructive: true,
+      }))
+    ) {
+      return;
+    }
+    onClose();
+  }
+
+  // Trash: the whole day goes, once confirmed.
+  async function clearDay() {
+    const confirmed = await confirm({
+      message: t.clearDayConfirm,
+      confirmLabel: t.clearDay,
+      cancelLabel: t.cancel,
+      destructive: true,
+    });
+    if (confirmed) await onSave(emptyDayLog());
+  }
+
   // In the Android app the sheet has a handle and closes when dragged down by
   // its top. The web keeps the plain sheet (a dialog on the desktop).
   const { sheetRef, handleProps } = useSheetDrag({
     enabled: IS_ANDROID_APP && !busy,
     onDismiss: () => {
       if (busy) return false;
+      if (dirty) {
+        // The sheet settles back while the question is open.
+        void requestClose();
+        return false;
+      }
       onClose();
       return true;
     },
   });
+  const requestCloseRef = useLatest(requestClose);
 
   useEffect(() => {
     if (!iso || open) return;
@@ -224,11 +266,11 @@ export function DaySheet({
   useEffect(() => {
     if (!iso || busy) return;
     function onKey(event: KeyboardEvent) {
-      if (event.key === "Escape") onClose();
+      if (event.key === "Escape") void requestCloseRef.current();
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [iso, busy, onClose]);
+  }, [iso, busy, requestCloseRef]);
 
   if (!iso) return null;
 
@@ -241,11 +283,6 @@ export function DaySheet({
   const moonLabel = moonInfo ? moonPhaseText(moonInfo, t) : null;
   const hasData = !isEmptyDayLog(draft);
   const hadData = Boolean(log && !isEmptyDayLog(log));
-
-  function requestClose() {
-    if (busy) return;
-    onClose();
-  }
 
   function toggleFlow(value: FlowLevel) {
     setDraft((current) => ({
@@ -291,8 +328,17 @@ export function DaySheet({
     void onUpdateSymptomPreferences(favoriteSymptomIds, [...customSymptoms, definition]);
   }
 
-  function deleteCustomSymptom(id: SymptomId) {
+  // A custom symptom is removed from every day it was logged on: confirm first.
+  async function deleteCustomSymptom(id: SymptomId) {
     if (!isCustomSymptomId(id)) return;
+    const item = catalog.find((entry) => entry.id === id);
+    const confirmed = await confirm({
+      message: t.deleteCustomSymptomConfirm.replace("{name}", item ? symptomLabel(item, t) : ""),
+      confirmLabel: t.deleteAction,
+      cancelLabel: t.cancel,
+      destructive: true,
+    });
+    if (!confirmed) return;
     const next = removeCustomSymptom(id, {
       customSymptoms,
       favoriteSymptomIds,
@@ -309,7 +355,7 @@ export function DaySheet({
       <button
         type="button"
         aria-label={t.close}
-        onClick={requestClose}
+        onClick={() => void requestClose()}
         className={cn(
           "absolute inset-0 bg-foreground/30 backdrop-blur-[2px]",
           closing ? "animate-overlay-out" : "animate-overlay-in",
@@ -385,7 +431,7 @@ export function DaySheet({
             </div>
             <button
               type="button"
-              onClick={requestClose}
+              onClick={() => void requestClose()}
               disabled={busy}
               aria-label={t.close}
               className="flex size-9 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground transition-transform active:scale-90"
@@ -550,7 +596,7 @@ export function DaySheet({
                 <button
                   type="button"
                   disabled={busy}
-                  onClick={() => void onSave(emptyDayLog())}
+                  onClick={() => void clearDay()}
                   className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-muted text-muted-foreground transition-transform active:scale-90"
                   aria-label={t.clearDay}
                 >
@@ -571,6 +617,7 @@ export function DaySheet({
         </div>
         {error ? <p className="px-5 pb-4 text-sm text-destructive min-[360px]:px-6">{error}</p> : null}
       </div>
+      {confirmDialog}
     </div>,
     document.body,
   );

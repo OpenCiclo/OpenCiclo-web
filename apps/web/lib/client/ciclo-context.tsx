@@ -59,7 +59,8 @@ import {
 } from "@/lib/diary";
 import { mergeDiaryEdits } from "@/lib/diary-merge";
 import { VISUAL_SEASONS_AVAILABLE } from "@/lib/features";
-import { isLocale, type Locale, type Messages } from "@/lib/i18n";
+import { type Locale, type Messages } from "@/lib/i18n";
+import { initialLocale } from "@/lib/client/initial-locale";
 import { loadLocale, messagesFor } from "@/lib/locales/registry";
 import { useLocaleMessages } from "@/lib/locales/use-locale-messages";
 import { COLOR_SCHEME_KEY, parseColorScheme, type ColorScheme } from "@/lib/client/color-scheme";
@@ -542,8 +543,8 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
   // never dropped on the host's word alone.
   const restoreStoredSession = useCallback(
     async (isCancelled: () => boolean = () => false) => {
-      const rawLocale = localStorage.getItem(LOCALE_KEY);
-      const storedLocale: Locale = isLocale(rawLocale) ? rawLocale : "es";
+      // Saved on this device, or else the device's own language (navigator.languages).
+      const storedLocale = initialLocale();
       // Under the splash, so the first screen is already in that language.
       await loadLocale(storedLocale).catch(() => undefined);
       if (IS_ANDROID_APP && (await restoreDeviceDiary(storedLocale, isCancelled))) return;

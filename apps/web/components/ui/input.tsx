@@ -23,11 +23,16 @@ type PasswordInputProps = Omit<InputHTMLAttributes<HTMLInputElement>, "type"> & 
   hideLabel: string;
 };
 
+// Passwords and the 12-word phrase (unlock, phrase backup) use this field. Shown
+// as text, the keyboard must not capitalise, correct or learn them.
 export function PasswordInput({ className, showLabel, hideLabel, ...props }: PasswordInputProps) {
   const [visible, setVisible] = useState(false);
   return (
     <div className="relative">
       <input
+        autoCapitalize="off"
+        autoCorrect="off"
+        spellCheck={false}
         {...props}
         type={visible ? "text" : "password"}
         className={cn(

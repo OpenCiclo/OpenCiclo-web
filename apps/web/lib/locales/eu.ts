@@ -19,6 +19,8 @@ const locale: LocaleModule = {
     createWithEmail: "E-posta eta pasahitza",
     createWithEmailHint:
       "Sartu edozein gailutan e-posta eta pasahitz berarekin. Kontua sortzean, posta-kutxa kode batekin berresten duzu. Egunerokoa zure nabigatzailean zifratzen da; guk ezin dugu irakurri, ezta zure pasahitza berrezarri ere.",
+    createWithEmailHintAndroid:
+      "Sartu edozein gailutan e-posta eta pasahitz berarekin. Kontua sortzean, posta-kutxa kode batekin berresten duzu. Egunerokoa telefono honetan zifratzen da; guk ezin dugu irakurri, ezta zure pasahitza berrezarri ere.",
     superPrivateMode: "Modu superpribatua",
     superPrivateHint:
       "E-postarik gabe. 12 hitz gordetzen dituzu. Pribatutasun handiena. Galtzen badituzu, ez dago berreskuratzerik — esportatu babeskopia bat.",
@@ -75,6 +77,8 @@ const locale: LocaleModule = {
     onboardingTitle: "Zure 12 hitzeko esaldia",
     onboardingBody:
       "12 hitz hauek zure egunerokoaren giltza dira. Gorde itzazu nabigatzailean edo leku seguru batean. Ciclok ezin ditu berreskuratu.",
+    onboardingBodyAndroid:
+      "12 hitz hauek zure egunerokoaren giltza dira. Idatz itzazu edo gorde leku seguru batean. Ciclok ezin ditu berreskuratu.",
     emailAccountTitle: "E-posta eta pasahitza",
     emailAccountBody:
       "Aukeratu e-posta bat eta pasahitz bat (gutxienez 8 karaktere). 6 digituko kode bat bidaliko dugu posta-kutxa horretara, zurea dela egiaztatzeko. Ez da berrezartzeko esteka bat. Ciclok egunerokoa hemen zifratzen du. Pasahitza ez da inoiz zure gailutik testu argian ateratzen.",
@@ -105,11 +109,15 @@ const locale: LocaleModule = {
     password: "Pasahitza",
     confirmPassword: "Berretsi pasahitza",
     passwordHint: "Gutxienez 8 karaktere. Nabigatzaileak beste edozein pasahitz bezala gorde dezake.",
+    passwordHintAndroid:
+      "Gutxienez 8 karaktere. Pasahitz-kudeatzaileak beste edozein pasahitz bezala gorde dezake.",
     showPassword: "Erakutsi pasahitza",
     hidePassword: "Ezkutatu pasahitza",
     keepLoggedIn: "Mantendu saioa hasita",
     keepLoggedInHint:
       "Nabigatzaile honetan egunerokoa irekita geratzen da saioa itxi arte. Profil honetara sarbidea duen edonork ireki dezake.",
+    keepLoggedInHintAndroid:
+      "Telefono honetan egunerokoa irekita geratzen da saioa itxi arte. Telefono hau desblokeatuta erabiltzen duen edonork ireki dezake.",
     saveInBrowser: "Gorde nabigatzailean",
     savedInBrowser: "Baliteke nabigatzaileak hau gordetzeko eskatzea. Abisua agertzen bada, onartu.",
     savePhraseInBrowserHint:
@@ -167,6 +175,7 @@ const locale: LocaleModule = {
     nextMonth: "Hurrengo hilabetea",
     today: "Gaur",
     clearDay: "Kendu erregistroa",
+    clearDayConfirm: "Egun honetan erregistratutako guztia kendu?",
     nextStart: "Hurrengo hasiera probableena",
     expectedToStart: "Zure hilekoa hastea espero zen...",
     cycleLength: "Zikloaren iraupena",
@@ -202,8 +211,10 @@ const locale: LocaleModule = {
     importOk: "Datuak inportatu dira.",
     importInvalid: "Ezin izan da fitxategia irakurri.",
     deleteAccount: "Ezabatu kontua eta egunerokoa",
+    deleting: "Ezabatzen…",
     deleteConfirm:
       "Honek zerbitzariko datu zifratuak eta gailu honetako datuak ezabatzen ditu. Ikerketa-bilduma anonimora bidalitakoa ezin da desegin. Jarraitu?",
+    deleteAction: "Ezabatu",
     email: "E-posta",
     researchTitle: "Egin ekarpena bilduma anonimoari",
     researchBenefit:
@@ -221,12 +232,17 @@ const locale: LocaleModule = {
     address: "Identitate publikoa",
     logout: "Itxi saioa gailu honetan",
     errorGeneric: "Zerbait gaizki atera da. Saiatu berriro.",
+    screenErrorTitle: "Zerbait gaizki atera da pantaila honetan",
+    screenErrorBody:
+      "Zure egunerokoa ez da aldatu. Berriro saiatzeak konpontzen ez badu, esportatu kopia bat.",
     invalidPhrase: "Esaldiak ez du balio.",
     noAccountForPhrase: "Ez dago esaldi hori duen konturik. Berrikusi 12 hitzak edo sortu kontu berri bat.",
     wordMismatch: "Hitz hori ez dator bat.",
     privacyTitle: "Pribatutasuna",
     privacyBody1:
       "Datak nabigatzailean zifratzen dira AES-GCM bidez. Zerbitzariak testu zifratua bakarrik gordetzen du. E-posta eta pasahitza erabil ditzakezu, edo modu superpribatua 12 hitzekin.",
+    privacyBody1Android:
+      "Datak telefono honetan zifratzen dira AES-GCM bidez. Zerbitzariak testu zifratua bakarrik gordetzen du. E-posta eta pasahitza erabil ditzakezu, edo modu superpribatua 12 hitzekin.",
     privacyBody2:
       "Ciclok ezin ditu zure pasahitza eta esaldia berrezarri. Galtzen badituzu, hodeiko egunerokoa galdu egiten da. Horrek zure pribatutasuna babesten du: inork — ezta guk ere — ezin du zure egunerokoa zerbitzarian irakurri.",
     privacyBody3:
@@ -235,6 +251,7 @@ const locale: LocaleModule = {
       "Sintomak, odoljarioa, zerbix-mukia eta eguneko ohar laburrak eguneroko zifratuaren barruan geratzen dira. Zerbitzariak ez du osasun-zutaberik gehitzen. Bilduma anonimoak zikloen iraupenak bakarrik jasotzen ditu (zenbaki osoak); oharrak ez dira inoiz bidaltzen, ezta aztertzen ere.",
     privacyBody5: "Ikerketa-bildumak ez du zure kontuaren eta identifikatzaile anonimoaren arteko maparik gordetzen.",
     welcomeCta: "Hasi nabigatzailean. Datak zifratu egiten dira gailutik atera aurretik.",
+    welcomeCtaAndroid: "Hasi hemen. Datak zifratu egiten dira telefono honetatik atera aurretik.",
     restoreFailedTitle: "Ezin izan dugu zure egunerokoa ireki",
     restoreFailedBody:
       "Konexioa edo zerbitzaria izan daiteke. Zure sarbidea gailu honetan gordeta dago oraindik, eta zure datuak ez dira ukitu.",
@@ -251,6 +268,9 @@ const locale: LocaleModule = {
     updateBodyCopy: "Cicloren bertsio hau zaharregia da zerbitzariarentzat; beraz, mugikor honetan gordetako kopia ikusten ari zara ({date}). Eguneratu Google Play-tik sarrera berriagoak ikusteko eta editatzen jarraitzeko.",
     updateSignInBodyWeb: "Kargatu berriro orria Cicloren azken bertsioa izateko, eta hasi saioa berriro.",
     updateOpenStore: "Ireki Google Play",
+    webviewUpdateTitle: "Eguneratu Android System WebView",
+    webviewUpdateBody:
+      "Ciclok Android System WebView-ren bertsio berriago bat behar du. Eguneratu Google Play-tik, baita Google Chrome ere baduzu, eta ireki Ciclo berriro.",
     updateReload: "Kargatu berriro",
     updateDayHint: "Eguneratu Ciclo egun hau aldatzeko.",
     updateNeededAction: "Eguneratu Ciclo hau egiteko.",
@@ -285,12 +305,13 @@ const locale: LocaleModule = {
     moveToDeviceHint:
       "Zure eguneroko zifratua mugikor honetan gordetzen du eta zerbitzariko kontua ezabatzen du, e-posta eta pasahitz bidezko sarbidea barne.",
     moveToDeviceConfirm:
-      "Zure egunerokoa mugikor honetan bakarrik gordeko da, eta zerbitzariko kontua ezabatu egingo da, e-posta eta pasahitz bidezko sarbidea barne. Aurretik, idatzi zure 12 hitzeko esaldia (Gorde nabigatzailean → Ikusi esaldiaren QR kodea) eta egin esportazio bat. Jarraitu?",
+      "Zure egunerokoa mugikor honetan bakarrik gordeko da, eta zerbitzariko kontua ezabatu egingo da, e-posta eta pasahitz bidezko sarbidea barne. Aurretik, idatzi zure 12 hitzeko esaldia (Zure 12 hitzeko esaldia → Ikusi esaldiaren QR kodea) eta egin esportazio bat. Jarraitu?",
     moveToDeviceDone: "Zure egunerokoa mugikor honetan bakarrik dago orain.",
     appLock: "Blokeatu hatz-marka edo PIN bidez",
     appLockHint:
       "Zure hatz-marka edo pantailaren blokeoa eskatzen du Ciclo irekitzean eta 30 segundoz kanpo egon ondoren. Aplikazioa azken aplikazioen zerrendan eta pantaila-argazkietan ere ezkutatzen du.",
     appLockUnavailable: "Hau erabiltzeko, konfiguratu hatz-marka bat edo pantaila-blokeo bat Android ezarpenetan.",
+    appLockNeedsAndroid11: "Aplikazioaren blokeoak Android 11 edo berriagoa behar du.",
     appLockPromptTitle: "Ireki Ciclo",
     appLockPromptSubtitle: "Berretsi zu zarela zure egunerokoa ikusteko.",
     deleteDeviceDiary: "Ezabatu gailu honetako egunerokoa",
@@ -387,6 +408,9 @@ const locale: LocaleModule = {
     backToLearn: "Itzuli Ikasi atalera",
     noPatternsYet: "Erregistratu gutxienez hileko-hasiera bat ereduak ikusteko.",
     saveEntry: "Gorde",
+    discardDraftConfirm: "Egun honetako aldaketak baztertu?",
+    discardDraft: "Baztertu",
+    keepEditing: "Jarraitu editatzen",
     mucusHintDry: "Gutxi edo batere ez",
     mucusHintSticky: "Lodia, itsaskorra",
     mucusHintCreamy: "Krema itxurakoa",
@@ -397,6 +421,8 @@ const locale: LocaleModule = {
     favoriteSymptom: "Gehitu gogokoetara",
     unfavoriteSymptom: "Kendu gogokoetatik",
     deleteCustomSymptom: "Ezabatu: {name}",
+    deleteCustomSymptomConfirm:
+      "«{name}» ezabatu? Erregistratu duzun egun guztietatik kenduko da. Ezin da desegin.",
     addCustomSymptom: "Sortu sintoma pertsonalizatua",
     customSymptomName: "Izena",
     customSymptomEmoji: "Emojia",

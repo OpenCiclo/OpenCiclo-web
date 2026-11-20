@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import type { ReactNode } from "react";
+import Link from "next/link";
 
 export type MarkdownBlock =
   | { type: "heading"; level: 1 | 2 | 3; text: string }
@@ -193,6 +194,11 @@ function isSafeHref(href: string): boolean {
   return href.startsWith("/") || href.startsWith("https://") || href.startsWith("http://") || href.startsWith("#");
 }
 
+/** A path in this app ("/help/x"), not a protocol-relative URL ("//host"). */
+export function isInternalHref(href: string): boolean {
+  return href.startsWith("/") && !href.startsWith("//");
+}
+
 function renderInline(text: string): ReactNode[] {
   const nodes: ReactNode[] = [];
   const pattern = /(\*\*[^*]+\*\*|`[^`]+`|\[[^\]]+\]\([^)]+\))/g;
@@ -216,7 +222,15 @@ function renderInline(text: string): ReactNode[] {
       );
     } else {
       const link = /^\[([^\]]+)\]\(([^)]+)\)$/.exec(token);
-      if (link && isSafeHref(link[2])) {
+      if (link && isInternalHref(link[2])) {
+        // Client navigation: a full page load would restart the app (and, in the
+        // Android app, close a diary that was not kept signed in).
+        nodes.push(
+          <Link key={key} href={link[2]} className="font-medium text-primary underline underline-offset-2">
+            {link[1]}
+          </Link>,
+        );
+      } else if (link && isSafeHref(link[2])) {
         const external = link[2].startsWith("http");
         nodes.push(
           <a

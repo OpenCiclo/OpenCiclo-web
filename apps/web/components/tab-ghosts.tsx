@@ -7,6 +7,7 @@ import { lazy, Suspense, useEffect, useState } from "react";
 
 import { GhostContext } from "@/lib/client/ghost";
 import { showGhost } from "@/lib/client/tab-screen";
+import { GhostBoundary } from "@/components/screen-error";
 
 // The tab screens, in tab bar order, loaded only once a ghost needs them.
 const SCREENS = [
@@ -75,9 +76,12 @@ export function TabGhosts({ current, count }: { current: number; count: number }
           return (
             <div key={tab} className="tab-ghost" ref={(ghost) => (ghost ? showGhost(tab, ghost) : undefined)}>
               <GhostContext value>
-                <Suspense fallback={null}>
-                  <Screen />
-                </Suspense>
+                {/* A ghost that fails to draw (or to load) stays empty; it never takes the app down. */}
+                <GhostBoundary>
+                  <Suspense fallback={null}>
+                    <Screen />
+                  </Suspense>
+                </GhostBoundary>
               </GhostContext>
             </div>
           );

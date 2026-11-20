@@ -1,0 +1,5 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!-- Machine-assisted translation; needs a native review before release. -->
+<resources>
+    <string name="no_webview_message">Ciclo heeft Android System WebView nodig, maar dat staat uit of ontbreekt op deze telefoon. Zet het aan of installeer het via Google Play en open Ciclo daarna opnieuw.</string>
+</resources>
