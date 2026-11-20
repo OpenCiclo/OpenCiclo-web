@@ -8,8 +8,8 @@ import { FloatingTabBar } from "@/components/floating-tab-bar";
 
 /**
  * The tab bar, on the web, in the phone layout only: the desktop layout has
- * DesktopHeader instead, and no screens to slide, so the bar and its ghosts
- * are not even mounted there.
+ * DesktopHeader instead, and no screens to slide, so the bar is not even
+ * mounted there.
  */
 export function PhoneTabBar() {
   return useIsDesktop() ? null : <FloatingTabBar />;

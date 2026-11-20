@@ -9,7 +9,6 @@ import { ChevronDown } from "lucide-react";
 import { PhaseCardOverlay, type CardRect } from "@/components/calendar/phase-card-overlay";
 import { NEXT_PHASE, PHASE_INK, PhaseAura, PhaseRing } from "@/components/calendar/phase-visuals";
 import { useIsDesktop } from "@/lib/client/desktop";
-import { useIsGhost } from "@/lib/client/ghost";
 import { phaseBody, phaseLabel, type CycleOverview, type CyclePhase } from "@/lib/cycle/phases";
 import { cycleTimeline, type CycleTimeline } from "@/lib/cycle/phase-timeline";
 import type { Messages } from "@/lib/i18n";
@@ -142,7 +141,7 @@ export function PhaseHeader({ model, animate }: { model: PhaseCardModel; animate
 
 /**
  * The card above the calendar. Tapping it expands it (see PhaseCardOverlay)
- * into `details`. Ghosts of the calendar (TabGhosts) show it but never open it.
+ * into `details`.
  */
 export function PhaseCard({
   model,
@@ -153,7 +152,6 @@ export function PhaseCard({
   details: (howEstimated: () => void) => ReactNode;
   t: Messages;
 }) {
-  const ghost = useIsGhost();
   const isDesktop = useIsDesktop();
   const cardRef = useRef<HTMLElement>(null);
   const openRef = useRef<HTMLButtonElement>(null);
@@ -169,7 +167,7 @@ export function PhaseCard({
 
   function expand() {
     const rect = cardRef.current?.getBoundingClientRect();
-    if (!rect || ghost) return;
+    if (!rect) return;
     setOrigin({ top: rect.top, left: rect.left, width: rect.width, height: rect.height });
   }
 
@@ -189,7 +187,6 @@ export function PhaseCard({
           ref={openRef}
           type="button"
           onClick={expand}
-          disabled={ghost}
           aria-label={model.openLabel}
           aria-haspopup="dialog"
           aria-expanded={open}
