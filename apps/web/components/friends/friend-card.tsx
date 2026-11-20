@@ -65,10 +65,10 @@ export type FriendCardActions = {
 };
 
 /**
- * One friend: the ring of their cycle with the day in the middle, their name,
- * the phase, what they chose to show, and their note as a chat bubble. The
- * card is tinted from the left in the phase's colour. The ring's arcs and the
- * day are drawn only when they show their cycle day. The button in the corner
+ * One friend: the ring of their cycle with the phase's icon in the middle,
+ * their name, the phase, what they chose to show, and their note as a chat
+ * bubble. The card is tinted from the left in the phase's colour. The ring's
+ * arcs are drawn only when they show their cycle day. The button in the corner
  * lays a dimmed, blurred layer over the card with pause and remove.
  */
 export function FriendPhaseCard({
@@ -137,7 +137,6 @@ export function FriendPhaseCard({
             phase={phase}
             due={view?.kind === "due"}
             animate={false}
-            label={view?.kind === "phase" && view.cycleDay !== null ? String(view.cycleDay) : undefined}
           />
         ) : (
           <span

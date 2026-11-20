@@ -28,8 +28,8 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-// Refresh and settings, in the header: round, and a full tap target.
-const HEADER_BUTTON = "size-11 shrink-0 rounded-full bg-card px-0";
+// Refresh and settings, in the header: round, and never squeezed (the pill gives way first).
+const HEADER_BUTTON = "size-11 min-w-11 shrink-0 rounded-full bg-card px-0";
 
 /**
  * The Friends screen. The header holds refresh and settings (a sheet). Below,
@@ -117,18 +117,17 @@ export default function FriendsPage() {
 
   return (
     <AppShell size="narrow">
-      <div className="mb-[18px] flex items-center gap-2.5 desktop:mb-8">
-        <h1 className="font-serif text-[30px] leading-none font-medium tracking-[-0.01em] text-foreground desktop:text-4xl desktop:tracking-tight">{t.friends}</h1>
+      <div className="mb-[18px] flex items-center gap-2 desktop:mb-8 desktop:gap-2.5">
+        <h1 className="shrink-0 font-serif text-[30px] leading-none font-medium tracking-[-0.01em] text-foreground desktop:text-4xl desktop:tracking-tight">{t.friends}</h1>
         {/* While Friends is new: the sentence that goes with it is in the settings sheet. Remove both once it settles. */}
         <span
           title={t.friendsExperimental}
-          className="rounded-full border border-primary/60 px-[9px] py-[3px] text-[11px] leading-tight font-extrabold tracking-[0.06em] whitespace-nowrap text-primary uppercase"
+          className="min-w-0 truncate rounded-full border border-primary/60 px-2 py-[3px] text-[10px] leading-tight font-extrabold tracking-[0.05em] text-primary uppercase desktop:px-[9px] desktop:text-[11px]"
         >
           {t.friendsExperimentalBadge}
         </span>
-        <span className="grow" />
         {status === "on" ? (
-          <>
+          <div className="ml-auto flex shrink-0 items-center gap-1.5 desktop:gap-2.5">
             <Button type="button" variant="outline" className={HEADER_BUTTON} aria-label={t.friendsRefresh} disabled={busy} onClick={() => void act(() => refresh())}>
               <RefreshCw className="size-[18px]" aria-hidden />
             </Button>
@@ -137,7 +136,7 @@ export default function FriendsPage() {
                 <Settings2 className="size-[18px]" aria-hidden />
               </Button>
             ) : null}
-          </>
+          </div>
         ) : null}
       </div>
       <UpdateNotice className="mb-4" />
