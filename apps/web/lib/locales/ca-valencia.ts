@@ -13,6 +13,9 @@ import type { LocaleModule } from "@/lib/locales/registry";
 const locale: LocaleModule = {
   messages: {
     ...ca.messages,
+    friendsNoteYours: "La teua nota",
+    friendsNoteUntilToday: "es veu fins hui",
+    friendsLoggedToday: "registrat hui",
     createWithEmailHint:
       "Entra des de qualsevol dispositiu amb el mateix correu i la mateixa contrasenya. En crear el compte, confirmes la bústia amb un codi. El diari es xifra al navegador; nosaltres no podem llegir-lo ni restablir la teua contrasenya.",
     createWithEmailHintAndroid:

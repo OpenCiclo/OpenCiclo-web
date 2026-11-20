@@ -17,11 +17,11 @@ Phases are estimates from each person's own logs, the same as on your Calendar c
 ## Adding a friend
 
 1. Open **Friends**, tick the box and choose the name your friends see.
-2. Tap **Invite a friend** and send the link to **one** person (chat, email, or the QR code).
-3. Your friend opens the link, or pastes it in **Friends** → **I have an invite**, and accepts.
+2. Tap **Invite** and send the link to **one** person (chat, email, or the QR code).
+3. Your friend opens the link, or pastes it in **Friends** → **I have a code**, and accepts.
 4. The next time you open Friends, you see each other.
 
-Whoever opens a link first becomes your friend; anyone else gets "already used". A link works for 7 days. **Invite a friend** shows the link that is still waiting, if there is one; tap **New link for another friend** to invite someone else. Links nobody has opened are listed under **Invites waiting to be opened**, on the Friends screen and under each link, where you can cancel them. Sharing is mutual: accepting means both of you see each other.
+Whoever opens a link first becomes your friend; anyone else gets "already used". A link works for 7 days. **Invite** shows the link that is still waiting, if there is one; tap **New link for another friend** to invite someone else. While links are waiting, a line under the two buttons says how many (**view or cancel**): it opens the list, where you can cancel each one. Sharing is mutual: accepting means both of you see each other.
 
 ## How friends see you
 

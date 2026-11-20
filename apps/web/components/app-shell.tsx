@@ -27,9 +27,16 @@ const DESKTOP_WIDTH: Record<ShellSize, string> = {
   wide: "desktop:max-w-6xl",
 };
 
-/** Plays a screen's entrance animations (fade-up and friends) to the end: it arrives whole. */
+/**
+ * Plays a screen's entrance animations (fade-up and friends) to the end: it
+ * arrives whole. Animations under `data-entrance="keep"` are left to play:
+ * small ones inside a card that is already in place (the rings filling on the
+ * Friends screen), which hold nothing back.
+ */
 function skipEntrance(screen: HTMLElement): void {
   for (const animation of screen.getAnimations({ subtree: true })) {
+    const target = animation.effect instanceof KeyframeEffect ? animation.effect.target : null;
+    if (target?.closest('[data-entrance="keep"]')) continue;
     if (Number.isFinite(animation.effect?.getComputedTiming().endTime)) animation.finish();
   }
 }
