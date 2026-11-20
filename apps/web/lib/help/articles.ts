@@ -1,6 +1,8 @@
 // Copyright © 2026 Emma Flora Harbison & Luis Rey Sánchez
 // SPDX-License-Identifier: Apache-2.0
 
+import { FRIENDS_AVAILABLE } from "@/lib/features";
+
 export const HELP_SECTIONS = [
   { id: "product", title: "The app" },
   { id: "hosting", title: "Run and host" },
@@ -35,6 +37,17 @@ export const HELP_ARTICLES: HelpArticleMeta[] = [
     summary: "What Follicular · estimated means, and how that differs from the next-period forecast.",
     section: "product",
   },
+  // Only once Friends is available (lib/features.ts): until then /help/friends is a 404 and content/help/friends.md waits.
+  ...(FRIENDS_AVAILABLE
+    ? [
+        {
+          slug: "friends",
+          title: "Friends: sharing your phase",
+          summary: "What close friends see on your card, how invites work, and what Ciclo's server can and cannot see.",
+          section: "product" as const,
+        },
+      ]
+    : []),
   {
     slug: "inner-seasons",
     title: "Inner seasons",

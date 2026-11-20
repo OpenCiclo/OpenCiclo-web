@@ -14,6 +14,9 @@ ed25519.hashes.sha512 = sha512;
 
 const AES_INFO = utf8ToBytes("oddy-aes-v1");
 const SIGN_INFO = utf8ToBytes("oddy-sign-v1");
+// Seals the friend book (lib/friends/book.ts). Its own label, so it never
+// equals the diary key; changing it would lock every friend book.
+const FRIENDS_INFO = utf8ToBytes("ciclo-friends-v1");
 export const AUTH_MESSAGE_PREFIX = "CICLO-AUTH-V1";
 export const LEGACY_AUTH_MESSAGE_PREFIX = "ODDY-AUTH-V1";
 
@@ -32,6 +35,7 @@ export type Wallet = {
   mnemonic: string;
   aesKey: Uint8Array;
   signSeed: Uint8Array;
+  friendsKey: Uint8Array;
   publicKeyHex: string;
   pubkeyHash: string;
 };
@@ -48,12 +52,14 @@ export function unlockWallet(mnemonic: string): Wallet {
   const seed = mnemonicToSeedSync(normalized);
   const aesKey = hkdf(sha256, seed, undefined, AES_INFO, 32);
   const signSeed = hkdf(sha256, seed, undefined, SIGN_INFO, 32);
+  const friendsKey = hkdf(sha256, seed, undefined, FRIENDS_INFO, 32);
   const publicKey = ed25519.getPublicKey(signSeed);
   const pubkeyHash = bytesToHex(sha256(publicKey));
   return {
     mnemonic: normalized,
     aesKey,
     signSeed,
+    friendsKey,
     publicKeyHex: bytesToHex(publicKey),
     pubkeyHash,
   };

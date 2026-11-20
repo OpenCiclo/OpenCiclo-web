@@ -8,8 +8,10 @@ import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 
 import { bytesToHex, utf8ToBytes } from "@/lib/crypto/bytes";
 import type * as schema from "@/lib/db/schema";
-import { authChallenges, mailboxPending, rateLimitHits, recoveryAttempts } from "@/lib/db/schema";
+import { authChallenges, friendBoxes, mailboxPending, rateLimitHits, recoveryAttempts } from "@/lib/db/schema";
+import { FRIENDS_AVAILABLE } from "@/lib/features";
 import { hashIp, jsonError, requireSecret } from "@/lib/server/env";
+import { describeError } from "@/lib/server/http";
 
 type Db = PostgresJsDatabase<typeof schema>;
 
@@ -51,6 +53,20 @@ export const RATE_LIMITS = {
   // Per account. Every day-sheet save is one PUT; this is far above what a
   // person editing all day sends, and stops a loop from churning the table.
   "vault-write": { max: 600, windowMs: HOUR },
+  // Friends, per account: a device publishes its status to each friend a few
+  // times a day and reads all of them when the Friends tab opens. Plus a
+  // host-wide cap on box writes, far above real use, to alert on.
+  "friends-book-write": { max: 300, windowMs: HOUR },
+  "friends-box-write": { max: 300, windowMs: HOUR },
+  "friends-box-write-day": { max: 1500, windowMs: DAY },
+  "friends-box-read": { max: 600, windowMs: HOUR },
+  "friends-box-write-global": { max: 20_000, windowMs: HOUR, alert: true },
+  // New box addresses (what takes storage): a person needs a handful a day
+  // (invites, answers, one status per new friend). Host-wide, at most about
+  // 6 MB of new boxes a day (2752-character ciphertext each); a refusal is
+  // the alert to look at, since boxes cannot be attributed to purge them.
+  "friends-box-create": { max: 60, windowMs: DAY },
+  "friends-box-create-global": { max: 2_000, windowMs: DAY, alert: true },
 } as const satisfies Record<string, RateLimit>;
 
 export type RateLimitBucket = keyof typeof RATE_LIMITS;
@@ -120,7 +136,10 @@ export function sourceKey(request: Request): string {
 /**
  * Keyed hash for a non-IP limit (an account id, an email lookup). The raw value
  * never reaches `rate_limit_hits` or the logs, and the hash differs from the
- * value stored in other tables, so the rows cannot be joined to them.
+ * value stored in other tables, so the rows cannot be joined to them by value.
+ * Timing is another matter: a per-account hit written right before a friend
+ * box write can link that box to its writer for as long as the hit is kept
+ * (about a day); docs/threat-model.md and the privacy policy say so.
  */
 export function limitKey(kind: "account" | "email", value: string): string {
   const secret = requireSecret("EMAIL_LOOKUP_SECRET");
@@ -234,7 +253,8 @@ async function applyLimits(
 /**
  * Deletes bookkeeping that can no longer matter: rate-limit hits and recovery
  * attempts older than a day, auth challenges and pending email confirmations
- * that have expired. None of these rows hold diary data; a pending row holds a
+ * that have expired, and expired friend boxes (sealed, no account; reads skip
+ * them already). None of these rows hold diary data; a pending row holds a
  * wrapped kit and HMAC(email) for a sign-up that was never confirmed.
  */
 export async function pruneEphemeralRows(db: Db, now = new Date()) {
@@ -243,6 +263,14 @@ export async function pruneEphemeralRows(db: Db, now = new Date()) {
   await db.delete(recoveryAttempts).where(lt(recoveryAttempts.createdAt, cutoff));
   await db.delete(authChallenges).where(lt(authChallenges.expiresAt, now));
   await db.delete(mailboxPending).where(lt(mailboxPending.expiresAt, now));
+  // Only once Friends is on: until then production may not have 0008 yet, and
+  // a missing table must never fail the request this cleanup rides on.
+  if (FRIENDS_AVAILABLE) {
+    await db
+      .delete(friendBoxes)
+      .where(lt(friendBoxes.expiresAt, now))
+      .catch((error: unknown) => console.error(`FRIEND_BOX_PRUNE_FAILED ${describeError(error)}`));
+  }
 }
 
 export function tooManyRequests(): Response {

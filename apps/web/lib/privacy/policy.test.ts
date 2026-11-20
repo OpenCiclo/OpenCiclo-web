@@ -10,6 +10,7 @@ import { PgTable, getTableConfig } from "drizzle-orm/pg-core";
 import { describe, expect, it } from "vitest";
 
 import * as schema from "@/lib/db/schema";
+import { FRIENDS_AVAILABLE } from "@/lib/features";
 import { messages, type BaseLocale } from "@/lib/i18n";
 import { CONTROLLER, PRIVACY_EMAIL } from "@/lib/marketing/copy";
 import { deleteAccountGuide } from "@/lib/privacy/delete-account";
@@ -160,12 +161,24 @@ describe("privacy policy", () => {
       research_contributions: "research pool",
       learn_articles: "not personal data (operator-written articles)",
       recovery_tokens: "not written by any code (legacy table)",
+      // Written only while FRIENDS_AVAILABLE is on (the routes answer 404
+      // otherwise); the test below holds the flag until the policy says so.
+      friend_books: "Friends (sealed friend list, per account)",
+      friend_boxes: "Friends (sealed messages between friends, no account)",
     };
     const tables = Object.values(schema)
       .filter((value) => is(value, PgTable))
       .map((table) => getTableName(table as PgTable))
       .sort();
     expect(tables).toEqual(Object.keys(described).sort());
+  });
+
+  // Friends stores data only once FRIENDS_AVAILABLE is on: by then the policy
+  // must describe it, in both authoritative languages.
+  it("describes Friends whenever the feature is available", () => {
+    if (!FRIENDS_AVAILABLE) return;
+    expect(text(privacyPolicy("en", DEFAULT_POLICY_CONTEXT))).toMatch(/\bFriends\b/);
+    expect(text(privacyPolicy("es", DEFAULT_POLICY_CONTEXT))).toMatch(/\bAmig[ao]s\b/);
   });
 
   // A new column in a table that holds personal data fails here until someone
@@ -203,6 +216,8 @@ describe("privacy policy", () => {
       rate_limit_hits: ["id", "bucket", "key_hash", "created_at"],
       research_contributions: ["pool_id", "contributor_key_hash", "cycle_lengths", "created_at", "updated_at"],
       recovery_tokens: ["id", "email_lookup", "token_hash", "expires_at", "created_at"],
+      friend_books: ["account_id", "ciphertext", "nonce", "version", "updated_at"],
+      friend_boxes: ["box_hash", "write_hash", "ciphertext", "nonce", "expires_at"],
     };
     const byName = new Map(
       Object.values(schema)

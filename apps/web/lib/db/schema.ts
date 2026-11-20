@@ -158,6 +158,38 @@ export const rateLimitHits = pgTable(
   ],
 );
 
+// Sealed on the device; the host stores the blob only (drizzle/0008_friends.sql).
+export const friendBooks = pgTable(
+  "friend_books",
+  {
+    accountId: uuid("account_id")
+      .primaryKey()
+      .references(() => accounts.id, { onDelete: "cascade" }),
+    ciphertext: text("ciphertext").notNull(),
+    nonce: text("nonce").notNull(),
+    version: integer("version").notNull().default(1),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [check("friend_books_ciphertext_check", sql`length(${table.ciphertext}) <= 43712`)],
+);
+
+// No account column and no write time, on purpose: see drizzle/0008_friends.sql.
+export const friendBoxes = pgTable(
+  "friend_boxes",
+  {
+    boxHash: text("box_hash").primaryKey(),
+    writeHash: text("write_hash").notNull(),
+    ciphertext: text("ciphertext").notNull(),
+    nonce: text("nonce").notNull(),
+    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+  },
+  (table) => [
+    check("friend_boxes_ciphertext_check", sql`length(${table.ciphertext}) = 2752`),
+    check("friend_boxes_nonce_check", sql`length(${table.nonce}) = 16`),
+    index("friend_boxes_expires_idx").on(table.expiresAt),
+  ],
+);
+
 export const recoveryTokens = pgTable("recovery_tokens", {
   id: uuid("id").defaultRandom().primaryKey(),
   emailLookup: text("email_lookup").notNull(),

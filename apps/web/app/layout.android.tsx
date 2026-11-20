@@ -5,6 +5,7 @@ import { AndroidBack } from "@/components/android-back";
 import { BootSplash } from "@/components/boot-splash";
 import { DeviceLockGate } from "@/components/device-lock-gate";
 import { FloatingTabBar } from "@/components/floating-tab-bar";
+import { FriendsProvider } from "@/components/friends/friends-provider";
 import { ThemeClass } from "@/components/theme-class";
 import { API_BASE } from "@/lib/app-target";
 import { bootSplashScript } from "@/lib/brand/boot-splash-script";
@@ -56,13 +57,15 @@ export default function AndroidRootLayout({ children }: { children: React.ReactN
         {/* `lang` follows the saved or the device language before the bundle runs. */}
         <script dangerouslySetInnerHTML={{ __html: localeBootScript() }} />
         <CicloProvider>
-          <BootSplash />
-          <script dangerouslySetInnerHTML={{ __html: bootSplashScript() }} />
-          {children}
-          <FloatingTabBar />
-          <DeviceLockGate />
-          <AndroidBack />
-          <ThemeClass />
+          <FriendsProvider>
+            <BootSplash />
+            <script dangerouslySetInnerHTML={{ __html: bootSplashScript() }} />
+            {children}
+            <FloatingTabBar />
+            <DeviceLockGate />
+            <AndroidBack />
+            <ThemeClass />
+          </FriendsProvider>
         </CicloProvider>
       </body>
     </html>
