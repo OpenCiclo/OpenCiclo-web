@@ -472,6 +472,9 @@ const locale: LocaleModule = {
     futureDayHint: "Tu pourras noter ce jour quand il arrivera.",
     moonPhaseTitle: "Phase de la lune",
     moonIllumination: "Éclairée à {percent} %",
+    moonToday: "Aujourd’hui, {phase} · {percent} %",
+    moonNextFull: "Pleine lune le {date}",
+    moonNextNew: "Nouvelle lune le {date}",
     periodDueTitle: "Tes règles devraient arriver bientôt",
     periodDueBody:
       "Le jour le plus probable est arrivé ou passé, et aucun saignement n’est encore noté. Le graphique montre la probabilité jour par jour. C’est une estimation : cela ne confirme pas que tes règles ont commencé.",

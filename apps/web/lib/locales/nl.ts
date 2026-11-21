@@ -468,6 +468,9 @@ const locale: LocaleModule = {
     futureDayHint: "Je kunt deze dag invullen als hij er is.",
     moonPhaseTitle: "Maanfase",
     moonIllumination: "{percent}% verlicht",
+    moonToday: "Vandaag, {phase} · {percent}%",
+    moonNextFull: "Volle maan op {date}",
+    moonNextNew: "Nieuwe maan op {date}",
     periodDueTitle: "Je menstruatie komt waarschijnlijk binnenkort",
     periodDueBody:
       "De meest waarschijnlijke begindag is er of al voorbij, en er is nog geen bloedverlies geregistreerd. De grafiek toont de kans per dag. Het is een schatting en betekent niet dat je menstruatie is begonnen.",

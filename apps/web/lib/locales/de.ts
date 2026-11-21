@@ -470,6 +470,9 @@ const locale: LocaleModule = {
     futureDayHint: "Du kannst diesen Tag eintragen, wenn er da ist.",
     moonPhaseTitle: "Mondphase",
     moonIllumination: "Zu {percent} % beleuchtet",
+    moonToday: "Heute: {phase} · {percent} %",
+    moonNextFull: "Vollmond am {date}",
+    moonNextNew: "Neumond am {date}",
     periodDueTitle: "Deine Periode sollte bald kommen",
     periodDueBody:
       "Der wahrscheinlichste Starttag ist erreicht oder vorbei, und es ist noch keine Blutung eingetragen. Das Diagramm zeigt die tägliche Wahrscheinlichkeit. Das ist eine Schätzung und bedeutet nicht, dass deine Periode begonnen hat.",

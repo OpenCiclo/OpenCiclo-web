@@ -467,6 +467,9 @@ const locale: LocaleModule = {
     futureDayHint: "Podràs anotar aquest dia quan arribi.",
     moonPhaseTitle: "Fase lunar",
     moonIllumination: "{percent}% il·luminada",
+    moonToday: "Avui, {phase} · {percent} %",
+    moonNextFull: "Lluna plena el {date}",
+    moonNextNew: "Lluna nova el {date}",
     periodDueTitle: "La regla t'hauria d'arribar aviat",
     periodDueBody:
       "El dia més probable ja ha arribat o ha passat, i encara no hi ha sagnat registrat. El gràfic mostra la probabilitat diària. És una estimació; no confirma que la regla hagi començat.",
