@@ -1,6 +1,8 @@
 // Copyright © 2026 Emma Flora Harbison & Luis Rey Sánchez
 // SPDX-License-Identifier: Apache-2.0
 
+import { memo } from "react";
+
 import type { LunarDayInfo, MoonPhaseId } from "@/lib/lunar/phases";
 import type { Messages } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
@@ -50,15 +52,20 @@ function litPath(fraction: number, waxing: boolean): string {
  * per theme). `highlight` adds a soft halo and a lit rim, for the day a main
  * phase falls on and for the moon shown large. The halo is drawn outside the
  * icon's box, so it never changes the layout.
+ *
+ * The calendar draws one per day, so it is kept light: two or three shapes,
+ * and memoised (`lunarDayInfo` hands back the same object for the same day),
+ * so a calendar that renders again leaves its moons alone. `label` is for
+ * callers that name the moon themselves; the icon is hidden from assistive
+ * technology.
  */
-export function MoonPhaseIcon({
+export const MoonPhaseIcon = memo(function MoonPhaseIcon({
   info,
-  label,
   highlight = false,
   className,
 }: {
   info: LunarDayInfo;
-  label: string;
+  label?: string;
   highlight?: boolean;
   className?: string;
 }) {
@@ -68,24 +75,17 @@ export function MoonPhaseIcon({
 
   return (
     <svg viewBox="0 0 20 20" className={cn("size-4 shrink-0 overflow-visible", className)} aria-hidden>
-      <title>{label}</title>
       {highlight ? <circle cx={CENTER} cy={CENTER} r={12.5} fill="var(--moon-lit)" fillOpacity={0.18} /> : null}
-      <circle cx={CENTER} cy={CENTER} r={RADIUS} fill="var(--moon-shade)" />
-      {nearlyFull ? (
-        <circle cx={CENTER} cy={CENTER} r={RADIUS} fill="var(--moon-lit)" />
-      ) : nearlyNew ? null : (
-        <path d={litPath(fraction, waxing)} fill="var(--moon-lit)" />
-      )}
-      {/* The rim keeps the disk readable on the card: lit for a highlighted moon, faint otherwise. */}
+      {/* The disk and its rim in one shape: the rim keeps it readable on the card, lit for a highlighted moon. */}
       <circle
         cx={CENTER}
         cy={CENTER}
-        r={RADIUS}
-        fill="none"
+        r={RADIUS - 0.5}
+        fill={nearlyFull ? "var(--moon-lit)" : "var(--moon-shade)"}
         stroke={highlight ? "var(--moon-lit)" : "var(--moon-rim)"}
-        strokeOpacity={highlight ? 0.75 : 1}
-        strokeWidth={highlight ? 1.2 : 0.8}
+        strokeWidth={1}
       />
+      {nearlyFull || nearlyNew ? null : <path d={litPath(fraction, waxing)} fill="var(--moon-lit)" />}
     </svg>
   );
-}
+});

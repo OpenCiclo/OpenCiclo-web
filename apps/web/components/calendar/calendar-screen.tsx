@@ -146,6 +146,22 @@ export function CalendarScreen() {
   const [activeFilters, setActiveFilters] = useState<SymptomId[]>([]);
   const showMoonBand = lunarPhasesEnabled && lunarPhasesVisible;
 
+  // The months beside this one are drawn all at once when a swipe or an arrow
+  // brings them in. Their moons are worked out ahead, in a quiet moment, so
+  // that frame only has to draw (lib/lunar/phases.ts keeps each day's answer).
+  useEffect(() => {
+    if (!showMoonBand) return;
+    const timer = window.setTimeout(() => {
+      for (const step of [-1, 1]) {
+        const first = new Date(Date.UTC(year, month - 1 + step, 1));
+        for (const iso of monthCells(first.getUTCFullYear(), first.getUTCMonth() + 1, weekStartsOn)) {
+          if (iso) isMainPhaseDay(iso);
+        }
+      }
+    }, 400);
+    return () => window.clearTimeout(timer);
+  }, [showMoonBand, year, month, weekStartsOn]);
+
   const overview = useMemo(() => cycleOverview(diary, today), [diary, today]);
   const possibleStarts = useMemo(
     () =>

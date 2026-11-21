@@ -42,10 +42,29 @@ export function classifyMoonPhase(phase: number): MoonPhaseId {
 }
 
 /**
+ * A day's moon never changes, and the calendar asks for the same days on every
+ * render (each cell, its two neighbours, the month beside it while swiping),
+ * so answers are kept by day. Bounded: a few years of days, then it starts over.
+ */
+const CACHE_LIMIT = 2000;
+const dayInfoCache = new Map<string, LunarDayInfo>();
+const mainPhaseDayCache = new Map<string, boolean>();
+
+/**
  * Lunar illumination for a diary ISO date (YYYY-MM-DD).
  * Uses UTC noon so the day does not flip with local midnight.
+ * The same object comes back for the same day: treat it as read-only.
  */
 export function lunarDayInfo(iso: string): LunarDayInfo {
+  const known = dayInfoCache.get(iso);
+  if (known) return known;
+  if (dayInfoCache.size >= CACHE_LIMIT) dayInfoCache.clear();
+  const info = computeLunarDayInfo(iso);
+  dayInfoCache.set(iso, info);
+  return info;
+}
+
+function computeLunarDayInfo(iso: string): LunarDayInfo {
   const date = new Date(`${iso}T12:00:00.000Z`);
   const { phase, fraction, angle } = new SunCalc(date).getMoonIllumination();
   const phaseId = classifyMoonPhase(phase);
@@ -78,11 +97,15 @@ function distanceToMainPhase(phase: number): number {
  * phase, about every seven days.
  */
 export function isMainPhaseDay(iso: string): boolean {
+  const known = mainPhaseDayCache.get(iso);
+  if (known !== undefined) return known;
+  if (mainPhaseDayCache.size >= CACHE_LIMIT) mainPhaseDayCache.clear();
   const here = distanceToMainPhase(lunarDayInfo(iso).phase);
-  return (
+  const main =
     here < distanceToMainPhase(lunarDayInfo(shiftDay(iso, -1)).phase) &&
-    here <= distanceToMainPhase(lunarDayInfo(shiftDay(iso, 1)).phase)
-  );
+    here <= distanceToMainPhase(lunarDayInfo(shiftDay(iso, 1)).phase);
+  mainPhaseDayCache.set(iso, main);
+  return main;
 }
 
 /** The next full or new moon after `iso` (never that day itself): the day it falls on, and which of the two. */
