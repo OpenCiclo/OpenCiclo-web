@@ -25,82 +25,66 @@ export function moonPhaseText(info: LunarDayInfo, t: Messages): string {
   return t.moonPhaseLabel.replace("{phase}", moonPhaseName(info, t)).replace("{percent}", String(info.percent));
 }
 
+const CENTER = 10;
+const RADIUS = 9;
+
 /**
- * Compact northern-hemisphere moon disk.
- * Lit portion is on the right while waxing and on the left while waning.
+ * The lit part of the disk as one path: the lit limb (a half circle on the
+ * right while waxing, on the left while waning) closed by the terminator, an
+ * ellipse arc that bulges towards the lit side for a crescent and away from
+ * it for a gibbous moon.
+ */
+function litPath(fraction: number, waxing: boolean): string {
+  const top = `${CENTER} ${CENTER - RADIUS}`;
+  const bottom = `${CENTER} ${CENTER + RADIUS}`;
+  const terminator = (Math.abs(1 - 2 * fraction) * RADIUS).toFixed(2);
+  const limb = waxing ? 1 : 0;
+  const crescent = fraction < 0.5;
+  const back = crescent ? (waxing ? 0 : 1) : waxing ? 1 : 0;
+  return `M${top} A${RADIUS} ${RADIUS} 0 0 ${limb} ${bottom} A${terminator} ${RADIUS} 0 0 ${back} ${top} Z`;
+}
+
+/**
+ * The moon as seen from the northern hemisphere: a dark disk with its lit
+ * part in a warm ivory (`--moon-lit`, `--moon-shade` in globals.css, one pair
+ * per theme). `highlight` adds a soft halo and a lit rim, for the day a main
+ * phase falls on and for the moon shown large. The halo is drawn outside the
+ * icon's box, so it never changes the layout.
  */
 export function MoonPhaseIcon({
   info,
   label,
+  highlight = false,
   className,
 }: {
   info: LunarDayInfo;
   label: string;
+  highlight?: boolean;
   className?: string;
 }) {
-  const { fraction, waxing, isMajor } = info;
-  const cx = 8;
-  const cy = 8;
-  const r = 6.5;
-  const terminatorRx = Math.abs(1 - 2 * fraction) * r;
-  const gibbous = fraction >= 0.5;
+  const { fraction, waxing } = info;
   const nearlyNew = fraction <= 0.02;
   const nearlyFull = fraction >= 0.98;
-  const litOnRight = waxing;
 
   return (
-    <svg
-      viewBox="0 0 16 16"
-      className={cn("size-4 shrink-0 drop-shadow-[0_1px_1px_rgb(0_0_0/0.12)]", className)}
-      aria-hidden
-    >
+    <svg viewBox="0 0 20 20" className={cn("size-4 shrink-0 overflow-visible", className)} aria-hidden>
       <title>{label}</title>
-      {/* Unlit disk */}
-      <circle cx={cx} cy={cy} r={r} className="fill-foreground/60" />
-
+      {highlight ? <circle cx={CENTER} cy={CENTER} r={12.5} fill="var(--moon-lit)" fillOpacity={0.18} /> : null}
+      <circle cx={CENTER} cy={CENTER} r={RADIUS} fill="var(--moon-shade)" />
       {nearlyFull ? (
-        <circle cx={cx} cy={cy} r={r} className="fill-card" />
+        <circle cx={CENTER} cy={CENTER} r={RADIUS} fill="var(--moon-lit)" />
       ) : nearlyNew ? null : (
-        <>
-          {/* Lit hemisphere */}
-          <path
-            d={
-              litOnRight
-                ? `M ${cx} ${cy - r} A ${r} ${r} 0 0 1 ${cx} ${cy + r} Z`
-                : `M ${cx} ${cy - r} A ${r} ${r} 0 0 0 ${cx} ${cy + r} Z`
-            }
-            className="fill-card"
-          />
-          {/* Terminator ellipse: dark for crescent, lit for gibbous */}
-          <ellipse
-            cx={cx}
-            cy={cy}
-            rx={terminatorRx}
-            ry={r}
-            className={gibbous ? "fill-card" : "fill-foreground/60"}
-          />
-          {/* A subtle colored rim makes waxing and waning direction legible at small sizes. */}
-          <path
-            d={
-              litOnRight
-                ? `M ${cx} ${cy - r} A ${r} ${r} 0 0 1 ${cx} ${cy + r}`
-                : `M ${cx} ${cy - r} A ${r} ${r} 0 0 0 ${cx} ${cy + r}`
-            }
-            fill="none"
-            className="stroke-foreground/80"
-            strokeWidth={0.9}
-            strokeLinecap="round"
-          />
-        </>
+        <path d={litPath(fraction, waxing)} fill="var(--moon-lit)" />
       )}
-
+      {/* The rim keeps the disk readable on the card: lit for a highlighted moon, faint otherwise. */}
       <circle
-        cx={cx}
-        cy={cy}
-        r={r}
+        cx={CENTER}
+        cy={CENTER}
+        r={RADIUS}
         fill="none"
-        className={isMajor ? "stroke-foreground/90" : "stroke-foreground/55"}
-        strokeWidth={isMajor ? 1.2 : 0.7}
+        stroke={highlight ? "var(--moon-lit)" : "var(--moon-rim)"}
+        strokeOpacity={highlight ? 0.75 : 1}
+        strokeWidth={highlight ? 1.2 : 0.8}
       />
     </svg>
   );

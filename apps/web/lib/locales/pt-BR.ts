@@ -468,6 +468,9 @@ const locale: LocaleModule = {
     futureDayHint: "Você poderá registrar este dia quando ele chegar.",
     moonPhaseTitle: "Fase da lua",
     moonIllumination: "{percent}% iluminada",
+    moonToday: "Hoje, {phase} · {percent}%",
+    moonNextFull: "Lua cheia em {date}",
+    moonNextNew: "Lua nova em {date}",
     periodDueTitle: "Sua menstruação deve chegar em breve",
     periodDueBody:
       "O dia mais provável já chegou ou passou, e ainda não há sangramento registrado. O gráfico mostra a probabilidade diária. É uma estimativa; não confirma que a menstruação começou.",

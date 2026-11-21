@@ -13,6 +13,7 @@ import type { LocaleModule } from "@/lib/locales/registry";
 const locale: LocaleModule = {
   messages: {
     ...ca.messages,
+    moonToday: "Hui, {phase} · {percent} %",
     patternsIntroToday: "Hui · dia {day} del teu cicle",
     patternsIntroNext: "La regla t'arribarà cap al {date}, d'ací a {days}.",
     patternsIntroDue: "La regla s'espera per estos dies.",

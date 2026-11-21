@@ -3,7 +3,7 @@
 
 import { describe, expect, it } from "vitest";
 
-import { classifyMoonPhase, lunarDayInfo, MOON_PHASE_IDS } from "./phases";
+import { classifyMoonPhase, isMainPhaseDay, lunarDayInfo, MOON_PHASE_IDS, nextFullOrNewMoon } from "./phases";
 
 describe("lunar phases", () => {
   it("snaps continuous phase values to the eight named phases", () => {
@@ -45,5 +45,21 @@ describe("lunar phases", () => {
     expect(info.percent).toBeGreaterThanOrEqual(0);
     expect(info.percent).toBeLessThanOrEqual(100);
     expect(info.percent).toBe(Math.round(info.fraction * 100));
+  });
+});
+
+describe("main phase days", () => {
+  const november = Array.from({ length: 30 }, (_, index) => `2026-11-${String(index + 1).padStart(2, "0")}`);
+
+  it("marks one day for each main phase of a month", () => {
+    // November 2026: last quarter on the 1st, new moon on the 9th, first quarter on the 17th, full moon on the 24th.
+    expect(november.filter(isMainPhaseDay)).toEqual(["2026-11-01", "2026-11-09", "2026-11-17", "2026-11-24"]);
+  });
+
+  it("finds the next full or new moon, never the day itself", () => {
+    expect(nextFullOrNewMoon("2026-11-20")).toEqual({ iso: "2026-11-24", phaseId: "fullMoon" });
+    expect(nextFullOrNewMoon("2026-11-05")).toEqual({ iso: "2026-11-09", phaseId: "newMoon" });
+    expect(nextFullOrNewMoon("2026-11-24")?.phaseId).toBe("newMoon");
+    expect(nextFullOrNewMoon("2026-11-30")?.iso.startsWith("2026-12")).toBe(true);
   });
 });
