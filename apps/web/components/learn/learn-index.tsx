@@ -8,6 +8,8 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 import { Search, X } from "lucide-react";
 
 import { AppShell } from "@/components/app-shell";
+import { IS_ANDROID_APP } from "@/lib/app-target";
+import { useSheetDrag } from "@/lib/client/use-sheet-drag";
 import { Badge } from "@/components/ui/badge";
 import { useCiclo } from "@/lib/client/ciclo-context";
 import { useIsDesktop } from "@/lib/client/desktop";
@@ -161,6 +163,16 @@ export function LearnIndex({ articles }: { articles: LearnArticleSummary[] }) {
     }
     setClosing(true);
   }, [activeArticle, closing]);
+
+  // In the Android app the article sheet has a handle and closes when dragged
+  // down by its top. The web keeps the close button (and Escape).
+  const { sheetRef, handleProps } = useSheetDrag({
+    enabled: IS_ANDROID_APP,
+    onDismiss: () => {
+      closeOverlay();
+      return true;
+    },
+  });
 
   useEffect(() => {
     if (!activeArticle || closing) return;
@@ -343,16 +355,18 @@ export function LearnIndex({ articles }: { articles: LearnArticleSummary[] }) {
         </div>
       </div>
       {activeArticle && activeCopy ? (
-        // Phones: the card fills the screen with the same 1rem margin on every
-        // side (plus the status bar / gesture bar insets). Larger screens: centered.
-        <div className="fixed inset-0 z-50 flex justify-center p-4 pt-[max(1rem,env(safe-area-inset-top))] pb-[max(1rem,env(safe-area-inset-bottom))] sm:items-center sm:p-6">
+        // Phones: a sheet across the whole width that comes up from the bottom
+        // to 90% of the screen, so the list stays in sight above it. Desktop:
+        // a dialog in the middle of the window (`.sheet-dialog`).
+        <div className="fixed inset-0 z-50 flex items-end justify-center desktop:items-center desktop:p-6">
           <button
             type="button"
             aria-label={t.close}
             onClick={closeOverlay}
             className={closing ? "animate-overlay-out absolute inset-0 bg-foreground/40" : "animate-overlay-in absolute inset-0 bg-foreground/40"}
           />
-          <article
+          <div
+            ref={sheetRef}
             role="dialog"
             aria-modal="true"
             aria-label={activeCopy.title}
@@ -363,13 +377,20 @@ export function LearnIndex({ articles }: { articles: LearnArticleSummary[] }) {
                 setClosing(false);
               }
             }}
-            className={
-              closing
-                ? "animate-learn-card-out relative z-10 flex h-full w-full max-w-md flex-col overflow-hidden rounded-3xl bg-card shadow-2xl sm:h-auto sm:max-h-[88vh] desktop:max-w-2xl"
-                : "animate-learn-card-in relative z-10 flex h-full w-full max-w-md flex-col overflow-hidden rounded-3xl bg-card shadow-2xl sm:h-auto sm:max-h-[88vh] desktop:max-w-2xl"
-            }
+            className={cn(
+              "sheet-dialog relative z-10 flex h-[90dvh] w-full flex-col overflow-hidden rounded-t-4xl bg-card shadow-2xl sm:max-w-xl desktop:h-auto desktop:max-h-[88vh] desktop:max-w-2xl desktop:rounded-3xl",
+              closing ? "animate-sheet-down" : "animate-sheet-up",
+            )}
           >
-            <div className="shrink-0 border-b border-border px-5 py-4 desktop:px-8 desktop:py-6">
+            {/* The handle and the title block: drag them down to close the sheet (Android). */}
+            <div
+              {...handleProps}
+              className={cn(
+                "relative shrink-0 border-b border-border px-5 pb-4 desktop:px-8 desktop:py-6",
+                IS_ANDROID_APP ? "touch-none pt-2.5 select-none" : "pt-5",
+              )}
+            >
+              {IS_ANDROID_APP ? <div aria-hidden className="mx-auto mb-2.5 h-1 w-9 rounded-full bg-muted-foreground/30" /> : null}
               <button
                 type="button"
                 onClick={closeOverlay}
@@ -391,7 +412,7 @@ export function LearnIndex({ articles }: { articles: LearnArticleSummary[] }) {
             <div
               key={activeArticle.slug}
               aria-busy={!activeBody && !activeFailed}
-              className="min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain px-5 py-4 desktop:px-8 desktop:py-6"
+              className="min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain px-5 pt-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] desktop:px-8 desktop:py-6"
             >
               <p lang={activeLang} className="text-sm leading-relaxed text-muted-foreground desktop:text-base">{activeCopy.summary}</p>
               {activeBody && activeBodyCopy ? (
@@ -459,7 +480,7 @@ export function LearnIndex({ articles }: { articles: LearnArticleSummary[] }) {
                 </section>
               ) : null}
             </div>
-          </article>
+          </div>
         </div>
       ) : null}
     </AppShell>

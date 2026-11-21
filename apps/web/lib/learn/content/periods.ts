@@ -80,6 +80,80 @@ export const PERIODS_ARTICLES: LearnArticle[] = [
     },
   },
   {
+    slug: "good-side-of-your-cycle",
+    category: "periods",
+    reviewedAt: "2026-11-21",
+    sources: [
+      { label: "Office on Women's Health — Your menstrual cycle and your health", href: "https://www.womenshealth.gov/menstrual-cycle/your-menstrual-cycle-and-your-health" },
+      { label: "Office on Women's Health — Physical activity and your menstrual cycle", href: "https://www.womenshealth.gov/getting-active/physical-activity-menstrual-cycle" },
+      { label: "Office on Women's Health — Premenstrual syndrome (PMS)", href: "https://www.womenshealth.gov/menstrual-cycle/premenstrual-syndrome" },
+      { label: "NHS — Period pain", href: "https://www.nhs.uk/conditions/period-pain/" },
+    ],
+    related: ["tracking-your-cycle", "exercise-and-periods", "mood-and-cycle"],
+    es: {
+      title: "Lo bueno de tu ciclo",
+      summary: "Casi toda la información sobre el periodo habla de problemas. Pero tu ciclo también es una señal de que tu cuerpo funciona, y tiene días buenos. Aquí verás lo positivo, sin fingir que el periodo siempre es fácil.",
+      sections: [
+        {
+          heading: "Una señal de que tu cuerpo funciona",
+          body: "Tener periodos regulares entre la pubertad y la menopausia significa que tu cuerpo está funcionando con normalidad. Tu ciclo depende de que el cerebro, los ovarios y el útero trabajen juntos. Por eso, un periodo que llega más o menos cuando lo esperas es una buena noticia que se repite cada mes. Si usas anticonceptivos hormonales, estás embarazada, das el pecho o te acercas a la menopausia, tu sangrado sigue otras reglas, y eso también es normal.",
+        },
+        {
+          heading: "Un aviso temprano y gratuito",
+          body: "Como el ciclo refleja tu salud, sus cambios pueden avisarte pronto de que algo necesita atención. Un periodo que se vuelve irregular, mucho más abundante o mucho más doloroso es una pista que vale la pena comentar con un médico o una enfermera. Pocas partes del cuerpo te dan una señal tan clara cada mes. Si conoces lo que es normal para ti, es más fácil notar cuándo algo cambia.",
+        },
+        {
+          heading: "No todos los días son difíciles",
+          body: "La energía, la memoria y la tolerancia al dolor cambian a lo largo del ciclo, y no solo a peor. Algunas personas tienen más energía durante el periodo, y otras en la semana antes de la ovulación, cuando la actividad física puede mejorar el ánimo. Los síntomas del síndrome premenstrual (SPM) suelen desaparecer pocos días después de que empiece el periodo, así que para muchas personas su llegada trae alivio. Cada cuerpo es distinto. Tus días buenos pueden caer en otro momento.",
+        },
+        {
+          heading: "Tu cuerpo puede con todo",
+          body: "No hace falta dejar de moverte por tener el periodo. La investigación no ha encontrado diferencias en la capacidad para hacer ejercicio a lo largo del ciclo. La única excepción son las pruebas de resistencia con calor y humedad en los días antes del periodo. Algunas personas tienen cólicos menos dolorosos si hacen ejercicio con regularidad, y el ejercicio suave, como caminar, nadar o el yoga, puede aliviar el dolor menstrual. Si un día prefieres descansar, también está bien.",
+        },
+        {
+          heading: "Conocer tu ritmo es útil",
+          body: "Registrar tu ciclo te ayuda a saber cuándo esperar el periodo y a notar qué se repite: los días en que tienes más energía, los días en que necesitas más descanso. Con eso puedes organizarte mejor y sorprenderte menos. También te da datos claros si algún día necesitas explicarle algo a un médico. En Ciclo, la pestaña Patrones muestra lo que se repite. Recuerda que los pronósticos son estimaciones y pueden fallar.",
+        },
+        {
+          heading: "No tienes que amarlo",
+          body: "Nada de esto significa que el periodo deba gustarte. Sentir indiferencia o fastidio es igual de válido. Y un dolor fuerte o un sangrado muy abundante no son algo que haya que aguantar: tienen tratamiento. Habla con un médico o una enfermera si el dolor o el sangrado te impiden hacer tu vida normal, o si tu ánimo baja mucho antes de cada periodo.",
+        },
+      ],
+      notice: "Esto es información general. Cada ciclo es distinto. Si el tuyo te causa mucho dolor o malestar, habla con un médico o una enfermera.",
+    },
+    en: {
+      title: "The good side of your cycle",
+      summary: "Most information about periods is about problems. But your cycle is also a sign that your body is working, and it has good days too. Here is what is positive, without pretending periods are always easy.",
+      sections: [
+        {
+          heading: "A sign your body is working",
+          body: "Having regular periods between puberty and menopause means your body is working normally. Your cycle depends on your brain, ovaries and womb working together. So a period that comes about when you expect it is good news that repeats every month. If you use hormonal contraception, are pregnant or breastfeeding, or are getting close to menopause, your bleeding follows other rules, and that is normal too.",
+        },
+        {
+          heading: "A free early warning",
+          body: "Because your cycle reflects your health, changes in it can tell you early that something needs attention. A period that becomes irregular, much heavier or much more painful is a clue worth raising with a doctor or nurse. Few parts of the body give you such a clear signal every month. When you know what is normal for you, it is easier to notice when something changes.",
+        },
+        {
+          heading: "Not every day is a hard day",
+          body: "Energy, memory and how you cope with pain change across the cycle, and not only for the worse. Some people have more energy during their period, and others in the week before ovulation, when being active may lift your mood. Premenstrual syndrome (PMS) symptoms usually go away within a few days of a period starting, so for many people its arrival brings relief. Every body is different. Your good days may fall at another time.",
+        },
+        {
+          heading: "Your body can still do everything",
+          body: "You do not need to stop moving because you have your period. Research has not found differences in the ability to exercise across the cycle. The one exception is endurance events in hot, humid weather in the days before a period. Some people have less painful cramps if they exercise regularly, and gentle exercise such as walking, swimming or yoga can ease period pain. If you would rather rest some days, that is fine too.",
+        },
+        {
+          heading: "Knowing your rhythm is useful",
+          body: "Tracking your cycle helps you know when to expect your period and notice what repeats: the days you have more energy, the days you need more rest. That lets you plan better and be surprised less. It also gives you clear information if you ever need to explain something to a doctor. In Ciclo, the Patterns tab shows what repeats. Remember that forecasts are estimates and can be wrong.",
+        },
+        {
+          heading: "You do not have to love it",
+          body: "None of this means you should enjoy your period. Feeling neutral or fed up is just as valid. And severe pain or very heavy bleeding are not things to put up with: they can be treated. Talk to a doctor or nurse if pain or bleeding stops you doing your normal activities, or if your mood drops a lot before each period.",
+        },
+      ],
+      notice: "This is general information. Every cycle is different. If yours causes you a lot of pain or distress, talk to a doctor or nurse.",
+    },
+  },
+  {
     slug: "period-products",
     category: "periods",
     reviewedAt: "2026-10-04",

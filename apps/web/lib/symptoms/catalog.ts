@@ -180,6 +180,18 @@ if (SYMPTOM_CATALOG.length !== BUILT_IN_SYMPTOM_IDS.length) {
   throw new Error("The symptom catalog and built-in IDs are out of sync");
 }
 
+const SEX_ENTRY_IDS: ReadonlySet<SymptomId> = new Set(
+  SYMPTOM_CATALOG.filter((item) => item.category === "sexAndSexDrive").map((item) => item.id),
+);
+
+/**
+ * Whether `id` is in "Sex and sex drive". Those are logged like symptoms, but
+ * sex is not a symptom: Patterns lists them apart and no text calls them one.
+ */
+export function isSexEntry(id: SymptomId): boolean {
+  return SEX_ENTRY_IDS.has(id);
+}
+
 export const SYMPTOM_CATEGORY_ORDER = [
   "custom",
   ...SYMPTOM_CATEGORIES,
