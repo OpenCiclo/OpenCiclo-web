@@ -519,6 +519,9 @@ const es = {
   futureDayHint: "Podrás anotar este día cuando llegue.",
   moonPhaseTitle: "Fase lunar",
   moonIllumination: "{percent}% iluminada",
+  moonToday: "Hoy, {phase} · {percent} %",
+  moonNextFull: "Luna llena el {date}",
+  moonNextNew: "Luna nueva el {date}",
   periodDueTitle: "Tu menstruación debería llegar pronto",
   periodDueBody:
     "El día más probable ya llegó o pasó, y aún no hay sangrado registrado. El gráfico muestra la probabilidad diaria. Es una estimación; no confirma que el periodo haya empezado.",
@@ -1364,6 +1367,9 @@ const en = {
   futureDayHint: "You can log this day once it comes.",
   moonPhaseTitle: "Moon phase",
   moonIllumination: "{percent}% illuminated",
+  moonToday: "Today, {phase} · {percent}%",
+  moonNextFull: "Full moon on {date}",
+  moonNextNew: "New moon on {date}",
   periodDueTitle: "Your period should arrive soon",
   periodDueBody:
     "The most likely start day is here or has passed, and no bleeding is logged yet. The chart shows the daily probability. This is an estimate and does not mean your period has started.",
