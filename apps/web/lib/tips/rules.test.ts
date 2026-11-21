@@ -4,7 +4,7 @@
 import { describe, expect, it } from "vitest";
 
 import { messages } from "@/lib/i18n";
-import { selectTips } from "@/lib/tips/rules";
+import { selectTips, symptomAdvice } from "@/lib/tips/rules";
 import type { TipContext } from "@/lib/tips/types";
 
 const base: TipContext = {
@@ -35,7 +35,7 @@ describe("tip rules", () => {
     expect(tips[0]?.title).toBe(messages.es.tipPeriodSoonTitle);
   });
 
-  it("renders advice when sexual activity is the top symptom", () => {
+  it("never calls a sex entry a symptom, and keeps its advice for the sex card", () => {
     const tips = selectTips(
       {
         ...base,
@@ -51,9 +51,9 @@ describe("tip rules", () => {
       messages.en,
       3,
     );
-    const tip = tips.find((item) => item.id === "top-symptom");
-    expect(tip?.title).toContain("Sex");
-    expect(tip?.body).toContain("4");
+    expect(tips.find((item) => item.id === "top-symptom")).toBeUndefined();
+    expect(symptomAdvice("sexualActivity", 4, messages.en)).toContain("4");
+    expect(symptomAdvice("backache", 4, messages.en)).toBeNull();
   });
 
   it("does not invent medical advice for custom symptoms", () => {

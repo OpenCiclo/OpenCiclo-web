@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import type { SymptomId } from "@/lib/diary";
-import { findSymptomMeta, symptomLabel } from "@/lib/symptoms/catalog";
+import { findSymptomMeta, isSexEntry, symptomLabel } from "@/lib/symptoms/catalog";
 import type { Messages } from "@/lib/i18n";
 import type { TipCard, TipContext, TipRule } from "@/lib/tips/types";
 
@@ -17,6 +17,12 @@ const SYMPTOM_ADVICE: Partial<Record<SymptomId, keyof Messages>> = {
   highLibido: "tipAdviceHighLibido",
   sexualActivity: "tipAdviceSexualActivity",
 };
+
+/** The advice line for an entry logged `dayCount` times, when there is one. */
+export function symptomAdvice(id: SymptomId, dayCount: number, t: Messages): string | null {
+  const key = SYMPTOM_ADVICE[id];
+  return key ? String(t[key]).replace("{count}", String(dayCount)) : null;
+}
 
 export const TIP_RULES: TipRule[] = [
   {
@@ -49,17 +55,16 @@ export const TIP_RULES: TipRule[] = [
     category: "symptom",
     priority: 30,
     tone: "accent",
-    when: (context) => Boolean(context.topSymptom && SYMPTOM_ADVICE[context.topSymptom.id]),
+    // Its title says "symptom": never for a sex entry (Patterns shows that advice in its own card).
+    when: (context) =>
+      Boolean(context.topSymptom && !isSexEntry(context.topSymptom.id) && SYMPTOM_ADVICE[context.topSymptom.id]),
     message: (context, t) => {
       const top = context.topSymptom!;
       const meta = findSymptomMeta(top.id);
       const label = meta ? symptomLabel(meta, t) : top.id;
-      const adviceKey = SYMPTOM_ADVICE[top.id];
       return {
         title: t.tipTopSymptomTitle.replace("{symptom}", label),
-        body: adviceKey
-          ? String(t[adviceKey]).replace("{count}", String(top.dayCount))
-          : "",
+        body: symptomAdvice(top.id, top.dayCount, t) ?? "",
       };
     },
   },

@@ -4,6 +4,7 @@
 import { SYMPTOM_IDS, type Diary, type SymptomId } from "@/lib/diary";
 import { daysBetween } from "@/lib/forecast/math";
 import { cycleOverview, periodRuns, type CycleOverview } from "@/lib/cycle/phases";
+import { isSexEntry } from "@/lib/symptoms/catalog";
 
 export type CompletedCycle = {
   start: string;
@@ -21,7 +22,10 @@ export type RecurringSymptom = {
 
 export type PatternStats = CycleOverview & {
   completedCycles: CompletedCycle[];
+  /** What recurs, without "Sex and sex drive": sex is not a symptom. */
   recurringSymptoms: RecurringSymptom[];
+  /** The "Sex and sex drive" entries that recur, ranked the same way. */
+  recurringSex: RecurringSymptom[];
   cycleLengthRange: { min: number; max: number } | null;
 };
 
@@ -38,6 +42,7 @@ export function completedCycles(diary: Diary): CompletedCycle[] {
   return cycles;
 }
 
+/** Everything logged with the symptom picker, sex entries included (`patternStats` splits them). */
 export function recurringSymptoms(diary: Diary, lookback = 6): RecurringSymptom[] {
   const symptomIds: SymptomId[] = [
     ...SYMPTOM_IDS,
@@ -85,10 +90,12 @@ export function patternStats(diary: Diary, today: string): PatternStats {
   const overview = cycleOverview(diary, today);
   const cycles = completedCycles(diary);
   const lengths = cycles.map((cycle) => cycle.length);
+  const recurring = recurringSymptoms(diary);
   return {
     ...overview,
     completedCycles: cycles,
-    recurringSymptoms: recurringSymptoms(diary),
+    recurringSymptoms: recurring.filter((item) => !isSexEntry(item.id)),
+    recurringSex: recurring.filter((item) => isSexEntry(item.id)),
     cycleLengthRange:
       lengths.length >= 2
         ? { min: Math.min(...lengths), max: Math.max(...lengths) }

@@ -13,10 +13,10 @@ import { daysBetween } from "@/lib/forecast/math";
 import type { SymptomId } from "@/lib/diary";
 import { daysUnit, type Locale, type Messages } from "@/lib/i18n";
 import { cyclePattern, cycleRegularity, cycleVariation, type CycleRow } from "@/lib/patterns/cycle-rows";
-import { patternStats } from "@/lib/patterns/stats";
-import { findSymptomMeta, symptomLabel } from "@/lib/symptoms/catalog";
+import { patternStats, type RecurringSymptom } from "@/lib/patterns/stats";
+import { findSymptomMeta, symptomCategoryLabel, symptomLabel } from "@/lib/symptoms/catalog";
 import { buildTipContext } from "@/lib/tips/context";
-import { selectTips } from "@/lib/tips/rules";
+import { selectTips, symptomAdvice } from "@/lib/tips/rules";
 import type { TipCard } from "@/lib/tips/types";
 import { similarJournalEntries, listJournalEntries, type JournalEntry } from "@/lib/journal/entries";
 import { phaseLabel } from "@/lib/cycle/phases";
@@ -40,6 +40,7 @@ const INK = {
   duration: "var(--phase-follicular-ink)",
   symptoms: "var(--phase-luteal-ink)",
   notes: "var(--phase-ovulation-ink)",
+  sex: "var(--primary)",
 } as const;
 
 const CARD = "animate-fade-up flex flex-col gap-3 rounded-3xl border border-border bg-card p-[18px] text-card-foreground";
@@ -84,7 +85,8 @@ function Advice({ tip, t }: { tip: TipCard | undefined; t: Messages }) {
 /**
  * The Patterns tab. Top to bottom: a sentence that sums up the cycle, the
  * forecast, the last cycles one under another (each starts at day 1, so what
- * lines up repeats), cycle lengths with the averages, recurring symptoms, notes
+ * lines up repeats), cycle lengths with the averages, recurring symptoms, sex
+ * and sex drive in a card of their own (sex is not a symptom), notes
  * from similar days, and a tip at the foot of the card it is about. On the
  * desktop it is the right-hand column of the calendar (see CycleDashboard).
  * Needs an unlocked diary.
@@ -96,7 +98,7 @@ export function PatternsContent() {
   const [closing, setClosing] = useState(false);
   const [showDetail, setShowDetail] = useState(false);
   const stats = useMemo(() => patternStats(diary, today), [diary, today]);
-  const pattern = useMemo(() => cyclePattern(diary, stats.periodRuns, stats.recurringSymptoms), [diary, stats]);
+  const pattern = useMemo(() => cyclePattern(diary, stats.periodRuns, stats.recurringSymptoms, stats.recurringSex), [diary, stats]);
   const tips = useMemo(() => selectTips(buildTipContext(diary, today), t), [diary, today, t]);
   const allNotes = useMemo(() => listJournalEntries(diary, stats.nextPeriodDate), [diary, stats.nextPeriodDate]);
   const similarNotes = useMemo(
@@ -194,6 +196,8 @@ export function PatternsContent() {
   const showsAverage = stats.avgCycleLength !== null && history.length > 1 && shortest !== longest;
   const recurringCount = stats.recurringSymptoms.filter((item) => item.cycleCount >= 2).length;
   const periodStat = nextPeriodStat(stats.nextPeriodInDays, t);
+  const topSex = stats.recurringSex[0];
+  const sexAdvice = topSex ? symptomAdvice(topSex.id, topSex.dayCount, t) : null;
 
   const cyclesTip = place("symptom", showsCycles);
   const durationTip = place("regularity", !empty);
@@ -481,26 +485,24 @@ export function PatternsContent() {
                       : t.patternsSymptomsMany.replace("{n}", String(recurringCount))}
                 </Headline>
                 {stats.recurringSymptoms.map((item) => (
-                  <div key={item.id} className="flex items-center gap-3">
-                    <span className="min-w-0 grow truncate text-[15px] font-bold">{label(item.id)}</span>
-                    <span
-                      role="img"
-                      aria-label={t.symptomCycleCount.replace("{cycles}", String(item.cycleCount)).replace("{total}", String(item.cycleTotal))}
-                      className="flex shrink-0 gap-[5px]"
-                    >
-                      {(pattern.presence[item.id] ?? []).map((present, index) => (
-                        <span
-                          key={index}
-                          className={cn("size-3 rounded-full", !present && "border-2 border-border")}
-                          style={present ? { background: inkOf(item.id) } : undefined}
-                        />
-                      ))}
-                    </span>
-                    <span aria-hidden className="w-11 shrink-0 text-right text-xs font-extrabold whitespace-nowrap text-muted-foreground">
-                      {t.patternsCycleShare.replace("{cycles}", String(item.cycleCount)).replace("{total}", String(item.cycleTotal))}
-                    </span>
-                  </div>
+                  <PresenceRow key={item.id} item={item} name={label(item.id)} presence={pattern.presence[item.id]} ink={inkOf(item.id)} t={t} />
                 ))}
+              </section>
+            ) : null}
+
+            {stats.recurringSex.length > 0 ? (
+              <section className={cn(CARD, "gap-3.5")} style={{ animationDelay: "270ms" }}>
+                <SectionLabel color={INK.sex}>{symptomCategoryLabel("sexAndSexDrive", t)}</SectionLabel>
+                <Headline>{t.recurringSymptomsHint}</Headline>
+                {stats.recurringSex.map((item) => (
+                  <PresenceRow key={item.id} item={item} name={label(item.id)} presence={pattern.presence[item.id]} ink={INK.sex} t={t} />
+                ))}
+                {topSex && sexAdvice ? (
+                  <div className="flex flex-col gap-1 border-t border-border pt-3">
+                    <p className="text-sm leading-[1.45] font-bold text-pretty">{label(topSex.id)}</p>
+                    <p className="text-sm leading-[1.45] text-muted-foreground text-pretty">{sexAdvice}</p>
+                  </div>
+                ) : null}
               </section>
             ) : null}
 
@@ -630,6 +632,43 @@ function ForecastBars({
         <span>{day(shown[shown.length - 1].date)}</span>
       </div>
     </>
+  );
+}
+
+/** One recurring entry: its name, a dot per cycle (filled when it was logged in it), and in how many cycles. */
+function PresenceRow({
+  item,
+  name,
+  presence,
+  ink,
+  t,
+}: {
+  item: RecurringSymptom;
+  name: string;
+  presence: boolean[] | undefined;
+  ink: string;
+  t: Messages;
+}) {
+  return (
+    <div className="flex items-center gap-3">
+      <span className="min-w-0 grow truncate text-[15px] font-bold">{name}</span>
+      <span
+        role="img"
+        aria-label={t.symptomCycleCount.replace("{cycles}", String(item.cycleCount)).replace("{total}", String(item.cycleTotal))}
+        className="flex shrink-0 gap-[5px]"
+      >
+        {(presence ?? []).map((present, index) => (
+          <span
+            key={index}
+            className={cn("size-3 rounded-full", !present && "border-2 border-border")}
+            style={present ? { background: ink } : undefined}
+          />
+        ))}
+      </span>
+      <span aria-hidden className="w-11 shrink-0 text-right text-xs font-extrabold whitespace-nowrap text-muted-foreground">
+        {t.patternsCycleShare.replace("{cycles}", String(item.cycleCount)).replace("{total}", String(item.cycleTotal))}
+      </span>
+    </div>
   );
 }
 
