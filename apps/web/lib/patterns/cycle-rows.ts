@@ -34,7 +34,7 @@ export type CyclePattern = {
   current: CycleRow | null;
   /** The symptoms drawn, most recurring first. */
   symptoms: SymptomId[];
-  /** For every recurring symptom, whether it was logged in each cycle (completed, then current), oldest first. */
+  /** For every recurring symptom and every entry of `others`, whether it was logged in each cycle (completed, then current), oldest first. */
   presence: Record<string, boolean[]>;
   timings: SymptomTiming[];
 };
@@ -54,9 +54,16 @@ function median(values: number[]): number {
  * The last cycles laid out for the Patterns screen: one row per cycle with its
  * length, its bleeding days and the first day each recurring symptom was
  * logged in it. Everything comes from the diary as logged; nothing here is a
- * forecast. `recurring` is `recurringSymptoms(diary)` (already ranked).
+ * forecast. `recurring` is `recurringSymptoms` from the stats (already
+ * ranked): the rows and the timings draw from it. `others` (the sex entries)
+ * only get their `presence`.
  */
-export function cyclePattern(diary: Diary, runs: PeriodRun[], recurring: RecurringSymptom[]): CyclePattern {
+export function cyclePattern(
+  diary: Diary,
+  runs: PeriodRun[],
+  recurring: RecurringSymptom[],
+  others: RecurringSymptom[] = [],
+): CyclePattern {
   const cycles: CompletedCycle[] = completedCycles(diary).slice(-CYCLE_LOOKBACK);
   const starts = [...diary.periodStarts].sort();
   const lastStart = starts[starts.length - 1] ?? null;
@@ -78,7 +85,7 @@ export function cyclePattern(diary: Diary, runs: PeriodRun[], recurring: Recurri
   const all = current ? [...completed, current] : completed;
 
   const presence: Record<string, boolean[]> = {};
-  for (const { id } of recurring) {
+  for (const { id } of [...recurring, ...others]) {
     presence[id] = all.map((cycle, index) => {
       const end = all[index + 1]?.start ?? null;
       return dayKeys.some((iso) => iso >= cycle.start && (end === null || iso < end) && Boolean(diary.days[iso]?.symptoms[id]));

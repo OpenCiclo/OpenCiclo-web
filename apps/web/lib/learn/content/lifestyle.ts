@@ -5,6 +5,81 @@ import type { LearnArticle } from "@/lib/learn/articles";
 
 export const LIFESTYLE_ARTICLES: LearnArticle[] = [
   {
+    slug: "food-and-your-period",
+    category: "lifestyle",
+    reviewedAt: "2026-11-21",
+    sources: [
+      { label: "Office on Women's Health — Premenstrual syndrome (PMS)", href: "https://www.womenshealth.gov/menstrual-cycle/premenstrual-syndrome" },
+      { label: "NHS — PMS (premenstrual syndrome)", href: "https://www.nhs.uk/conditions/pre-menstrual-syndrome/" },
+      { label: "NHS — Period pain", href: "https://www.nhs.uk/conditions/period-pain/" },
+      { label: "NHS — Iron", href: "https://www.nhs.uk/conditions/vitamins-and-minerals/iron/" },
+      { label: "NIH Office of Dietary Supplements — Iron", href: "https://ods.od.nih.gov/factsheets/Iron-Consumer/" },
+    ],
+    related: ["iron-rich-eating", "cravings-appetite", "pms"],
+    es: {
+      title: "Qué comer alrededor del periodo",
+      summary: "Ningún alimento quita por sí solo las molestias del periodo, pero algunos pueden ayudar. Aquí verás qué alimentos se han estudiado, cuánta seguridad hay y qué conviene tomar con menos frecuencia.",
+      sections: [
+        {
+          heading: "No hay alimentos mágicos",
+          body: "Ningún alimento cura los cólicos ni el síndrome premenstrual (SPM). Lo que más ayuda es comer de forma variada y regular durante todo el mes, no solo los días del periodo. Aun así, algunos alimentos y nutrientes se han estudiado para las molestias de antes y durante el periodo. Algunos muestran beneficios y otros dan resultados poco claros. Aquí verás lo que dicen los organismos de salud y cuánta seguridad tienen.",
+        },
+        {
+          heading: "Hierro, para reponer lo que pierdes",
+          body: "Con la sangre del periodo pierdes hierro, y más si tus periodos son abundantes. Algunas buenas fuentes son la carne roja, las legumbres como los frijoles rojos (alubias rojas), los garbanzos y el edamame, los frutos secos, la fruta deshidratada como los albaricoques secos y los cereales de desayuno enriquecidos. Tu cuerpo absorbe mejor el hierro de los alimentos vegetales si los comes con alimentos ricos en vitamina C, como los cítricos, las fresas, los pimientos o los tomates. Por ejemplo, lentejas con pimientos o garbanzos con tomate.",
+        },
+        {
+          heading: "Calcio y vitamina B6",
+          body: "Según la Oficina para la Salud de la Mujer de Estados Unidos, hay estudios que muestran que el calcio puede ayudar a reducir algunos síntomas del SPM, como el cansancio, los antojos y el ánimo bajo. Lo encuentras en la leche, el queso y el yogur, y en alimentos con calcio añadido, como algunos zumos (jugos), cereales y panes. La vitamina B6 puede ayudar con los cambios de ánimo, la irritabilidad, la hinchazón y la ansiedad. Está en el pescado, la carne de ave, las patatas (papas), la fruta que no es cítrica y los cereales enriquecidos.",
+        },
+        {
+          heading: "Magnesio y grasas omega-3",
+          body: "Para el magnesio y las grasas omega-3 y omega-6, los estudios dan resultados mixtos. El magnesio podría ayudar con algunos síntomas, como las migrañas menstruales. Está en las verduras de hoja verde como las espinacas, los frutos secos, los cereales integrales y los cereales enriquecidos. Las grasas omega podrían ayudar a reducir los cólicos y otros síntomas del SPM. Algunas fuentes son el pescado, las semillas de lino (linaza), los frutos secos y las verduras de hoja verde. Son alimentos que encajan en cualquier alimentación equilibrada, así que incluirlos no tiene nada de malo.",
+        },
+        {
+          heading: "Comidas, bebidas y qué tomar con menos frecuencia",
+          body: "El NHS (el sistema público de salud del Reino Unido) dice que hacer comidas más pequeñas y más a menudo, cada 2 a 3 horas, puede sentarte mejor antes del periodo. Tomar menos cafeína, sal y azúcar en las dos semanas antes del periodo puede aliviar muchos síntomas del SPM. Beber menos alcohol también puede ayudar a aliviar el dolor menstrual. Nada de esto significa prohibirte alimentos. Los antojos antes del periodo son frecuentes y no son motivo para sentir culpa.",
+        },
+        {
+          heading: "Suplementos y cuándo pedir consejo",
+          body: "Es mejor obtener estos nutrientes de la comida. Sobre los suplementos de vitamina B6, calcio, vitamina D y magnesio para el SPM, el NHS dice que no hay muchas pruebas de que funcionen. Algunos suplementos pueden causar daño en dosis altas o interferir con medicamentos, así que pregunta a un farmacéutico o farmacéutica antes de tomarlos. Habla con un médico o una enfermera si tus periodos son abundantes o sientes cansancio a menudo, y pregunta si deberían revisarte el hierro. Habla también con alguien si la comida te preocupa mucho.",
+        },
+      ],
+      notice: "Esto es información general, no un plan de alimentación ni un diagnóstico. Si tus periodos son muy dolorosos o abundantes, habla con un médico o una enfermera.",
+    },
+    en: {
+      title: "Food and your period",
+      summary: "No single food takes period symptoms away, but some can help. Here is which foods have been studied, how sure the evidence is, and what is worth having less often.",
+      sections: [
+        {
+          heading: "There are no magic foods",
+          body: "No food cures cramps or premenstrual syndrome (PMS). What helps most is eating in a varied, regular way through the whole month, not only on period days. Still, some foods and nutrients have been studied for symptoms before and during a period. Some show benefits and some give unclear results. Here is what health bodies say, and how sure they are.",
+        },
+        {
+          heading: "Iron, to replace what you lose",
+          body: "You lose iron with the blood of each period, and more if your periods are heavy. Good sources include red meat, beans such as red kidney beans, chickpeas and edamame, nuts, dried fruit such as dried apricots, and fortified breakfast cereals. Your body absorbs iron from plant foods better when you eat them with foods rich in vitamin C, such as citrus fruits, strawberries, peppers or tomatoes. For example, lentils with peppers, or chickpeas in tomato sauce.",
+        },
+        {
+          heading: "Calcium and vitamin B6",
+          body: "The US Office on Women's Health says studies show calcium can help reduce some PMS symptoms, such as tiredness, cravings and low mood. You can find it in milk, cheese and yoghurt, and in foods with calcium added, such as some orange juices, cereals and breads. Vitamin B6 may help with moodiness, irritability, bloating and anxiety. It is in fish, poultry, potatoes, fruit other than citrus fruit, and fortified cereals.",
+        },
+        {
+          heading: "Magnesium and omega-3 fats",
+          body: "For magnesium and for omega-3 and omega-6 fats, studies have found mixed results. Magnesium may help with some symptoms, such as menstrual migraines. It is in leafy green vegetables such as spinach, nuts, whole grains and fortified cereals. Omega fats may help reduce cramps and other PMS symptoms. Sources include fish, flaxseed, nuts and leafy green vegetables. These foods fit into any balanced diet, so there is no downside to including them.",
+        },
+        {
+          heading: "Meals, drinks and what to have less often",
+          body: "The NHS says eating smaller meals more often, every 2 to 3 hours, may suit you better before a period. Having less caffeine, salt and sugar in the two weeks before your period may lessen many PMS symptoms. Cutting down on alcohol may also help ease period pain. None of this means banning foods. Cravings before a period are common and nothing to feel guilty about.",
+        },
+        {
+          heading: "Supplements and when to get advice",
+          body: "It is best to get these nutrients from food. For supplements of vitamin B6, calcium, vitamin D and magnesium for PMS, the NHS says there is not much evidence that they work. Some supplements can cause harm in high doses or affect other medicines, so ask a pharmacist before taking them. Talk to a doctor or nurse if your periods are heavy or you often feel tired, and ask whether your iron should be checked. Also talk to someone if food worries you a lot.",
+        },
+      ],
+      notice: "This is general information, not an eating plan or a diagnosis. If your periods are very painful or heavy, talk to a doctor or nurse.",
+    },
+  },
+  {
     slug: "iron-rich-eating",
     category: "lifestyle",
     reviewedAt: "2026-10-04",
