@@ -43,6 +43,21 @@ describe("pattern stats", () => {
     expect(sex?.cycleCount).toBe(2);
   });
 
+  it("keeps sex and sex drive apart from symptoms in the stats", () => {
+    const diary = parseDiary({
+      schemaVersion: 3,
+      locale: "en",
+      periodStarts: ["2026-05-01", "2026-05-29"],
+      days: {
+        "2026-05-10": { symptoms: { sexualActivity: "present", highLibido: "present", cramps: "present" } },
+        "2026-05-29": { flow: "medium", symptoms: { sexualActivity: "present" } },
+      },
+    });
+    const stats = patternStats(diary, "2026-06-01");
+    expect(stats.recurringSymptoms.map((item) => item.id)).toEqual(["cramps"]);
+    expect(stats.recurringSex.map((item) => item.id)).toEqual(["sexualActivity", "highLibido"]);
+  });
+
   it("counts custom symptoms in recurring patterns", () => {
     const diary = parseDiary({
       schemaVersion: 4,
