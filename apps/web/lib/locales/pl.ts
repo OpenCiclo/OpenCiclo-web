@@ -467,6 +467,9 @@ const locale: LocaleModule = {
     futureDayHint: "Ten dzień zapiszesz, gdy nadejdzie.",
     moonPhaseTitle: "Faza Księżyca",
     moonIllumination: "Oświetlenie: {percent}%",
+    moonToday: "Dziś: {phase} · {percent}%",
+    moonNextFull: "Pełnia: {date}",
+    moonNextNew: "Nów: {date}",
     periodDueTitle: "Miesiączka powinna wkrótce się pojawić",
     periodDueBody:
       "Najbardziej prawdopodobny dzień początku już nadszedł lub minął, a nie zapisano jeszcze krwawienia. Wykres pokazuje prawdopodobieństwo dla każdego dnia. To szacunek i nie oznacza, że miesiączka się zaczęła.",

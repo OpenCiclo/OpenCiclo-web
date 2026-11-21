@@ -108,7 +108,7 @@ function FutureDayMoon({ info, t }: { info: ReturnType<typeof lunarDayInfo>; t: 
   const name = moonPhaseName(info, t);
   return (
     <section className="flex items-center gap-4 rounded-3xl bg-muted/60 p-4 my-2">
-      <MoonPhaseIcon info={info} label={moonPhaseText(info, t)} className="size-16" />
+      <MoonPhaseIcon info={info} label={moonPhaseText(info, t)} highlight className="mx-2 size-14" />
       <div className="min-w-0">
         <p className="text-xs font-bold tracking-wide text-muted-foreground uppercase">{t.moonPhaseTitle}</p>
         <p className="mt-0.5 font-serif text-xl leading-tight text-card-foreground">{name}</p>

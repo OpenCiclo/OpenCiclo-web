@@ -33,15 +33,47 @@ import { AccountMismatchError, VaultTooLargeError } from "@/lib/client/api";
 import { UpdateRequiredError } from "@/lib/client/http";
 import { IS_ANDROID_APP } from "@/lib/app-target";
 import { useMonthSwipe } from "@/lib/client/use-month-swipe";
-import { lunarDayInfo } from "@/lib/lunar/phases";
+import { isMainPhaseDay, lunarDayInfo, nextFullOrNewMoon } from "@/lib/lunar/phases";
 import { symptomColor, symptomLabel, symptomMeta } from "@/lib/symptoms/catalog";
 import { matchingFilterSymptoms } from "@/lib/symptoms/filter";
 import { cn } from "@/lib/utils";
 import { CycleStatusCard } from "@/components/calendar/cycle-status-card";
 import { DaySheet } from "@/components/calendar/day-sheet";
-import { MoonPhaseIcon, moonPhaseText } from "@/components/calendar/moon-phase-icon";
+import { MoonPhaseIcon, moonPhaseName, moonPhaseText } from "@/components/calendar/moon-phase-icon";
 import { SymptomFilterSheet } from "@/components/calendar/symptom-filter-sheet";
 import { InstallPrompt } from "@/components/install-prompt";
+
+/**
+ * Today's moon under the calendar while the moons show: the phase and how much
+ * of it is lit, and when the next full or new moon comes. Always about today,
+ * whatever month the calendar is on.
+ */
+function MoonToday({ today, locale, t }: { today: string; locale: Locale; t: Messages }) {
+  const info = lunarDayInfo(today);
+  const next = nextFullOrNewMoon(today);
+  const name = moonPhaseName(info, t);
+  return (
+    <div className="mx-4 mt-3 flex items-center gap-3.5 border-t border-border px-1.5 pt-3 desktop:mx-0">
+      <MoonPhaseIcon info={info} label={moonPhaseText(info, t)} highlight className="size-[26px]" />
+      <div className="flex min-w-0 flex-col gap-px">
+        <p className="text-sm font-extrabold text-card-foreground">
+          {t.moonToday
+            // Mid-sentence, so lower case; German keeps its nouns' capitals.
+            .replace("{phase}", locale === "de" ? name : name.toLowerCase())
+            .replace("{percent}", String(info.percent))}
+        </p>
+        {next ? (
+          <p className="text-[13px] font-bold text-muted-foreground">
+            {(next.phaseId === "fullMoon" ? t.moonNextFull : t.moonNextNew).replace(
+              "{date}",
+              formatIsoUtc(next.iso, locale, { weekday: "long", day: "numeric" }),
+            )}
+          </p>
+        ) : null}
+      </div>
+    </div>
+  );
+}
 
 function moonPhaseAccessibleLabel(iso: string, t: Messages): string {
   return moonPhaseText(lunarDayInfo(iso), t);
@@ -307,7 +339,7 @@ export function CalendarScreen() {
                   "transition-[background-color,color,transform] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
                   "motion-reduce:transition-none active:scale-90",
                   lunarPhasesVisible
-                    ? "bg-primary text-primary-foreground"
+                    ? "bg-[color-mix(in_oklch,var(--moon-lit)_18%,var(--card))] text-[var(--moon-ink)] ring-1 ring-[color-mix(in_oklch,var(--moon-ink)_45%,transparent)] ring-inset"
                     : "bg-muted text-muted-foreground",
                 )}
               >
@@ -423,6 +455,7 @@ export function CalendarScreen() {
             })}
           </div>
         </div>
+        {showMoonBand ? <MoonToday today={today} locale={locale} t={t} /> : null}
       </section>
 
       <section
@@ -457,6 +490,7 @@ export function CalendarScreen() {
             <LegendDot className="bg-secondary-foreground/50" label={t.legendSymptoms} />
           )}
         <LegendDot className="bg-primary/70" label={t.legendNote} />
+        {showMoonBand ? <LegendDot className="bg-[var(--moon-lit)] ring-1 ring-[var(--moon-rim)] ring-inset" label={t.moonPhaseTitle} /> : null}
       </section>
 
       <p
@@ -593,20 +627,9 @@ function DayCell({
     <div
       className={cn(
         "flex flex-col items-center transition-[min-height] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none",
-        filtersActive || showMoon ? "min-h-14 desktop:min-h-16" : "min-h-10 desktop:min-h-12",
+        showMoon ? "min-h-[60px] desktop:min-h-[68px]" : filtersActive ? "min-h-14 desktop:min-h-16" : "min-h-10 desktop:min-h-12",
       )}
     >
-      <span
-        className={cn(
-          "flex items-center justify-center overflow-hidden transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none",
-          showMoon
-            ? "mb-0.5 h-4 translate-y-0 scale-100 opacity-100"
-            : "mb-0 h-0 -translate-y-1 scale-90 opacity-0",
-        )}
-        aria-hidden={!showMoon}
-      >
-        {moonInfo && moonLabel ? <MoonPhaseIcon info={moonInfo} label={moonLabel} /> : null}
-      </span>
       <button
         type="button"
         onClick={onClick}
@@ -657,6 +680,16 @@ function DayCell({
           ) : null}
         </span>
       </button>
+      {/* The moon, under the day; the day a main phase falls on carries a halo. */}
+      <span
+        className={cn(
+          "flex items-center justify-center transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none",
+          showMoon ? "mt-1 h-4 translate-y-0 scale-100 opacity-100" : "mt-0 h-0 -translate-y-1 scale-90 opacity-0",
+        )}
+        aria-hidden={!showMoon}
+      >
+        {moonInfo && moonLabel ? <MoonPhaseIcon info={moonInfo} label={moonLabel} highlight={isMainPhaseDay(iso)} /> : null}
+      </span>
       <span
         className={cn(
           "flex max-w-10 flex-wrap justify-center gap-0.5 overflow-hidden transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none",

@@ -103,6 +103,11 @@
   --aura-glow: 0.35;
   --aura-blob: 0.45;
   --aura-blob-soft: 0.3;
+  /* The moon on the calendar (components/calendar/moon-phase-icon.tsx): lit part, dark part, rim, and text in its colour. */
+  --moon-lit: oklch(0.87 0.11 92);
+  --moon-shade: oklch(0.47 0.02 265);
+  --moon-rim: oklch(0.47 0.02 265 / 0.55);
+  --moon-ink: oklch(0.5 0.1 80);
   --glass: rgba(255, 255, 255, 0.6);
   --glass-edge: rgba(30, 30, 40, 0.1);
 }
@@ -145,6 +150,10 @@
   --aura-glow: 0.45;
   --aura-blob: 0.5;
   --aura-blob-soft: 0.4;
+  --moon-lit: oklch(0.93 0.045 92);
+  --moon-shade: oklch(0.31 0.008 260);
+  --moon-rim: oklch(0.5 0.01 260 / 0.7);
+  --moon-ink: oklch(0.93 0.045 92);
   --glass: rgba(255, 255, 255, 0.08);
   --glass-edge: rgba(255, 255, 255, 0.16);
 }

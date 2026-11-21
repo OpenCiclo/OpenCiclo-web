@@ -58,3 +58,40 @@ export function lunarDayInfo(iso: string): LunarDayInfo {
     isMajor: MAJOR_PHASES.has(phaseId),
   };
 }
+
+const DAY_MS = 86_400_000;
+
+function shiftDay(iso: string, days: number): string {
+  return new Date(Date.parse(`${iso}T12:00:00.000Z`) + days * DAY_MS).toISOString().slice(0, 10);
+}
+
+/** How far a phase is from the nearest main one (new, first quarter, full, last quarter), in phase units. */
+function distanceToMainPhase(phase: number): number {
+  const position = (((phase % 1) + 1) % 1) * 4;
+  return Math.abs(position - Math.round(position)) / 4;
+}
+
+/**
+ * Whether a main phase falls on this day: of the days around it, the one
+ * closest to a new moon, a quarter or a full moon. Unlike `isMajor` (true for
+ * the three or four days a phase's name covers) this is true for one day per
+ * phase, about every seven days.
+ */
+export function isMainPhaseDay(iso: string): boolean {
+  const here = distanceToMainPhase(lunarDayInfo(iso).phase);
+  return (
+    here < distanceToMainPhase(lunarDayInfo(shiftDay(iso, -1)).phase) &&
+    here <= distanceToMainPhase(lunarDayInfo(shiftDay(iso, 1)).phase)
+  );
+}
+
+/** The next full or new moon after `iso` (never that day itself): the day it falls on, and which of the two. */
+export function nextFullOrNewMoon(iso: string): { iso: string; phaseId: "fullMoon" | "newMoon" } | null {
+  for (let offset = 1; offset <= 31; offset += 1) {
+    const day = shiftDay(iso, offset);
+    if (!isMainPhaseDay(day)) continue;
+    const { phaseId } = lunarDayInfo(day);
+    if (phaseId === "fullMoon" || phaseId === "newMoon") return { iso: day, phaseId };
+  }
+  return null;
+}

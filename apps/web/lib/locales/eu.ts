@@ -469,6 +469,9 @@ const locale: LocaleModule = {
     futureDayHint: "Egun hau iristen denean erregistratu ahal izango duzu.",
     moonPhaseTitle: "Ilargiaren fasea",
     moonIllumination: "%{percent} argiztatuta",
+    moonToday: "Gaur, {phase} · % {percent}",
+    moonNextFull: "Ilargi betea: {date}",
+    moonNextNew: "Ilargi berria: {date}",
     periodDueTitle: "Zure hilekoa laster iritsi beharko litzateke",
     periodDueBody:
       "Egun probableena iritsi da edo igaro da, eta oraindik ez dago odoljariorik erregistratuta. Grafikoak eguneroko probabilitatea erakusten du. Zenbatespen bat da; ez du baieztatzen hilekoa hasi denik.",
