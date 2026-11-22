@@ -1,0 +1,14 @@
+{
+  "expo": {
+    "name": "Ciclo",
+    "slug": "luis-rey",
+    "ios": {
+      "bundleIdentifier": "com.openciclo.app"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "005d69aa-8969-4f3c-bab4-7ca2554fce0a"
+      }
+    }
+  }
+}

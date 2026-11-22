@@ -88,6 +88,23 @@ In Xcode: target **App** → **Signing & Capabilities** → choose a team. A fre
 
 **Release guard.** A Release build runs `ios/scripts/verify-build-info.sh`. It fails unless the export is an iOS export, names an https host that is not local, was built from `HEAD`, and has the Xcode project's version. Same rule as Gradle's `verifyReleaseBuildInfo`: fix the export, never the guard.
 
+## Building in the cloud with EAS
+
+Expo's build service (EAS Build) has Macs. Ciclo is not an Expo app, so it uses a custom build config instead of Expo's own steps: `apps/mobile/eas.json`, `apps/mobile/.eas/build/*.yml`, and a minimal `apps/mobile/app.json` that only names the EAS project.
+
+```sh
+cd apps/mobile
+npx eas-cli@latest login
+npx eas-cli@latest build --platform ios --profile ios-simulator
+```
+
+- `ios-simulator` exports the web app, runs `cap sync ios`, and compiles for the simulator, unsigned. It needs no Apple account. Use it to see compiler errors without a Mac. The `.app` it uploads runs only on a Mac's simulator, not on an iPhone.
+- A build for a real iPhone needs signing, and EAS can only sign with a paid Apple Developer Program account. There is no profile for it yet.
+- Run EAS commands from `apps/mobile`. The whole repository is uploaded (the job needs `apps/web`).
+- Do not run `create-expo-app` or `expo prebuild` here: they would create a React Native app next to this one.
+
+Not run yet (2026-11-22): the first build may need the config adjusted (where the job starts, the artifact path).
+
 ## First session on a Mac
 
 For whoever picks this up (a person or a coding agent). Work on branch `feat/ios-capacitor`. Read `agents.txt` first.
