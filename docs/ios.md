@@ -6,7 +6,7 @@ Apache License 2.0
 
 Ciclo for iOS is the web app packaged as an iOS app, the same way as the Android app. Read [android.md](android.md) first: this page only says what is different.
 
-**Status (2026-11-22): written on Windows, never compiled.** Swift, the storyboards, and the Xcode project file were written by hand without Xcode. The TypeScript side is checked (types, lint, tests, a real `build:ios` export, `cap sync ios`). Expect small compile errors on the first Xcode build. The section [First session on a Mac](#first-session-on-a-mac) is the work list.
+**Status (2026-11-22): it compiles; nobody has run it.** Swift, the storyboards, and the Xcode project file were written on Windows without Xcode. An EAS simulator build (Xcode 27.1) compiles them with no errors and no warnings in our files, and the TypeScript side is checked (types, lint, tests, the export, `cap sync ios`). Nothing has been seen on a screen yet. The section [First session on a Mac](#first-session-on-a-mac) is the work list.
 
 ## How it is built
 
@@ -90,20 +90,21 @@ In Xcode: target **App** → **Signing & Capabilities** → choose a team. A fre
 
 ## Building in the cloud with EAS
 
-Expo's build service (EAS Build) has Macs. Ciclo is not an Expo app, so it uses a custom build config instead of Expo's own steps: `apps/mobile/eas.json`, `apps/mobile/.eas/build/*.yml`, and a minimal `apps/mobile/app.json` that only names the EAS project.
+Expo's build service (EAS Build) has Macs. Ciclo is not an Expo app, so it uses a custom build config instead of Expo's own steps. Everything EAS needs is in `apps/mobile/eas/`: `eas.json`, `.eas/build/*.yml`, and a minimal `app.json` that only names the EAS project.
 
 ```sh
-cd apps/mobile
+cd apps/mobile/eas
 npx eas-cli@latest login
-npx eas-cli@latest build --platform ios --profile ios-simulator
+EAS_BUILD_SKIP_LOCKFILE_CHECK=1 npx eas-cli@latest build --platform ios --profile ios-simulator
 ```
 
 - `ios-simulator` exports the web app, runs `cap sync ios`, and compiles for the simulator, unsigned. It needs no Apple account. Use it to see compiler errors without a Mac. The `.app` it uploads runs only on a Mac's simulator, not on an iPhone.
 - A build for a real iPhone needs signing, and EAS can only sign with a paid Apple Developer Program account. There is no profile for it yet.
-- Run EAS commands from `apps/mobile`. The whole repository is uploaded (the job needs `apps/web`).
+- Run EAS commands from `apps/mobile/eas`. The whole repository is uploaded (the job needs `apps/web`), from the last commit only (`requireCommit`): the working tree must be clean, untracked files included. A second checkout (`git worktree add`) is an easy way to get one.
+- The EAS CLI only finds `ios/*.xcodeproj`, and Capacitor keeps the project in `ios/App`. So `apps/mobile/eas/ios/App.xcodeproj` is a copy of the project file and the scheme, there for the CLI's checks only; the job builds the real project. `scripts/sync-ios-version.mjs` keeps the copy identical (`--check` in CI).
+- `.gitattributes` keeps LF line endings in what the Mac reads. A build started from Windows without it fails: Xcode cannot find the release guard script.
+- The free EAS plan has a monthly limit of iOS builds.
 - Do not run `create-expo-app` or `expo prebuild` here: they would create a React Native app next to this one.
-
-Not run yet (2026-11-22): the first build may need the config adjusted (where the job starts, the artifact path).
 
 ## First session on a Mac
 
@@ -118,7 +119,7 @@ xcodebuild -project ios/App/App.xcodeproj -scheme App -configuration Debug \
   -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO build
 ```
 
-Fix what the compiler reports. Likely places, all written blind:
+This passed on EAS on 2026-11-22. If a later change breaks it, the places written without Xcode are:
 
 - `DeviceVaultPlugin.swift`: Keychain dictionary types, `LAContext` use, `UIPasteboard.setItems` options, `CAPPluginCall` accessors.
 - `CicloViewController.swift`: the `capacitorDidLoad` override, key-value observation of `isLoading`.
