@@ -12,7 +12,8 @@
       },
       "ios": {
         "simulator": true,
-        "config": "ios-simulator.yml"
+        "config": "ios-simulator.yml",
+        "scheme": "App"
       }
     }
   }
