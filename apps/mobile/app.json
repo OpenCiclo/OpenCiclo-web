@@ -2,6 +2,7 @@
   "expo": {
     "name": "Ciclo",
     "slug": "luis-rey",
+    "owner": "luisrey",
     "ios": {
       "bundleIdentifier": "com.openciclo.app"
     },
