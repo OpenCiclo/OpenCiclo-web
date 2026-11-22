@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-import { IS_ANDROID_APP } from "@/lib/app-target";
+import { IS_NATIVE_APP } from "@/lib/app-target";
 import { useCiclo } from "@/lib/client/ciclo-context";
 import { useBrowserValue } from "@/lib/client/hooks";
 import {
@@ -36,8 +36,8 @@ function readDismissed(mode: InstallPromptMode): boolean {
 }
 
 function installedNow(): boolean {
-  // The Android app is already installed; its WebView user agent still says Chrome.
-  if (IS_ANDROID_APP) return true;
+  // The app is already installed; its WebView user agent still says Chrome or Safari.
+  if (IS_NATIVE_APP) return true;
   return isInstalledDisplay({
     displayModeStandalone: window.matchMedia("(display-mode: standalone)").matches,
     iosStandalone:

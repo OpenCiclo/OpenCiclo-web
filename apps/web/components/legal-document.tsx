@@ -3,7 +3,7 @@
 
 import Link from "next/link";
 
-import { API_BASE, IS_ANDROID_APP } from "@/lib/app-target";
+import { API_BASE, IS_NATIVE_APP } from "@/lib/app-target";
 import { parseInline, resolveLegalHref, type Inline, type LegalBlock, type LegalDoc } from "@/lib/privacy/legal-doc";
 import { Badge } from "@/components/ui/badge";
 
@@ -98,7 +98,7 @@ function InlineText({ text }: { text: Inline }) {
           );
         }
         if (token.kind === "link") {
-          const link = resolveLegalHref(token.href, { android: IS_ANDROID_APP, webOrigin: API_BASE });
+          const link = resolveLegalHref(token.href, { android: IS_NATIVE_APP, webOrigin: API_BASE });
           return link.internal ? (
             <Link key={index} href={link.href} className="font-medium text-primary underline">
               {token.text}

@@ -5,7 +5,7 @@
 
 import { useSyncExternalStore } from "react";
 
-import { IS_ANDROID_APP } from "@/lib/app-target";
+import { IS_NATIVE_APP } from "@/lib/app-target";
 
 /**
  * Windows at least this wide get the desktop web layout. Keep it in step with
@@ -29,7 +29,7 @@ function subscribe(onChange: () => void) {
 export function useIsDesktop(): boolean {
   return useSyncExternalStore(
     subscribe,
-    () => !IS_ANDROID_APP && window.matchMedia(DESKTOP_QUERY).matches,
+    () => !IS_NATIVE_APP && window.matchMedia(DESKTOP_QUERY).matches,
     () => false,
   );
 }

@@ -43,7 +43,7 @@ export function PolicyDialog({ onClose }: { onClose: () => void }) {
   }, [onClose]);
 
   return createPortal(
-    <div className="fixed inset-0 z-50 flex items-stretch justify-center desktop:items-center desktop:p-8">
+    <div className="fixed inset-0 z-50 flex items-stretch justify-center pt-(--safe-top) desktop:items-center desktop:p-8">
       <button type="button" aria-label={t.close} onClick={onClose} className="absolute inset-0 bg-foreground/40" />
       <div
         role="dialog"

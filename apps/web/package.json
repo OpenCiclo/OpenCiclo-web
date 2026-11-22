@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "build:android": "dotenv -v CICLO_TARGET=android -- node scripts/build-android.mjs",
+    "build:ios": "dotenv -v CICLO_TARGET=ios -- node scripts/build-android.mjs",
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",

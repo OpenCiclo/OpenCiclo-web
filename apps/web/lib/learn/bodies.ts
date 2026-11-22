@@ -1,7 +1,7 @@
 // Copyright © 2026 Emma Flora Harbison & Luis Rey Sánchez
 // SPDX-License-Identifier: Apache-2.0
 
-import { IS_ANDROID_APP } from "@/lib/app-target";
+import { IS_NATIVE_APP } from "@/lib/app-target";
 import type { LearnArticle, LearnCategory } from "@/lib/learn/articles";
 
 // Article bodies for the Learn overlay, loaded when an article opens. Lists
@@ -61,7 +61,7 @@ function isLearnArticle(value: unknown): value is LearnArticle {
  * when the article is not published (any more); throws when it cannot load.
  */
 export async function loadLearnArticle(slug: string, category: LearnCategory): Promise<LearnArticle | null> {
-  if (IS_ANDROID_APP) return loadShippedArticle(slug, category);
+  if (IS_NATIVE_APP) return loadShippedArticle(slug, category);
   const response = await fetch(learnArticleJsonPath(slug), { headers: { accept: "application/json" } });
   if (response.status === 404) return null;
   if (!response.ok) throw new Error(`Learn article ${slug}: HTTP ${response.status}`);

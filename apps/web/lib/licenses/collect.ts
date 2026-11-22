@@ -138,8 +138,14 @@ function byName(a: LicenseEntry, b: LicenseEntry): number {
 }
 
 export type CollectOptions = {
-  /** apps/mobile: set for the Android build only. */
+  /** apps/mobile: set for the app builds (Android and iOS) only. */
   mobileDir?: string | null;
+  /**
+   * Also list the Maven libraries inside the Android app (default: yes, with
+   * `mobileDir`). The iOS build says no: its native code is Capacitor's Swift
+   * package, which is the `@capacitor/ios` npm package already listed.
+   */
+  androidLibraries?: boolean;
   /**
    * A release export (an https API base). Then a package of apps/mobile that is
    * not installed, or a missing Apache License text, fails the build; a
@@ -169,11 +175,11 @@ export function mavenEntry(library: MavenLibrary, apacheText: string | null): Li
 }
 
 /**
- * Everything /licenses lists. `webDir` is apps/web. For the Android build,
- * `mobileDir` adds the shell's npm packages and the Maven libraries.
+ * Everything /licenses lists. `webDir` is apps/web. For the app builds,
+ * `mobileDir` adds the shell's npm packages and, for Android, the Maven libraries.
  */
 export function collectLicenses(webDir: string, options: CollectOptions = {}): LicenseReport {
-  const { mobileDir = null, release = false, warn = console.warn } = options;
+  const { mobileDir = null, androidLibraries = true, release = false, warn = console.warn } = options;
   const packages = projectLicenses(webDir);
   if (mobileDir) {
     const missing = missingPackages(mobileDir);
@@ -186,13 +192,15 @@ export function collectLicenses(webDir: string, options: CollectOptions = {}): L
     for (const entry of projectLicenses(mobileDir)) {
       if (!seen.has(`${entry.name}@${entry.version}`)) packages.push(entry);
     }
-    const apache = apacheLicenseText(packages);
-    if (!apache) {
-      const message = "/licenses: no package ships the plain Apache License 2.0 text to show for the Maven libraries.";
-      if (release) throw new Error(message);
-      warn(message);
+    if (androidLibraries) {
+      const apache = apacheLicenseText(packages);
+      if (!apache) {
+        const message = "/licenses: no package ships the plain Apache License 2.0 text to show for the Maven libraries.";
+        if (release) throw new Error(message);
+        warn(message);
+      }
+      for (const library of ANDROID_MAVEN_LIBRARIES) packages.push(mavenEntry(library, apache));
     }
-    for (const library of ANDROID_MAVEN_LIBRARIES) packages.push(mavenEntry(library, apache));
   }
   return {
     fonts: FONTS,

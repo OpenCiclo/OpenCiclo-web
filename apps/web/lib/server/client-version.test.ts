@@ -18,11 +18,15 @@ describe("client id header", () => {
       platform: "android",
       versionCode: 12,
     });
+    expect(parseClientId(formatClientId({ platform: "ios", versionCode: 3 }))).toEqual({
+      platform: "ios",
+      versionCode: 3,
+    });
     expect(parseClientId(formatClientId({ platform: "web" }))).toEqual({ platform: "web" });
   });
 
   it("ignores anything else", () => {
-    for (const value of [null, "", "android/", "android/-1", "android/1.2", "ios/3", "android/12 extra"]) {
+    for (const value of [null, "", "android/", "android/-1", "android/1.2", "ios/", "windows/3", "android/12 extra"]) {
       expect(parseClientId(value)).toBeNull();
     }
   });
@@ -53,6 +57,11 @@ describe("rejectOutdatedClient", () => {
     expect(rejectOutdatedClient(request())).toBeNull();
     expect(rejectOutdatedClient(request("garbage"))).toBeNull();
     expect(rejectOutdatedClient(request("android/0"))).toBeNull();
+  });
+
+  it("never refuses the iOS app: the minimum is about Android builds", () => {
+    vi.stubEnv("MIN_ANDROID_VERSION_CODE", "5");
+    expect(rejectOutdatedClient(request("ios/1"))).toBeNull();
   });
 
   it("ignores a minimum it cannot read", () => {

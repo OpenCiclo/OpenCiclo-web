@@ -3,7 +3,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 
-import { IS_ANDROID_APP, apiUrl } from "@/lib/app-target";
+import { IS_NATIVE_APP, apiUrl } from "@/lib/app-target";
 import { decryptAesGcm, encryptAesGcm } from "@/lib/crypto/aes";
 import { bytesToUtf8, utf8ToBytes } from "@/lib/crypto/bytes";
 import { InvalidPhraseError, createWallet, unlockWallet, type Wallet } from "@/lib/crypto/wallet";
@@ -386,23 +386,23 @@ function updateRequiredBackend(inner: VaultBackend, reason: "server" | "diary"):
   };
 }
 
-// Android only. The web build still emits Capacitor as a lazy chunk, but this
-// guard means the web never requests it.
+// The apps only (Android and iOS). The web build still emits Capacitor as a lazy
+// chunk, but this guard means the web never requests it.
 async function loadDeviceStorage() {
-  if (!IS_ANDROID_APP) throw new Error("On-device storage is Android-only");
+  if (!IS_NATIVE_APP) throw new Error("On-device storage is for the apps only");
   return import("@/lib/client/device-storage");
 }
 
 // Where a hosted account's phrase is kept between starts: browser storage on the
-// web, Android Keystore in the app.
+// web, Android Keystore or the iOS Keychain in the app.
 async function phraseStore(): Promise<PhraseStore> {
-  if (!IS_ANDROID_APP) return browserPhraseStore;
+  if (!IS_NATIVE_APP) return browserPhraseStore;
   return (await loadDeviceStorage()).hostedPhraseStore;
 }
 
-// Android only: the sealed copy of a hosted diary, for reading without a connection.
+// The apps only: the sealed copy of a hosted diary, for reading without a connection.
 async function hostedCopyStore(): Promise<HostedCopyStore | null> {
-  if (!IS_ANDROID_APP) return null;
+  if (!IS_NATIVE_APP) return null;
   return (await loadDeviceStorage()).hostedCopyStore;
 }
 
@@ -411,9 +411,9 @@ const browserPendingSignups = browserPendingSignupStore(() =>
 );
 
 // Where an email sign-up waits for its code: this tab's sessionStorage on the web,
-// Android Keystore in the app.
+// Android Keystore or the iOS Keychain in the app.
 async function pendingSignupStore(): Promise<PendingSignupStore> {
-  if (!IS_ANDROID_APP) return browserPendingSignups;
+  if (!IS_NATIVE_APP) return browserPendingSignups;
   return (await loadDeviceStorage()).pendingSignupStore;
 }
 
@@ -591,7 +591,7 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
   // Whether the open hosted diary keeps an offline copy. Without one, any copy
   // left on the device (another account, an earlier session) is deleted.
   const keepCopies = useCallback(async (keep: boolean) => {
-    keepCopyRef.current = IS_ANDROID_APP && keep;
+    keepCopyRef.current = IS_NATIVE_APP && keep;
     if (keepCopyRef.current) return;
     const store = await hostedCopyStore().catch(() => null);
     await store?.clear().catch(() => undefined);
@@ -662,7 +662,7 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
   // says the server session ends once the browser is back online.
   const endHostSession = useCallback(() => {
     void logoutSession().then((ended) => {
-      if (!IS_ANDROID_APP) setSessionEndPending(!ended);
+      if (!IS_NATIVE_APP) setSessionEndPending(!ended);
     });
   }, []);
 
@@ -901,7 +901,7 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
       const storedLocale = initialLocale();
       // Under the splash, so the first screen is already in that language.
       await loadLocale(storedLocale).catch(() => undefined);
-      if (IS_ANDROID_APP && (await restoreDeviceDiary(storedLocale, isCancelled))) return;
+      if (IS_NATIVE_APP && (await restoreDeviceDiary(storedLocale, isCancelled))) return;
       if (isCancelled()) return;
       const store = await phraseStore();
       // The order, the deadline for a silent host, and the cancellation rules live
@@ -917,7 +917,7 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
           },
           prepare: (kept) => {
             // A phrase kept between starts is "Keep me signed in": the diary keeps an offline copy.
-            keepCopyRef.current = IS_ANDROID_APP && kept.persist;
+            keepCopyRef.current = IS_NATIVE_APP && kept.persist;
             sessionPersistRef.current = kept.persistCookie;
           },
           load: (nextWallet, kept) => loadKeptVault(nextWallet, kept.persistCookie, isCancelled),
@@ -1027,7 +1027,7 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
   // Android: a sign-out that cannot reach the host clears the session cookie in
   // the app's own cookie jar (the one native HTTP uses).
   useEffect(() => {
-    if (!IS_ANDROID_APP) return;
+    if (!IS_NATIVE_APP) return;
     setLocalSessionCookieClearer(async () => {
       const device = await loadDeviceStorage();
       await device.deviceVault.clearSessionCookie({ url: apiUrl("/") });
@@ -1040,7 +1040,7 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const retry = () =>
       void retryPendingLogout().then((ended) => {
-        if (!IS_ANDROID_APP) setSessionEndPending(!ended);
+        if (!IS_NATIVE_APP) setSessionEndPending(!ended);
       });
     window.addEventListener("online", retry);
     return () => window.removeEventListener("online", retry);
@@ -1052,7 +1052,7 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
     const isCancelled = () => cancelled || startGuard();
     migrateBrowserStorage();
     void retryPendingLogout().then((ended) => {
-      if (!cancelled && !IS_ANDROID_APP) setSessionEndPending(!ended && isLogoutPending());
+      if (!cancelled && !IS_NATIVE_APP) setSessionEndPending(!ended && isLogoutPending());
     });
     void (async () => {
       try {
@@ -1190,7 +1190,7 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
 
   const createDeviceDiary = useCallback(
     async (nextWallet: Wallet) => {
-      if (!IS_ANDROID_APP) throw new Error("On-device diaries are Android-only");
+      if (!IS_NATIVE_APP) throw new Error("On-device diaries are for the apps only");
       // It deletes the hosted phrase kept on this device below.
       assertNoSavedSignIn();
       // One diary per install: a hosted restore still running must never open after this.
@@ -1299,7 +1299,7 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
   const deleteLockedDeviceDiary = useCallback(
     () =>
       enqueue(async () => {
-        if (!IS_ANDROID_APP || !deviceDiaryRef.current) throw new Error("No locked on-device diary");
+        if (!IS_NATIVE_APP || !deviceDiaryRef.current) throw new Error("No locked on-device diary");
         const device = await loadDeviceStorage();
         await device.deviceVault.clear();
         deviceDiaryRef.current = false;
@@ -1419,7 +1419,7 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
     () =>
       enqueue(async () => {
         const synced = syncedRef.current;
-        if (!IS_ANDROID_APP || !wallet || storageMode !== "hosted" || !synced) {
+        if (!IS_NATIVE_APP || !wallet || storageMode !== "hosted" || !synced) {
           throw new Error("No hosted diary is open");
         }
         // The move copies what the host has, then deletes the account: never from the offline copy.

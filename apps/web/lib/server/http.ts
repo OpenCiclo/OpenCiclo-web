@@ -125,6 +125,9 @@ export function apiRoute<Rest extends unknown[]>(
 /** The Android app's WebView origin (Capacitor serves the bundle from https://localhost). */
 export const ANDROID_APP_ORIGIN = "https://localhost";
 
+/** The iOS app's WebView origin (a WKWebView cannot serve https itself, so Capacitor uses its own scheme). */
+export const IOS_APP_ORIGIN = "capacitor://localhost";
+
 function originOf(url: string): string | null {
   try {
     return new URL(url).origin;
@@ -135,12 +138,16 @@ function originOf(url: string): string | null {
 
 /**
  * For requests that change state without a body (logout): a missing Origin is
- * accepted (the Android app's native HTTP may send none, and so do some
- * same-origin requests); otherwise it must be this host, APP_URL, or the
- * Android app.
+ * accepted (the apps' native HTTP may send none, and so do some same-origin
+ * requests); otherwise it must be this host, APP_URL, or one of the apps.
  */
 export function originAllowed(request: Request): boolean {
   const origin = request.headers.get("origin");
   if (origin === null) return true;
-  return origin === originOf(request.url) || origin === originOf(appUrl()) || origin === ANDROID_APP_ORIGIN;
+  return (
+    origin === originOf(request.url) ||
+    origin === originOf(appUrl()) ||
+    origin === ANDROID_APP_ORIGIN ||
+    origin === IOS_APP_ORIGIN
+  );
 }

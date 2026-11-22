@@ -17,8 +17,9 @@ export function minAndroidVersionCode(): number {
  * A 426 for an Android build older than MIN_ANDROID_VERSION_CODE, else null.
  * Call it first in every API route the app uses, except sign-out and account
  * deletion: an old build must always be able to end its session and delete the
- * account. The web, and builds from before the header existed, are always
- * served: raise the minimum only once those builds are gone.
+ * account. The web, the iOS app (it has no minimum yet), and builds from before
+ * the header existed are always served: raise the minimum only once those
+ * builds are gone.
  */
 export function rejectOutdatedClient(request: Request): Response | null {
   const minimum = minAndroidVersionCode();

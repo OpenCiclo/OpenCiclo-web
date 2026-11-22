@@ -4,7 +4,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { ConfigError, requireSecret } from "./env";
-import { ANDROID_APP_ORIGIN, apiRoute, describeError, originAllowed, readJson } from "./http";
+import { ANDROID_APP_ORIGIN, IOS_APP_ORIGIN, apiRoute, describeError, originAllowed, readJson } from "./http";
 
 function post(body: string, headers: Record<string, string> = { "content-type": "application/json" }) {
   return new Request("https://ciclo.test/api/x", { method: "POST", headers, body });
@@ -144,12 +144,13 @@ describe("originAllowed", () => {
     });
   }
 
-  it("accepts no Origin, this host, APP_URL and the Android app", () => {
+  it("accepts no Origin, this host, APP_URL and the apps", () => {
     vi.stubEnv("APP_URL", "https://ciclo.test");
     expect(originAllowed(logout())).toBe(true);
     expect(originAllowed(logout("https://www.ciclo.test"))).toBe(true);
     expect(originAllowed(logout("https://ciclo.test"))).toBe(true);
     expect(originAllowed(logout(ANDROID_APP_ORIGIN))).toBe(true);
+    expect(originAllowed(logout(IOS_APP_ORIGIN))).toBe(true);
   });
 
   it("refuses another site", () => {
@@ -157,5 +158,6 @@ describe("originAllowed", () => {
     expect(originAllowed(logout("https://evil.test"))).toBe(false);
     expect(originAllowed(logout("null"))).toBe(false);
     expect(originAllowed(logout("http://localhost"))).toBe(false);
+    expect(originAllowed(logout("capacitor://evil.test"))).toBe(false);
   });
 });

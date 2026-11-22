@@ -31,7 +31,7 @@ import type { Locale, Messages } from "@/lib/i18n";
 import { useCiclo, useTodayIso } from "@/lib/client/ciclo-context";
 import { AccountMismatchError, VaultTooLargeError } from "@/lib/client/api";
 import { UpdateRequiredError } from "@/lib/client/http";
-import { IS_ANDROID_APP } from "@/lib/app-target";
+import { IS_NATIVE_APP } from "@/lib/app-target";
 import { useMonthSwipe } from "@/lib/client/use-month-swipe";
 import { isMainPhaseDay, lunarDayInfo, nextFullOrNewMoon } from "@/lib/lunar/phases";
 import { symptomColor, symptomLabel, symptomMeta } from "@/lib/symptoms/catalog";
@@ -203,7 +203,7 @@ export function CalendarScreen() {
   // In the Android app a sideways swipe on the calendar card turns the month
   // too. The web keeps the buttons only.
   const { open: monthSwipeOpen, zoneRef, viewportRef, stripRef, zoneProps } = useMonthSwipe({
-    enabled: IS_ANDROID_APP,
+    enabled: IS_NATIVE_APP,
     onTurn: (step) => {
       const next = shiftedMonth(year, month, step);
       setSwipedTo(monthKey(next.year, next.month));
@@ -335,7 +335,7 @@ export function CalendarScreen() {
         className={cn(
           "animate-fade-up rounded-3xl bg-card p-4 shadow-sm desktop:mt-2 desktop:border desktop:border-border/70 desktop:p-6",
           // Vertical drags still scroll the page; sideways ones turn the month.
-          IS_ANDROID_APP && "[touch-action:pan-y_pinch-zoom]",
+          IS_NATIVE_APP && "[touch-action:pan-y_pinch-zoom]",
         )}
         style={{ animationDelay: "120ms" }}
       >

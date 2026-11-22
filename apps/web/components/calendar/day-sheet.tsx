@@ -46,7 +46,7 @@ import {
   toggleFavoriteSymptom,
   toggleLoggedSymptom,
 } from "@/lib/symptoms/selection";
-import { IS_ANDROID_APP } from "@/lib/app-target";
+import { IS_NATIVE_APP } from "@/lib/app-target";
 import { isDraftChanged } from "@/lib/client/day-draft";
 import { useLatest } from "@/lib/client/hooks";
 import { useSheetDrag } from "@/lib/client/use-sheet-drag";
@@ -239,7 +239,7 @@ export function DaySheet({
   // In the Android app the sheet has a handle and closes when dragged down by
   // its top. The web keeps the plain sheet (a dialog on the desktop).
   const { sheetRef, handleProps } = useSheetDrag({
-    enabled: IS_ANDROID_APP && !busy,
+    enabled: IS_NATIVE_APP && !busy,
     onDismiss: () => {
       if (busy) return false;
       if (dirty) {
@@ -376,14 +376,14 @@ export function DaySheet({
         )}
       >
         {/* The handle and the title row: drag them down to close the sheet (Android). */}
-        <div {...handleProps} className={IS_ANDROID_APP ? "touch-none select-none" : undefined}>
-          {IS_ANDROID_APP ? (
+        <div {...handleProps} className={IS_NATIVE_APP ? "touch-none select-none" : undefined}>
+          {IS_NATIVE_APP ? (
             <div aria-hidden className="mx-auto mt-2.5 h-1 w-9 rounded-full bg-muted-foreground/30" />
           ) : null}
           <div
             className={cn(
               "flex items-start justify-between gap-3 px-5 pb-3 min-[360px]:px-6",
-              IS_ANDROID_APP ? "pt-2.5" : "pt-5",
+              IS_NATIVE_APP ? "pt-2.5" : "pt-5",
             )}
           >
             <div className="flex min-w-0 items-start gap-2">

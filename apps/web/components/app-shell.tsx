@@ -71,7 +71,7 @@ export function AppShell({ children, size = "narrow" }: { children: React.ReactN
   // On the desktop the screen spans the window under DesktopHeader (4rem),
   // with a faint rose glow at the top, like the landing's hero.
   return (
-    <div className="mx-auto flex min-h-dvh w-full max-w-md flex-col overflow-x-clip bg-background desktop:relative desktop:min-h-[calc(100dvh-4rem)] desktop:max-w-none">
+    <div className="mx-auto flex min-h-dvh w-full max-w-md flex-col overflow-x-clip bg-background pt-(--safe-top) desktop:relative desktop:min-h-[calc(100dvh-4rem)] desktop:max-w-none">
       <div
         aria-hidden
         className="pointer-events-none absolute inset-x-0 top-0 hidden h-80 bg-gradient-to-b from-primary/[0.07] to-transparent desktop:block"

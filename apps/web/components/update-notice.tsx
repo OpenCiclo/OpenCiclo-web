@@ -5,7 +5,7 @@
 
 import { CircleArrowUp } from "lucide-react";
 
-import { IS_ANDROID_APP, PLAY_STORE_URL } from "@/lib/app-target";
+import { IS_NATIVE_APP, STORE_URL } from "@/lib/app-target";
 import type { UpdateRequiredError } from "@/lib/client/http";
 import type { Messages } from "@/lib/i18n";
 import { useCiclo } from "@/lib/client/ciclo-context";
@@ -15,11 +15,11 @@ import { cn } from "@/lib/utils";
 /**
  * What a sign-in or sign-up form says when it meets UpdateRequiredError. Null
  * when the notice on the page already says it: a 426 sets `updateRequired`, and
- * the Android notice is then showing. A kit from a newer build sets nothing, so
- * the form says it; on the web the update is a reload, never Google Play.
+ * the app's notice is then showing. A kit from a newer build sets nothing, so
+ * the form says it; on the web the update is a reload, never a store.
  */
 export function updateErrorMessage(error: UpdateRequiredError, t: Messages): string | null {
-  if (!IS_ANDROID_APP) return t.updateSignInBodyWeb;
+  if (!IS_NATIVE_APP) return t.updateSignInBodyWeb;
   return error.reason === "server" ? null : t.updateSignInBody;
 }
 
@@ -29,9 +29,9 @@ const ACTION_CLASS =
 /**
  * This build cannot save the open diary, or cannot sign in at all
  * (`updateRequired`): a newer version of Ciclo saved the diary, or the host no
- * longer serves this Android build (426). An open diary stays readable. The app
- * links to Google Play; the web reloads, which gets the build the host serves
- * now. Renders nothing otherwise. Also shown on the sign-in screens, where a 426
+ * longer serves this app build (426). An open diary stays readable. The app
+ * links to its store (Google Play, or the App Store once STORE_URL has its
+ * address); the web reloads, which gets the build the host serves now. Renders nothing otherwise. Also shown on the sign-in screens, where a 426
  * is the first sign of it.
  */
 export function UpdateNotice({ className }: { className?: string }) {
@@ -51,7 +51,7 @@ export function UpdateNotice({ className }: { className?: string }) {
       )
     : null;
   // The web is always the build the host serves now: a reload is the update.
-  const body = !IS_ANDROID_APP
+  const body = !IS_NATIVE_APP
     ? t.updateBodyWeb
     : diaryNewer
       ? t.updateBodyNewer
@@ -65,10 +65,12 @@ export function UpdateNotice({ className }: { className?: string }) {
       <div className="min-w-0 flex-1">
         <div className="flex items-center justify-between gap-3">
           <p className="text-sm font-semibold text-card-foreground">{t.updateTitle}</p>
-          {IS_ANDROID_APP ? (
-            <a href={PLAY_STORE_URL} target="_blank" rel="noreferrer" className={ACTION_CLASS}>
-              {t.updateOpenStore}
-            </a>
+          {IS_NATIVE_APP ? (
+            STORE_URL ? (
+              <a href={STORE_URL} target="_blank" rel="noreferrer" className={ACTION_CLASS}>
+                {t.updateOpenStore}
+              </a>
+            ) : null
           ) : (
             <button type="button" onClick={() => window.location.reload()} className={ACTION_CLASS}>
               {t.updateReload}

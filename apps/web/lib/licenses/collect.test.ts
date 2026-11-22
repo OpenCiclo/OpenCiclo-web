@@ -102,6 +102,11 @@ describe("collecting third-party licenses", () => {
     expect(cordova?.text).toContain("Copyright 2015-2020 The Apache Software Foundation");
     expect(cordova?.text).toContain(APACHE);
     expect(android.fontLicenseText).toBe("OFL");
+    // The iOS build lists the shell's npm packages, not the Android libraries.
+    const ios = collectLicenses(web, { mobileDir: mobile, androidLibraries: false, release: true, warn });
+    const iosNames = ios.packages.map((entry) => entry.name);
+    expect(iosNames).toContain("@capacitor/android");
+    for (const library of ANDROID_MAVEN_LIBRARIES) expect(iosNames).not.toContain(library.name);
   });
 
   it("fails a release export when an apps/mobile package is not installed, and only warns otherwise", () => {

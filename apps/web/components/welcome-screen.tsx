@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
-import { IS_ANDROID_APP, PLAY_STORE_URL } from "@/lib/app-target";
+import { IS_NATIVE_APP, STORE_URL } from "@/lib/app-target";
 import { useCiclo } from "@/lib/client/ciclo-context";
 import { maskEmail } from "@/lib/client/kit-store";
 import { BrandMark } from "@/components/brand-mark";
@@ -48,10 +48,13 @@ export function WelcomeScreen() {
         <Card role="alert" className="flex flex-col gap-3 border-destructive/30 bg-destructive/5 p-4">
           <p className="text-sm font-semibold text-card-foreground">{t.updateTitle}</p>
           <p className="text-sm leading-6 text-muted-foreground">{t.updateSignInBody}</p>
-          {IS_ANDROID_APP ? (
-            <a href={PLAY_STORE_URL} target="_blank" rel="noreferrer" className={buttonVariants()}>
-              {t.updateOpenStore}
-            </a>
+          {IS_NATIVE_APP ? (
+            // No link on iOS until the app has its App Store address; the text names the store.
+            STORE_URL ? (
+              <a href={STORE_URL} target="_blank" rel="noreferrer" className={buttonVariants()}>
+                {t.updateOpenStore}
+              </a>
+            ) : null
           ) : (
             <Button type="button" onClick={() => window.location.reload()}>
               {t.updateReload}

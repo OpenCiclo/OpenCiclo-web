@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ChevronDown } from "lucide-react";
 
-import { IS_ANDROID_APP, apiHostLabel } from "@/lib/app-target";
+import { IS_NATIVE_APP, apiHostLabel } from "@/lib/app-target";
 import { AccountMismatchError, VaultChangedError, VaultTooLargeError } from "@/lib/client/api";
 import { InvalidCredentialsError, useCiclo } from "@/lib/client/ciclo-context";
 import { UpdateRequiredError } from "@/lib/client/http";
@@ -115,7 +115,7 @@ export default function SettingsPage() {
   const canChangePassword = !onDevice && diary.recoveryEmailSet;
 
   useEffect(() => {
-    if (!IS_ANDROID_APP || !onDevice) return;
+    if (!IS_NATIVE_APP || !onDevice) return;
     let cancelled = false;
     void import("@/lib/client/device-storage")
       .then(({ deviceVault }) => deviceVault.status())
@@ -363,7 +363,7 @@ export default function SettingsPage() {
       </div>
       {/* Desktop: the column's first card lines up with the preferences card. */}
       <div className="desktop:[&>:first-child]:mt-0">
-      {IS_ANDROID_APP ? (
+      {IS_NATIVE_APP ? (
         <SettingsDisclosure title={t.storageTitle}>
           {/* The current place is the selected option; picking the other one moves the diary. */}
           <select
@@ -614,8 +614,8 @@ export default function SettingsPage() {
         {notice("backup")}
       </SettingsDisclosure>
       {/* In the app there is no browser to save to: the section is the phrase itself (QR). */}
-      <SettingsDisclosure title={IS_ANDROID_APP ? t.onboardingTitle : t.saveInBrowser}>
-        {onDevice || IS_ANDROID_APP ? null : (
+      <SettingsDisclosure title={IS_NATIVE_APP ? t.onboardingTitle : t.saveInBrowser}>
+        {onDevice || IS_NATIVE_APP ? null : (
           <form
             className="flex flex-col gap-3"
             onSubmit={async (event) => {

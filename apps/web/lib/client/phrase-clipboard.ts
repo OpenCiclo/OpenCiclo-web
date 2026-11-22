@@ -1,7 +1,7 @@
 // Copyright © 2026 Emma Flora Harbison & Luis Rey Sánchez
 // SPDX-License-Identifier: Apache-2.0
 
-import { IS_ANDROID_APP } from "@/lib/app-target";
+import { IS_NATIVE_APP } from "@/lib/app-target";
 import type { DeviceVaultPlugin } from "@/lib/device-vault";
 
 // Copying the 12-word phrase (onboarding). The phrase opens the diary, so it
@@ -142,7 +142,7 @@ let copier: ((text: string) => Promise<void>) | null = null;
 /** Copies the phrase and clears it from the clipboard about a minute later. */
 export async function copyPhrase(phrase: string): Promise<void> {
   if (!copier) {
-    const clipboard = IS_ANDROID_APP
+    const clipboard = IS_NATIVE_APP
       ? androidPhraseClipboard((await import("@/lib/client/device-storage")).deviceVault)
       : webPhraseClipboard({ clipboard: navigator.clipboard, permissions: navigator.permissions, window, document });
     copier = phraseCopier(clipboard);

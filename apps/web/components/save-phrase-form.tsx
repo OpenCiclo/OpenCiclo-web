@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-import { IS_ANDROID_APP } from "@/lib/app-target";
+import { IS_NATIVE_APP } from "@/lib/app-target";
 import { storeBrowserPassword } from "@/lib/client/credentials";
 import type { Messages } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
@@ -23,7 +23,7 @@ export function SavePhraseForm({
 
   // The Android WebView has no password store to hand the phrase to: the app
   // offers copying, the share sheet and the QR instead.
-  if (IS_ANDROID_APP) return null;
+  if (IS_NATIVE_APP) return null;
 
   return (
     <form

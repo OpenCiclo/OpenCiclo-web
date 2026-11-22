@@ -1,7 +1,7 @@
 // Copyright © 2026 Emma Flora Harbison & Luis Rey Sánchez
 // SPDX-License-Identifier: Apache-2.0
 
-import { APP_VERSION_CODE, IS_ANDROID_APP, apiUrl } from "@/lib/app-target";
+import { APP_VERSION_CODE, IS_ANDROID_APP, IS_IOS_APP, apiUrl } from "@/lib/app-target";
 import { CLIENT_HEADER, formatClientId } from "@/lib/client-version";
 
 /**
@@ -35,7 +35,11 @@ export class UpdateRequiredError extends Error {
 }
 
 const CLIENT_ID = formatClientId(
-  IS_ANDROID_APP ? { platform: "android", versionCode: APP_VERSION_CODE } : { platform: "web" },
+  IS_ANDROID_APP
+    ? { platform: "android", versionCode: APP_VERSION_CODE }
+    : IS_IOS_APP
+      ? { platform: "ios", versionCode: APP_VERSION_CODE }
+      : { platform: "web" },
 );
 
 const updateListeners = new Set<() => void>();

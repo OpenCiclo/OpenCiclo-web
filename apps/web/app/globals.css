@@ -1,14 +1,14 @@
 @import "tailwindcss";
 
 /*
- * The desktop web layout: a wide window, and never the Android app (its root
- * layout sets data-target="android" on <html>), which keeps the phone layout
- * on any screen. Phones and narrower windows get the phone layout, unchanged.
+ * The desktop web layout: a wide window, and never the apps (their root
+ * layout sets data-target="android" or "ios" on <html>), which keep the phone
+ * layout on any screen. Phones and narrower windows get the phone layout, unchanged.
  * Keep the width in step with DESKTOP_QUERY in lib/client/desktop.ts.
  */
 @custom-variant desktop {
   @media (width >= 64rem) {
-    &:where(:root:not([data-target="android"]) *) {
+    &:where(:root:not([data-target]) *) {
       @slot;
     }
   }
@@ -959,4 +959,30 @@ html.boot-splash #boot-splash {
   .season-scene::before {
     animation: none;
   }
+}
+
+/*
+ * The iOS app draws to the edges of the screen (viewport-fit=cover in
+ * layout.android.tsx), so the page would start under the status bar and the
+ * camera island. `--safe-top` is that height, 0 everywhere else: AppShell pads
+ * its top with it, things that stick to the top stick below it, and a strip of
+ * the page background keeps scrolled content out from under the clock. Sheets
+ * and dialogs (z-50) cover the strip with their dim, like the rest of the page.
+ */
+:root {
+  --safe-top: 0px;
+}
+
+:root[data-target="ios"] {
+  --safe-top: env(safe-area-inset-top, 0px);
+}
+
+:root[data-target="ios"] body::before {
+  content: "";
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 30;
+  height: var(--safe-top);
+  background: var(--background);
+  pointer-events: none;
 }

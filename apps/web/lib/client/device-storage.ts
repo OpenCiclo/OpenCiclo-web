@@ -8,8 +8,9 @@ import { androidPhraseStore } from "@/lib/client/phrase-store";
 import { deviceVaultBackend, type DeviceVaultPlugin } from "@/lib/device-vault";
 import { androidHostedCopyStore } from "@/lib/hosted-copy";
 
-// Android only. Load it with `import()` behind IS_ANDROID_APP so the web never
-// loads Capacitor. The plugin is DeviceVaultPlugin.java in apps/mobile.
+// The apps only. Load it with `import()` behind IS_NATIVE_APP so the web never
+// loads Capacitor. The plugin is DeviceVaultPlugin.java (Android) or
+// DeviceVaultPlugin.swift (iOS) in apps/mobile: same methods, same error codes.
 export const deviceVault = registerPlugin<DeviceVaultPlugin>("DeviceVault");
 
 export const deviceBackend = deviceVaultBackend(deviceVault);

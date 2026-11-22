@@ -35,8 +35,9 @@ const permissionsPolicy = [
   "browsing-topics=()",
 ].join(", ");
 
-// Host the Android bundle calls for `/api`. Defaults to the local stack (reached
-// from a phone through `adb reverse tcp:3000 tcp:3000`), so a forgotten value
+// Host an app bundle (Android or iOS) calls for `/api`. Defaults to the local stack
+// (reached from an Android phone through `adb reverse tcp:3000 tcp:3000`, and from the
+// iOS simulator directly), so a forgotten value
 // fails closed instead of pointing a dev build at production. Release builds
 // set it to the production origin. Plain http is only allowed for localhost.
 // scripts/build-android.mjs (`npm run build:android`) repeats this default and
@@ -69,22 +70,25 @@ function androidVersion(): { code: string; name: string } {
   return { code: String(versionCode), name: versionName };
 }
 
-// The Android app (apps/mobile) wraps a static export of the routes named
+// The apps (apps/mobile) wrap a static export of the routes named
 // `page.android.tsx` / `layout.android.tsx`. API routes, marketing, and the
-// console are plain `.tsx`, so they are not routes in this build.
-function androidConfig(): NextConfig {
+// console are plain `.tsx`, so they are not routes in this build. The iOS app
+// uses the same routes (the files keep their `.android.tsx` name) in an export
+// of its own, `out-ios`, where NEXT_PUBLIC_CICLO_TARGET is "ios"
+// (lib/app-target.ts).
+function appConfig(target: "android" | "ios"): NextConfig {
   const version = androidVersion();
   return {
     output: "export",
     pageExtensions: ["android.tsx"],
-    distDir: "out-android",
+    distDir: `out-${target}`,
     poweredByHeader: false,
     images: { unoptimized: true },
     // Leaves out the web dev server's route types (.next/dev), which list
     // routes this build does not have.
     typescript: { tsconfigPath: "tsconfig.android.json" },
     env: {
-      NEXT_PUBLIC_CICLO_TARGET: "android",
+      NEXT_PUBLIC_CICLO_TARGET: target,
       NEXT_PUBLIC_CICLO_API_BASE: androidApiBase(),
       NEXT_PUBLIC_CICLO_VERSION_CODE: version.code,
       NEXT_PUBLIC_CICLO_VERSION_NAME: version.name,
@@ -126,6 +130,7 @@ const webConfig: NextConfig = {
   },
 };
 
-const nextConfig = process.env.CICLO_TARGET === "android" ? androidConfig() : webConfig;
+const target = process.env.CICLO_TARGET;
+const nextConfig = target === "android" || target === "ios" ? appConfig(target) : webConfig;
 
 export default nextConfig;

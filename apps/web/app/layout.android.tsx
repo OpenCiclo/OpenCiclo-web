@@ -7,7 +7,7 @@ import { DeviceLockGate } from "@/components/device-lock-gate";
 import { FloatingTabBar } from "@/components/floating-tab-bar";
 import { FriendsProvider } from "@/components/friends/friends-provider";
 import { ThemeClass } from "@/components/theme-class";
-import { API_BASE } from "@/lib/app-target";
+import { API_BASE, IS_IOS_APP } from "@/lib/app-target";
 import { bootSplashScript } from "@/lib/brand/boot-splash-script";
 import { themeBootScript } from "@/lib/client/color-scheme";
 import { localeBootScript } from "@/lib/client/initial-locale";
@@ -15,8 +15,9 @@ import { webviewGuardScript } from "@/lib/webview-update-page";
 import { fraunces, nunito } from "./fonts";
 import "./globals.css";
 
-// Root layout of the Android bundle (apps/mobile). Same chrome as the web
-// layout, minus the service worker and the installed-PWA redirect.
+// Root layout of the app bundles (apps/mobile): Android and, built with
+// CICLO_TARGET=ios, iOS. Same chrome as the web layout, minus the service
+// worker and the installed-PWA redirect.
 
 // A static export has no response headers, so the policy goes in a meta tag.
 // It mirrors the web CSP; connect-src adds the API host.
@@ -42,15 +43,22 @@ export const viewport: Viewport = {
   themeColor: "#f7f7f8",
   width: "device-width",
   initialScale: 1,
+  // iOS: draw to the edges of the screen, so the tab bar and the sheets can sit
+  // over the home indicator with their own `env(safe-area-inset-bottom)`; the
+  // top is kept clear in globals.css (`--safe-top`). And no zoom: WebKit zooms
+  // into any field whose text is under 16px when it takes the focus.
+  ...(IS_IOS_APP ? { viewportFit: "cover" as const, maximumScale: 1 } : {}),
 };
 
 export default function AndroidRootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="es" data-target="android" suppressHydrationWarning className={`${fraunces.variable} ${nunito.variable} h-full antialiased`}>
+    <html lang="es" data-target={IS_IOS_APP ? "ios" : "android"} suppressHydrationWarning className={`${fraunces.variable} ${nunito.variable} h-full antialiased`}>
       <head>
         <meta httpEquiv="Content-Security-Policy" content={csp} />
-        {/* First, before the bundle: a WebView too old for it goes to webview-update.html. */}
-        <script dangerouslySetInnerHTML={{ __html: webviewGuardScript() }} />
+        {/* First, before the bundle: a WebView too old for it goes to webview-update.html.
+            Android only: on iOS the WebView is part of the system, and the Xcode project's
+            deployment target (iOS 16.4) is the oldest one the bundle runs on. */}
+        {IS_IOS_APP ? null : <script dangerouslySetInnerHTML={{ __html: webviewGuardScript() }} />}
       </head>
       <body className="min-h-full bg-background font-sans text-foreground">
         <script dangerouslySetInnerHTML={{ __html: themeBootScript() }} />

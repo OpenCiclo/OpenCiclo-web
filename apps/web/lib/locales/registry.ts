@@ -1,9 +1,10 @@
 // Copyright © 2026 Emma Flora Harbison & Luis Rey Sánchez
 // SPDX-License-Identifier: Apache-2.0
 
-import { IS_ANDROID_APP } from "@/lib/app-target";
+import { IS_IOS_APP, IS_NATIVE_APP } from "@/lib/app-target";
 import { contentLocale, messages, type BaseLocale, type Locale, type Messages } from "@/lib/i18n";
 import { withAndroidCopy } from "@/lib/locales/android-copy";
+import { withIosCopy } from "@/lib/locales/ios-copy";
 import { enMail, esMail, type MailCopy } from "@/lib/mail-copy";
 import type { MarketingCopy } from "@/lib/marketing/copy";
 
@@ -90,18 +91,22 @@ function moduleOrFallback(locale: Locale): Omit<LocaleModule, "marketing"> {
 }
 
 // One swapped copy per language, so the hook's snapshot stays the same object.
-const androidMessages = new WeakMap<Messages, Messages>();
+const appMessages = new WeakMap<Messages, Messages>();
 
-/** The app's texts. The Android build gets its own wording where the web says "browser" (android-copy.ts). */
+/**
+ * The app's texts. The apps get their own wording where the web says "browser"
+ * (android-copy.ts), and the iOS app also where Android names its own things
+ * (Google Play, the fingerprint: ios-copy.ts).
+ */
 export function messagesFor(locale: Locale): Messages {
   const messages = moduleOrFallback(locale).messages;
-  if (!IS_ANDROID_APP) return messages;
-  let android = androidMessages.get(messages);
-  if (!android) {
-    android = withAndroidCopy(messages);
-    androidMessages.set(messages, android);
+  if (!IS_NATIVE_APP) return messages;
+  let swapped = appMessages.get(messages);
+  if (!swapped) {
+    swapped = IS_IOS_APP ? withIosCopy(messages) : withAndroidCopy(messages);
+    appMessages.set(messages, swapped);
   }
-  return android;
+  return swapped;
 }
 
 /** For the server, which can wait for the file. */

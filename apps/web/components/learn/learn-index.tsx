@@ -8,7 +8,7 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 import { Search, X } from "lucide-react";
 
 import { AppShell } from "@/components/app-shell";
-import { IS_ANDROID_APP } from "@/lib/app-target";
+import { IS_NATIVE_APP } from "@/lib/app-target";
 import { useSheetDrag } from "@/lib/client/use-sheet-drag";
 import { Badge } from "@/components/ui/badge";
 import { useCiclo } from "@/lib/client/ciclo-context";
@@ -167,7 +167,7 @@ export function LearnIndex({ articles }: { articles: LearnArticleSummary[] }) {
   // In the Android app the article sheet has a handle and closes when dragged
   // down by its top. The web keeps the close button (and Escape).
   const { sheetRef, handleProps } = useSheetDrag({
-    enabled: IS_ANDROID_APP,
+    enabled: IS_NATIVE_APP,
     onDismiss: () => {
       closeOverlay();
       return true;
@@ -197,7 +197,7 @@ export function LearnIndex({ articles }: { articles: LearnArticleSummary[] }) {
       <div className="flex flex-col gap-5 pb-4 desktop:grid desktop:grid-cols-[15rem_minmax(0,1fr)] desktop:items-start desktop:gap-12">
         {/* The compact bar. Sticky and of no height, so it takes no room in
             the list; it shows only once the filters below reach the top. */}
-        <div className="sticky top-0 z-20 -mx-5 -mb-5 h-0 desktop:hidden">
+        <div className="sticky top-(--safe-top) z-20 -mx-5 -mb-5 h-0 desktop:hidden">
           <div
             aria-hidden={!compact}
             inert={!compact}
@@ -387,10 +387,10 @@ export function LearnIndex({ articles }: { articles: LearnArticleSummary[] }) {
               {...handleProps}
               className={cn(
                 "relative shrink-0 border-b border-border px-5 pb-4 desktop:px-8 desktop:py-6",
-                IS_ANDROID_APP ? "touch-none pt-2.5 select-none" : "pt-5",
+                IS_NATIVE_APP ? "touch-none pt-2.5 select-none" : "pt-5",
               )}
             >
-              {IS_ANDROID_APP ? <div aria-hidden className="mx-auto mb-2.5 h-1 w-9 rounded-full bg-muted-foreground/30" /> : null}
+              {IS_NATIVE_APP ? <div aria-hidden className="mx-auto mb-2.5 h-1 w-9 rounded-full bg-muted-foreground/30" /> : null}
               <button
                 type="button"
                 onClick={closeOverlay}

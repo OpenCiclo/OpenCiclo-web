@@ -3,7 +3,7 @@
 import { useCallback, useId, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
-import { IS_ANDROID_APP } from "@/lib/app-target";
+import { IS_NATIVE_APP } from "@/lib/app-target";
 import { type Wallet } from "@/lib/crypto/wallet";
 import { useBackStep } from "@/lib/client/android-back";
 import { goBack, returnTo } from "@/lib/client/back-navigation";
@@ -73,7 +73,7 @@ export default function OnboardingPage() {
   const [error, setError] = useState<string | null>(null);
   const checkIndex = useMemo(() => (wallet ? 2 : 0), [wallet]);
   // The app can also keep the diary on the phone, with no account.
-  const tooManySignupsMessage = IS_ANDROID_APP ? `${t.tooManySignups} ${t.tooManySignupsDevice}` : t.tooManySignups;
+  const tooManySignupsMessage = IS_NATIVE_APP ? `${t.tooManySignups} ${t.tooManySignupsDevice}` : t.tooManySignups;
 
   // Every way to create a diary goes through the consent gate.
   function startSignup(next: SignupMethod) {
@@ -235,7 +235,7 @@ export default function OnboardingPage() {
           <Card className="mt-4 flex flex-col gap-3 border-primary/20 bg-primary/5 p-4 text-sm leading-6">
             <h2 className="font-semibold text-card-foreground">{t.signupConsentTitle}</h2>
             <p className="text-muted-foreground">{t.signupConsentHosted}</p>
-            {IS_ANDROID_APP ? <p className="text-muted-foreground">{t.signupConsentDevice}</p> : null}
+            {IS_NATIVE_APP ? <p className="text-muted-foreground">{t.signupConsentDevice}</p> : null}
             <label className="flex items-start gap-2 font-medium text-card-foreground">
               <input
                 type="checkbox"
@@ -285,7 +285,7 @@ export default function OnboardingPage() {
                 {t.superPrivateMode}
               </Button>
             </Card>
-            {IS_ANDROID_APP ? (
+            {IS_NATIVE_APP ? (
               <Card className="flex flex-col gap-3">
                 <div>
                   <h2 className="font-medium">{t.deviceMode}</h2>

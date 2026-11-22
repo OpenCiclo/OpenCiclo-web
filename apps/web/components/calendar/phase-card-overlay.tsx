@@ -10,7 +10,7 @@ import { ChevronUp } from "lucide-react";
 
 import { ForecastInfoDialog } from "@/components/calendar/forecast-info-dialog";
 import { PhaseAura } from "@/components/calendar/phase-visuals";
-import { IS_ANDROID_APP } from "@/lib/app-target";
+import { IS_NATIVE_APP } from "@/lib/app-target";
 import { useLatest, usePrefersReducedMotion } from "@/lib/client/hooks";
 import { VelocityTracker, sheetDragIntent, sheetShouldClose } from "@/lib/client/swipe";
 import { resist } from "@/lib/client/tab-motion";
@@ -48,7 +48,7 @@ const HANDLE_SETTLE = "opacity 0.3s ease";
 /** Share of a drag back to the card's size at which the words have faded out. */
 const HINT_GONE_AT = 0.75;
 /** Room under the content for the handle, in px. */
-const HANDLE_ROOM = IS_ANDROID_APP ? 60 : 40;
+const HANDLE_ROOM = IS_NATIVE_APP ? 60 : 40;
 /** Farthest the card stretches, in px, when its handle is pulled down. */
 const PULL_DOWN_LIMIT = 16;
 const CLICK_AFTER_DRAG_MS = 500;
@@ -209,7 +209,7 @@ export function PhaseCardOverlay({
   const dragRef = useRef<Drag | null>(null);
   const trackerRef = useRef(new VelocityTracker());
   const swallowClickUntilRef = useRef(0);
-  const canDrag = IS_ANDROID_APP && !desktop && expanded;
+  const canDrag = IS_NATIVE_APP && !desktop && expanded;
 
   function onHandleDown(event: PointerEvent<HTMLButtonElement>) {
     if (!canDrag || !event.isPrimary || event.pointerType === "mouse") return;
@@ -419,7 +419,7 @@ export function PhaseCardOverlay({
                 className="flex touch-none flex-col items-center gap-1 px-12 py-1.5 select-none"
               >
                 <span className="h-[5px] w-[38px] rounded-full bg-muted-foreground/40" />
-                {IS_ANDROID_APP ? (
+                {IS_NATIVE_APP ? (
                   <span className="text-[10px] font-bold text-muted-foreground">{t.swipeUpToClose}</span>
                 ) : null}
               </button>

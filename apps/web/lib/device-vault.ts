@@ -47,7 +47,10 @@ export type DeviceVaultPlugin = {
   readHostedCopy(): Promise<{ data?: string }>;
   writeHostedCopy(options: { data: string }): Promise<void>;
   clearHostedCopy(): Promise<void>;
+  /** Android: hides the app from screenshots and recents. iOS cannot block screenshots; its app-switcher cover is always on. */
   setSecureScreen(options: { enabled: boolean }): Promise<void>;
+  /** iOS only: the status bar, the keyboard and the launch cover follow the theme chosen in Settings. */
+  setAppearance?(options: { scheme: "light" | "dark" | "system" }): Promise<void>;
   /**
    * Clears the session cookies (`ciclo_session`, legacy `oddy_session`) for the API host in
    * the cookie jar native HTTP uses: a sign-out that cannot reach the host still ends the
