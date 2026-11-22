@@ -3,6 +3,10 @@
 # exports the web app for iOS, copies it into the Xcode project and compiles it
 # for the simulator, unsigned. Its use is to check that the Swift code and the
 # Xcode project build without a Mac; the .app only runs on a Mac's simulator.
+#
+# The real Xcode project is apps/mobile/ios/App/App.xcodeproj. The copy next to
+# this file (apps/mobile/eas/ios/App.xcodeproj) is only there for the EAS CLI,
+# which looks for ios/*.xcodeproj before it uploads anything. Nothing builds it.
 build:
   name: Ciclo iOS (simulator, unsigned)
   steps:
@@ -12,32 +16,34 @@ build:
         name: Install packages
         command: |
           set -e
-          # The job may start at the repository root or in apps/mobile.
-          if [ -d apps/mobile ]; then cd apps/mobile; fi
-          (cd ../web && npm ci)
-          npm ci
+          # The job may start in apps/mobile/eas or at the repository root: find the root.
+          ROOT="$PWD"; while [ ! -f "$ROOT/agents.txt" ] && [ "$ROOT" != "/" ]; do ROOT="$(dirname "$ROOT")"; done
+          echo "Job directory: $PWD; repository: $ROOT"
+          cd "$ROOT/apps/web" && npm ci
+          cd "$ROOT/apps/mobile" && npm ci
 
     - run:
         name: Export the web app and copy it into the Xcode project
         command: |
           set -e
-          if [ -d apps/mobile ]; then cd apps/mobile; fi
-          npm run build:ios
+          ROOT="$PWD"; while [ ! -f "$ROOT/agents.txt" ] && [ "$ROOT" != "/" ]; do ROOT="$(dirname "$ROOT")"; done
+          cd "$ROOT/apps/mobile" && npm run build:ios
 
     - run:
         name: Build for the simulator
         command: |
           set -e
-          if [ -d apps/mobile ]; then cd apps/mobile; fi
-          cd ios/App
+          JOB="$PWD"
+          ROOT="$PWD"; while [ ! -f "$ROOT/agents.txt" ] && [ "$ROOT" != "/" ]; do ROOT="$(dirname "$ROOT")"; done
+          cd "$ROOT/apps/mobile/ios/App"
           xcodebuild -version
           xcodebuild -project App.xcodeproj -scheme App -configuration Debug \
             -sdk iphonesimulator -derivedDataPath build \
             CODE_SIGNING_ALLOWED=NO build
-          tar -czf Ciclo-simulator.tar.gz -C build/Build/Products/Debug-iphonesimulator App.app
+          tar -czf "$JOB/Ciclo-simulator.tar.gz" -C build/Build/Products/Debug-iphonesimulator App.app
 
     - eas/upload_artifact:
         name: Upload the simulator app
         inputs:
           type: application-archive
-          path: ios/App/Ciclo-simulator.tar.gz
+          path: Ciclo-simulator.tar.gz

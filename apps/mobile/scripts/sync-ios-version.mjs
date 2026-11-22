@@ -4,7 +4,7 @@
 // the release guard (ios/scripts/verify-build-info.sh) fails when they differ.
 // `--check` changes nothing and exits 1 when the project is out of step (CI).
 
-import { readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 
 const mobileDir = path.resolve(import.meta.dirname, "..");
@@ -30,4 +30,17 @@ if (after === before) {
 } else {
   writeFileSync(projectFile, after);
   console.log(`iOS project set to ${versionName} (${versionCode}).`);
+}
+
+// The EAS CLI only looks for ios/*.xcodeproj, so apps/mobile/eas keeps a copy of the
+// project file for it (docs/ios.md, "Building in the cloud with EAS"). Keep it identical.
+const easCopy = path.join(mobileDir, "eas/ios/App.xcodeproj/project.pbxproj");
+const sameText = (a, b) => a.replace(/\r\n/g, "\n") === b.replace(/\r\n/g, "\n");
+if (existsSync(easCopy) && !sameText(readFileSync(easCopy, "utf8"), after)) {
+  if (process.argv.includes("--check")) {
+    console.error("apps/mobile/eas/ios/App.xcodeproj/project.pbxproj differs from the Xcode project. Run node scripts/sync-ios-version.mjs in apps/mobile.");
+    process.exit(1);
+  }
+  writeFileSync(easCopy, after);
+  console.log("Copied the Xcode project file to apps/mobile/eas for the EAS CLI.");
 }
