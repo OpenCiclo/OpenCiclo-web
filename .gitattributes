@@ -1,0 +1,6 @@
+# Files that a Mac reads as they are. The EAS CLI archives a clone made on the
+# machine that starts the build; on Windows that clone would otherwise carry CRLF.
+*.sh text eol=lf
+apps/mobile/ios/** text=auto eol=lf
+apps/mobile/eas/** text=auto eol=lf
+*.png binary

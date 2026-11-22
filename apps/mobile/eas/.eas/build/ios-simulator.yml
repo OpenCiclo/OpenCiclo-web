@@ -37,6 +37,9 @@ build:
           ROOT="$PWD"; while [ ! -f "$ROOT/agents.txt" ] && [ "$ROOT" != "/" ]; do ROOT="$(dirname "$ROOT")"; done
           cd "$ROOT/apps/mobile/ios/App"
           xcodebuild -version
+          # What the job received (line endings, the release guard script).
+          ls -la .. ../scripts || true
+          file ../scripts/* App.xcodeproj/project.pbxproj || true
           xcodebuild -project App.xcodeproj -scheme App -configuration Debug \
             -sdk iphonesimulator -derivedDataPath build \
             CODE_SIGNING_ALLOWED=NO build
