@@ -6,11 +6,15 @@
     "build": "npm --prefix ../web run build:android && cap sync android",
     "build:release": "node scripts/build-release.mjs",
     "android": "cap run android",
-    "open": "cap open android"
+    "open": "cap open android",
+    "build:ios": "npm --prefix ../web run build:ios && node scripts/sync-ios-version.mjs && cap sync ios",
+    "ios": "cap run ios",
+    "open:ios": "cap open ios"
   },
   "dependencies": {
     "@capacitor/android": "8.6.2",
-    "@capacitor/core": "8.6.2"
+    "@capacitor/core": "8.6.2",
+    "@capacitor/ios": "8.6.2"
   },
   "devDependencies": {
     "@capacitor/cli": "8.6.2",

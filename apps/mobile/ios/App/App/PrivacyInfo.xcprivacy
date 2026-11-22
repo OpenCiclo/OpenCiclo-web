@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- The privacy manifest of the app. No tracking, no tracking domains, and the Swift
+     code in this target calls none of the "required reason" APIs (Capacitor ships its
+     own manifest for the ones it uses). NSPrivacyCollectedDataTypes is for the owner to
+     fill in together with the App Store privacy answers (docs/ios.md, "Before the App
+     Store"). -->
+<plist version="1.0">
+<dict>
+	<key>NSPrivacyTracking</key>
+	<false/>
+	<key>NSPrivacyTrackingDomains</key>
+	<array/>
+	<key>NSPrivacyCollectedDataTypes</key>
+	<array/>
+	<key>NSPrivacyAccessedAPITypes</key>
+	<array/>
+</dict>
+</plist>

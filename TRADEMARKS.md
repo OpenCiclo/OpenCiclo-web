@@ -17,6 +17,7 @@ The logo artwork is Copyright © 2026 Emma Flora Harbison & Luis Rey Sánchez. A
 - `apps/web/app/icon.svg` and `apps/web/app/favicon.ico`
 - `apps/mobile/android/app/src/main/res/drawable/ic_launcher_foreground.xml`, `ic_launcher_monochrome.xml`, `splash_mark.xml` and `splash_sea.xml`
 - `apps/mobile/android/app/src/main/res/mipmap-*/ic_launcher.png` and `ic_launcher_round.png`
+- `apps/mobile/ios/App/App/Assets.xcassets/AppIcon.appiconset/AppIcon-1024.png` and `apps/mobile/ios/App/App/Assets.xcassets/SplashMark.imageset/mark-*.png`
 - `docs/brand/sea-mark-motion.html`
 - any image drawn from them, such as the icons the web app serves at `/apple-icon` and `/pwa-icon`
 
