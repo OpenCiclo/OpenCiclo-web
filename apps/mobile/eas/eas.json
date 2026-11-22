@@ -13,8 +13,10 @@
       "ios": {
         "simulator": true,
         "config": "ios-simulator.yml",
-        "scheme": "App"
-      }
+        "scheme": "App",
+        "image": "latest"
+      },
+      "node": "24.11.0"
     }
   }
 }
