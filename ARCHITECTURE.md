@@ -40,7 +40,7 @@ UI / eval         V1 web app or benchmark harness
 | `openciclo.evaluation` | Walk-forward, metrics, Markdown/CSV reports |
 | `openciclo.calibration` | Reliability-style summaries |
 | `apps/web` | Next.js app: email+password or phrase identity, AES-GCM vault (diary schema v6), calendar, short day notes, estimated phases, patterns, Learn wiki, Help docs, TS forecast |
-| `apps/mobile` | Android app: a Capacitor shell around a static export of `apps/web` (see [docs/android.md](docs/android.md)) |
+| `apps/mobile` | Android and iOS apps: a Capacitor shell around a static export of `apps/web` (see [docs/android.md](docs/android.md), [docs/ios.md](docs/ios.md)) |
 
 ## Data model (conceptual)
 

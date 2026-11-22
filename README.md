@@ -146,6 +146,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md). Pull requests that change forecasting be
 | [SECURITY.md](SECURITY.md)                   | Vulnerability reporting                                           |
 | [apps/web/README.md](apps/web/README.md)     | Vercel + Neon (primary), local Next.js, Docker                    |
 | [docs/android.md](docs/android.md)           | Android app: build, run on a phone, security, roadmap             |
+| [docs/ios.md](docs/ios.md)                   | iOS app: what differs from Android, run it on a Mac, open work    |
 | [agents.txt](agents.txt)                     | Map for coding agents                                             |
 
 
