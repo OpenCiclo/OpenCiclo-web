@@ -197,3 +197,27 @@ export const recoveryTokens = pgTable("recovery_tokens", {
   expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
+
+// Feedback from Settings (0009). Anonymous: no account, no pubkey, no IP.
+export const feedback = pgTable(
+  "feedback",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    kind: text("kind").notNull(),
+    body: text("body").notNull(),
+    contactEmail: text("contact_email"),
+    platform: text("platform").notNull(),
+    appVersion: text("app_version"),
+    locale: text("locale"),
+  },
+  (table) => [
+    check("feedback_kind_check", sql`${table.kind} IN ('problem', 'idea', 'other')`),
+    check("feedback_body_check", sql`char_length(${table.body}) BETWEEN 1 AND 2000`),
+    check("feedback_contact_email_check", sql`${table.contactEmail} IS NULL OR char_length(${table.contactEmail}) <= 254`),
+    check("feedback_platform_check", sql`${table.platform} IN ('web', 'android')`),
+    check("feedback_app_version_check", sql`${table.appVersion} IS NULL OR char_length(${table.appVersion}) <= 40`),
+    check("feedback_locale_check", sql`${table.locale} IS NULL OR char_length(${table.locale}) <= 16`),
+    index("feedback_created_idx").on(table.createdAt),
+  ],
+);

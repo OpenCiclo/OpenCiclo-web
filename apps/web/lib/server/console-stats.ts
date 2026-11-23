@@ -9,6 +9,7 @@ import { loadDbLearnEntries } from "@/lib/learn/load";
 import { accountActivityDays, accounts, recoveryMailboxes, researchContributions } from "@/lib/db/schema";
 import { getDb } from "@/lib/db";
 import { consoleAdminAccountIds } from "@/lib/server/account-activity";
+import { feedbackCounts } from "@/lib/server/feedback";
 
 export type ConsoleDayCount = {
   day: string;
@@ -33,6 +34,9 @@ export type ConsoleStats = {
   diariesSaved30d: number;
   researchRows: number;
   researchNew30d: number;
+  /** Null while the feedback table (0009) is missing. */
+  feedback7d: number | null;
+  feedback30d: number | null;
   learnPublishedDb: number;
   learnDraftsDb: number;
   learnPublic: number;
@@ -149,7 +153,7 @@ export async function loadConsoleStats(
   const hosted = ne(accounts.ciphertext, "");
   const signupDay = sql<string>`to_char(${accounts.createdAt} at time zone 'UTC', 'YYYY-MM-DD')`;
 
-  const [accountRows, signupsByDay, emailRows, researchRows, dbLearn, activity] = await Promise.all([
+  const [accountRows, signupsByDay, emailRows, researchRows, dbLearn, activity, feedbackRows] = await Promise.all([
     db
       .select({
         total: sql<number>`count(*)::int`,
@@ -176,6 +180,8 @@ export async function loadConsoleStats(
       .from(researchContributions),
     loadDbLearnEntries(),
     loadActivity(db, CHART_DAYS, now, options.adminIds),
+    // Before 0009 is applied the table is missing: the overview still loads.
+    feedbackCounts(db, now).catch(() => null),
   ]);
 
   const totals = accountRows[0];
@@ -206,6 +212,8 @@ export async function loadConsoleStats(
     diariesSaved30d: toNumber(totals?.saved30),
     researchRows: toNumber(researchRows[0]?.total),
     researchNew30d: toNumber(researchRows[0]?.new30),
+    feedback7d: feedbackRows?.last7d ?? null,
+    feedback30d: feedbackRows?.last30d ?? null,
     learnPublishedDb,
     learnDraftsDb,
     learnPublic: mergeLearnCatalog(LEARN_ARTICLES, dbLearn).length,

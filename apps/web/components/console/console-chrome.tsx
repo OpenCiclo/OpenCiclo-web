@@ -19,6 +19,7 @@ export function ConsoleChrome() {
   const links = [
     { href: "/console", label: copy.overview, exact: true },
     { href: "/console/learn", label: copy.learn, exact: false },
+    { href: "/console/feedback", label: copy.feedback, exact: false },
   ];
 
   return (

@@ -165,6 +165,7 @@ describe("privacy policy", () => {
       // otherwise); the test below holds the flag until the policy says so.
       friend_books: "Friends (sealed friend list, per account)",
       friend_boxes: "Friends (sealed messages between friends, no account)",
+      feedback: "feedback (plain text, optional email, no account)",
     };
     const tables = Object.values(schema)
       .filter((value) => is(value, PgTable))
@@ -218,6 +219,7 @@ describe("privacy policy", () => {
       recovery_tokens: ["id", "email_lookup", "token_hash", "expires_at", "created_at"],
       friend_books: ["account_id", "ciphertext", "nonce", "version", "updated_at"],
       friend_boxes: ["box_hash", "write_hash", "ciphertext", "nonce", "expires_at"],
+      feedback: ["id", "created_at", "kind", "body", "contact_email", "platform", "app_version", "locale"],
     };
     const byName = new Map(
       Object.values(schema)

@@ -28,6 +28,8 @@ export function ConsoleStatsView({ stats }: { stats: ConsoleStats }) {
     { label: copy.diariesSaved30d, value: stats.diariesSaved30d },
     { label: copy.researchRows, value: stats.researchRows },
     { label: copy.researchNew30d, value: stats.researchNew30d },
+    { label: copy.feedback7d, value: stats.feedback7d ?? "—" },
+    { label: copy.feedback30d, value: stats.feedback30d ?? "—" },
     { label: copy.learnPublishedDb, value: stats.learnPublishedDb },
     { label: copy.learnDraftsDb, value: stats.learnDraftsDb },
     { label: copy.learnPublic, value: stats.learnPublic },
