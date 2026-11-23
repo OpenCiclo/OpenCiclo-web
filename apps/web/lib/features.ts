@@ -18,3 +18,16 @@ export const VISUAL_SEASONS_AVAILABLE = false;
  * privacy policy's Friends parts go with it (lib/privacy/policy.test.ts checks).
  */
 export const FRIENDS_AVAILABLE = true;
+
+/**
+ * Pregnancy mode (PLAN 4, phase 3a): dates, weeks, a pregnancy card, its end,
+ * and friends who never learn of it. Off until a health professional has read
+ * the end-of-pregnancy texts. While false, nothing offers to turn it on
+ * (Settings, the late-period card, a positive test); a diary that already holds
+ * a pregnancy still shows it, so it can always be ended. /dev-pregnancy shows
+ * every state.
+ */
+export const PREGNANCY_AVAILABLE = false;
+
+/** The week-by-week cards (phase 3b). Off until they have had a medical review. */
+export const PREGNANCY_WEEKS_AVAILABLE = false;

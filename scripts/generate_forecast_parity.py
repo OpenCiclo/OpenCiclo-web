@@ -21,18 +21,38 @@ from openciclo.forecasting.ovulation import (
     luteal_pmf,
 )
 from openciclo.models.shrinkage import mixed_scale, shrink_toward_prior
+from openciclo.pregnancy import (
+    PregnancyDating,
+    conception_date,
+    due_date_from,
+    gestational_age,
+    likely_window,
+    term_for,
+    trimester_for,
+    weeks_left,
+)
 from openciclo.schemas.config import ForecastConfig, literature_prior
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "tests" / "fixtures" / "forecast_parity.json"
 
 
-def _forecast_payload(history: list[date], reference: date) -> dict[str, object]:
-    forecast = predict(history, reference_date=reference)
+def _forecast_payload(
+    history: list[date],
+    reference: date,
+    excluded: tuple[date, ...] = (),
+    min_scale: float | None = None,
+) -> dict[str, object]:
+    config = load_released_model().to_forecast_config()
+    if min_scale is not None:
+        config = config.model_copy(update={"min_laplace_scale": min_scale})
+    forecast = predict(history, reference_date=reference, config=config, excluded_starts=excluded)
     dist = forecast.cycle_length_distribution
     return {
         "history": [day.isoformat() for day in history],
         "reference_date": reference.isoformat(),
+        "excluded_starts": [day.isoformat() for day in excluded],
+        "min_laplace_scale": min_scale,
         "most_likely_date": forecast.most_likely_date.isoformat(),
         "most_likely_cycle_length": forecast.most_likely_cycle_length,
         "uncertainty": forecast.uncertainty.value,
@@ -116,6 +136,86 @@ def _ovulation_cases() -> dict[str, object]:
         "luteal": {"days": days, "probabilities": probs},
         "from_forecast": from_forecast,
         "known_length": known,
+    }
+
+
+def _pregnancy_cases() -> dict[str, object]:
+    datings: list[tuple[dict[str, object], PregnancyDating]] = [
+        (
+            {"method": "lmp", "lmp": "2026-01-10", "cycleLength": None},
+            PregnancyDating("lmp", lmp=date(2026, 1, 10)),
+        ),
+        (
+            {"method": "lmp", "lmp": "2026-01-10", "cycleLength": 32},
+            PregnancyDating("lmp", lmp=date(2026, 1, 10), cycle_length=32),
+        ),
+        (
+            {"method": "lmp", "lmp": "2026-01-10", "cycleLength": 45},
+            PregnancyDating("lmp", lmp=date(2026, 1, 10), cycle_length=45),
+        ),
+        (
+            {"method": "lmp", "lmp": "2026-01-10", "cycleLength": 24},
+            PregnancyDating("lmp", lmp=date(2026, 1, 10), cycle_length=24),
+        ),
+        (
+            {"method": "dueDate", "dueDate": "2026-10-20"},
+            PregnancyDating("dueDate", due_date=date(2026, 10, 20)),
+        ),
+        (
+            {"method": "ultrasound", "scanDate": "2026-03-02", "weeks": 8, "days": 3},
+            PregnancyDating("ultrasound", scan_date=date(2026, 3, 2), weeks=8, days=3),
+        ),
+        (
+            {"method": "conception", "conception": "2026-01-24"},
+            PregnancyDating("conception", conception=date(2026, 1, 24)),
+        ),
+        (
+            {"method": "transfer", "transfer": "2026-01-29", "embryoAge": 5},
+            PregnancyDating("transfer", transfer=date(2026, 1, 29), embryo_age=5),
+        ),
+        (
+            {"method": "transfer", "transfer": "2026-01-29", "embryoAge": 3},
+            PregnancyDating("transfer", transfer=date(2026, 1, 29), embryo_age=3),
+        ),
+    ]
+    due_dates = [{"dating": raw, "due_date": due_date_from(d).isoformat()} for raw, d in datings]
+    due = date(2026, 10, 17)
+    ages = []
+    for day in (
+        "2026-01-10",
+        "2026-01-09",
+        "2026-01-24",
+        "2026-04-10",
+        "2026-04-17",
+        "2026-07-24",
+        "2026-07-25",
+        "2026-09-26",
+        "2026-10-17",
+        "2026-10-31",
+    ):
+        weeks, days, total = gestational_age(due, date.fromisoformat(day))
+        ages.append(
+            {
+                "due_date": due.isoformat(),
+                "date": day,
+                "weeks": weeks,
+                "days": days,
+                "total_days": total,
+                "trimester": trimester_for(total),
+                "term": term_for(total),
+                "weeks_left": weeks_left(due, date.fromisoformat(day)),
+            }
+        )
+    start, end = likely_window(due)
+    return {
+        "due_dates": due_dates,
+        "ages": ages,
+        "conception": {"due_date": due.isoformat(), "expected": conception_date(due).isoformat()},
+        "likely_window": {
+            "due_date": due.isoformat(),
+            "start": start.isoformat(),
+            "end": end.isoformat(),
+        },
     }
 
 
@@ -206,6 +306,7 @@ def main() -> None:
             "probabilities": [float(x) for x in laplace.tolist()],
         },
         "ovulation": _ovulation_cases(),
+        "pregnancy": _pregnancy_cases(),
         "forecasts": [
             _forecast_payload([date(2026, 6, 1)], date(2026, 6, 1)),
             _forecast_payload(
@@ -219,6 +320,31 @@ def main() -> None:
             _forecast_payload(
                 [date(2025, 11, 1), date(2025, 12, 15), date(2026, 1, 10), date(2026, 3, 1)],
                 date(2026, 3, 15),
+            ),
+            # A pregnancy between the third and fourth start, then a loss: its interval
+            # is left out and the scale floor is raised for the first cycles after it.
+            _forecast_payload(
+                [
+                    date(2025, 1, 1),
+                    date(2025, 1, 29),
+                    date(2025, 2, 26),
+                    date(2026, 1, 10),
+                    date(2026, 2, 8),
+                ],
+                date(2026, 2, 20),
+                excluded=(date(2025, 2, 26),),
+            ),
+            _forecast_payload(
+                [
+                    date(2025, 1, 1),
+                    date(2025, 1, 29),
+                    date(2025, 2, 26),
+                    date(2026, 1, 10),
+                    date(2026, 2, 8),
+                ],
+                date(2026, 2, 20),
+                excluded=(date(2025, 2, 26),),
+                min_scale=3.0,
             ),
         ],
     }

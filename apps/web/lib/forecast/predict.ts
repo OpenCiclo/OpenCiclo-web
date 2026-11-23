@@ -57,11 +57,17 @@ export function releasedConfig(): ForecastConfig {
   };
 }
 
+/**
+ * `excludedStarts`: period starts whose following interval is not a cycle (it
+ * held a pregnancy, lib/cycle/segments.ts). Their lengths are left out; the
+ * starts still date the history. Mirrors `excluded_starts` in Python.
+ */
 export function predict(
   history: string[],
   referenceDate?: string,
   prior: PopulationPrior = releasedPrior(),
   config: ForecastConfig = releasedConfig(),
+  excludedStarts: readonly string[] = [],
 ): Forecast {
   const ordered = [...new Set(history)].sort();
   if (ordered.length === 0) {
@@ -73,7 +79,8 @@ export function predict(
 
   const lastStart = ordered[ordered.length - 1];
   const reference = referenceDate ?? lastStart;
-  const lengths = cycleLengths(ordered);
+  const excluded = new Set(excludedStarts);
+  const lengths = cycleLengths(ordered).filter((_, index) => !excluded.has(ordered[index]));
   const pointEst = estimateShrinkageMedian(lengths, prior, config);
   const scale = scaleForShrinkage(lengths, pointEst.point, prior, config);
   const distribution = lengthDistribution(pointEst.point, scale, config);

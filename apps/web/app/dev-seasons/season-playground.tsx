@@ -75,6 +75,7 @@ function previewOverview(phase: CyclePhase, source: PhaseSource): CycleOverview 
     forecastingEnabled: true,
     periodRuns: [],
     periodDuration: EMPTY_DURATION,
+    pregnancy: { kind: "none" },
   };
 }
 

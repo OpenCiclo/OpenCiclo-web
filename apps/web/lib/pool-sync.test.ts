@@ -15,8 +15,22 @@ import { todayIsoIn } from "@/lib/time-zone";
 
 describe("pool sync", () => {
   it("requires at least one completed cycle", () => {
-    expect(poolCycleLengths(["2026-06-01"])).toEqual([]);
-    expect(poolCycleLengths(["2026-06-01", "2026-06-29"])).toEqual([28]);
+    expect(poolCycleLengths({ periodStarts: ["2026-06-01"], pregnancies: [] })).toEqual([]);
+    expect(poolCycleLengths({ periodStarts: ["2026-06-01", "2026-06-29"], pregnancies: [] })).toEqual([28]);
+  });
+
+  it("never sends the interval that held a pregnancy", () => {
+    const pregnancy = {
+      id: "0123456789abcdef0123456789abcdef",
+      dating: { method: "lmp" as const, lmp: "2026-01-29", cycleLength: null },
+      dueDate: "2026-11-05",
+      end: { date: "2026-03-20", outcome: "ended" as const },
+      hidden: false,
+      friendsMode: "noNews" as const,
+      bleedAnswers: {},
+    };
+    const periodStarts = ["2026-01-01", "2026-01-29", "2026-05-02", "2026-05-31"];
+    expect(poolCycleLengths({ periodStarts, pregnancies: [pregnancy] })).toEqual([28, 29]);
   });
 
   it("syncs when opted in and never synced before", () => {

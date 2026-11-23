@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { SYMPTOM_IDS, type Diary, type SymptomId } from "@/lib/diary";
-import { daysBetween } from "@/lib/forecast/math";
+import { cycleSegments } from "@/lib/cycle/segments";
 import { cycleOverview, periodRuns, type CycleOverview } from "@/lib/cycle/phases";
 import { isSexEntry } from "@/lib/symptoms/catalog";
 
@@ -29,17 +29,11 @@ export type PatternStats = CycleOverview & {
   cycleLengthRange: { min: number; max: number } | null;
 };
 
+/** Completed cycles, without an interval that held a pregnancy (lib/cycle/segments.ts). */
 export function completedCycles(diary: Diary): CompletedCycle[] {
-  const starts = [...diary.periodStarts].sort();
-  const cycles: CompletedCycle[] = [];
-  for (let i = 0; i < starts.length - 1; i += 1) {
-    cycles.push({
-      start: starts[i],
-      end: starts[i + 1],
-      length: daysBetween(starts[i], starts[i + 1]),
-    });
-  }
-  return cycles;
+  return cycleSegments(diary.periodStarts, diary.pregnancies ?? [])
+    .filter((segment) => !segment.pregnancy)
+    .map((segment) => ({ start: segment.start, end: segment.next, length: segment.length }));
 }
 
 /** Everything logged with the symptom picker, sex entries included (`patternStats` splits them). */

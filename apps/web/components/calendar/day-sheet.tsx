@@ -5,6 +5,7 @@
 
 import { useEffect, useId, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
+import Link from "next/link";
 import {
   ArrowLeft,
   CalendarClock,
@@ -33,6 +34,8 @@ import {
   type SymptomId,
 } from "@/lib/diary";
 import { formatIsoUtc } from "@/lib/format-date";
+import type { BleedAnswer } from "@/lib/pregnancy/record";
+import type { BleedContext, PregnancyTestContext } from "@/lib/pregnancy/view";
 import type { Locale, Messages } from "@/lib/i18n";
 import {
   resolveSymptomCatalog,
@@ -124,6 +127,17 @@ function prefersReducedMotion() {
   return typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
+/** What the day sheet says and offers about a pregnancy on the day it shows (lib/pregnancy/view.ts). */
+export type DayPregnancyInfo = {
+  bleed: BleedContext;
+  test: PregnancyTestContext;
+  /** "Pregnancy · 12 Jan to 3 Mar" on a day of an ended pregnancy she kept. */
+  past: { start: string; end: string } | null;
+  onAnswerBleed: (answer: BleedAnswer) => void;
+  /** Offered after a positive test (PREGNANCY_AVAILABLE); never turns anything on by itself. */
+  onStartPregnancy: (() => void) | null;
+};
+
 export function DaySheet({
   open,
   iso,
@@ -142,6 +156,7 @@ export function DaySheet({
   onExited,
   onSave,
   onUpdateSymptomPreferences,
+  pregnancy = null,
 }: {
   open: boolean;
   iso: string | null;
@@ -169,6 +184,7 @@ export function DaySheet({
     favoriteSymptomIds: SymptomId[],
     customSymptoms: CustomSymptomDefinition[],
   ) => void | Promise<void>;
+  pregnancy?: DayPregnancyInfo | null;
 }) {
   const titleId = useId();
   const [draft, setDraft] = useState<DayLog>(() =>
@@ -425,6 +441,13 @@ export function DaySheet({
                       {moonInfo && moonLabel && !future ? <MoonPhaseLine info={moonInfo} label={moonLabel} /> : null}
                     </div>
                     <p className="text-sm text-muted-foreground">{future ? t.futureDay : t.howFeeling}</p>
+                    {pregnancy?.past ? (
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        {t.pastPregnancyRange
+                          .replace("{start}", formatIsoUtc(pregnancy.past.start, locale, { day: "numeric", month: "long" }))
+                          .replace("{end}", formatIsoUtc(pregnancy.past.end, locale, { day: "numeric", month: "long" }))}
+                      </p>
+                    ) : null}
                   </>
                 )}
               </div>
@@ -468,7 +491,10 @@ export function DaySheet({
             </p>
           </Section>
 
-          <Section title={t.flow} icon={<Droplet className="size-4 text-bleed" />}>
+          <Section
+            title={pregnancy?.bleed.kind === "pregnancy" ? t.bleedingSectionTitle : t.flow}
+            icon={<Droplet className="size-4 text-bleed" />}
+          >
             <div className="grid grid-cols-2 gap-2 min-[360px]:grid-cols-4">
               {FLOW_LEVELS.map((level) => {
                 const active = draft.flow === level;
@@ -506,7 +532,44 @@ export function DaySheet({
                 );
               })}
             </div>
-            <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{t.flowPeriodHint}</p>
+            {pregnancy?.bleed.kind === "pregnancy" ? (
+              <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+                {t.bleedingDuringPregnancyHint}{" "}
+                <Link href="/learn/healthy-pregnancy" className="font-semibold text-primary underline-offset-4 hover:underline">
+                  {t.bleedingDuringPregnancyLink}
+                </Link>
+              </p>
+            ) : pregnancy?.bleed.kind === "afterEnd" ? (
+              <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{t.bleedingAfterEndHint}</p>
+            ) : (
+              <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{t.flowPeriodHint}</p>
+            )}
+            {pregnancy?.bleed.kind === "ask" && draft.flow ? (
+              <div className="mt-3 rounded-2xl bg-muted/60 p-3">
+                <p className="text-sm font-semibold text-card-foreground">{t.periodBackQuestion}</p>
+                <div className="mt-2 flex gap-2">
+                  {(["period", "notPeriod"] as const).map((answer) => {
+                    const bleed = pregnancy.bleed;
+                    const current = bleed.kind === "ask" ? (bleed.answer ?? "period") : "period";
+                    return (
+                      <button
+                        key={answer}
+                        type="button"
+                        aria-pressed={current === answer}
+                        disabled={locked}
+                        onClick={() => pregnancy.onAnswerBleed(answer)}
+                        className={cn(
+                          "rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors",
+                          current === answer ? "border-primary bg-primary text-primary-foreground" : "border-border bg-background text-card-foreground",
+                        )}
+                      >
+                        {answer === "period" ? t.periodBackYes : t.periodBackNotYet}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            ) : null}
           </Section>
 
           <Section title={t.cervicalMucus} icon={<Sparkles className="size-4 text-fertile" />}>
@@ -558,6 +621,18 @@ export function DaySheet({
               {t.moreSymptoms}
               <ChevronRight className="size-4 text-muted-foreground" aria-hidden />
             </button>
+            {draft.symptoms.pregnancyTestPositive && pregnancy?.test === "offer" && pregnancy.onStartPregnancy ? (
+              <button
+                type="button"
+                onClick={pregnancy.onStartPregnancy}
+                className="mt-3 text-xs font-semibold text-primary underline underline-offset-4"
+              >
+                {t.pregnancyOfferFromTest}
+              </button>
+            ) : null}
+            {draft.symptoms.pregnancyTestPositive && pregnancy?.test === "recentEnd" ? (
+              <p className="mt-3 text-xs leading-relaxed text-muted-foreground">{t.pregnancyTestAfterEnd}</p>
+            ) : null}
           </Section>
             </>
           ) : (

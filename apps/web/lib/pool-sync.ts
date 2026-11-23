@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { apiFetch } from "@/lib/client/http";
-import { cycleLengths } from "@/lib/forecast/math";
+import { validCycleLengths } from "@/lib/cycle/segments";
 import type { Diary } from "@/lib/diary";
 import { todayInSavedZone } from "@/lib/client/today";
 
@@ -19,8 +19,12 @@ export function isPoolContributorKey(value: string): boolean {
   return UUID.test(value);
 }
 
-export function poolCycleLengths(periodStarts: string[]): number[] {
-  return cycleLengths(periodStarts);
+/**
+ * The lengths the pool receives: completed cycles only. An interval that held a
+ * pregnancy is not a cycle and never leaves the device (lib/cycle/segments.ts).
+ */
+export function poolCycleLengths(diary: Pick<Diary, "periodStarts" | "pregnancies">): number[] {
+  return validCycleLengths(diary.periodStarts, diary.pregnancies ?? []);
 }
 
 export function daysSinceIso(iso: string, now = new Date()): number {
@@ -30,7 +34,7 @@ export function daysSinceIso(iso: string, now = new Date()): number {
 
 export function shouldSyncPool(diary: Diary, now = new Date()): boolean {
   if (!diary.poolOptIn || !diary.poolContributorKey) return false;
-  if (poolCycleLengths(diary.periodStarts).length === 0) return false;
+  if (poolCycleLengths(diary).length === 0) return false;
   if (!diary.poolLastSyncedAt) return true;
   return daysSinceIso(diary.poolLastSyncedAt, now) >= POOL_SYNC_INTERVAL_DAYS;
 }
@@ -42,7 +46,7 @@ export function ensurePoolContributorKey(diary: Diary): Diary {
 
 export async function submitPoolContribution(diary: Diary): Promise<Diary> {
   const withKey = ensurePoolContributorKey(diary);
-  const lengths = poolCycleLengths(withKey.periodStarts);
+  const lengths = poolCycleLengths(withKey);
   if (lengths.length === 0) throw new Error("Need at least one completed cycle");
   const response = await apiFetch("/api/research/contribute", {
     method: "POST",

@@ -297,6 +297,27 @@ const locale: LocaleModule = {
       "Amb un cicle mitjà de {length} dies, la regla podria arribar d'ací a uns {days} dies. Tin a mà el que necessites i reserva't estones de descans. És una estimació.",
     tipFertileBody:
       "Segons els teus inicis de regla, l'ovulació podria caure per estos dies. Els dies fèrtils comencen uns cinc dies abans d'ovular. El moc com de clara d'ou de vegades hi coincidix, però un calendari no confirma l'ovulació. Ciclo no és un anticonceptiu.",
+    pregnancyNotice: "Ciclo no substituïx el seguiment mèdic. Les dates són estimacions.",
+    pregnancyStartIntro:
+      "Ciclo deixarà de predir regles i et mostrarà les setmanes. El pots tancar quan vulgues. Només es guarda al teu diari xifrat.",
+    pregnancyEndKeep: "Guardar en el meu diari",
+    pregnancyFriendsNoNewsHint:
+      "Voran el mateix que si deixares d'apuntar: uns dies «regla esperada» i després «sense novetats recents».",
+    pregnancyFriendsSimulatedHint:
+      "Les teues amigues voran fases que no són reals. Una amiga que s'hi fixe pot notar que mai no apareix «apuntat hui».",
+    pregnancyFriendsTitle: "Què voran les teues amigues",
+    pregnancyFriendsNote: "Res de l'embaràs arriba a les teues amigues.",
+    pregnancyLmpLabel: "Primer dia de la teua última regla",
+    pregnancyOptionDue: "Sé la meua data probable de part",
+    pregnancyOptionLmp: "Per la meua última regla",
+    pregnancyMistakeHint: "S'esborra tot el de l'embaràs, com si no l'hagueres activat mai.",
+    resumingBirthAsk:
+      "Davant de qualsevol dubte sobre el sagnat o la teua recuperació, consulta la teua llevadora o el teu metge.",
+    resumingTitle: "El teu cicle es reprendrà quan apuntes la pròxima regla.",
+    settingsPregnancyStartHint: "Dates i setmanes en lloc de prediccions. Només es guarda al teu diari xifrat.",
+    settingsPregnancyDeleteConfirm: "S'esborrarà este embaràs del teu diari. No es pot desfer.",
+    pregnancyStillGoingTitle: "Continua en curs este embaràs?",
+    pregnancyImplausible: "Estes dates no encaixen amb un embaràs en curs. Revisa-les.",
     tipAdviceHeadache:
       "Els mals de cap de vegades coincidixen amb canvis hormonals. Hidratar-te i menjar a hores regulars pot ajudar. Nombre de registres: {count}.",
     tipAdviceMoodSwings:

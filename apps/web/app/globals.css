@@ -100,6 +100,11 @@
   --phase-follicular-aura: oklch(0.75 0.12 45);
   --phase-ovulation-aura: oklch(0.72 0.11 200);
   --phase-luteal-aura: oklch(0.62 0.11 330);
+  /* Pregnancy card (components/pregnancy/): its own colours, not a phase's. */
+  --pregnancy-ink: oklch(0.55 0.11 285);
+  --pregnancy-aura: oklch(0.7 0.11 285);
+  --pregnancy-aura-2: oklch(0.78 0.09 250);
+  --pregnancy-past: oklch(0.6 0.01 265 / 0.55);
   --aura-glow: 0.35;
   --aura-blob: 0.45;
   --aura-blob-soft: 0.3;
@@ -147,6 +152,10 @@
   --phase-follicular-ink: oklch(0.8 0.11 50);
   --phase-ovulation-ink: oklch(0.78 0.1 200);
   --phase-luteal-ink: oklch(0.76 0.1 330);
+  --pregnancy-ink: oklch(0.78 0.09 285);
+  --pregnancy-aura: oklch(0.6 0.12 285);
+  --pregnancy-aura-2: oklch(0.66 0.1 250);
+  --pregnancy-past: oklch(0.7 0.01 265 / 0.5);
   --aura-glow: 0.45;
   --aura-blob: 0.5;
   --aura-blob-soft: 0.4;

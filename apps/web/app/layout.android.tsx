@@ -6,6 +6,7 @@ import { BootSplash } from "@/components/boot-splash";
 import { DeviceLockGate } from "@/components/device-lock-gate";
 import { FloatingTabBar } from "@/components/floating-tab-bar";
 import { FriendsProvider } from "@/components/friends/friends-provider";
+import { PregnancyFlowsProvider } from "@/components/pregnancy/pregnancy-flows";
 import { ThemeClass } from "@/components/theme-class";
 import { API_BASE } from "@/lib/app-target";
 import { bootSplashScript } from "@/lib/brand/boot-splash-script";
@@ -58,6 +59,7 @@ export default function AndroidRootLayout({ children }: { children: React.ReactN
         <script dangerouslySetInnerHTML={{ __html: localeBootScript() }} />
         <CicloProvider>
           <FriendsProvider>
+            <PregnancyFlowsProvider>
             <BootSplash />
             <script dangerouslySetInnerHTML={{ __html: bootSplashScript() }} />
             {children}
@@ -65,6 +67,7 @@ export default function AndroidRootLayout({ children }: { children: React.ReactN
             <DeviceLockGate />
             <AndroidBack />
             <ThemeClass />
+            </PregnancyFlowsProvider>
           </FriendsProvider>
         </CicloProvider>
       </body>

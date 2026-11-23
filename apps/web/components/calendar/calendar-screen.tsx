@@ -14,6 +14,18 @@ import {
   visiblePossiblePeriodStarts,
 } from "@/lib/cycle/calendar-markers";
 import { estimatedOvulationDates } from "@/lib/cycle/ovulation";
+import {
+  bleedContext,
+  pastPregnancyOn,
+  pregnancyCalendarMarks,
+  pregnancyTestContext,
+  type PregnancyMarks,
+} from "@/lib/pregnancy/view";
+import { answerBleed } from "@/lib/pregnancy/actions";
+import { pregnancyStart } from "@/lib/pregnancy/dating";
+import { PREGNANCY_AVAILABLE } from "@/lib/features";
+import { usePregnancyFlows } from "@/components/pregnancy/pregnancy-flows";
+import type { DayPregnancyInfo } from "@/components/calendar/day-sheet";
 import { cycleOverview, expectedBleedDays } from "@/lib/cycle/phases";
 import {
   hasNote,
@@ -175,6 +187,26 @@ export function CalendarScreen() {
   const mostLikelyStart = overview.forecastingEnabled ? overview.nextPeriodDate : null;
   // Once per diary or forecast change, not once per day cell (up to three months during a swipe).
   const bleedDays = expectedBleedDays(overview);
+  const pregnancyMarks = useMemo(() => pregnancyCalendarMarks(diary.pregnancies ?? []), [diary.pregnancies]);
+  const pregnant = overview.pregnancy.kind === "active";
+  const showForecastMarks = overview.forecastingEnabled && overview.forecast !== null;
+  const flows = usePregnancyFlows();
+  const dayPregnancy = useMemo<DayPregnancyInfo | null>(() => {
+    if (!activeIso) return null;
+    const pregnancies = diary.pregnancies ?? [];
+    const past = pastPregnancyOn(pregnancies, activeIso);
+    return {
+      bleed: bleedContext(diary, activeIso),
+      test: pregnancyTestContext(diary, activeIso),
+      past: past?.end ? { start: pregnancyStart(past.dueDate), end: past.end.date } : null,
+      onAnswerBleed: (answer) => {
+        const context = bleedContext(diary, activeIso);
+        if (context.kind !== "ask" || readOnly) return;
+        void persistDiary(answerBleed(diary, context.record.id, context.runStart, answer));
+      },
+      onStartPregnancy: PREGNANCY_AVAILABLE ? () => flows.openStart() : null,
+    };
+  }, [activeIso, diary, flows, persistDiary, readOnly]);
   const ovulationMarks = useMemo(
     () => estimatedOvulationDates(diary.periodStarts, overview.ovulation, bleedDays),
     [diary.periodStarts, overview.ovulation, bleedDays],
@@ -450,8 +482,9 @@ export function CalendarScreen() {
                         openable={canOpenDay(iso)}
                         possibleStart={overview.forecastingEnabled && possibleStarts.has(iso)}
                         mostLikelyStart={overview.forecastingEnabled && mostLikelyStart === iso}
-                        ovulationWindow={overview.forecastingEnabled && ovulationMarks.window.has(iso)}
-                        ovulationLikely={overview.forecastingEnabled && ovulationMarks.mostLikely.has(iso)}
+                        ovulationWindow={overview.forecastingEnabled && !pregnant && ovulationMarks.window.has(iso)}
+                        ovulationLikely={overview.forecastingEnabled && !pregnant && ovulationMarks.mostLikely.has(iso)}
+                        pregnancy={pregnancyMarks}
                         estimatedBleeding={
                           overview.forecastingEnabled &&
                           isEstimatedBleedingDate(iso, overview.expectedBleedingWindow)
@@ -481,7 +514,16 @@ export function CalendarScreen() {
         style={{ animationDelay: "180ms" }}
       >
         <LegendDot className="bg-bleed" label={t.legendBleeding} />
-        {overview.forecastingEnabled ? (
+        {pregnant ? (
+          <>
+            <LegendDot className="ring-2 ring-inset ring-[var(--pregnancy-ink)]" label={t.pregnancyDueDateLabel} />
+            <LegendDot className="bg-[color-mix(in_oklch,var(--pregnancy-ink)_22%,transparent)]" label={t.legendLikelyBirth} />
+          </>
+        ) : null}
+        {pregnancyMarks.past.size > 0 ? (
+          <LegendDot className="h-0.5 w-3 rounded-full bg-[var(--pregnancy-past)]" label={t.pregnancyCardLabel} />
+        ) : null}
+        {showForecastMarks ? (
           <>
             <LegendDot className="border-2 border-dotted border-bleed bg-bleed/10" label={t.legendEstimatedBleeding} />
             <LegendDot className="bg-fertile" label={t.legendFertile} />
@@ -539,6 +581,7 @@ export function CalendarScreen() {
         future={activeIso !== null && !isEditableDiaryDate(activeIso, today)}
         lunarPhasesEnabled={lunarPhasesEnabled}
         onUpdateSymptomPreferences={updateSymptomPreferences}
+        pregnancy={dayPregnancy}
       />
 
       <SymptomFilterSheet
@@ -570,6 +613,7 @@ function DayCell({
   mostLikelyStart,
   ovulationWindow,
   ovulationLikely,
+  pregnancy,
   estimatedBleeding,
   filtersActive,
   filterMatches,
@@ -593,6 +637,8 @@ function DayCell({
   /** Inside an estimated ovulation window, and the window's most likely day. */
   ovulationWindow: boolean;
   ovulationLikely: boolean;
+  /** Weeks, trimesters, due date and likely window of a pregnancy that goes on; the line of ended ones. */
+  pregnancy: PregnancyMarks;
   estimatedBleeding: boolean;
   filtersActive: boolean;
   filterMatches: SymptomId[];
@@ -607,6 +653,12 @@ function DayCell({
 }) {
   const bleeding = log?.flow;
   const observedFertile = log?.cervicalMucus === "eggwhite";
+  const weekNumber = pregnancy.weekStarts.get(iso) ?? null;
+  const trimesterStart = pregnancy.trimesterStarts.has(iso);
+  const dueDay = pregnancy.dueDate === iso;
+  const likelyBirth = pregnancy.likely.has(iso);
+  const pastPregnancy = pregnancy.past.has(iso);
+  const pregnancyEnd = pregnancy.endDays.has(iso);
   const symptoms = hasSymptoms(log);
   const note = hasNote(log);
   const showGenericSymptomDot = symptoms && !filtersActive;
@@ -639,6 +691,10 @@ function DayCell({
     !bleeding && mostLikelyStart ? t.legendMostLikelyStart : null,
     !bleeding && !mostLikelyStart && possibleStart ? t.legendPossibleStart : null,
     !bleeding && estimatedBleeding ? t.legendEstimatedBleeding : null,
+    weekNumber !== null ? t.pregnancyWeekMark.replace("{week}", String(weekNumber)) : null,
+    dueDay ? t.pregnancyDueDateLabel : null,
+    likelyBirth && !dueDay ? t.legendLikelyBirth : null,
+    pastPregnancy ? t.pregnancyCardLabel : null,
     !bleeding && ovulationLikely ? t.legendOvulationLikely : null,
     !bleeding && ovulationWindow && !ovulationLikely ? t.legendOvulationWindow : null,
     showGenericSymptomDot ? t.legendSymptoms : null,
@@ -674,6 +730,8 @@ function DayCell({
                     ? "bg-fertile/40 text-fertile-foreground ring-2 ring-inset ring-fertile"
                     : ovulationWindow
                       ? "bg-fertile/20 text-fertile-foreground"
+                      : likelyBirth
+                        ? "bg-[color-mix(in_oklch,var(--pregnancy-ink)_22%,transparent)]"
                     : isFuture
                       ? cn("text-muted-foreground/50", openable && "hover:bg-muted")
                       : "text-card-foreground hover:bg-muted"),
@@ -681,10 +739,29 @@ function DayCell({
             ? "border-[3px] border-dotted border-bleed"
             : null,
           isToday && !bleeding && "ring-2 ring-primary ring-offset-1 ring-offset-card",
+          dueDay && !isToday && "ring-2 ring-inset ring-[var(--pregnancy-ink)]",
         )}
         style={{ animationDelay: `${Math.min(index * 12, 320)}ms` }}
       >
         {day}
+        {weekNumber !== null ? (
+          <span
+            aria-hidden
+            className={cn(
+              "absolute -top-0.5 -right-0.5 rounded-full bg-card px-[3px] text-[8px] leading-[11px] desktop:text-[9px]",
+              trimesterStart ? "font-black" : "font-bold",
+            )}
+            style={{ color: "var(--pregnancy-ink)" }}
+          >
+            {weekNumber}
+          </span>
+        ) : null}
+        {pastPregnancy ? (
+          <span aria-hidden className="absolute inset-x-1 -bottom-0.5 h-0.5 rounded-full bg-[var(--pregnancy-past)]" />
+        ) : null}
+        {pregnancyEnd ? (
+          <span aria-hidden className="absolute -bottom-1 left-1/2 size-1.5 -translate-x-1/2 rounded-full bg-[var(--pregnancy-past)]" />
+        ) : null}
         <span className="absolute bottom-1 flex gap-0.5">
           {observedFertile && !bleeding ? <Sparkles className="size-2 text-fertile-foreground" /> : null}
           {showGenericSymptomDot ? (

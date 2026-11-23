@@ -123,6 +123,7 @@ The 50 / 80 / 90% windows held 53 / 84 / 92% of reference ovulations. With the r
 - LH, hormones, and symptoms are unused in this release
 - Estimated ovulation: one luteal distribution for everyone, although Bull et al. report shorter luteal phases in short cycles (8.0 days at 15–20, 11.0 at 21–24) and longer in long ones (12.9 at 31–50); a calendar cannot know this cycle's ovulation, so about 1 in 6 LH-dated ovulations fell outside the 80% window and the most likely day was about 3 days off on average. The reference itself (day after the urinary LH peak) is a convention: ovulation follows the LH peak by about 16 hours on average ([WHO 1980](https://scilit.com/publications/3e6e5815c2f018f3c28a4df921107bc8)) and, against ultrasound, the day the LH peak points to was early in about 10% of cycles and late in about 23% ([Ecochard et al. 2001](https://pubmed.ncbi.nlm.nih.gov/11510707/))
 - Missing logs are not yet a generative skip model
+- Around a pregnancy (pregnancy mode, built but off): the interval that held it is left out, there is no forecast until a period comes back, and the first cycles after a loss get a wider spread; these rules are assumptions with no data behind them ([docs/modeling.md](docs/modeling.md#cycles-around-a-pregnancy))
 - 2–4 starts per mcPHASES series: a raw personal median is unstable, which is why shrinkage is the default
 - 80% coverage is 0.79 on mcPHASES but 0.87 on Utah: the interval is a little wide for long, regular histories
 - Utah users are fertility-awareness / NFP charting; that is not a general app population

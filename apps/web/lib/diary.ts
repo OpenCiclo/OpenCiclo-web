@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { isLocale, type Locale } from "@/lib/i18n";
+import { isIsoDate } from "@/lib/iso-date";
+import { excludedPeriodStart, sanitizePregnancies, type PregnancyRecord } from "@/lib/pregnancy/record";
 import { cycleLengths } from "@/lib/forecast/math";
 import {
   BUILT_IN_SYMPTOM_IDS,
@@ -18,13 +20,13 @@ import {
  * Version of the diary format this build reads and writes. Bump it whenever a
  * build would drop or misread something a newer one stores: a new field, or a
  * new value in any list below (flow, mucus, symptoms, symptom values, custom
- * symptom categories, UI languages). Builds installed from Google Play stay in
+ * symptom categories, UI languages, pregnancy fields). Builds installed from Google Play stay in
  * use for months: they open a newer diary read-only instead of saving it back
  * without what they do not know (see `NewerDiaryError`), and the server refuses
  * a save older than the stored version. `diary-schema.test.ts` fails until the
  * bump is made.
  */
-export const DIARY_SCHEMA_VERSION = 6;
+export const DIARY_SCHEMA_VERSION = 7;
 export const MAX_DAILY_NOTE_LENGTH = 200;
 
 /**
@@ -74,38 +76,11 @@ export type Diary = {
   favoriteSymptomIds: SymptomId[];
   customSymptoms: CustomSymptomDefinition[];
   forecastingEnabled: boolean;
+  /** Since v7. Empty unless she turned pregnancy mode on (lib/pregnancy/record.ts). */
+  pregnancies: PregnancyRecord[];
 };
 
-const ISO_DATE = /^(\d{4})-(\d{2})-(\d{2})$/;
-// A period diary has no business before 1900 or after 2999. The bounds also
-// keep Date.UTC (years 0–99 mean 1900–1999) and year 10000 (no longer
-// YYYY-MM-DD) away from the date math.
-const MIN_DIARY_YEAR = 1900;
-const MAX_DIARY_YEAR = 2999;
-
-function daysInMonth(year: number, month: number): number {
-  if (month === 2) {
-    const leap = (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
-    return leap ? 29 : 28;
-  }
-  return month === 4 || month === 6 || month === 9 || month === 11 ? 30 : 31;
-}
-
-/**
- * A real calendar day as YYYY-MM-DD. "2026-02-30" and "2026-13-01" are not:
- * `new Date` would roll the first into 2 March (a day no calendar cell shows)
- * and turn the second into an Invalid Date that makes Intl throw.
- */
-export function isIsoDate(value: string): boolean {
-  const match = ISO_DATE.exec(value);
-  if (!match) return false;
-  const year = Number(match[1]);
-  const month = Number(match[2]);
-  const day = Number(match[3]);
-  if (year < MIN_DIARY_YEAR || year > MAX_DIARY_YEAR) return false;
-  if (month < 1 || month > 12) return false;
-  return day >= 1 && day <= daysInMonth(year, month);
-}
+export { isIsoDate } from "@/lib/iso-date";
 
 export function toIsoDate(year: number, month: number, day: number): string {
   return `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
@@ -144,6 +119,7 @@ export function emptyDiary(locale: Locale): Diary {
     favoriteSymptomIds: [...DEFAULT_FAVORITE_SYMPTOM_IDS],
     customSymptoms: [],
     forecastingEnabled: true,
+    pregnancies: [],
   };
 }
 
@@ -253,14 +229,22 @@ export function hasNote(log: DayLog | undefined): boolean {
   return Boolean(log?.note);
 }
 
-export function derivePeriodStarts(days: Record<string, DayLog>): string[] {
+/**
+ * The first day of each run of logged bleeding, except bleeding that is never a
+ * period start because of a pregnancy (during it, right after its end, or when
+ * she said it was not her period: `excludedPeriodStart`).
+ */
+export function derivePeriodStarts(
+  days: Record<string, DayLog>,
+  pregnancies: readonly PregnancyRecord[] = [],
+): string[] {
   const bleeding = Object.keys(days)
     .filter((iso) => days[iso]?.flow)
     .sort();
   const starts: string[] = [];
   for (const iso of bleeding) {
     const previous = addDaysIso(iso, -1);
-    if (!days[previous]?.flow) starts.push(iso);
+    if (!days[previous]?.flow && !excludedPeriodStart(iso, pregnancies)) starts.push(iso);
   }
   return starts;
 }
@@ -349,7 +333,8 @@ function buildDiary(input: unknown, fallbackLocale: Locale = "es"): Diary {
     }
   }
   const withStarts = backfillStarts(days, periodStarts);
-  const derived = derivePeriodStarts(withStarts);
+  const pregnancies = sanitizePregnancies((parsed as { pregnancies?: unknown }).pregnancies);
+  const derived = derivePeriodStarts(withStarts, pregnancies);
   const pool = parsePoolFields(parsed);
   const favoriteSource = Array.isArray(parsed.favoriteSymptomIds)
     ? parsed.favoriteSymptomIds
@@ -361,7 +346,10 @@ function buildDiary(input: unknown, fallbackLocale: Locale = "es"): Diary {
   );
   return {
     schemaVersion: DIARY_SCHEMA_VERSION,
-    periodStarts: derived.length > 0 ? derived : [...periodStarts].sort(),
+    periodStarts:
+      derived.length > 0
+        ? derived
+        : [...periodStarts].filter((iso) => !excludedPeriodStart(iso, pregnancies)).sort(),
     days: withStarts,
     locale: isLocale(parsed.locale) ? parsed.locale : fallbackLocale,
     ...pool,
@@ -369,6 +357,7 @@ function buildDiary(input: unknown, fallbackLocale: Locale = "es"): Diary {
     favoriteSymptomIds,
     customSymptoms,
     forecastingEnabled: parsed.forecastingEnabled !== false,
+    pregnancies,
   };
 }
 
@@ -387,7 +376,18 @@ export function upsertDay(diary: Diary, iso: string, log: DayLog): Diary {
     ...diary,
     schemaVersion: DIARY_SCHEMA_VERSION,
     days,
-    periodStarts: derivePeriodStarts(days),
+    periodStarts: derivePeriodStarts(days, diary.pregnancies),
+  };
+}
+
+/** The diary with these pregnancies, its period starts worked out again (some bleeding may change sides). */
+export function withPregnancies(diary: Diary, pregnancies: PregnancyRecord[]): Diary {
+  const cleaned = sanitizePregnancies(pregnancies);
+  return {
+    ...diary,
+    schemaVersion: DIARY_SCHEMA_VERSION,
+    pregnancies: cleaned,
+    periodStarts: derivePeriodStarts(diary.days, cleaned),
   };
 }
 

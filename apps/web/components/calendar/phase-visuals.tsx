@@ -191,17 +191,22 @@ export function PhaseRing({
  * lights orbiting it (the next phase's and the brand rose). Laid out for a
  * card with the ring 18 px from the left and 16 px from the top.
  */
+/** The two lights of an aura when it is not a phase's (the pregnancy card). */
+export type AuraColors = { glow: string; blob: string };
+
 export function PhaseAura({
   phase,
   next,
   animate,
   wide = false,
+  colors,
 }: {
   phase: CyclePhase;
   next: CyclePhase;
   animate: boolean;
   /** Bigger light, for the expanded card. */
   wide?: boolean;
+  colors?: AuraColors;
 }) {
   const rootRef = useRef<HTMLDivElement>(null);
   useSharedClock(rootRef);
@@ -223,13 +228,13 @@ export function PhaseAura({
       >
         <div
           className="phase-glow size-full rounded-full blur-[30px]"
-          style={{ background: PHASE_AURA[phase], opacity: "var(--aura-glow)" }}
+          style={{ background: colors?.glow ?? PHASE_AURA[phase], opacity: "var(--aura-glow)" }}
         />
       </div>
       <div className="phase-spin absolute will-change-transform" style={{ left: 51, top: 49, width: 0, height: 0 }}>
         <div
           className="absolute size-[76px] rounded-full blur-[26px]"
-          style={{ left: 24, top: -40, background: PHASE_AURA[next], opacity: "var(--aura-blob)" }}
+          style={{ left: 24, top: -40, background: colors?.blob ?? PHASE_AURA[next], opacity: "var(--aura-blob)" }}
         />
         <div
           className="absolute size-[70px] rounded-full bg-primary blur-[26px]"

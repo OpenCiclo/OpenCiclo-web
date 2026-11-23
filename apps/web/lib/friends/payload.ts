@@ -16,6 +16,7 @@ import { isIsoDate, type Diary } from "@/lib/diary";
 import { daysBetween } from "@/lib/forecast/math";
 import { isExchangePublicKey } from "@/lib/friends/crypto";
 import { MAX_NAME_LENGTH, MAX_NOTE_LENGTH } from "@/lib/friends/limits";
+import { friendsSource } from "@/lib/pregnancy/friends";
 
 export const MESSAGE_VERSION = 1;
 
@@ -81,7 +82,9 @@ export type SharerProfile = {
 /**
  * What the sharer's device sends: today's phase inputs from the diary, through
  * `cycleOverview` (the phase card's source). With the forecast off only bleeding
- * logged today is sent; with no period start there is nothing to estimate.
+ * logged today is sent; with no period start there is nothing to estimate. A
+ * pregnancy in the diary is never in it: friends see the diary without it, or
+ * her usual cycle simulated (`friendsSource`, lib/pregnancy/friends.ts).
  */
 export function buildStatus(diary: Diary, today: string, profile: SharerProfile): StatusMessage {
   const base = {
@@ -95,7 +98,22 @@ export function buildStatus(diary: Diary, today: string, profile: SharerProfile)
   if (profile.paused) {
     return { ...base, state: "paused", cycle: null, observed: null, note: null };
   }
-  const overview = cycleOverview(diary, today);
+  const note = profile.note ? { text: cleanText(profile.note.text, MAX_NOTE_LENGTH), date: profile.note.date } : null;
+  const source = friendsSource(diary, today);
+  if (source.kind === "simulated") {
+    const bleed = Math.min(
+      MAX_BLEED,
+      Math.max(MIN_BLEED, Math.round(cycleOverview(diary, today).expectedPeriodLength ?? DEFAULT_BLEED)),
+    );
+    return {
+      ...base,
+      state: "sharing",
+      cycle: { start: source.cycle.start, next: source.cycle.next, bleed },
+      observed: null,
+      note: note?.text ? note : null,
+    };
+  }
+  const overview = cycleOverview(source.diary, today);
   const phase = overview.currentPhase;
   const observed = phase?.source === "observed" ? { date: today, cycleDay: phase.cycleDay } : null;
   let cycle: StatusCycle | null = null;
@@ -106,7 +124,6 @@ export function buildStatus(diary: Diary, today: string, profile: SharerProfile)
       bleed: Math.min(MAX_BLEED, Math.max(MIN_BLEED, Math.round(overview.expectedPeriodLength ?? DEFAULT_BLEED))),
     };
   }
-  const note = profile.note ? { text: cleanText(profile.note.text, MAX_NOTE_LENGTH), date: profile.note.date } : null;
   return { ...base, state: "sharing", cycle, observed, note: note?.text ? note : null };
 }
 

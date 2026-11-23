@@ -11,6 +11,10 @@ import { CycleDayCard, dueCardModel, PhaseCard, phaseCardModel } from "@/compone
 import { DueDetails, PhaseDetails } from "@/components/calendar/phase-details";
 import { SeasonGuideOverlay, type SeasonOriginRect } from "@/components/calendar/season-guide-overlay";
 import { SeasonDecor } from "@/components/calendar/season-scene";
+import { PregnancyCard } from "@/components/pregnancy/pregnancy-card";
+import { usePregnancyFlows } from "@/components/pregnancy/pregnancy-flows";
+import { ResumingCard } from "@/components/pregnancy/resuming-card";
+import { PREGNANCY_AVAILABLE } from "@/lib/features";
 import {
   isPeriodDueOrOverdue,
   phaseBody,
@@ -46,6 +50,26 @@ export function CycleStatusCard({
   visualSeasons: boolean;
 }) {
   const phase = overview.currentPhase;
+  const flows = usePregnancyFlows();
+
+  // A pregnancy comes first: its own card instead of any phase or expected period.
+  const pregnancy = overview.pregnancy;
+  if (pregnancy.kind === "active") {
+    return (
+      <PregnancyCard
+        record={pregnancy.record}
+        today={today}
+        locale={locale}
+        t={t}
+        onChangeDates={() => flows.openChange(pregnancy.record.id)}
+        onEnd={() => flows.openEnd(pregnancy.record.id)}
+      />
+    );
+  }
+  // After it ended and until her period comes back: a quiet card, never "late".
+  if (pregnancy.kind === "resuming" && pregnancy.record.end) {
+    return <ResumingCard outcome={pregnancy.record.end.outcome} t={t} />;
+  }
 
   // The hidden inner-seasons look keeps its own card and guide (VISUAL_SEASONS_AVAILABLE).
   if (phase && visualSeasons) {
@@ -88,6 +112,7 @@ export function CycleStatusCard({
             locale={locale}
             t={t}
             onHowEstimated={howEstimated}
+            onPregnant={PREGNANCY_AVAILABLE ? flows.openStart : undefined}
           />
         )}
       />
