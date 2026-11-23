@@ -266,7 +266,7 @@ const es = {
     "La altura es la probabilidad de que el periodo empiece ese día. La barra destacada es la fecha más probable.",
   forecastChartHintInitial:
     "Estas barras son el cálculo inicial. La barra destacada es el día que tenía más probabilidad.",
-  priorNote: "Con poca historia, el pronóstico se acerca a un prior de población (mcPHASES, Canadá).",
+  priorNote: "Con poca historia, el pronóstico se acerca a una duración típica de grandes estudios publicados.",
   exportJson: "Exportar JSON",
   exportCsv: "Exportar CSV",
   importData: "Importar copia",
@@ -703,7 +703,7 @@ const es = {
   forecastInfoOpen: "Cómo se calcula el pronóstico",
   forecastInfoTitle: "Cómo se calcula el pronóstico",
   forecastInfoPrior:
-    "Con pocos ciclos completos, o con ninguno, Ciclo usa una duración típica de un estudio público con ciclos reales: 42 personas en Canadá (mcPHASES). No es una media de todas las mujeres del mundo.",
+    "Con pocos ciclos completos, o con ninguno, Ciclo parte de una duración típica de 29 días, tomada de grandes estudios publicados con ciclos reales (más de 750.000 ciclos, sobre todo de Europa y Estados Unidos). No es una media de todas las mujeres del mundo.",
   forecastInfoPersonal:
     "Cada ciclo completo que registras pesa más. Con pocos, el estudio sigue pesando. Con varios, manda más tu duración habitual. Los síntomas no entran en ese cálculo.",
   forecastInfoMore: "Saber más",
@@ -1117,7 +1117,7 @@ const en = {
     "Bar height is the chance the period starts that day. The highlighted bar is the most likely date.",
   forecastChartHintInitial:
     "These bars are the initial calculation. The highlighted bar is the day that had the highest chance.",
-  priorNote: "With little history, the forecast shrinks toward a population prior (mcPHASES, Canada).",
+  priorNote: "With little history, the forecast leans toward a typical length from large published studies.",
   exportJson: "Export JSON",
   exportCsv: "Export CSV",
   importData: "Import backup",
@@ -1551,7 +1551,7 @@ const en = {
   forecastInfoOpen: "How the forecast is calculated",
   forecastInfoTitle: "How the forecast is calculated",
   forecastInfoPrior:
-    "With few completed cycles, or none, Ciclo uses a typical length from a public study of real cycles: 42 people in Canada (mcPHASES). It is not an average of all women worldwide.",
+    "With few completed cycles, or none, Ciclo starts from a typical length of 29 days, taken from large published studies of real cycles (more than 750,000 cycles, mostly from Europe and the United States). It is not an average of all women worldwide.",
   forecastInfoPersonal:
     "Each completed cycle you log weighs more. With few, the study still weighs a lot. With several, your usual length matters more. Symptoms are not part of that calculation.",
   forecastInfoMore: "Learn more",

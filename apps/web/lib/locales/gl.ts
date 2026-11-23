@@ -219,7 +219,7 @@ const locale: LocaleModule = {
       "A altura é a probabilidade de que a regra comece ese día. A barra destacada é a data máis probable.",
     forecastChartHintInitial:
       "Estas barras son o cálculo inicial. A barra destacada é o día que tiña máis probabilidade.",
-    priorNote: "Con pouco historial, a previsión achégase a un prior de poboación (mcPHASES, Canadá).",
+    priorNote: "Con pouco historial, a previsión achégase a unha duración típica de grandes estudos publicados.",
     exportJson: "Exportar JSON",
     exportCsv: "Exportar CSV",
     importData: "Importar copia",
@@ -653,7 +653,7 @@ const locale: LocaleModule = {
     forecastInfoOpen: "Como se calcula a previsión",
     forecastInfoTitle: "Como se calcula a previsión",
     forecastInfoPrior:
-      "Con poucos ciclos completos, ou con ningún, Ciclo usa unha duración típica dun estudo público con ciclos reais: 42 persoas en Canadá (mcPHASES). Non é unha media de todas as mulleres do mundo.",
+      "Con poucos ciclos completos, ou con ningún, Ciclo parte dunha duración típica de 29 días, tomada de grandes estudos publicados con ciclos reais (máis de 750.000 ciclos, sobre todo de Europa e dos Estados Unidos). Non é unha media de todas as mulleres do mundo.",
     forecastInfoPersonal:
       "Cada ciclo completo que rexistras pesa máis. Con poucos, o estudo segue pesando. Con varios, manda máis a túa duración habitual. Os síntomas non entran nese cálculo.",
     forecastInfoMore: "Saber máis",
@@ -963,7 +963,7 @@ const locale: LocaleModule = {
     science: {
       eyebrow: "O modelo",
       title: "Unha previsión honesta.",
-      body: "OpenCiclo usa un modelo estatístico de contracción (shrinkage) que mestura o teu historial cun prior de poboación (mcPHASES). Sempre amosa un intervalo de incerteza en lugar dunha data falsamente exacta. Sen aprendizaxe profunda nin caixas negras: o modelo é aberto e está documentado.",
+      body: "OpenCiclo usa un modelo estatístico de contracción (shrinkage) que mestura o teu historial cunha duración típica de grandes estudos publicados. Sempre amosa un intervalo de incerteza en lugar dunha data falsamente exacta. Sen aprendizaxe profunda nin caixas negras: o modelo é aberto e está documentado.",
       docsLink: "Ler a documentación",
       modelLink: "Ver o modelo en GitHub",
     },

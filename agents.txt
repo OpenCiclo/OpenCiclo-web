@@ -23,7 +23,7 @@ Cursor: also see the short AGENTS.md at the repo root. Do not edit apps/web/AGEN
 - No neural nets / transformers / deep learning.
 - Do not log period dates, mnemonics, passwords, AES keys, or plaintext diary.
 - Do not add `user_id` / `account_id` / `pubkey_hash` to `research_contributions`. A join table account→pool_id is a de-anonymization bug.
-- Do not mix Utah/Creighton into `openciclo/artifacts/released_model.json`. mcPHASES aggregate prior only.
+- The population prior in `openciclo/artifacts/released_model.json` comes from published aggregates only (`LITERATURE_PRIOR_*` in `openciclo/constants.py`, cited there and in MODEL_CARD.md). No local dataset's rows enter the artifact: mcPHASES may choose hyperparameters (k, length family) and its aggregate selection metrics are recorded, Utah/Creighton and Kaggle never. `--fit-release` refuses a fitted prior and a length family whose shape would be fitted on data (log-normal, empirical).
 - Do not commit restricted CSVs (mcPHASES, Creighton, etc.). Gitignored under `training/dataset-do-not-commit/`.
 - Do not invent metrics. Do not choose `model_id` from synthetic CI scores.
 - English for code, comments, and documentation. Help pages: English only.
@@ -72,10 +72,10 @@ openciclo.schemas          Pydantic models
 openciclo.data             cycle math, validation, synthetic, mcPHASES/Creighton loaders
 openciclo.features         recency weights, length summaries
 openciclo.models           baselines, shrinkage, population prior
-openciclo.artifacts        released_model.json (mcPHASES aggregate; no microdata)
+openciclo.artifacts        released_model.json (literature prior + hyperparameters; no microdata)
 openciclo.forecasting      public predict()
 openciclo.explanations     drivers (contributed to prediction, not causation)
-openciclo.evaluation       walk-forward; CI synthetic; mcphases --fit-release
+openciclo.evaluation       walk-forward; CI synthetic; mcphases --fit-release (literature prior); by-history breakdown; v0.reference.* never selected
 openciclo.calibration      reliability summaries
 ```
 
@@ -85,7 +85,7 @@ Tests: `pytest`, `ruff`, `mypy openciclo`.
 
 Walk-forward: only starts before s_k may forecast s_k. Never shuffle a person’s cycles into random train/test.
 
-Shrinkage (released default): mix personal median with population prior; k from the release artifact (web port uses k=2, discrete Laplace 1–90). Cold start (0–1 starts) → prior, high uncertainty.
+Shrinkage (released default): mix personal median with population prior; k from the release artifact (2.5 since engine 0.3.0; the web port reads it from its copy of the JSON; discrete Laplace 1–90). Cold start (0–1 starts) → prior, high uncertainty.
 
 V1 predicts next period start and cycle length only. Optional observations are ignored by V0 predictors.
 

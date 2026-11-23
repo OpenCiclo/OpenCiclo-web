@@ -44,7 +44,7 @@ Every behavioral change needs tests. At minimum:
 
 ## Benchmarks
 
-Model **selection** uses local mcPHASES (restricted; never commit the CSV):
+Hyperparameter **selection** uses local mcPHASES (restricted; never commit the CSV) with the literature prior fixed. The prior itself changes only with new published evidence, cited in `openciclo/constants.py` and MODEL_CARD.md:
 
 ```bash
 python -m openciclo.evaluation.mcphases --fit-release

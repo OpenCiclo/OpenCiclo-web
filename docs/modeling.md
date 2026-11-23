@@ -43,22 +43,32 @@ Shrinkage (empirical Bayes, not a neural net):
 μ = n/(n+k) * personal_median + k/(n+k) * μ_pop
 ```
 
-`k` is chosen on mcPHASES holdout (see the released artifact). If the user has **no completed cycle** (zero or one start date), every personal baseline falls back to the population prior. Uncertainty is high.
+`k` is chosen on mcPHASES walk-forward with the literature prior fixed (2.5 since engine 0.3.0; see the released artifact). If the user has **no completed cycle** (zero or one start date), every personal baseline falls back to the population prior. Uncertainty is high.
 
 Default `λ = 0.90`. Benchmarks also run `λ ∈ {0.70, 0.80, 0.90, 0.95, 1.00}`. `λ = 1` is equal weights (should match mean/median aside from rolling).
 
 ## Population prior
 
-Default `predict()` loads `openciclo/artifacts/released_model.json`: aggregate median / MAD / mean fitted on **mcPHASES 1.0.0** (42 people; timing only). Dataset: [https://physionet.org/content/mcphases/1.0.0/](https://physionet.org/content/mcphases/1.0.0/). The location is the **median of per-person medians** (30.5 days, MAD 3.0), not the pooled row median. That JSON is not microdata. It is a convenience prior for this cohort, **not** a global accuracy claim about everyone who menstruates.
+Default `predict()` loads `openciclo/artifacts/released_model.json`. Its prior comes from **published aggregates** (`LITERATURE_PRIOR_*` in `openciclo/constants.py`), not from a dataset in this repository:
 
-Creighton/Utah charted cycles (local CSV only) are an **external check**, not mixed into the released prior: NFP / fertility-care users, 1990–2013, tighter and slightly shorter cycles (person-median 29.0, MAD 2.0). Source: [https://doi.org/10.7278/S50d-4gxs-s4hj](https://doi.org/10.7278/S50d-4gxs-s4hj). Walk-forward there does not overwrite `released_model.json`.
+- **Location 29.0 days:** the mean of the two largest published cycle-length means, rounded to a day: 29.3 ([Bull et al. 2019](https://doi.org/10.1038/s41746-019-0152-7), 612,613 ovulatory cycles) and 28.7 ([Li et al. 2023](https://doi.org/10.1038/s41746-023-00848-1), Apple Women's Health Study, 165,668 cycles).
+- **MAD 3.0 days:** Bull's Table 1 gives each cycle-length cohort's n, mean and SD; treating each cohort as a normal cut to its band gives a pooled median of 28 and MAD of about 2 days for ovulatory cycles. The Apple study's SD of 6.1 days implies more spread. 3 sits between them.
+- **Confirmed, not blind:** locations 28–29.3 and MADs 2–3 were compared on mcPHASES and Utah walk-forward before 29 / 3 was kept. Location 28 cost about 0.2 days of MAE on mcPHASES (a young cohort: published means are about 30 at 18–24 and 27.4 at 40–45); MAD 2 dropped 80% coverage to 0.63 there.
+
+The JSON is not microdata (`n_users` and `n_cycles` are 0: nothing individual was fitted). It is one typical length for everyone, **not** a global accuracy claim about everyone who menstruates. An age-aware prior is future work.
+
+Until engine 0.2.1 the prior was fitted on mcPHASES 1.0.0 (median of 42 people's medians: 30.5 days, MAD 3.0).
+
+mcPHASES chooses the hyperparameters and records aggregate selection metrics. A release may never carry a dataset's rows or a shape fitted on them: `build_released_model` refuses the log-normal and empirical families until their shape has a published source.
+
+Creighton/Utah charted cycles (local CSV only) are a **validation cohort**, never mixed into the released artifact: NFP / fertility-care users, 1990–2013, tighter and slightly shorter cycles (person-median 29.0, MAD 2.0). Source: [https://doi.org/10.7278/S50d-4gxs-s4hj](https://doi.org/10.7278/S50d-4gxs-s4hj). Walk-forward there does not overwrite `released_model.json`.
 
 Other sources:
 
-- `literature_placeholder`: median **29** days, MAD **4** days. Used only if the release file is missing.
+- The same literature prior is the fallback if the release file is missing (`literature_prior()`).
 - `synthetic_train`: median/MAD of training users’ observed lengths in the synthetic split (CI pipeline only).
 
-Regenerate the release file locally (DUA required): `python -m openciclo.evaluation.mcphases --fit-release`.
+Regenerate the release file locally (DUA required for the selection data): `python -m openciclo.evaluation.mcphases --fit-release`. It refuses `--prior fitted`.
 
 ## Probabilistic representation
 

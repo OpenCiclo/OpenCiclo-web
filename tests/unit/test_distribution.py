@@ -13,7 +13,7 @@ from openciclo.forecasting.distribution import (
     most_likely_length,
     shift_empirical_pmf,
 )
-from openciclo.schemas.config import ForecastConfig, literature_placeholder_prior
+from openciclo.schemas.config import ForecastConfig, literature_prior
 
 
 def test_discrete_laplace_normalizes() -> None:
@@ -29,7 +29,7 @@ def test_mode_near_center() -> None:
 
 
 def test_scale_floor_prevents_zero_uncertainty() -> None:
-    prior = literature_placeholder_prior()
+    prior = literature_prior()
     config = ForecastConfig()
     lengths = np.array([28.0, 28.0, 28.0])
     scale = estimate_scale(lengths, 28.0, prior, config.min_laplace_scale)

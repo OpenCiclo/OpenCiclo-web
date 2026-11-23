@@ -219,7 +219,7 @@ const locale: LocaleModule = {
       "La hauteur indique la probabilité que les règles commencent ce jour-là. La barre mise en avant est la date la plus probable.",
     forecastChartHintInitial:
       "Ces barres sont le calcul initial. La barre mise en avant est le jour qui avait la plus forte probabilité.",
-    priorNote: "Avec peu d’historique, la prévision se rapproche d’un a priori de population (mcPHASES, Canada).",
+    priorNote: "Avec peu d’historique, la prévision se rapproche d’une durée typique issue de grandes études publiées.",
     exportJson: "Exporter en JSON",
     exportCsv: "Exporter en CSV",
     importData: "Importer une sauvegarde",
@@ -656,7 +656,7 @@ const locale: LocaleModule = {
     forecastInfoOpen: "Comment la prévision est calculée",
     forecastInfoTitle: "Comment la prévision est calculée",
     forecastInfoPrior:
-      "Avec peu ou pas de cycles complets, Ciclo utilise une durée typique tirée d’une étude publique sur des cycles réels : 42 personnes au Canada (mcPHASES). Ce n’est pas une moyenne de toutes les femmes du monde.",
+      "Avec peu ou pas de cycles complets, Ciclo part d’une durée typique de 29 jours, tirée de grandes études publiées sur des cycles réels (plus de 750 000 cycles, surtout en Europe et aux États-Unis). Ce n’est pas une moyenne de toutes les femmes du monde.",
     forecastInfoPersonal:
       "Chaque cycle complet que tu notes compte davantage. Avec peu de cycles, l’étude pèse encore beaucoup. Avec plusieurs, ta durée habituelle l’emporte. Les symptômes n’entrent pas dans ce calcul.",
     forecastInfoMore: "En savoir plus",
@@ -969,7 +969,7 @@ const locale: LocaleModule = {
     science: {
       eyebrow: "Le modèle",
       title: "Une prévision honnête.",
-      body: "OpenCiclo utilise un modèle statistique de rétrécissement (shrinkage) qui combine ton historique avec un a priori de population (mcPHASES). Il affiche toujours une fourchette d’incertitude plutôt qu’une date faussement précise. Pas d’apprentissage profond ni de boîte noire : le modèle est ouvert et documenté.",
+      body: "OpenCiclo utilise un modèle statistique de rétrécissement (shrinkage) qui combine ton historique avec une durée typique issue de grandes études publiées. Il affiche toujours une fourchette d’incertitude plutôt qu’une date faussement précise. Pas d’apprentissage profond ni de boîte noire : le modèle est ouvert et documenté.",
       docsLink: "Lire la documentation",
       modelLink: "Voir le modèle sur GitHub",
     },

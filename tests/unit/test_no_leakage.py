@@ -11,7 +11,7 @@ from openciclo.evaluation.walkforward import (
     walk_forward_user,
 )
 from openciclo.models.population import fit_population_prior
-from openciclo.schemas.config import literature_placeholder_prior
+from openciclo.schemas.config import literature_prior
 
 
 def test_walk_forward_never_includes_target_start() -> None:
@@ -27,7 +27,7 @@ def test_walk_forward_never_includes_target_start() -> None:
         biological_cycle_lengths=[28, 28, 28],
         observed_cycle_lengths=[28, 28, 28],
     )
-    rows = walk_forward_user(user, model="median", prior=literature_placeholder_prior())
+    rows = walk_forward_user(user, model="median", prior=literature_prior())
     assert len(rows) == 3
     for row in rows:
         assert date.fromisoformat(str(row["max_history_start"])) < date.fromisoformat(

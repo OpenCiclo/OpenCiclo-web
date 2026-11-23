@@ -3,8 +3,12 @@
 
 from datetime import date
 
-from openciclo.models.baselines import MANDATORY_BASELINE_ALIASES, get_forecaster
-from openciclo.schemas.config import ForecastConfig, literature_placeholder_prior
+from openciclo.models.baselines import (
+    MANDATORY_BASELINE_ALIASES,
+    REFERENCE_ALIASES,
+    get_forecaster,
+)
+from openciclo.schemas.config import ForecastConfig, literature_prior
 
 
 def test_mandatory_baselines_exist() -> None:
@@ -15,7 +19,7 @@ def test_mandatory_baselines_exist() -> None:
 
 def test_point_estimates_on_known_lengths() -> None:
     lengths = [28.0, 30.0, 32.0]
-    prior = literature_placeholder_prior()
+    prior = literature_prior()
     config = ForecastConfig()
     assert get_forecaster("last_cycle").estimate(lengths, prior, config).point == 32.0
     assert get_forecaster("mean").estimate(lengths, prior, config).point == 30.0
@@ -27,7 +31,7 @@ def test_point_estimates_on_known_lengths() -> None:
 
 
 def test_empty_history_falls_back_to_prior() -> None:
-    prior = literature_placeholder_prior()
+    prior = literature_prior()
     config = ForecastConfig()
     for name in ("last_cycle", "mean", "median", "rolling_mean", "shrinkage"):
         result = get_forecaster(name).estimate([], prior, config)
@@ -37,7 +41,7 @@ def test_empty_history_falls_back_to_prior() -> None:
 
 def test_recency_lambda_one_matches_mean() -> None:
     lengths = [20.0, 30.0, 40.0]
-    prior = literature_placeholder_prior()
+    prior = literature_prior()
     config = ForecastConfig(recency_lambda=1.0)
     mean = get_forecaster("mean").estimate(lengths, prior, config).point
     weighted = get_forecaster("recency_weighted_mean").estimate(lengths, prior, config).point
@@ -46,7 +50,7 @@ def test_recency_lambda_one_matches_mean() -> None:
 
 def test_rolling_uses_recent_window() -> None:
     lengths = [20.0, 20.0, 20.0, 40.0, 40.0, 40.0]
-    prior = literature_placeholder_prior()
+    prior = literature_prior()
     config = ForecastConfig(rolling_window=3)
     assert get_forecaster("rolling_mean").estimate(lengths, prior, config).point == 40.0
     assert get_forecaster("mean").estimate(lengths, prior, config).point == 30.0
@@ -60,3 +64,19 @@ def test_single_date_forecast_is_deterministic() -> None:
     second = predict(history, reference_date=date(2026, 7, 30), model="median")
     assert first.model_dump() == second.model_dump()
     assert first.uncertainty.value == "high"
+
+
+def test_recent_mean_reference_keeps_recent_cycles_in_range() -> None:
+    prior = literature_prior()
+    config = ForecastConfig()
+    reference = get_forecaster("recent_mean")
+    assert reference.model_id == "v0.reference.recent_mean"
+    assert "recent_mean" in REFERENCE_ALIASES
+    assert "recent_mean" not in MANDATORY_BASELINE_ALIASES
+    # 15 and 60 fall outside 21-45 and are dropped; only the last 12 lengths count.
+    lengths = [100.0] + [28.0] * 10 + [15.0, 60.0]
+    assert reference.estimate(lengths, prior, config).point == 28.0
+    # Nothing in range: the prior's median, flagged as prior use.
+    fallback = reference.estimate([15.0, 60.0], prior, config)
+    assert fallback.point == prior.median_length
+    assert fallback.used_prior is True

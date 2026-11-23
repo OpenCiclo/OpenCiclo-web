@@ -15,7 +15,7 @@ from openciclo import predict
 from openciclo.artifacts.release import load_released_model
 from openciclo.forecasting.distribution import discrete_laplace_pmf, estimate_scale
 from openciclo.models.shrinkage import mixed_scale, shrink_toward_prior
-from openciclo.schemas.config import ForecastConfig, literature_placeholder_prior
+from openciclo.schemas.config import ForecastConfig, literature_prior
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "tests" / "fixtures" / "forecast_parity.json"
@@ -53,7 +53,7 @@ def _forecast_payload(history: list[date], reference: date) -> dict[str, object]
 
 def main() -> None:
     released = load_released_model()
-    prior = literature_placeholder_prior()
+    prior = literature_prior()
     config = ForecastConfig(shrinkage_k=2.0)
     support = np.arange(1, 91, dtype=int)
     laplace = discrete_laplace_pmf(28.0, 2.0, support)

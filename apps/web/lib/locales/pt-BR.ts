@@ -218,7 +218,7 @@ const locale: LocaleModule = {
       "A altura é a probabilidade de a menstruação começar nesse dia. A barra destacada é a data mais provável.",
     forecastChartHintInitial:
       "Estas barras são o cálculo inicial. A barra destacada é o dia que tinha a maior probabilidade.",
-    priorNote: "Com pouco histórico, a previsão se aproxima de um prior populacional (mcPHASES, Canadá).",
+    priorNote: "Com pouco histórico, a previsão se aproxima de uma duração típica de grandes estudos publicados.",
     exportJson: "Exportar JSON",
     exportCsv: "Exportar CSV",
     importData: "Importar cópia",
@@ -652,7 +652,7 @@ const locale: LocaleModule = {
     forecastInfoOpen: "Como a previsão é calculada",
     forecastInfoTitle: "Como a previsão é calculada",
     forecastInfoPrior:
-      "Com poucos ciclos completos, ou nenhum, o Ciclo usa uma duração típica de um estudo público com ciclos reais: 42 pessoas no Canadá (mcPHASES). Não é uma média de todas as mulheres do mundo.",
+      "Com poucos ciclos completos, ou nenhum, o Ciclo parte de uma duração típica de 29 dias, tirada de grandes estudos publicados com ciclos reais (mais de 750 mil ciclos, principalmente da Europa e dos Estados Unidos). Não é uma média de todas as mulheres do mundo.",
     forecastInfoPersonal:
       "Cada ciclo completo que você registra pesa mais. Com poucos, o estudo ainda pesa bastante. Com vários, sua duração habitual conta mais. Os sintomas não entram nesse cálculo.",
     forecastInfoMore: "Saiba mais",
@@ -956,7 +956,7 @@ const locale: LocaleModule = {
     science: {
       eyebrow: "O modelo",
       title: "Uma previsão honesta.",
-      body: "O OpenCiclo usa um modelo estatístico de contração (shrinkage) que combina seu histórico com um prior populacional (mcPHASES). Ele sempre mostra uma margem de incerteza em vez de uma data falsamente exata. Sem aprendizado profundo nem caixas-pretas: o modelo é aberto e documentado.",
+      body: "O OpenCiclo usa um modelo estatístico de contração (shrinkage) que combina seu histórico com uma duração típica de grandes estudos publicados. Ele sempre mostra uma margem de incerteza em vez de uma data falsamente exata. Sem aprendizado profundo nem caixas-pretas: o modelo é aberto e documentado.",
       docsLink: "Ler a documentação",
       modelLink: "Ver o modelo no GitHub",
     },

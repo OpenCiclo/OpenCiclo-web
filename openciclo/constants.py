@@ -5,7 +5,7 @@
 
 from datetime import date
 
-ENGINE_VERSION = "0.2.1"
+ENGINE_VERSION = "0.3.0"
 ENGINE_NAME = "openciclo"
 
 # Discrete support for V0 cycle-length PMFs (calendar days from last start to next start).
@@ -29,10 +29,18 @@ RECENCY_LAMBDA_GRID = (0.70, 0.80, 0.90, 0.95, 1.00)
 # Laplace scale floor so identical histories do not imply certainty.
 MIN_LAPLACE_SCALE = 0.75
 
-# Literature placeholder prior (see docs/modeling.md). Not an OpenCiclo-fitted estimate.
-PLACEHOLDER_PRIOR_MEDIAN = 29.0
-PLACEHOLDER_PRIOR_MAD = 4.0
-PLACEHOLDER_PRIOR_MEAN = 29.0
+# Literature population prior (docs/modeling.md "Population prior"). Published aggregates only;
+# nothing in this repository was fitted to get these numbers, and no restricted dataset enters them.
+# Location: mean of the two largest published cycle-length means, rounded to a whole day:
+#   Bull et al. 2019, npj Digit Med 2:83 (CC BY 4.0): 29.3 days, 612,613 ovulatory cycles;
+#   Li et al. 2023, npj Digit Med 6:100 (Apple Women's Health Study): 28.7 days, 165,668 cycles.
+# Spread: MAD 3 days. Bull's Table 1 (cohort n, mean, SD) implies a pooled MAD near 2 days for
+# ovulatory cycles; the Apple study's wider SD (6.1 days) implies more. 3 sits between the two
+# and was confirmed on mcPHASES and Utah walk-forward (docs/evaluation.md).
+LITERATURE_PRIOR_MEDIAN = 29.0
+LITERATURE_PRIOR_MAD = 3.0
+LITERATURE_PRIOR_MEAN = 29.0
+LITERATURE_PRIOR_SOURCE = "published literature (Bull 2019; Li 2023)"
 
 SYNTHETIC_DATA_NOTICE = "SYNTHETIC / NON-PRODUCTION"
 MCPHASES_DATA_NOTICE = "mcPHASES restricted / do not redistribute"

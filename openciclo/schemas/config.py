@@ -11,12 +11,13 @@ from openciclo.constants import (
     DEFAULT_ROLLING_WINDOW,
     DEFAULT_SHRINKAGE_K,
     INCOMPLETE_HISTORY_DAYS,
+    LITERATURE_PRIOR_MAD,
+    LITERATURE_PRIOR_MEAN,
+    LITERATURE_PRIOR_MEDIAN,
+    LITERATURE_PRIOR_SOURCE,
     MAX_CYCLE_LENGTH,
     MIN_CYCLE_LENGTH,
     MIN_LAPLACE_SCALE,
-    PLACEHOLDER_PRIOR_MAD,
-    PLACEHOLDER_PRIOR_MEAN,
-    PLACEHOLDER_PRIOR_MEDIAN,
     PROBABILITY_WINDOWS,
     SUSPICIOUS_LONG_DAYS,
     SUSPICIOUS_SHORT_DAYS,
@@ -71,17 +72,20 @@ class PopulationPrior(BaseModel):
     mean_length: float
     n_users: int = 0
     n_cycles: int = 0
-    source: str = "literature_placeholder"
+    source: str = LITERATURE_PRIOR_SOURCE
 
 
-def literature_placeholder_prior() -> PopulationPrior:
-    """Documented convenience prior. Not fitted on OpenCiclo users or this repo's data."""
+def literature_prior() -> PopulationPrior:
+    """The published-literature prior (constants.LITERATURE_PRIOR_*). Released by default.
+
+    `n_users` and `n_cycles` stay 0: no individual-level data was fitted to get it.
+    """
 
     return PopulationPrior(
-        median_length=PLACEHOLDER_PRIOR_MEDIAN,
-        mad_length=PLACEHOLDER_PRIOR_MAD,
-        mean_length=PLACEHOLDER_PRIOR_MEAN,
+        median_length=LITERATURE_PRIOR_MEDIAN,
+        mad_length=LITERATURE_PRIOR_MAD,
+        mean_length=LITERATURE_PRIOR_MEAN,
         n_users=0,
         n_cycles=0,
-        source="literature_placeholder",
+        source=LITERATURE_PRIOR_SOURCE,
     )

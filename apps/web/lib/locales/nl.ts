@@ -218,7 +218,7 @@ const locale: LocaleModule = {
       "De hoogte van een staaf is de kans dat de menstruatie die dag begint. De gemarkeerde staaf is de meest waarschijnlijke datum.",
     forecastChartHintInitial:
       "Deze staven zijn de eerste berekening. De gemarkeerde staaf is de dag met de grootste kans.",
-    priorNote: "Met weinig geschiedenis schuift de voorspelling op naar een populatie-prior (mcPHASES, Canada).",
+    priorNote: "Met weinig geschiedenis schuift de voorspelling op naar een typische lengte uit grote gepubliceerde onderzoeken.",
     exportJson: "JSON exporteren",
     exportCsv: "CSV exporteren",
     importData: "Back-up importeren",
@@ -652,7 +652,7 @@ const locale: LocaleModule = {
     forecastInfoOpen: "Hoe de voorspelling wordt berekend",
     forecastInfoTitle: "Hoe de voorspelling wordt berekend",
     forecastInfoPrior:
-      "Met weinig of geen afgeronde cycli gebruikt Ciclo een typische lengte uit een openbaar onderzoek met echte cycli: 42 mensen in Canada (mcPHASES). Het is geen gemiddelde van alle vrouwen ter wereld.",
+      "Met weinig of geen afgeronde cycli begint Ciclo bij een typische lengte van 29 dagen uit grote gepubliceerde onderzoeken met echte cycli (meer dan 750.000 cycli, vooral uit Europa en de Verenigde Staten). Het is geen gemiddelde van alle vrouwen ter wereld.",
     forecastInfoPersonal:
       "Elke afgeronde cyclus die je registreert, telt zwaarder mee. Met weinig cycli weegt het onderzoek nog flink mee. Met meer cycli telt je gebruikelijke lengte zwaarder. Symptomen tellen niet mee in die berekening.",
     forecastInfoMore: "Meer weten",
@@ -956,7 +956,7 @@ const locale: LocaleModule = {
     science: {
       eyebrow: "Het model",
       title: "Een eerlijke voorspelling.",
-      body: "OpenCiclo gebruikt een statistisch krimpmodel (shrinkage) dat je eigen geschiedenis combineert met een populatie-prior (mcPHASES). Het toont altijd een onzekerheidsmarge in plaats van een schijnbaar exacte datum. Geen deep learning, geen black boxes: het model is open en gedocumenteerd.",
+      body: "OpenCiclo gebruikt een statistisch krimpmodel (shrinkage) dat je eigen geschiedenis combineert met een typische lengte uit grote gepubliceerde onderzoeken. Het toont altijd een onzekerheidsmarge in plaats van een schijnbaar exacte datum. Geen deep learning, geen black boxes: het model is open en gedocumenteerd.",
       docsLink: "Lees de documentatie",
       modelLink: "Bekijk het model op GitHub",
     },
