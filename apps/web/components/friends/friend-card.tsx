@@ -8,6 +8,7 @@ import { Ellipsis, Pause, Play, UserMinus, X } from "lucide-react";
 
 import { NEXT_PHASE, PHASE_AURA, PHASE_INK, PhaseRing } from "@/components/calendar/phase-visuals";
 import { SpeechBubble } from "@/components/friends/speech-bubble";
+import { PregnancyRing, trimesterLabel, weekTitle } from "@/components/pregnancy/pregnancy-card";
 import type { FriendCard } from "@/lib/client/friends-sync";
 import { phaseLabel, type CyclePhase } from "@/lib/cycle/phases";
 import { cycleTimeline } from "@/lib/cycle/phase-timeline";
@@ -26,6 +27,15 @@ function timing(days: number | null, t: Messages): string | null {
 function midLine(text: string, locale: Locale): string {
   return locale === "de" ? text : text.charAt(0).toLowerCase() + text.slice(1);
 }
+
+/** The colours of a card: a cycle phase's, or the pregnancy's when she shares it. */
+type Tone = { ink: string; glow: string; light: string };
+
+function phaseTone(phase: CyclePhase): Tone {
+  return { ink: PHASE_INK[phase], glow: PHASE_AURA[phase], light: PHASE_AURA[NEXT_PHASE[phase]] };
+}
+
+const PREGNANCY_TONE: Tone = { ink: "var(--pregnancy-ink)", glow: "var(--pregnancy-aura)", light: "var(--pregnancy-aura-2)" };
 
 function describe(
   view: FriendView | null,
@@ -47,6 +57,13 @@ function describe(
     }
     case "due":
       return { title: t.friendsDue, meta: null, phase: "menstrual" };
+    case "pregnancy":
+      // The week as her own card says it, counted from zero; nothing else about the pregnancy is known here.
+      return {
+        title: weekTitle({ age: { weeks: view.weeks, days: view.days, totalDays: view.weeks * 7 + view.days } }, t),
+        meta: `${t.pregnancyCardLabel} · ${midLine(trimesterLabel(view.trimester, t), locale)}`,
+        phase: null,
+      };
     case "paused":
       return { title: t.friendsPausedThem, meta: null, phase: null };
     case "ended":
@@ -73,8 +90,7 @@ const STAGGER_MS = 140;
  * lights pass each other like a slow tide instead of pulsing in step.
  * Transforms and opacity only, on layers that are blurred once.
  */
-function FriendAura({ phase, index }: { phase: CyclePhase; index: number }) {
-  const next = NEXT_PHASE[phase];
+function FriendAura({ tone, index }: { tone: Tone; index: number }) {
   const odd = index % 2 === 1;
   return (
     <div
@@ -85,7 +101,7 @@ function FriendAura({ phase, index }: { phase: CyclePhase; index: number }) {
     >
       <div
         className="phase-glow absolute size-32 rounded-full blur-[30px]"
-        style={{ left: -15, top: -17, background: PHASE_AURA[phase], opacity: "var(--aura-glow)", animationDelay: `${-index * 1.7}s` }}
+        style={{ left: -15, top: -17, background: tone.glow, opacity: "var(--aura-glow)", animationDelay: `${-index * 1.7}s` }}
       />
       <div
         className="phase-spin absolute will-change-transform"
@@ -101,14 +117,14 @@ function FriendAura({ phase, index }: { phase: CyclePhase; index: number }) {
       >
         <div
           className="absolute size-[76px] rounded-full blur-[26px]"
-          style={{ left: 24, top: -40, background: PHASE_AURA[next], opacity: "var(--aura-blob)" }}
+          style={{ left: 24, top: -40, background: tone.light, opacity: "var(--aura-blob)" }}
         />
         <div className="absolute size-[70px] rounded-full bg-primary blur-[26px]" style={{ left: -96, top: 6, opacity: "var(--aura-blob-soft)" }} />
       </div>
       <div
         className="friend-drift absolute -top-10 right-0 size-28 rounded-full blur-[34px] will-change-transform"
         style={{
-          background: PHASE_AURA[next],
+          background: tone.light,
           animationDuration: `${17 + (index % 3) * 4}s`,
           animationDelay: `${-index * 5}s`,
           animationDirection: odd ? "alternate-reverse" : "alternate",
@@ -127,7 +143,8 @@ export type FriendCardActions = {
 /**
  * One friend: the ring of their cycle with the phase's icon in the middle,
  * their name, the phase, what they chose to show, and their note as a chat
- * bubble. The card is tinted from the left in the phase's colour. The ring's
+ * bubble. A friend who shares her pregnancy shows its ring (three trimesters)
+ * and the week instead. The card is tinted from the left in the phase's colour. The ring's
  * arcs are drawn only when they show their cycle day. When the card appears
  * the ring turns in and fills, one card after another down the list
  * (`index`), and a light moves behind it (FriendAura). The button in the corner
@@ -183,6 +200,8 @@ export function FriendPhaseCard({
           : null;
   const waiting = t.friendsWaiting.replace("{name}", friend.name);
   const { title, meta, phase } = describe(view, waiting, t, locale);
+  const pregnancy = view?.kind === "pregnancy" ? view : null;
+  const tone = pregnancy ? PREGNANCY_TONE : phase ? phaseTone(phase) : null;
   const note = status ? visibleNote(status, today) : null;
   const ringTimeline =
     view?.kind === "phase" && view.cycleDay !== null && status?.cycle
@@ -192,11 +211,15 @@ export function FriendPhaseCard({
   return (
     <section
       className="relative isolate overflow-hidden rounded-3xl border border-border bg-card px-4 py-3.5 text-card-foreground"
-      style={phase ? { backgroundImage: `linear-gradient(100deg, color-mix(in oklch, ${PHASE_INK[phase]} 26%, var(--card)) 0%, var(--card) 62%)` } : undefined}
+      style={tone ? { backgroundImage: `linear-gradient(100deg, color-mix(in oklch, ${tone.ink} 26%, var(--card)) 0%, var(--card) 62%)` } : undefined}
     >
-      {phase ? <FriendAura phase={phase} index={index} /> : null}
+      {tone ? <FriendAura tone={tone} index={index} /> : null}
       <div className={cn("relative z-[1] flex items-center gap-3.5", actions && "pr-9")}>
-        {phase ? (
+        {pregnancy ? (
+          <div data-entrance="keep" className="shrink-0">
+            <PregnancyRing progress={pregnancy.progress} animate size={66} />
+          </div>
+        ) : phase ? (
           <div data-entrance="keep" className="shrink-0">
             <PhaseRing
               timeline={ringTimeline}
@@ -218,11 +241,11 @@ export function FriendPhaseCard({
         <div className="flex min-w-0 flex-col gap-[3px]">
           <p
             className="truncate text-xs font-extrabold tracking-[0.07em] uppercase"
-            style={phase ? { color: PHASE_INK[phase] } : undefined}
+            style={tone ? { color: tone.ink } : undefined}
           >
             {friend.name}
           </p>
-          <p className={cn("font-serif leading-[1.15] text-balance", phase ? "text-[22px]" : "text-[17px] text-muted-foreground")}>
+          <p className={cn("font-serif leading-[1.15] text-balance", tone ? "text-[22px]" : "text-[17px] text-muted-foreground")}>
             {title}
           </p>
           {meta ? <p className="text-[13px] font-bold text-card-foreground">{meta}</p> : null}

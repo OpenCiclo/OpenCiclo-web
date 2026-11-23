@@ -497,6 +497,10 @@ const es = {
   friendsClearNote: "Borrar nota",
   friendsShowDay: "Mostrar mi día del ciclo",
   friendsShowExpected: "Mostrar cuándo se espera mi periodo",
+  friendsSharePregnancy: "Compartir mi semana de embarazo",
+  friendsSharePregnancyHint:
+    "Tus amigas ven en qué semana estás y nada más del embarazo. Para contar las semanas, sus teléfonos reciben tu fecha probable de parto. Deja de compartirse cuando el embarazo termina o cuando lo desactivas.",
+  friendsSharePregnancyChoice: "Mi semana de embarazo",
   friendsPauseAll: "Pausar con todas",
   friendsYourSharing: "Lo que compartes",
   friendsTurnOff: "Desactivar Amigas",
@@ -1472,6 +1476,10 @@ const en = {
   friendsClearNote: "Clear note",
   friendsShowDay: "Show my cycle day",
   friendsShowExpected: "Show when my period is expected",
+  friendsSharePregnancy: "Share my pregnancy week",
+  friendsSharePregnancyHint:
+    "Your friends see which week you are in and nothing else about the pregnancy. To count the weeks, their phones receive your due date. Sharing stops when the pregnancy ends or when you turn this off.",
+  friendsSharePregnancyChoice: "My pregnancy week",
   friendsPauseAll: "Pause sharing with everyone",
   friendsYourSharing: "Your sharing",
   friendsTurnOff: "Turn off Friends",

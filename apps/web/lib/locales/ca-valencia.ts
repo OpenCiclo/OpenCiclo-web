@@ -13,6 +13,10 @@ import type { LocaleModule } from "@/lib/locales/registry";
 const locale: LocaleModule = {
   messages: {
     ...ca.messages,
+    friendsSharePregnancy: "Compartix la meua setmana d’embaràs",
+    friendsSharePregnancyHint:
+      "Les teues amigues veuen en quina setmana estàs i res més de l’embaràs. Per a comptar les setmanes, els seus telèfons reben la teua data probable de part. Es deixa de compartir quan l’embaràs acaba o quan ho desactives.",
+    friendsSharePregnancyChoice: "La meua setmana d’embaràs",
     moonToday: "Hui, {phase} · {percent} %",
     patternsIntroToday: "Hui · dia {day} del teu cicle",
     patternsIntroNext: "La regla t'arribarà cap al {date}, d'ací a {days}.",

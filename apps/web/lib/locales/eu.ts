@@ -447,6 +447,10 @@ const locale: LocaleModule = {
     friendsClearNote: "Ezabatu oharra",
     friendsShowDay: "Erakutsi nire zikloaren eguna",
     friendsShowExpected: "Erakutsi nire hilekoa noiz espero den",
+    friendsSharePregnancy: "Partekatu nire haurdunaldiko astea",
+    friendsSharePregnancyHint:
+      "Zure lagunek zein astetan zauden ikusten dute, eta haurdunaldiari buruz besterik ez. Asteak zenbatzeko, haien telefonoek zure erditze-data probablea jasotzen dute. Haurdunaldia amaitzean edo hau desaktibatzean uzten da partekatzeari.",
+    friendsSharePregnancyChoice: "Nire haurdunaldiko astea",
     friendsPauseAll: "Pausatu guztiekin",
     friendsYourSharing: "Partekatzen duzuna",
     friendsTurnOff: "Desaktibatu Lagunak",

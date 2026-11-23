@@ -9,6 +9,10 @@
 // turns them into phases with the same heuristic as the phase card
 // (`cycleTimeline`), so the card stays right on days the sharer does not open
 // the app. Symptoms, notes from the diary, flow and past cycles are never sent.
+//
+// A pregnancy is in a status only when she chose to share it: then the status
+// carries its due date instead of a cycle, and the viewer's device shows the
+// week (lib/pregnancy/friends.ts).
 
 import { cycleOverview, type CyclePhase, type PhaseSource } from "@/lib/cycle/phases";
 import { cycleTimeline } from "@/lib/cycle/phase-timeline";
@@ -16,7 +20,15 @@ import { isIsoDate, type Diary } from "@/lib/diary";
 import { daysBetween } from "@/lib/forecast/math";
 import { isExchangePublicKey } from "@/lib/friends/crypto";
 import { MAX_NAME_LENGTH, MAX_NOTE_LENGTH } from "@/lib/friends/limits";
-import { friendsSource } from "@/lib/pregnancy/friends";
+import {
+  PREGNANCY_DAYS,
+  STILL_GOING_ASK_DAYS,
+  gestationalAge,
+  gestationalDays,
+  trimesterFor,
+  type Trimester,
+} from "@/lib/pregnancy/dating";
+import { friendsSource, sharedPregnancy } from "@/lib/pregnancy/friends";
 
 export const MESSAGE_VERSION = 1;
 
@@ -47,6 +59,8 @@ export type StatusMessage = {
   observed: { date: string; cycleDay: number } | null;
   show: ShareChoices;
   note: FriendNote | null;
+  /** Only when she shares her pregnancy: its due date. Absent otherwise (builds from before it ignore it). */
+  pregnancy?: { due: string };
 };
 
 /** A note is shown for this many days, counting the day it was written. */
@@ -77,14 +91,18 @@ export type SharerProfile = {
   show: ShareChoices;
   note: FriendNote | null;
   paused: boolean;
+  /** The id of the pregnancy she chose to share (the friend book's `pregnancy`), if any. */
+  pregnancy?: string | null;
 };
 
 /**
  * What the sharer's device sends: today's phase inputs from the diary, through
  * `cycleOverview` (the phase card's source). With the forecast off only bleeding
  * logged today is sent; with no period start there is nothing to estimate. A
- * pregnancy in the diary is never in it: friends see the diary without it, or
- * her usual cycle simulated (`friendsSource`, lib/pregnancy/friends.ts).
+ * pregnancy in the diary is in it only when she chose to share that one
+ * (`profile.pregnancy`): then the status is its due date and no cycle.
+ * Otherwise friends see the diary without it, or her usual cycle simulated
+ * (`friendsSource`, lib/pregnancy/friends.ts).
  */
 export function buildStatus(diary: Diary, today: string, profile: SharerProfile): StatusMessage {
   const base = {
@@ -99,6 +117,10 @@ export function buildStatus(diary: Diary, today: string, profile: SharerProfile)
     return { ...base, state: "paused", cycle: null, observed: null, note: null };
   }
   const note = profile.note ? { text: cleanText(profile.note.text, MAX_NOTE_LENGTH), date: profile.note.date } : null;
+  const shared = sharedPregnancy(diary, profile.pregnancy, today);
+  if (shared) {
+    return { ...base, state: "sharing", cycle: null, observed: null, note: note?.text ? note : null, pregnancy: shared };
+  }
   const source = friendsSource(diary, today);
   if (source.kind === "simulated") {
     const bleed = Math.min(
@@ -154,6 +176,8 @@ export type FriendView =
       daysToNext: number | null;
     }
   | { kind: "due" }
+  /** She shares her pregnancy: the week on the viewer's date, counted from zero like her own card. */
+  | { kind: "pregnancy"; weeks: number; days: number; trimester: Trimester; progress: number }
   | { kind: "noEstimate" }
   | { kind: "stale" }
   | { kind: "paused" }
@@ -169,6 +193,19 @@ export function readStatus(status: StatusMessage, today: string): FriendView {
   if (status.state === "paused") return { kind: "paused" };
   const date = today < status.at ? status.at : today;
   if (daysBetween(status.at, date) > STALE_AFTER_DAYS) return { kind: "stale" };
+  if (status.pregnancy) {
+    // Past 42 weeks her own card stops counting too; her next status says what comes after.
+    const total = gestationalDays(status.pregnancy.due, date);
+    if (total < 0 || total >= STILL_GOING_ASK_DAYS) return { kind: "noEstimate" };
+    const age = gestationalAge(status.pregnancy.due, date);
+    return {
+      kind: "pregnancy",
+      weeks: age.weeks,
+      days: age.days,
+      trimester: trimesterFor(age.totalDays),
+      progress: Math.min(1, age.totalDays / PREGNANCY_DAYS),
+    };
+  }
   if (status.observed && status.observed.date === date) {
     return {
       kind: "phase",
@@ -267,6 +304,13 @@ function parseObserved(value: unknown): StatusMessage["observed"] | undefined {
   return { date: value.date, cycleDay: value.cycleDay };
 }
 
+/** The shared pregnancy: null when the status has none, undefined when it is malformed. */
+function parsePregnancy(value: unknown): { due: string } | null | undefined {
+  if (value === undefined || value === null) return null;
+  if (!isObject(value) || !isDate(value.due)) return undefined;
+  return { due: value.due };
+}
+
 function parseNote(value: unknown): FriendNote | null | undefined {
   if (value === null) return null;
   if (!isObject(value) || typeof value.text !== "string" || !isDate(value.date)) return undefined;
@@ -281,9 +325,11 @@ export function parseStatusMessage(value: unknown): StatusMessage | null {
   const cycle = parseCycle(value.cycle);
   const observed = parseObserved(value.observed);
   const note = parseNote(value.note);
-  if (cycle === undefined || observed === undefined || note === undefined) return null;
+  const pregnancy = parsePregnancy(value.pregnancy);
+  if (cycle === undefined || observed === undefined || note === undefined || pregnancy === undefined) return null;
   const show = isObject(value.show) ? value.show : {};
   return {
+    ...(pregnancy && value.state === "sharing" ? { pregnancy } : {}),
     t: "status",
     v: value.v as number,
     selfId: value.selfId,
