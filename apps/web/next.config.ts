@@ -1,3 +1,4 @@
+import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import type { NextConfig } from "next";
@@ -69,6 +70,18 @@ function androidVersion(): { code: string; name: string } {
   return { code: String(versionCode), name: versionName };
 }
 
+// The commit this build was made from, short, for the version line in
+// Settings. Vercel names it; elsewhere git does; empty when neither can.
+function buildCommit(): string {
+  const fromVercel = process.env.VERCEL_GIT_COMMIT_SHA;
+  if (fromVercel) return fromVercel.slice(0, 7);
+  try {
+    return execFileSync("git", ["rev-parse", "--short=7", "HEAD"], { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim();
+  } catch {
+    return "";
+  }
+}
+
 // The Android app (apps/mobile) wraps a static export of the routes named
 // `page.android.tsx` / `layout.android.tsx`. API routes, marketing, and the
 // console are plain `.tsx`, so they are not routes in this build.
@@ -88,6 +101,7 @@ function androidConfig(): NextConfig {
       NEXT_PUBLIC_CICLO_API_BASE: androidApiBase(),
       NEXT_PUBLIC_CICLO_VERSION_CODE: version.code,
       NEXT_PUBLIC_CICLO_VERSION_NAME: version.name,
+      NEXT_PUBLIC_CICLO_COMMIT: buildCommit(),
     },
   };
 }
@@ -97,10 +111,12 @@ const webConfig: NextConfig = {
   // skips next-server.js.nft.json and the platform packager then fails.
   output: process.env.VERCEL ? undefined : "standalone",
   serverExternalPackages: ["postgres"],
+  env: { NEXT_PUBLIC_CICLO_COMMIT: buildCommit() },
   poweredByHeader: false,
   outputFileTracingIncludes: {
     "/help": ["./content/help/**/*"],
     "/help/[slug]": ["./content/help/**/*"],
+    "/help.json": ["./content/help/**/*"],
   },
   async headers() {
     return [

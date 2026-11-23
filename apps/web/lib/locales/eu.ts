@@ -51,6 +51,10 @@ const locale: LocaleModule = {
     privacyPolicy: "Pribatutasun-politika",
     helpDocs: "Dokumentazioa",
     licensesTitle: "Kode irekiko lizentziak",
+    aboutTitle: "Honi buruz",
+    appVersion: "{version} bertsioa",
+    sheetLoading: "Kargatzen…",
+    sheetLoadFailed: "Ezin izan da kargatu.",
     licensesIntro:
       "Ciclok kode irekiko letra-tipo eta software-pakete hauek erabiltzen ditu. Haien lizentziek ohar hauek erakusteko eskatzen dute. Lizentzien testuak ingelesez daude.",
     licensesFonts: "Letra-tipoak",

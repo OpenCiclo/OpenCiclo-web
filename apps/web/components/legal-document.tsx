@@ -15,19 +15,24 @@ export function LegalDocument({
   doc,
   lang,
   badge,
+  hideTitle = false,
   children,
 }: {
   doc: LegalDoc;
   lang?: string;
   badge?: string;
+  /** The title is already on screen (the sheet in Settings shows it in its header). */
+  hideTitle?: boolean;
   children?: React.ReactNode;
 }) {
   return (
     <article className="flex flex-col gap-6 text-sm leading-6">
       <header className="flex flex-col gap-2">
-        <h1 lang={lang} className="text-2xl font-semibold text-balance">
-          {doc.title}
-        </h1>
+        {hideTitle ? null : (
+          <h1 lang={lang} className="text-2xl font-semibold text-balance">
+            {doc.title}
+          </h1>
+        )}
         {badge ? <Badge className="self-start">{badge}</Badge> : null}
         <div lang={lang} className="flex flex-col gap-2">
           {doc.updated ? <p className="text-xs text-muted-foreground">{doc.updated}</p> : null}

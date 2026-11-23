@@ -17,6 +17,22 @@ export function LicensesView({ report }: { report: LicenseReport }) {
   return (
     <AppShell size="reading">
       <h1 className="text-2xl font-semibold">{t.licensesTitle}</h1>
+      <LicensesList report={report} />
+
+      <p className="mt-8 text-sm">
+        <Link href="/privacy" className="underline">
+          {t.privacyPolicy}
+        </Link>
+      </p>
+    </AppShell>
+  );
+}
+
+/** The notices themselves: on /licenses, and in the sheet Settings opens (from /licenses.json). */
+export function LicensesList({ report }: { report: LicenseReport }) {
+  const { t } = useCiclo();
+  return (
+    <div>
       <p className="mt-2 text-sm leading-6 text-muted-foreground">{t.licensesIntro}</p>
 
       <h2 className="mt-8 text-lg font-semibold">{t.licensesFonts}</h2>
@@ -46,13 +62,7 @@ export function LicensesView({ report }: { report: LicenseReport }) {
           </li>
         ))}
       </ul>
-
-      <p className="mt-8 text-sm">
-        <Link href="/privacy" className="underline">
-          {t.privacyPolicy}
-        </Link>
-      </p>
-    </AppShell>
+    </div>
   );
 }
 

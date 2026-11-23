@@ -51,6 +51,10 @@ const locale: LocaleModule = {
     privacyPolicy: "Política de privadesa",
     helpDocs: "Documentació",
     licensesTitle: "Llicències de codi obert",
+    aboutTitle: "Quant a",
+    appVersion: "Versió {version}",
+    sheetLoading: "S'està carregant…",
+    sheetLoadFailed: "No s'ha pogut carregar.",
     licensesIntro:
       "Ciclo fa servir aquests tipus de lletra i paquets de programari de codi obert. Les seves llicències demanen mostrar aquests avisos. Els textos de les llicències són en anglès.",
     licensesFonts: "Tipus de lletra",

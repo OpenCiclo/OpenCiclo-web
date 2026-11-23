@@ -221,7 +221,10 @@ export function PhaseDetails({
                   <PhaseGlyph phase={item} className="size-[15px]" />
                 </span>
                 <span className="block min-w-0 flex-1">
-                  <span className="flex items-baseline gap-1.5">
+                  {/* The dates keep their room on the right; when the name, season and
+                      pill do not fit beside them (Nov 30 – Dec 5 on a phone), those wrap. */}
+                  <span className="flex items-baseline gap-2">
+                    <span className="flex min-w-0 flex-1 flex-wrap items-baseline gap-x-1.5">
                     <span className="text-sm font-extrabold">{phaseLabel(item, t)}</span>
                     <span className="text-[11px] font-bold text-muted-foreground">{season}</span>
                     {item === phase ? (
@@ -236,9 +239,9 @@ export function PhaseDetails({
                         {t.phaseNext}
                       </span>
                     ) : null}
-                    <span className="flex-1" />
+                    </span>
                     {span ? (
-                      <span className="text-[11px] font-bold whitespace-nowrap text-muted-foreground">
+                      <span className="shrink-0 text-[11px] font-bold whitespace-nowrap text-muted-foreground">
                         {open
                           ? t.phaseDays.replace("{start}", String(span.startDay)).replace("{end}", String(span.endDay))
                           : dayRange(span.start, span.end, locale)}

@@ -51,6 +51,10 @@ const locale: LocaleModule = {
     privacyPolicy: "Privacybeleid",
     helpDocs: "Help",
     licensesTitle: "Opensourcelicenties",
+    aboutTitle: "Over",
+    appVersion: "Versie {version}",
+    sheetLoading: "Laden…",
+    sheetLoadFailed: "Kon niet worden geladen.",
     licensesIntro:
       "Ciclo gebruikt deze opensourcelettertypen en -softwarepakketten. Hun licenties vragen ons deze vermeldingen te tonen. De licentieteksten zijn in het Engels.",
     licensesFonts: "Lettertypen",

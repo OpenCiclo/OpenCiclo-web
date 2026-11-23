@@ -100,6 +100,10 @@ const es = {
   privacyPolicy: "Política de privacidad",
   helpDocs: "Documentación",
   licensesTitle: "Licencias de código abierto",
+  aboutTitle: "Acerca de",
+  appVersion: "Versión {version}",
+  sheetLoading: "Cargando…",
+  sheetLoadFailed: "No se ha podido cargar.",
   licensesIntro:
     "Ciclo usa estas fuentes y paquetes de software de código abierto. Sus licencias piden mostrar estos avisos. Los textos de las licencias están en inglés.",
   licensesFonts: "Fuentes",
@@ -1060,6 +1064,10 @@ const en = {
   privacyPolicy: "Privacy policy",
   helpDocs: "Help",
   licensesTitle: "Open-source licenses",
+  aboutTitle: "About",
+  appVersion: "Version {version}",
+  sheetLoading: "Loading…",
+  sheetLoadFailed: "Could not load this.",
   licensesIntro:
     "Ciclo is built on these open-source fonts and software packages. Their licenses ask us to show these notices. The license texts are in English.",
   licensesFonts: "Fonts",

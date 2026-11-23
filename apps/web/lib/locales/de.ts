@@ -51,6 +51,10 @@ const locale: LocaleModule = {
     privacyPolicy: "Datenschutzerklärung",
     helpDocs: "Hilfe",
     licensesTitle: "Open-Source-Lizenzen",
+    aboutTitle: "Über",
+    appVersion: "Version {version}",
+    sheetLoading: "Wird geladen …",
+    sheetLoadFailed: "Konnte nicht geladen werden.",
     licensesIntro:
       "Ciclo nutzt diese Open-Source-Schriften und Softwarepakete. Ihre Lizenzen verlangen, dass wir diese Hinweise zeigen. Die Lizenztexte sind auf Englisch.",
     licensesFonts: "Schriften",
