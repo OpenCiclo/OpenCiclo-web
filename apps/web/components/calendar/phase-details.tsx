@@ -3,7 +3,7 @@
 
 "use client";
 
-import { useState, type CSSProperties } from "react";
+import { useState, type CSSProperties, type ReactNode } from "react";
 import { CalendarDays, Plus } from "lucide-react";
 
 import { coverageInterval, ForecastChart } from "@/components/forecast-chart";
@@ -76,17 +76,19 @@ function CycleBars({
   day,
   t,
   revealIndex,
+  className = "mt-4",
 }: {
   timeline: CycleTimeline;
   day: number;
   t: Messages;
   revealIndex: number;
+  className?: string;
 }) {
   const progress = phaseProgress(timeline, day);
   const today = dayPosition(timeline, day) * 100;
   const split = ovulationPosition(timeline);
   return (
-    <section className="phase-reveal mt-4" style={reveal(revealIndex)}>
+    <section className={cn("phase-reveal", className)} style={reveal(revealIndex)}>
       <h3 className="text-[10px] font-extrabold tracking-[0.1em] text-muted-foreground uppercase">
         {t.cycleTimelineTitle.replace("{days}", String(timeline.length))}
       </h3>
@@ -329,6 +331,166 @@ export function PhaseDetails({
         className="phase-reveal mt-2 text-center text-[10.5px] leading-[1.45] text-muted-foreground"
         style={reveal(phases.length + 3)}
       >
+        {t.phaseDetailsNotice}
+      </p>
+    </div>
+  );
+}
+
+/**
+ * The expanded phase card on the desktop, a wide dialog with nothing folded
+ * away: the card's header beside the cycle's bars, the phases side by side in
+ * the order they come (each with what happens inside, how you may feel and
+ * what may help; today's one tinted), then the estimated ovulation and the
+ * next period. Same content and wording as PhaseDetails.
+ */
+export function PhaseDetailsWide({
+  header,
+  overview,
+  timeline,
+  phase,
+  day,
+  locale,
+  t,
+  onHowEstimated,
+}: {
+  header: ReactNode;
+  overview: CycleOverview;
+  timeline: CycleTimeline | null;
+  phase: CyclePhase;
+  day: number;
+  locale: Locale;
+  t: Messages;
+  onHowEstimated: () => void;
+}) {
+  const spans = timeline?.spans ?? [];
+  const phases: CyclePhase[] = spans.length > 0 ? spans.map((span) => span.phase) : [phase];
+  const nextPhase = NEXT_PHASE[phase];
+  const days = overview.nextPeriodInDays;
+  const nextDate = overview.nextPeriodDate;
+  const when =
+    days === null ? null : days <= 0 ? t.todayLower : days === 1 ? t.inOneDay : t.inDays.replace("{days}", String(days));
+  // The open cycle's window, as the calendar marks it. Not for another cycle's timeline.
+  const ovulation =
+    overview.ovulation && timeline && overview.ovulation.cycleStart === timeline.cycleStart ? overview.ovulation : null;
+  const hasNext = Boolean(nextDate && when);
+  const row = "phase-reveal flex items-center gap-3 rounded-[20px] border border-border px-4 py-3";
+  const rowIcon = "flex size-9 shrink-0 items-center justify-center rounded-full";
+
+  return (
+    <div className="flex flex-col gap-5">
+      <div className={cn("grid items-center gap-10 pr-10", timeline && "grid-cols-[minmax(0,5fr)_minmax(0,7fr)]")}>
+        {header}
+        {timeline ? <CycleBars timeline={timeline} day={day} t={t} revealIndex={0} className="" /> : null}
+      </div>
+      <ul className="grid gap-3" style={{ gridTemplateColumns: `repeat(${phases.length}, minmax(0, 1fr))` }}>
+        {phases.map((item, index) => {
+          const span = spans.find((entry) => entry.phase === item);
+          const current = item === phase;
+          const copy = COPY[item];
+          return (
+            <li
+              key={item}
+              aria-current={current ? "true" : undefined}
+              className="phase-reveal flex flex-col rounded-[22px] border px-4 py-4"
+              style={{
+                ...reveal(index + 1),
+                background: current ? phaseTint(item, 14) : "transparent",
+                borderColor: current ? phaseTint(item, 34) : "var(--border)",
+              }}
+            >
+              <div className="flex items-center gap-2.5">
+                <span className={rowIcon} style={{ background: phaseTint(item, 18), color: PHASE_INK[item] }}>
+                  <PhaseGlyph phase={item} className="size-[17px]" />
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5">
+                    <span className="text-[15px] leading-tight font-extrabold">{phaseLabel(item, t)}</span>
+                    {current ? (
+                      <span
+                        className="rounded-full px-1.5 py-px text-[9px] font-extrabold tracking-[0.08em] text-card uppercase"
+                        style={{ background: PHASE_INK[item] }}
+                      >
+                        {t.phaseNow}
+                      </span>
+                    ) : item === nextPhase ? (
+                      <span className="rounded-full border border-border px-1.5 py-px text-[9px] font-extrabold tracking-[0.08em] text-muted-foreground uppercase">
+                        {t.phaseNext}
+                      </span>
+                    ) : null}
+                  </p>
+                  <p className="text-xs font-bold text-muted-foreground">{String(t[SEASON_LABELS[phaseSeason(item)]])}</p>
+                </div>
+              </div>
+              {span ? (
+                <p className="mt-3 text-xs font-bold" style={{ color: PHASE_INK[item] }}>
+                  {dayRange(span.start, span.end, locale)}
+                  <span className="font-semibold text-muted-foreground">
+                    {" · "}
+                    {t.phaseDays.replace("{start}", String(span.startDay)).replace("{end}", String(span.endDay))}
+                  </span>
+                </p>
+              ) : null}
+              <p className="mt-3 text-[10px] font-extrabold tracking-[0.08em] text-muted-foreground uppercase">{t.phaseInsideLabel}</p>
+              <p className="mt-1 text-[13px] leading-[1.5] text-pretty text-card-foreground/85">{String(t[copy.inside])}</p>
+              <p className="mt-3 text-[10px] font-extrabold tracking-[0.08em] text-muted-foreground uppercase">{t.phaseFeelLabel}</p>
+              <p className="mt-1.5 flex flex-wrap gap-[5px]">
+                {copy.feel.map((key) => (
+                  <span key={key} className="rounded-full border border-[var(--glass-edge)] bg-[var(--glass)] px-[9px] py-[3px] text-xs font-bold">
+                    {String(t[key])}
+                  </span>
+                ))}
+              </p>
+              <p className="mt-3 text-[13px] leading-[1.5] text-pretty text-card-foreground/85">
+                <span className="font-extrabold text-card-foreground">{t.phaseTipLabel} </span>
+                {String(t[copy.tip])}
+              </p>
+              {item === "ovulation" ? (
+                <p className="mt-2 text-[11.5px] leading-[1.4] text-muted-foreground">{t.phaseOvulationNote}</p>
+              ) : null}
+            </li>
+          );
+        })}
+      </ul>
+      {ovulation || hasNext ? (
+        <div className={cn("grid items-stretch gap-3", ovulation && hasNext && "grid-cols-2")}>
+          {ovulation ? (
+            <div className={row} style={reveal(phases.length + 1)}>
+              <span className={rowIcon} style={{ background: phaseTint("ovulation", 18), color: PHASE_INK.ovulation }}>
+                <PhaseGlyph phase="ovulation" className="size-[17px]" />
+              </span>
+              <span className="block min-w-0 flex-1">
+                <span className="block text-sm font-extrabold">{t.ovulationEstimateLabel}</span>
+                <span className="mt-px block text-[13px] font-semibold text-muted-foreground first-letter:uppercase">
+                  {t.ovulationEstimateDetail
+                    .replace("{date}", formatIsoUtc(ovulation.mostLikely, locale, { weekday: "short", day: "numeric", month: "short" }))
+                    .replace("{range}", dayRange(ovulation.start, ovulation.end, locale))}
+                </span>
+                {ovulation.wide ? (
+                  <span className="mt-1 block text-xs leading-[1.4] text-muted-foreground">{t.ovulationWideNote}</span>
+                ) : null}
+              </span>
+            </div>
+          ) : null}
+          {nextDate && when ? (
+            <div className={row} style={reveal(phases.length + 2)}>
+              <span className={rowIcon} style={{ background: phaseTint("menstrual", 18), color: PHASE_INK.menstrual }}>
+                <CalendarDays className="size-[17px]" aria-hidden />
+              </span>
+              <span className="block min-w-0 flex-1">
+                <span className="block text-sm font-extrabold">{t.nextPeriodLabel}</span>
+                <span className="mt-px block text-[13px] font-semibold text-muted-foreground first-letter:uppercase">
+                  {t.nextPeriodDetail
+                    .replace("{date}", formatIsoUtc(nextDate, locale, { weekday: "short", day: "numeric", month: "short" }))
+                    .replace("{when}", when)}
+                </span>
+              </span>
+              <HowEstimated t={t} onClick={onHowEstimated} phase={phase} />
+            </div>
+          ) : null}
+        </div>
+      ) : null}
+      <p className="phase-reveal text-center text-[11.5px] leading-[1.45] text-muted-foreground" style={reveal(phases.length + 3)}>
         {t.phaseDetailsNotice}
       </p>
     </div>

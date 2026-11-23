@@ -69,8 +69,9 @@ type Drag = {
  * The phase card, expanded. On a phone it grows down from where the card sits
  * to near the bottom of the screen, still a floating card, over a dimmed page;
  * in the Android app its handle can be dragged up to close it. On the desktop
- * it is a dialog in the middle of the window. Closes on its arrow, a tap
- * outside, Escape and the Android back button.
+ * it is a dialog in the middle of the window: the same column as the phone's,
+ * or, when the card gives `wideDetails`, a wide one laid out for the desktop.
+ * Closes on its arrow, a tap outside, Escape and the Android back button.
  */
 export function PhaseCardOverlay({
   origin,
@@ -80,6 +81,7 @@ export function PhaseCardOverlay({
   title,
   header,
   details,
+  wideDetails,
   t,
   onClosed,
   auraColors,
@@ -98,6 +100,12 @@ export function PhaseCardOverlay({
    * in it marked `data-close-card` also closes the card (after its own click).
    */
   details: (howEstimated: () => void) => ReactNode;
+  /**
+   * The desktop dialog's own layout, in place of `header` over `details`: it
+   * gets the header to place and the dialog is wide. Without it the desktop
+   * shows the phone's column.
+   */
+  wideDetails?: (howEstimated: () => void, header: ReactNode) => ReactNode;
   t: Messages;
   onClosed: () => void;
 }) {
@@ -141,7 +149,11 @@ export function PhaseCardOverlay({
   });
   // Built once: the card's own state changes (opening, closing) leave the content alone.
   const openInfo = useCallback(() => setInfoOpen(true), []);
-  const content = useMemo(() => details(openInfo), [details, openInfo]);
+  const wide = desktop && wideDetails !== undefined;
+  const content = useMemo(
+    () => (desktop && wideDetails ? wideDetails(openInfo, header) : details(openInfo)),
+    [desktop, details, header, openInfo, wideDetails],
+  );
 
 
   // Grow from the card's own height: the expanded height once that one has
@@ -329,7 +341,7 @@ export function PhaseCardOverlay({
       <h2 id={titleId} className="sr-only">
         {title}
       </h2>
-      {header}
+      {wide ? null : header}
       <div
         onClick={(event) => {
           if (event.target instanceof Element && event.target.closest("[data-close-card]")) requestClose();
@@ -361,13 +373,21 @@ export function PhaseCardOverlay({
             aria-labelledby={titleId}
             data-phase-open=""
             className={cn(
-              "sheet-dialog pointer-events-auto relative isolate flex max-h-[85vh] w-full max-w-md flex-col overflow-hidden rounded-4xl border border-border/70 bg-card text-card-foreground shadow-2xl",
+              "sheet-dialog pointer-events-auto relative isolate flex w-full flex-col overflow-hidden rounded-4xl border border-border/70 bg-card text-card-foreground shadow-2xl",
+              wide ? "max-h-[90vh] max-w-5xl" : "max-h-[85vh] max-w-md",
               closing ? "animate-sheet-down" : "animate-sheet-up",
             )}
           >
             <PhaseAura phase={phase} next={next} animate={false} wide colors={auraColors} />
             {closeButton}
-            <div className="relative z-[1] min-h-0 flex-1 overflow-y-auto overscroll-contain px-[18px] pt-4 pb-4">{body}</div>
+            <div
+              className={cn(
+                "relative z-[1] min-h-0 flex-1 overflow-y-auto overscroll-contain",
+                wide ? "px-8 pt-7 pb-6" : "px-[18px] pt-4 pb-4",
+              )}
+            >
+              {body}
+            </div>
           </div>
         </div>
       ) : (

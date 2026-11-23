@@ -8,7 +8,7 @@ import { Info } from "lucide-react";
 
 import { ForecastInfoDialog } from "@/components/calendar/forecast-info-dialog";
 import { CycleDayCard, dueCardModel, PhaseCard, phaseCardModel } from "@/components/calendar/phase-card";
-import { DueDetails, PhaseDetails } from "@/components/calendar/phase-details";
+import { DueDetails, PhaseDetails, PhaseDetailsWide } from "@/components/calendar/phase-details";
 import { SeasonGuideOverlay, type SeasonOriginRect } from "@/components/calendar/season-guide-overlay";
 import { SeasonDecor } from "@/components/calendar/season-scene";
 import { PregnancyCard } from "@/components/pregnancy/pregnancy-card";
@@ -127,6 +127,18 @@ export function CycleStatusCard({
         t={t}
         details={(howEstimated) => (
           <PhaseDetails
+            overview={overview}
+            timeline={phaseModel.timeline}
+            phase={phaseModel.phase}
+            day={phaseModel.day}
+            locale={locale}
+            t={t}
+            onHowEstimated={howEstimated}
+          />
+        )}
+        wideDetails={(howEstimated, header) => (
+          <PhaseDetailsWide
+            header={header}
             overview={overview}
             timeline={phaseModel.timeline}
             phase={phaseModel.phase}
