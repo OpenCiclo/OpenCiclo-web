@@ -4,7 +4,7 @@
 import type { Diary, SymptomId } from "@/lib/diary";
 import { daysBetween } from "@/lib/forecast/math";
 import type { PeriodRun } from "@/lib/cycle/period-duration";
-import { completedCycles, type CompletedCycle, type RecurringSymptom } from "@/lib/patterns/stats";
+import { completedCycles, openCycleStart, type CompletedCycle, type RecurringSymptom } from "@/lib/patterns/stats";
 
 /** How many completed cycles the Patterns screen draws (the same window `recurringSymptoms` counts over). */
 export const CYCLE_LOOKBACK = 6;
@@ -65,8 +65,8 @@ export function cyclePattern(
   others: RecurringSymptom[] = [],
 ): CyclePattern {
   const cycles: CompletedCycle[] = completedCycles(diary).slice(-CYCLE_LOOKBACK);
-  const starts = [...diary.periodStarts].sort();
-  const lastStart = starts[starts.length - 1] ?? null;
+  // Null while a pregnancy goes on or before her period comes back: no open cycle.
+  const lastStart = openCycleStart(diary);
   const symptoms = recurring.slice(0, MAX_ROW_SYMPTOMS).map((item) => item.id);
   const dayKeys = Object.keys(diary.days).sort();
 
@@ -84,10 +84,13 @@ export function cyclePattern(
   const current = lastStart ? row(lastStart, null, null) : null;
   const all = current ? [...completed, current] : completed;
 
+  // Each cycle's own end, not the next row's start: an interval that held a
+  // pregnancy sits between two rows and belongs to neither.
+  const ends: (string | null)[] = [...cycles.map((cycle) => cycle.end), ...(current ? [null] : [])];
   const presence: Record<string, boolean[]> = {};
   for (const { id } of [...recurring, ...others]) {
     presence[id] = all.map((cycle, index) => {
-      const end = all[index + 1]?.start ?? null;
+      const end = ends[index];
       return dayKeys.some((iso) => iso >= cycle.start && (end === null || iso < end) && Boolean(diary.days[iso]?.symptoms[id]));
     });
   }

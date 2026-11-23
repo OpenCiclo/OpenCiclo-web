@@ -272,6 +272,7 @@ const es = {
   importData: "Importar copia",
   importHint:
     "JSON o CSV exportado desde Ciclo. Se fusiona con esta cuenta. No restaura la cuenta antigua, solo los datos.",
+  importPregnancies: "Añadir también los embarazos guardados en el archivo ({count}).",
   importPreview: "Se van a añadir o actualizar {days} días e {starts} inicios de periodo.",
   importConfirm: "Importar",
   importOk: "Datos importados.",
@@ -797,14 +798,15 @@ const es = {
   pregnancyEndEnded: "El embarazo terminó",
   pregnancyEndKeep: "Guardar en mi diario",
   pregnancyEndWhat: "¿Qué ha pasado?",
+  pregnancyEndUndo: "No ha terminado: sigue en curso",
   pregnancyEndWhen: "¿Cuándo?",
   pregnancyFriendsNoNews: "Sin novedades",
   pregnancyFriendsNoNewsHint:
-    "Verán lo mismo que si dejaras de apuntar: unos días «regla esperada» y luego «sin novedades recientes».",
+    "Verán lo mismo que si dejaras de apuntar: unos días «periodo esperado» y luego «sin novedades recientes».",
   pregnancyFriendsNote: "Nada del embarazo llega a tus amigas.",
   pregnancyFriendsSimulated: "Ciclo simulado",
   pregnancyFriendsSimulatedHint:
-    "Tus amigas verán fases que no son reales. Una amiga que se fije puede notar que nunca aparece «apuntado hoy».",
+    "Tus amigas verán fases que no son reales. Una amiga que se fije puede notar que nunca aparece «registrado hoy».",
   pregnancyFriendsTitle: "Qué verán tus amigas",
   pregnancyHowDate: "¿Cómo quieres fecharlo?",
   pregnancyImplausible: "Esas fechas no encajan con un embarazo en curso. Revísalas.",
@@ -829,6 +831,7 @@ const es = {
   pregnancyOptionUltrasound: "Tengo la ecografía",
   pregnancyScanAgeLabel: "Semanas y días que te dijeron ese día",
   pregnancyScanDateLabel: "Fecha de la ecografía",
+  pregnancyPastNotice: "Con estas fechas, el embarazo ya habría terminado. Puedes añadirlo como un embarazo anterior.",
   pregnancyStartButton: "Activar",
   pregnancyStartIntro:
     "Ciclo dejará de predecir reglas y te mostrará las semanas. Puedes cerrarlo cuando quieras. Solo se guarda en tu diario cifrado.",
@@ -862,6 +865,7 @@ const es = {
   resumingWhenToAsk:
     "Consulta si el sangrado empapa una compresa en poco tiempo, si tienes fiebre o dolor fuerte, si un test sigue positivo a las 3 semanas o si la regla no ha vuelto a las 8 semanas.",
   settingsPregnancyDeleteConfirm: "Se borrará este embarazo de tu diario. No se puede deshacer.",
+  settingsPregnancyEditEnd: "Corregir el final",
   settingsPregnancyHide: "Ocultar del calendario",
   settingsPregnancyPast: "Embarazos anteriores",
   settingsPregnancyShow: "Mostrar en el calendario",
@@ -1228,6 +1232,7 @@ const en = {
   importData: "Import backup",
   importHint:
     "JSON or CSV exported from openciclo. It merges into this account. It restores data, not the old account keys.",
+  importPregnancies: "Also add the pregnancies saved in the file ({count}).",
   importPreview: "{days} days and {starts} period starts will be added or updated.",
   importConfirm: "Import",
   importOk: "Data imported.",
@@ -1750,6 +1755,7 @@ const en = {
   pregnancyEndEnded: "The pregnancy ended",
   pregnancyEndKeep: "Keep it in my diary",
   pregnancyEndWhat: "What happened?",
+  pregnancyEndUndo: "It has not ended: it is still going on",
   pregnancyEndWhen: "When?",
   pregnancyFriendsNoNews: "No news",
   pregnancyFriendsNoNewsHint:
@@ -1781,6 +1787,7 @@ const en = {
   pregnancyOptionUltrasound: "I have the ultrasound",
   pregnancyScanAgeLabel: "Weeks and days you were given that day",
   pregnancyScanDateLabel: "Date of the ultrasound",
+  pregnancyPastNotice: "With these dates the pregnancy would already be over. You can add it as a past pregnancy.",
   pregnancyStartButton: "Turn on",
   pregnancyStartIntro:
     "Ciclo stops forecasting periods and shows the weeks instead. You can close it whenever you want. It is stored only in your encrypted diary.",
@@ -1812,6 +1819,7 @@ const en = {
   resumingWhenToAsk:
     "Get medical help if bleeding soaks a pad quickly, if you have a fever or strong pain, if a test is still positive after 3 weeks, or if no period has come by 8 weeks.",
   settingsPregnancyDeleteConfirm: "This pregnancy will be deleted from your diary. It cannot be undone.",
+  settingsPregnancyEditEnd: "Correct the end",
   settingsPregnancyHide: "Hide from the calendar",
   settingsPregnancyPast: "Past pregnancies",
   settingsPregnancyShow: "Show on the calendar",

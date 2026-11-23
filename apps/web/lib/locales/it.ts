@@ -225,6 +225,7 @@ const locale: LocaleModule = {
     importData: "Importa copia",
     importHint:
       "JSON o CSV esportato da Ciclo. Si unisce a questo account. Ripristina solo i dati, non le chiavi del vecchio account.",
+    importPregnancies: "Aggiungi anche le gravidanze salvate nel file ({count}).",
     importPreview: "Da aggiungere o aggiornare. Giorni: {days}. Inizi delle mestruazioni: {starts}.",
     importConfirm: "Importa",
     importOk: "Dati importati.",
@@ -722,7 +723,7 @@ const locale: LocaleModule = {
       "I tuoi cicli variano parecchio, quindi la finestra è ampia. Un test di ovulazione può restringerla.",
     bleedingSectionTitle: "Sanguinamento",
     bleedingDuringPregnancyHint: "In gravidanza, un sanguinamento non conta mai come mestruazioni.",
-    bleedingDuringPregnancyLink: "Quando rivolgersi a qualcuno",
+    bleedingDuringPregnancyLink: "Quando chiedere aiuto",
     bleedingAfterEndHint: "Sanguinamento dopo la fine della gravidanza. Non conta come mestruazioni.",
     periodBackQuestion: "Sono tornate le mestruazioni?",
     periodBackYes: "Sì",
@@ -736,7 +737,7 @@ const locale: LocaleModule = {
     pregnancyConceptionLabel: "Data dell'ovulazione o del concepimento",
     pregnancyConfirmDue: "Data presunta del parto: {date}. Periodo probabile: {range}.",
     pregnancyCycleCorrection: "Adatta al mio ciclo abituale ({days} giorni)",
-    pregnancyDatedBy: "Datata in base a {method}",
+    pregnancyDatedBy: "Datata secondo {method}",
     pregnancyDaysShort: "giorni",
     pregnancyDetailsTitle: "La tua gravidanza",
     pregnancyDueDateLabel: "Data presunta del parto",
@@ -751,10 +752,11 @@ const locale: LocaleModule = {
     pregnancyEndEnded: "La gravidanza è finita",
     pregnancyEndKeep: "Tienila nel mio diario",
     pregnancyEndWhat: "Cos'è successo?",
+    pregnancyEndUndo: "Non è finita: è ancora in corso",
     pregnancyEndWhen: "Quando?",
     pregnancyFriendsNoNews: "Nessuna novità",
     pregnancyFriendsNoNewsHint:
-      "Vedranno lo stesso che se smettessi di registrare: qualche giorno «mestruazioni attese» e poi «nessun aggiornamento recente».",
+      "Vedranno quello che vedrebbero se smettessi di registrare: qualche giorno «mestruazione attesa» e poi «nessun aggiornamento recente».",
     pregnancyFriendsNote: "Niente della gravidanza arriva alle tue amiche.",
     pregnancyFriendsSimulated: "Ciclo simulato",
     pregnancyFriendsSimulatedHint:
@@ -763,7 +765,7 @@ const locale: LocaleModule = {
     pregnancyHowDate: "Come vuoi datarla?",
     pregnancyImplausible: "Queste date non corrispondono a una gravidanza in corso. Controllale.",
     pregnancyIrregularHint:
-      "I tuoi cicli sono più corti o più lunghi del solito: un'ecografia darà una data più affidabile.",
+      "I tuoi cicli sono più corti o più lunghi della media: un'ecografia darà una data più affidabile.",
     pregnancyLearnLink: "Leggi sulla gravidanza in Impara",
     pregnancyLmpLabel: "Primo giorno delle ultime mestruazioni",
     pregnancyMethodConception: "l'ovulazione o il concepimento",
@@ -783,6 +785,7 @@ const locale: LocaleModule = {
     pregnancyOptionUltrasound: "Ho l'ecografia",
     pregnancyScanAgeLabel: "Settimane e giorni che ti hanno detto quel giorno",
     pregnancyScanDateLabel: "Data dell'ecografia",
+    pregnancyPastNotice: "Con queste date la gravidanza sarebbe già finita. Puoi aggiungerla come gravidanza precedente.",
     pregnancyStartButton: "Attiva",
     pregnancyStartIntro:
       "Ciclo smetterà di prevedere le mestruazioni e ti mostrerà le settimane. Puoi chiuderla quando vuoi. Resta solo nel tuo diario cifrato.",
@@ -807,7 +810,7 @@ const locale: LocaleModule = {
       "Per qualsiasi dubbio sul sanguinamento o sul recupero, chiedi alla tua ostetrica o al tuo medico.",
     resumingBirthOvulation: "Si può ovulare prima delle prime mestruazioni. Ciclo non è un metodo contraccettivo.",
     resumingBirthPeriod: "Dopo un parto, le mestruazioni possono metterci settimane o mesi a tornare.",
-    resumingBleeding: "Il sanguinamento può durare fino a due settimane, le perdite leggere fino a tre.",
+    resumingBleeding: "Il sanguinamento può durare fino a due settimane, lo spotting fino a tre.",
     resumingOpen: "Cosa può succedere ora",
     resumingOvulation:
       "Si può ovulare prima delle prime mestruazioni, a volte dopo due settimane. Ciclo non è un metodo contraccettivo.",
@@ -817,6 +820,7 @@ const locale: LocaleModule = {
     resumingWhenToAsk:
       "Rivolgiti a un medico se il sanguinamento inzuppa un assorbente in poco tempo, se hai febbre o un dolore forte, se un test è ancora positivo dopo 3 settimane o se le mestruazioni non sono tornate dopo 8 settimane.",
     settingsPregnancyDeleteConfirm: "Questa gravidanza verrà eliminata dal tuo diario. Non si può annullare.",
+    settingsPregnancyEditEnd: "Correggi la fine",
     settingsPregnancyHide: "Nascondi dal calendario",
     settingsPregnancyPast: "Gravidanze precedenti",
     settingsPregnancyShow: "Mostra nel calendario",

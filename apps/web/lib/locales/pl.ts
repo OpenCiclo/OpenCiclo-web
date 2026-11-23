@@ -223,6 +223,7 @@ const locale: LocaleModule = {
     importData: "Importuj kopię",
     importHint:
       "Plik JSON lub CSV wyeksportowany z Ciclo. Dane łączą się z tym kontem. Przywraca dane, a nie klucze starego konta.",
+    importPregnancies: "Dodaj też ciąże zapisane w pliku ({count}).",
     importPreview: "Zostaną dodane lub zaktualizowane wpisy. Dni: {days}. Początki miesiączki: {starts}.",
     importConfirm: "Importuj",
     importOk: "Dane zaimportowane.",
@@ -724,7 +725,7 @@ const locale: LocaleModule = {
     legendLikelyBirth: "Tygodnie 37–42",
     pastPregnancyRange: "Ciąża · od {start} do {end}",
     pregnancyCardLabel: "Ciąża",
-    pregnancyCardOpen: "Otwórz ciążę",
+    pregnancyCardOpen: "Pokaż szczegóły ciąży",
     pregnancyChange: "Zmień",
     pregnancyChangeTitle: "Zmień daty",
     pregnancyConceptionLabel: "Data owulacji lub poczęcia",
@@ -745,18 +746,19 @@ const locale: LocaleModule = {
     pregnancyEndEnded: "Ciąża się zakończyła",
     pregnancyEndKeep: "Zachowaj w moim dzienniku",
     pregnancyEndWhat: "Co się stało?",
+    pregnancyEndUndo: "Nie zakończyła się: nadal trwa",
     pregnancyEndWhen: "Kiedy?",
     pregnancyFriendsNoNews: "Bez nowości",
     pregnancyFriendsNoNewsHint:
-      "Zobaczą to samo, co gdybyś przestała zapisywać: przez kilka dni „spodziewana miesiączka”, a potem „brak nowych informacji”.",
+      "Zobaczą to samo, co gdybyś przestała zapisywać: przez kilka dni „spodziewana miesiączka”, a potem „brak świeżych informacji”.",
     pregnancyFriendsNote: "Nic o ciąży nie trafia do twoich przyjaciółek.",
     pregnancyFriendsSimulated: "Symulowany cykl",
     pregnancyFriendsSimulatedHint:
-      "Twoje przyjaciółki zobaczą fazy, które nie są prawdziwe. Uważna przyjaciółka może zauważyć, że nigdy nie pojawia się „zapisano dziś”.",
+      "Twoje przyjaciółki zobaczą fazy, które nie są prawdziwe. Uważna przyjaciółka może zauważyć, że nigdy nie pojawia się „zapisane dziś”.",
     pregnancyFriendsTitle: "Co zobaczą twoje przyjaciółki",
     pregnancyHowDate: "Jak chcesz ustalić daty?",
     pregnancyImplausible: "Te daty nie pasują do trwającej ciąży. Sprawdź je.",
-    pregnancyIrregularHint: "Twoje cykle są krótsze lub dłuższe niż zwykle: USG da bardziej wiarygodną datę.",
+    pregnancyIrregularHint: "Twoje cykle są krótsze lub dłuższe niż przeciętnie: USG da bardziej wiarygodną datę.",
     pregnancyLearnLink: "Czytaj o ciąży w zakładce Wiedza",
     pregnancyLmpLabel: "Pierwszy dzień ostatniej miesiączki",
     pregnancyMethodConception: "owulacja lub poczęcie",
@@ -776,6 +778,7 @@ const locale: LocaleModule = {
     pregnancyOptionUltrasound: "Mam wynik USG",
     pregnancyScanAgeLabel: "Tygodnie i dni podane tego dnia",
     pregnancyScanDateLabel: "Data USG",
+    pregnancyPastNotice: "Przy tych datach ciąża już by się zakończyła. Możesz ją dodać jako poprzednią ciążę.",
     pregnancyStartButton: "Włącz",
     pregnancyStartIntro:
       "Ciclo przestanie przewidywać miesiączki i pokaże tygodnie ciąży. Możesz to zamknąć w każdej chwili. Zapisuje się tylko w twoim zaszyfrowanym dzienniku.",
@@ -789,7 +792,7 @@ const locale: LocaleModule = {
     pregnancyTrimester2: "2. trymestr",
     pregnancyTrimester3: "3. trymestr",
     pregnancyTrimestersTitle: "Trymestry",
-    pregnancyWeekDays: "Tydzień {weeks} i dni: {days}",
+    pregnancyWeekDays: "Tydzień {weeks} i {days} dni",
     pregnancyWeekExact: "Tydzień {weeks}",
     pregnancyWeekLeft: "Został 1 tydzień · termin {date}",
     pregnancyWeekMark: "Tydzień ciąży: {week}",
@@ -799,7 +802,7 @@ const locale: LocaleModule = {
     pregnancyWindow: "Najprawdopodobniej między {start} a {end}",
     resumingBirthAsk: "Jeśli masz pytania o krwawienie lub powrót do sił, zapytaj położną lub lekarza.",
     resumingBirthOvulation: "Owulacja może wystąpić przed pierwszą miesiączką. Ciclo nie jest antykoncepcją.",
-    resumingBirthPeriod: "Po porodzie miesiączka może wracać tygodnie lub miesiące.",
+    resumingBirthPeriod: "Po porodzie powrót miesiączki może potrwać tygodnie lub miesiące.",
     resumingBleeding: "Krwawienie może trwać do dwóch tygodni, a plamienie do trzech.",
     resumingOpen: "Co może się teraz dziać",
     resumingOvulation:
@@ -809,6 +812,7 @@ const locale: LocaleModule = {
     resumingWhenToAsk:
       "Zgłoś się do lekarza, jeśli krwawienie szybko przesiąka podpaskę, masz gorączkę lub silny ból, test po 3 tygodniach jest nadal pozytywny albo miesiączka nie wróciła po 8 tygodniach.",
     settingsPregnancyDeleteConfirm: "Ta ciąża zostanie usunięta z twojego dziennika. Tego nie można cofnąć.",
+    settingsPregnancyEditEnd: "Popraw zakończenie",
     settingsPregnancyHide: "Ukryj w kalendarzu",
     settingsPregnancyPast: "Poprzednie ciąże",
     settingsPregnancyShow: "Pokaż w kalendarzu",
@@ -948,8 +952,7 @@ const locale: LocaleModule = {
       "Tkliwość piersi jest częsta w fazie lutealnej. Wygodny biustonosz może pomóc. Liczba wpisów: {count}.",
     tipAdviceCravings:
       "Zachcianki często nasilają się przed miesiączką. Posiłki z białkiem i błonnikiem mogą je złagodzić. Liczba wpisów: {count}.",
-    tipAdviceHighLibido:
-      "Wyższe libido czasem pokrywa się z dniami około owulacji. Liczba wpisów: {count}.",
+    tipAdviceHighLibido: "Wyższe libido czasem pokrywa się z dniami wokół owulacji. Liczba wpisów: {count}.",
     tipAdviceSexualActivity:
       "Zapisywanie aktywności seksualnej pomaga dostrzec wzorce w powiązaniu z cyklem. Liczba wpisów: {count}.",
     tipRegularTitle: "Twoje cykle wyglądają na regularne",

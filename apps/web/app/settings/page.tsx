@@ -13,7 +13,13 @@ import { lastEmail } from "@/lib/client/kit-store";
 import { storeBrowserPassword } from "@/lib/client/credentials";
 import { saveFile } from "@/lib/client/save-file";
 import { NewerDiaryError } from "@/lib/diary";
-import { diaryToCsv, mergeDiaries, parseImportedFile, previewImport } from "@/lib/diary-io";
+import {
+  diaryToCsv,
+  importsPregnanciesByDefault,
+  mergeDiaries,
+  parseImportedFile,
+  previewImport,
+} from "@/lib/diary-io";
 import { FRIENDS_AVAILABLE, VISUAL_SEASONS_AVAILABLE } from "@/lib/features";
 import { useFriendsTabChoice } from "@/lib/client/friends-tab";
 import { AppShell } from "@/components/app-shell";
@@ -177,7 +183,14 @@ export default function SettingsPage() {
       say("backup", t.errorGeneric);
     }
   }
-  const [importPreview, setImportPreview] = useState<{ days: number; starts: number; raw: string } | null>(
+  const [importPreview, setImportPreview] = useState<{
+    days: number;
+    starts: number;
+    pregnancies: number;
+    /** Whether the file's pregnancies come too (her choice, lib/diary-io.ts). */
+    withPregnancies: boolean;
+    raw: string;
+  } | null>(
     null,
   );
 
@@ -565,8 +578,8 @@ export default function SettingsPage() {
             try {
               const raw = await file.text();
               const incoming = parseImportedFile(raw);
-              const preview = previewImport(incoming);
-              setImportPreview({ ...preview, raw });
+              const preview = previewImport(incoming, diary);
+              setImportPreview({ ...preview, withPregnancies: importsPregnanciesByDefault(diary), raw });
               say("backup", null);
             } catch (cause) {
               setImportPreview(null);
@@ -585,12 +598,25 @@ export default function SettingsPage() {
                 .replace("{days}", String(importPreview.days))
                 .replace("{starts}", String(importPreview.starts))}
             </p>
+            {importPreview.pregnancies > 0 ? (
+              <label className="flex cursor-pointer items-start gap-2 text-sm text-card-foreground">
+                <input
+                  type="checkbox"
+                  className="mt-1"
+                  checked={importPreview.withPregnancies}
+                  onChange={(event) => setImportPreview({ ...importPreview, withPregnancies: event.target.checked })}
+                />
+                {t.importPregnancies.replace("{count}", String(importPreview.pregnancies))}
+              </label>
+            ) : null}
             <Button
               disabled={readOnly}
               onClick={async () => {
                 try {
                   const incoming = parseImportedFile(importPreview.raw);
-                  await persistDiary(mergeDiaries(diary, incoming, locale));
+                  await persistDiary(
+                    mergeDiaries(diary, incoming, locale, { pregnancies: importPreview.withPregnancies }),
+                  );
                   setImportPreview(null);
                   say("backup", t.importOk);
                 } catch (cause) {

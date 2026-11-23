@@ -11,6 +11,7 @@ import { daysBetween } from "@/lib/forecast/math";
 import {
   PREGNANCY_DAYS,
   STILL_GOING_ASK_DAYS,
+  conceptionDate,
   gestationalAge,
   likelyWindow,
   pregnancyStart,
@@ -123,7 +124,9 @@ export type BleedContext =
 export function bleedContext(diary: Diary, iso: string): BleedContext {
   const pregnancies = diary.pregnancies ?? [];
   const active = activePregnancy(pregnancies);
-  if (active && iso >= pregnancyStart(active.dueDate)) return { kind: "pregnancy" };
+  // From the estimated conception day, like the rule itself (`excludedPeriodStart`):
+  // bleeding in the two weeks before it is her last period, and counts as one.
+  if (active && bleedRunStart(diary, iso) >= conceptionDate(active.dueDate)) return { kind: "pregnancy" };
   const ended = lastEndedPregnancy(pregnancies);
   if (!ended?.end || iso < ended.end.date) return { kind: "none" };
   const until = noPeriodUntil(ended) ?? ended.end.date;

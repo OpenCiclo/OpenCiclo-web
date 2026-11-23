@@ -38,8 +38,13 @@ const CARDS: [string, PregnancyRecord][] = [
 
 export function PregnancyPlayground() {
   const [locale, setLocale] = useState<BaseLocale>("es");
-  const [sheet, setSheet] = useState<"start" | "change" | "end" | null>(null);
+  const [sheet, setSheet] = useState<"start" | "change" | "end" | "correct" | "past" | "failing" | null>(null);
   const [log, setLog] = useState<string>("");
+  const [error, setError] = useState<string | null>(null);
+  const open = (next: NonNullable<typeof sheet>) => {
+    setError(null);
+    setSheet(next);
+  };
   const t = messages[locale];
   const changing = sheet === "change" ? CARDS[1][1] : null;
 
@@ -58,14 +63,23 @@ export function PregnancyPlayground() {
                 {value.toUpperCase()}
               </Button>
             ))}
-            <Button type="button" variant="outline" onClick={() => setSheet("start")}>
+            <Button type="button" variant="outline" onClick={() => open("start")}>
               Start sheet
             </Button>
-            <Button type="button" variant="outline" onClick={() => setSheet("change")}>
+            <Button type="button" variant="outline" onClick={() => open("change")}>
               Change dates
             </Button>
-            <Button type="button" variant="outline" onClick={() => setSheet("end")}>
+            <Button type="button" variant="outline" onClick={() => open("end")}>
               End sheet
+            </Button>
+            <Button type="button" variant="outline" onClick={() => open("correct")}>
+              Correct an end
+            </Button>
+            <Button type="button" variant="outline" onClick={() => open("past")}>
+              End of a past pregnancy
+            </Button>
+            <Button type="button" variant="outline" onClick={() => open("failing")}>
+              End sheet, save fails
             </Button>
           </div>
           {log ? <p className="font-mono text-xs text-muted-foreground">{log}</p> : null}
@@ -79,8 +93,8 @@ export function PregnancyPlayground() {
                 today={TODAY}
                 locale={locale}
                 t={t}
-                onChangeDates={() => setSheet("change")}
-                onEnd={() => setSheet("end")}
+                onChangeDates={() => open("change")}
+                onEnd={() => open("end")}
               />
             </div>
           ))}
@@ -104,21 +118,44 @@ export function PregnancyPlayground() {
         locale={locale}
         t={t}
         busy={false}
+        error={null}
         onClose={() => setSheet(null)}
         onSave={(dating, friendsMode) => {
           setLog(JSON.stringify({ dating, friendsMode }));
           setSheet(null);
         }}
+        onPast={(dating) => {
+          setLog(JSON.stringify({ past: dating }));
+          open("past");
+        }}
       />
       <PregnancyEndSheet
-        open={sheet === "end"}
-        record={CARDS[1][1]}
+        open={sheet === "end" || sheet === "correct" || sheet === "past" || sheet === "failing"}
+        dueDate={sheet === "past" ? "2025-03-10" : CARDS[1][1].dueDate}
+        ended={sheet === "correct" ? { date: "2026-06-02", outcome: "ended" } : null}
+        past={sheet === "past"}
+        canReopen
         today={TODAY}
         t={t}
         busy={false}
+        error={error}
         onClose={() => setSheet(null)}
-        onEnd={async (outcome, date) => setLog(JSON.stringify({ outcome, date }))}
-        onDelete={async () => setLog("deleted")}
+        onEnd={async (outcome, date) => {
+          if (sheet === "failing") {
+            setError(t.errorGeneric);
+            return false;
+          }
+          setLog(JSON.stringify({ outcome, date }));
+          return true;
+        }}
+        onReopen={async () => {
+          setLog("reopened");
+          return true;
+        }}
+        onDelete={async () => {
+          setLog("deleted");
+          return true;
+        }}
       />
     </div>
   );

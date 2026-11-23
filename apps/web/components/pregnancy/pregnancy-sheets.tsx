@@ -11,12 +11,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { dayRange, weekTitle } from "@/components/pregnancy/pregnancy-card";
-import { useBackStep } from "@/lib/client/android-back";
+import { IS_ANDROID_APP } from "@/lib/app-target";
+import { useLatest } from "@/lib/client/hooks";
 import { formatIsoUtc } from "@/lib/format-date";
 import type { Locale, Messages } from "@/lib/i18n";
 import { isIsoDate } from "@/lib/iso-date";
 import {
   DATING_METHODS,
+  MAX_SCAN_AGE_DAYS,
+  alreadyOver,
   cycleCorrection,
   dueDateFrom,
   gestationalAge,
@@ -28,24 +31,36 @@ import {
   type EmbryoAge,
   type PregnancyDating,
 } from "@/lib/pregnancy/dating";
-import type { FriendsPrivateMode, PregnancyOutcome, PregnancyRecord } from "@/lib/pregnancy/record";
+import type { FriendsPrivateMode, PregnancyEnd, PregnancyOutcome, PregnancyRecord } from "@/lib/pregnancy/record";
 import { cn } from "@/lib/utils";
 
 function prefersReducedMotion() {
   return typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
-/** A sheet from the bottom (a dialog on the desktop). Escape, and so Android Back, closes it. */
+/**
+ * A sheet from the bottom (a dialog on the desktop). Escape closes it. Android
+ * Back arrives as Escape too (lib/client/android-back.ts): there it first goes
+ * back one step (`onBack` answers true), then closes. The sheet takes the key
+ * before anything under it (the day sheet it may have been opened from), so one
+ * Back never closes two things.
+ */
 function SheetFrame({
   open,
   title,
   t,
+  error,
+  onBack,
   onClose,
   children,
 }: {
   open: boolean;
   title: string;
   t: Messages;
+  /** Why the last save did not land; the sheet stays open. */
+  error?: string | null;
+  /** Android Back inside the sheet: true when it went back a step instead of closing. */
+  onBack?: () => boolean;
   onClose: () => void;
   children: ReactNode;
 }) {
@@ -61,14 +76,22 @@ function SheetFrame({
     return () => window.clearTimeout(timer);
   }, [closing]);
 
+  const onBackRef = useLatest(onBack);
+  const onCloseRef = useLatest(onClose);
   useEffect(() => {
     if (!open) return;
     function onKey(event: KeyboardEvent) {
-      if (event.key === "Escape") onClose();
+      if (event.key !== "Escape") return;
+      // The app's own confirmation dialog sits on top of everything and answers first.
+      if (document.querySelector('[role="alertdialog"]')) return;
+      event.stopImmediatePropagation();
+      event.preventDefault();
+      if (IS_ANDROID_APP && onBackRef.current?.()) return;
+      onCloseRef.current();
     }
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [open, onClose]);
+    window.addEventListener("keydown", onKey, true);
+    return () => window.removeEventListener("keydown", onKey, true);
+  }, [open, onBackRef, onCloseRef]);
 
   if (!present) return null;
   return createPortal(
@@ -106,6 +129,11 @@ function SheetFrame({
         </div>
         <div className="flex flex-1 flex-col gap-3 overflow-y-auto overscroll-contain px-6 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
           {children}
+          {error ? (
+            <p role="alert" className="text-sm text-destructive">
+              {error}
+            </p>
+          ) : null}
         </div>
       </div>
     </div>,
@@ -203,7 +231,9 @@ function datingFrom(draft: DatingDraft, usualCycle: number | null): PregnancyDat
       const weeks = Number(draft.weeks);
       const days = Number(draft.days);
       if (!valid(draft.scanDate) || !Number.isInteger(weeks) || !Number.isInteger(days)) return null;
-      if (weeks < 0 || weeks > 42 || days < 0 || days > 6 || draft.weeks === "") return null;
+      if (weeks < 0 || days < 0 || days > 6 || draft.weeks === "") return null;
+      // The same limit as the diary keeps (`sanitizePregnancy`): 42 weeks and 0 days.
+      if (weeks * 7 + days > MAX_SCAN_AGE_DAYS) return null;
       return { method: "ultrasound", scanDate: draft.scanDate, weeks, days };
     }
     case "conception":
@@ -228,8 +258,10 @@ export function PregnancyStartSheet({
   locale,
   t,
   busy,
+  error,
   onClose,
   onSave,
+  onPast,
 }: {
   open: boolean;
   /** The pregnancy whose dates change; null to turn the mode on. */
@@ -241,8 +273,11 @@ export function PregnancyStartSheet({
   locale: Locale;
   t: Messages;
   busy: boolean;
+  error: string | null;
   onClose: () => void;
   onSave: (dating: PregnancyDating, friendsMode: FriendsPrivateMode) => void;
+  /** Dates of a pregnancy that would already be over: it goes on to ask how and when it ended. */
+  onPast: (dating: PregnancyDating) => void;
 }) {
   const [step, setStep] = useState(0);
   const [draft, setDraft] = useState(() => draftFrom(record, lastStart, today));
@@ -255,13 +290,17 @@ export function PregnancyStartSheet({
     setFriendsMode(record?.friendsMode ?? "noNews");
   }
   if (!open && wasOpen) setWasOpen(false);
-  useBackStep(open && step > 0 ? () => setStep((value) => value - 1) : null);
 
   const changing = record !== null;
-  const steps = changing || !showFriends ? 2 : 3;
   const dating = datingFrom(draft, usualCycle);
   const dueDate = dating ? dueDateFrom(dating) : null;
   const plausible = dueDate !== null && plausibleDueDate(dueDate, today);
+  // Dates of a pregnancy that is over by now: not an error, a past pregnancy to add with its end.
+  const past = !changing && dueDate !== null && alreadyOver(dueDate, today);
+  const steps = changing || !showFriends || past ? 2 : 3;
+  // An age at the scan the diary would not keep: say so instead of a dead button.
+  const scanAgeTooLong =
+    draft.method === "ultrasound" && draft.weeks !== "" && Number(draft.weeks) * 7 + Number(draft.days) > MAX_SCAN_AGE_DAYS;
   const age = dueDate ? gestationalAge(dueDate, today) : null;
   const window = dueDate ? likelyWindow(dueDate) : null;
   const correction = cycleCorrection(usualCycle);
@@ -271,7 +310,18 @@ export function PregnancyStartSheet({
   const last = step === steps - 1;
 
   return (
-    <SheetFrame open={open} title={title} t={t} onClose={onClose}>
+    <SheetFrame
+      open={open}
+      title={title}
+      t={t}
+      error={error}
+      onBack={() => {
+        if (step === 0) return false;
+        setStep(step - 1);
+        return true;
+      }}
+      onClose={onClose}
+    >
       {step === 0 ? (
         <>
           {changing ? null : <p className="text-sm leading-6 text-muted-foreground">{t.pregnancyStartIntro}</p>}
@@ -372,9 +422,13 @@ export function PregnancyStartSheet({
                   .replace("{date}", formatIsoUtc(dueDate, locale, { day: "numeric", month: "long", year: "numeric" }))
                   .replace("{range}", dayRange(window.start, window.end, locale))}
               </p>
+            ) : past ? (
+              <p className="rounded-2xl bg-muted/60 p-3 text-sm leading-6 text-card-foreground">{t.pregnancyPastNotice}</p>
             ) : (
               <p className="rounded-2xl bg-muted/60 p-3 text-sm leading-6 text-destructive">{t.pregnancyImplausible}</p>
             )
+          ) : scanAgeTooLong ? (
+            <p className="rounded-2xl bg-muted/60 p-3 text-sm leading-6 text-destructive">{t.pregnancyImplausible}</p>
           ) : null}
         </>
       ) : null}
@@ -409,16 +463,17 @@ export function PregnancyStartSheet({
         <Button
           type="button"
           className="flex-1"
-          disabled={busy || (step === 1 && !(dating && plausible))}
+          disabled={busy || (step === 1 && !(dating && (plausible || past)))}
           onClick={() => {
             if (!last) {
               setStep(step + 1);
               return;
             }
-            if (dating && plausible) onSave(dating, friendsMode);
+            if (dating && past) onPast(dating);
+            else if (dating && plausible) onSave(dating, friendsMode);
           }}
         >
-          {last ? (changing ? t.save : t.pregnancyStartButton) : t.next}
+          {last && !past ? (changing ? t.save : t.pregnancyStartButton) : t.next}
         </Button>
       </div>
     </SheetFrame>
@@ -429,44 +484,76 @@ export function PregnancyStartSheet({
  * "The pregnancy has ended": what happened (no reason asked), when, and a
  * closing line. Everything pregnancy-related goes the moment it is saved. She
  * keeps it in the diary (the default) or deletes it completely.
+ *
+ * The same two questions correct an end already logged (`ended`: a wrong date
+ * or a wrong tap, which "it has not ended" takes back) and add a pregnancy that
+ * was over before she entered it (`past`: nothing is saved until the end is).
  */
 export function PregnancyEndSheet({
   open,
-  record,
+  dueDate,
+  ended,
+  past,
+  canReopen,
   today,
   t,
   busy,
+  error,
   onClose,
   onEnd,
+  onReopen,
   onDelete,
 }: {
   open: boolean;
-  record: PregnancyRecord | null;
+  /** The due date of the pregnancy the sheet is about: the end cannot come before its first day. */
+  dueDate: string | null;
+  /** The end already logged, when the sheet corrects it. */
+  ended: PregnancyEnd | null;
+  past: boolean;
+  /** Whether "it has not ended" is offered: not while another pregnancy goes on. */
+  canReopen: boolean;
   today: string;
   t: Messages;
   busy: boolean;
+  error: string | null;
   onClose: () => void;
-  onEnd: (outcome: PregnancyOutcome, date: string) => Promise<void>;
-  onDelete: () => Promise<void>;
+  /** Each answers whether the save landed. */
+  onEnd: (outcome: PregnancyOutcome, date: string) => Promise<boolean>;
+  onReopen: () => Promise<boolean>;
+  onDelete: () => Promise<boolean>;
 }) {
   const [step, setStep] = useState(0);
   const [outcome, setOutcome] = useState<PregnancyOutcome | null>(null);
   const [date, setDate] = useState(today);
+  // What the sheet was opened for: `ended` turns non-null once a new end is saved.
+  const [correcting, setCorrecting] = useState(false);
   const [wasOpen, setWasOpen] = useState(open);
   if (open && !wasOpen) {
     setWasOpen(true);
     setStep(0);
-    setOutcome(null);
-    setDate(today);
+    setOutcome(ended?.outcome ?? null);
+    // A pregnancy added afterwards most likely ended around its due date, not today.
+    setDate(ended?.date ?? (past && dueDate !== null && dueDate < today ? dueDate : today));
+    setCorrecting(ended !== null);
   }
   if (!open && wasOpen) setWasOpen(false);
-  useBackStep(open && step === 1 ? () => setStep(0) : null);
 
-  const earliest = record ? pregnancyStart(record.dueDate) : today;
+  const earliest = dueDate ? pregnancyStart(dueDate) : today;
   const validDate = isIsoDate(date) && date <= today && date >= earliest;
 
   return (
-    <SheetFrame open={open} title={t.pregnancyEndAction} t={t} onClose={onClose}>
+    <SheetFrame
+      open={open}
+      title={t.pregnancyEndAction}
+      t={t}
+      error={error}
+      onBack={() => {
+        if (step !== 1) return false;
+        setStep(0);
+        return true;
+      }}
+      onClose={onClose}
+    >
       {step === 0 ? (
         <>
           <p className="text-sm font-bold text-card-foreground">{t.pregnancyEndWhat}</p>
@@ -484,6 +571,19 @@ export function PregnancyEndSheet({
               {value === "birth" ? t.pregnancyEndBirth : t.pregnancyEndEnded}
             </Button>
           ))}
+          {correcting && canReopen ? (
+            <Button
+              type="button"
+              variant="ghost"
+              className="h-auto justify-start py-3 text-left text-muted-foreground"
+              disabled={busy}
+              onClick={async () => {
+                if (await onReopen()) onClose();
+              }}
+            >
+              {t.pregnancyEndUndo}
+            </Button>
+          ) : null}
         </>
       ) : null}
       {step === 1 ? (
@@ -500,11 +600,13 @@ export function PregnancyEndSheet({
               disabled={busy || !validDate || !outcome}
               onClick={async () => {
                 if (!outcome || !validDate) return;
-                await onEnd(outcome, date);
-                setStep(2);
+                if (!(await onEnd(outcome, date))) return;
+                // A corrected end and a past pregnancy have nothing more to ask.
+                if (correcting || past) onClose();
+                else setStep(2);
               }}
             >
-              {t.next}
+              {t.save}
             </Button>
           </div>
         </>
@@ -521,8 +623,7 @@ export function PregnancyEndSheet({
             className="text-muted-foreground"
             disabled={busy}
             onClick={async () => {
-              await onDelete();
-              onClose();
+              if (await onDelete()) onClose();
             }}
           >
             {t.pregnancyEndDelete}

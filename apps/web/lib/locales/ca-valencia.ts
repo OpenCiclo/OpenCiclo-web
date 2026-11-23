@@ -300,11 +300,11 @@ const locale: LocaleModule = {
     pregnancyNotice: "Ciclo no substituïx el seguiment mèdic. Les dates són estimacions.",
     pregnancyStartIntro:
       "Ciclo deixarà de predir regles i et mostrarà les setmanes. El pots tancar quan vulgues. Només es guarda al teu diari xifrat.",
-    pregnancyEndKeep: "Guardar en el meu diari",
+    pregnancyEndKeep: "Guarda'l en el meu diari",
     pregnancyFriendsNoNewsHint:
       "Voran el mateix que si deixares d'apuntar: uns dies «regla esperada» i després «sense novetats recents».",
     pregnancyFriendsSimulatedHint:
-      "Les teues amigues voran fases que no són reals. Una amiga que s'hi fixe pot notar que mai no apareix «apuntat hui».",
+      "Les teues amigues voran fases que no són reals. Una amiga que s'hi fixe pot notar que mai no apareix «registrat hui».",
     pregnancyFriendsTitle: "Què voran les teues amigues",
     pregnancyFriendsNote: "Res de l'embaràs arriba a les teues amigues.",
     pregnancyLmpLabel: "Primer dia de la teua última regla",
@@ -317,6 +317,20 @@ const locale: LocaleModule = {
     settingsPregnancyStartHint: "Dates i setmanes en lloc de prediccions. Només es guarda al teu diari xifrat.",
     settingsPregnancyDeleteConfirm: "S'esborrarà este embaràs del teu diari. No es pot desfer.",
     pregnancyStillGoingTitle: "Continua en curs este embaràs?",
+    pregnancyPastNotice: "Amb estes dates, l'embaràs ja hauria acabat. El pots afegir com un embaràs anterior.",
+    ovulationWideNote:
+      "Els teus cicles varien prou, així que la finestra és àmplia. Una prova d'ovulació la pot reduir.",
+    pregnancyTestAfterEnd: "Una prova pot continuar eixint positiva unes setmanes després que acabe un embaràs.",
+    pregnancyLearnLink: "Llig sobre l'embaràs a Aprendre",
+    importPregnancies: "Afig també els embarassos guardats al fitxer ({count}).",
+    settingsPregnancyEditEnd: "Corregix el final",
+    pregnancyEndBirth: "Va nàixer el meu nadó",
+    pregnancyStillGoingBody:
+      "Han passat més de dues setmanes des de la data probable de part. Si ja ha acabat, el pots tancar ací.",
+    resumingBirthOvulation: "Es pot ovular abans d'esta primera regla. Ciclo no és un anticonceptiu.",
+    resumingOvulation:
+      "Es pot ovular abans d'esta primera regla, de vegades a les dues setmanes. Ciclo no és un anticonceptiu.",
+    resumingBirthPeriod: "Després d'un part, la regla pot tardar setmanes o mesos a tornar.",
     pregnancyImplausible: "Estes dates no encaixen amb un embaràs en curs. Revisa-les.",
     tipAdviceHeadache:
       "Els mals de cap de vegades coincidixen amb canvis hormonals. Hidratar-te i menjar a hores regulars pot ajudar. Nombre de registres: {count}.",

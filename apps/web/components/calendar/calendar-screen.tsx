@@ -43,6 +43,7 @@ import type { Locale, Messages } from "@/lib/i18n";
 import { useCiclo, useTodayIso } from "@/lib/client/ciclo-context";
 import { AccountMismatchError, VaultTooLargeError } from "@/lib/client/api";
 import { UpdateRequiredError } from "@/lib/client/http";
+import { saveErrorMessage } from "@/lib/client/save-error";
 import { IS_ANDROID_APP } from "@/lib/app-target";
 import { useMonthSwipe } from "@/lib/client/use-month-swipe";
 import { isMainPhaseDay, lunarDayInfo, nextFullOrNewMoon } from "@/lib/lunar/phases";
@@ -202,15 +203,21 @@ export function CalendarScreen() {
       onAnswerBleed: (answer) => {
         const context = bleedContext(diary, activeIso);
         if (context.kind !== "ask" || readOnly) return;
-        void persistDiary(answerBleed(diary, context.record.id, context.runStart, answer));
+        // A failed save says so in the sheet, like a failed day save.
+        persistDiary(answerBleed(diary, context.record.id, context.runStart, answer)).then(
+          () => setError(null),
+          (cause: unknown) => setError(saveErrorMessage(cause, t)),
+        );
       },
       onStartPregnancy: PREGNANCY_AVAILABLE ? () => flows.openStart() : null,
     };
-  }, [activeIso, diary, flows, persistDiary, readOnly]);
+  }, [activeIso, diary, flows, persistDiary, readOnly, t]);
   const ovulationMarks = useMemo(
-    () => estimatedOvulationDates(diary.periodStarts, overview.ovulation, bleedDays),
-    [diary.periodStarts, overview.ovulation, bleedDays],
+    () => estimatedOvulationDates(diary.periodStarts, overview.ovulation, bleedDays, diary.pregnancies ?? []),
+    [diary.periodStarts, diary.pregnancies, overview.ovulation, bleedDays],
   );
+  // Closed cycles keep their windows while her period has not come back after a pregnancy, so the legend stays too.
+  const showOvulationMarks = overview.forecastingEnabled && !pregnant && ovulationMarks.window.size > 0;
   const filtersActive = activeFilters.length > 0;
   const labels = weekdayLabels(locale, weekStartsOn);
   const monthTitle = formatIsoUtc(new Date(Date.UTC(year, month - 1, 1)).toISOString().slice(0, 10), locale, {
@@ -524,17 +531,21 @@ export function CalendarScreen() {
           <LegendDot className="h-0.5 w-3 rounded-full bg-[var(--pregnancy-past)]" label={t.pregnancyCardLabel} />
         ) : null}
         {showForecastMarks ? (
+          <LegendDot className="border-2 border-dotted border-bleed bg-bleed/10" label={t.legendEstimatedBleeding} />
+        ) : null}
+        <LegendDot className="bg-fertile" label={t.legendFertile} />
+        {showOvulationMarks ? (
           <>
-            <LegendDot className="border-2 border-dotted border-bleed bg-bleed/10" label={t.legendEstimatedBleeding} />
-            <LegendDot className="bg-fertile" label={t.legendFertile} />
             <LegendDot className="bg-fertile/45" label={t.legendOvulationWindow} />
             <LegendDot className="bg-fertile/40 ring-2 ring-inset ring-fertile" label={t.legendOvulationLikely} />
+          </>
+        ) : null}
+        {showForecastMarks ? (
+          <>
             <LegendDot className="bg-primary" label={t.legendMostLikelyStart} />
             <LegendDot className="bg-primary/40" label={t.legendPossibleStart} />
           </>
-        ) : (
-          <LegendDot className="bg-fertile" label={t.legendFertile} />
-        )}
+        ) : null}
         {filtersActive
           ? activeFilters.map((id) => {
               const meta = symptomMeta(id, diary.customSymptoms);

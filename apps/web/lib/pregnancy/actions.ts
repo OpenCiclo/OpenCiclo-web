@@ -9,6 +9,7 @@ import { dueDateFrom, type PregnancyDating } from "@/lib/pregnancy/dating";
 import {
   activePregnancy,
   newPregnancyId,
+  sanitizePregnancy,
   type BleedAnswer,
   type FriendsPrivateMode,
   type PregnancyOutcome,
@@ -45,17 +46,69 @@ export function startPregnancy(
     friendsMode,
     bleedAnswers: {},
   };
+  // A dating the diary would not keep (`sanitizePregnancy`) starts nothing.
+  if (!sanitizePregnancy(record)) return diary;
   return withPregnancies(diary, [...(diary.pregnancies ?? []), record]);
 }
 
-/** New dating ("change"): a later ultrasound replaces what came before (ACOG CO 700). */
-export function changeDating(diary: Diary, id: string, dating: PregnancyDating): Diary {
-  return edit(diary, id, (record) => ({ ...record, dating, dueDate: dueDateFrom(dating) }));
+/**
+ * A pregnancy that is already over, added afterwards with its end: it never
+ * goes on, so nothing asks about it and friends see no change. A dating or an
+ * end the diary would not keep adds nothing.
+ */
+export function addPastPregnancy(
+  diary: Diary,
+  dating: PregnancyDating,
+  outcome: PregnancyOutcome,
+  date: string,
+  id: string = newPregnancyId(),
+): Diary {
+  const record: PregnancyRecord = {
+    id,
+    dating,
+    dueDate: dueDateFrom(dating),
+    end: { date, outcome },
+    hidden: false,
+    friendsMode: "noNews",
+    bleedAnswers: {},
+  };
+  if (!sanitizePregnancy(record)?.end) return diary;
+  return withPregnancies(diary, [...(diary.pregnancies ?? []), record]);
 }
 
-/** "Nació mi bebé" or "El embarazo terminó", on `date`. No reason, nothing about the baby. */
+/**
+ * New dating ("change"): a later ultrasound replaces what came before (ACOG CO 700).
+ * A dating the diary would not keep changes nothing: the save would otherwise
+ * drop the whole pregnancy.
+ */
+export function changeDating(diary: Diary, id: string, dating: PregnancyDating): Diary {
+  return edit(diary, id, (record) => {
+    const changed = { ...record, dating, dueDate: dueDateFrom(dating) };
+    return sanitizePregnancy(changed) ? changed : record;
+  });
+}
+
+/**
+ * "Nació mi bebé" or "El embarazo terminó", on `date`. No reason, nothing about
+ * the baby. Said again for a pregnancy that had already ended (a wrong date or
+ * a wrong tap), it corrects the end and keeps her answers about later bleeds.
+ */
 export function endPregnancy(diary: Diary, id: string, outcome: PregnancyOutcome, date: string): Diary {
-  return edit(diary, id, (record) => ({ ...record, end: { date, outcome }, bleedAnswers: {} }));
+  return edit(diary, id, (record) => ({
+    ...record,
+    end: { date, outcome },
+    bleedAnswers: record.end ? record.bleedAnswers : {},
+  }));
+}
+
+/**
+ * "It has not ended": an end logged by mistake is taken back and the pregnancy
+ * goes on. Refused (the diary comes back unchanged) while another one goes on.
+ */
+export function reopenPregnancy(diary: Diary, id: string): Diary {
+  const active = activePregnancy(diary.pregnancies ?? []);
+  if (active && active.id !== id) return diary;
+  return edit(diary, id, (record) => ({ ...record, end: null, hidden: false, bleedAnswers: {} }));
 }
 
 /** "Lo activé por error" and "Borrar del todo": as if it had never been in the diary. */

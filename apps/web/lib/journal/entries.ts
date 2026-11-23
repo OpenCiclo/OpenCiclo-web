@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { cycleDayAtDate, phaseAtDate, type CyclePhase } from "@/lib/cycle/phases";
+import { insidePregnancy } from "@/lib/cycle/segments";
 import { type Diary } from "@/lib/diary";
 import { daysBetween } from "@/lib/forecast/math";
 
@@ -14,6 +15,12 @@ export type JournalEntry = {
 
 const CYCLE_DAY_TOLERANCE = 2;
 
+/** Days since the last period start, or null inside a pregnancy: such a day has no cycle day. */
+function loggedCycleDay(diary: Diary, iso: string): number | null {
+  if (insidePregnancy(iso, diary.periodStarts, diary.pregnancies ?? [])) return null;
+  return cycleDayAtDate(diary.periodStarts, iso);
+}
+
 function entryFromDay(diary: Diary, iso: string, note: string, predictedNext: string | null): JournalEntry {
   const includeEstimated = diary.forecastingEnabled !== false;
   const phase = phaseAtDate(diary, iso, includeEstimated ? predictedNext : null, undefined, {
@@ -22,7 +29,7 @@ function entryFromDay(diary: Diary, iso: string, note: string, predictedNext: st
   return {
     iso,
     note,
-    cycleDay: phase?.cycleDay ?? cycleDayAtDate(diary.periodStarts, iso),
+    cycleDay: phase?.cycleDay ?? loggedCycleDay(diary, iso),
     phase: phase?.phase ?? null,
   };
 }
@@ -60,7 +67,7 @@ export function similarJournalEntries(
     undefined,
     { includeEstimated },
   );
-  const referenceCycleDay = reference?.cycleDay ?? cycleDayAtDate(diary.periodStarts, referenceIso);
+  const referenceCycleDay = reference?.cycleDay ?? loggedCycleDay(diary, referenceIso);
   if (!reference && referenceCycleDay === null) {
     return others.slice(0, limit);
   }
