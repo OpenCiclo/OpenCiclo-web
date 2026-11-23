@@ -834,7 +834,7 @@ const locale: LocaleModule = {
     pregnancyWindow: "Le plus probable entre le {start} et le {end}",
     resumingBirthAsk:
       "Pour toute question sur les saignements ou ta récupération, demande à ta sage-femme ou à ton médecin.",
-    resumingBirthOvulation: "On peut ovuler avant ces premières règles. Ciclo n’est pas une méthode contraceptive.",
+    resumingBirthOvulation: "On peut ovuler avant ces premières règles.",
     resumingBirthPeriod: "Après un accouchement, les règles peuvent mettre des semaines ou des mois à revenir.",
     resumingBleeding: "Le saignement peut durer jusqu’à deux semaines, et le spotting jusqu’à trois.",
     resumingLearnLink: "En lire plus sur la suite dans Apprendre",

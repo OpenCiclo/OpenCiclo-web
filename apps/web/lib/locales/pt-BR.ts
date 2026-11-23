@@ -822,7 +822,7 @@ const locale: LocaleModule = {
     pregnancyWindow: "O mais provável entre {start} e {end}",
     resumingBirthAsk: "Em caso de dúvida sobre o sangramento ou sua recuperação, fale com sua obstetriz ou seu médico.",
     resumingBirthOvulation:
-      "É possível ovular antes dessa primeira menstruação. O Ciclo não é um método anticoncepcional.",
+      "É possível ovular antes dessa primeira menstruação.",
     resumingBirthPeriod: "Depois de um parto, a menstruação pode levar semanas ou meses para voltar.",
     resumingBleeding: "O sangramento pode durar até duas semanas, e o escape até três.",
     resumingLearnLink: "Ler mais sobre o que vem agora em Aprender",

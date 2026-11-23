@@ -819,7 +819,7 @@ const locale: LocaleModule = {
     pregnancyWeeksShort: "tyg.",
     pregnancyWindow: "Najprawdopodobniej między {start} a {end}",
     resumingBirthAsk: "Jeśli masz pytania o krwawienie lub powrót do sił, zapytaj położną lub lekarza.",
-    resumingBirthOvulation: "Owulacja może wystąpić przed pierwszą miesiączką. Ciclo nie jest antykoncepcją.",
+    resumingBirthOvulation: "Owulacja może wystąpić przed pierwszą miesiączką.",
     resumingBirthPeriod: "Po porodzie powrót miesiączki może potrwać tygodnie lub miesiące.",
     resumingBleeding: "Krwawienie może trwać do dwóch tygodni, a plamienie do trzech.",
     resumingLearnLink: "Czytaj więcej o tym, co teraz, w zakładce Wiedza",

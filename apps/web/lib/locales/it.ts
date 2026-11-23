@@ -826,7 +826,7 @@ const locale: LocaleModule = {
     pregnancyWindow: "Più probabilmente tra il {start} e il {end}",
     resumingBirthAsk:
       "Per qualsiasi dubbio sul sanguinamento o sul recupero, chiedi alla tua ostetrica o al tuo medico.",
-    resumingBirthOvulation: "Si può ovulare prima delle prime mestruazioni. Ciclo non è un metodo contraccettivo.",
+    resumingBirthOvulation: "Si può ovulare prima delle prime mestruazioni.",
     resumingBirthPeriod: "Dopo un parto, le mestruazioni possono metterci settimane o mesi a tornare.",
     resumingBleeding: "Il sanguinamento può durare fino a due settimane, lo spotting fino a tre.",
     resumingLearnLink: "Leggi di più su cosa succede ora in Impara",

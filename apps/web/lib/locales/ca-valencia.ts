@@ -328,7 +328,7 @@ const locale: LocaleModule = {
     pregnancyEndBirth: "Va nàixer el meu nadó",
     pregnancyStillGoingBody:
       "Han passat més de dues setmanes des de la data probable de part. Si ja ha acabat, el pots tancar ací.",
-    resumingBirthOvulation: "Es pot ovular abans d'esta primera regla. Ciclo no és un anticonceptiu.",
+    resumingBirthOvulation: "Es pot ovular abans d'esta primera regla.",
     resumingOvulation:
       "Es pot ovular abans d'esta primera regla, de vegades a les dues setmanes.",
     resumingBirthPeriod: "Després d'un part, la regla pot tardar setmanes o mesos a tornar.",

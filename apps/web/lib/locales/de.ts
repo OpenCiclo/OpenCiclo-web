@@ -829,7 +829,7 @@ const locale: LocaleModule = {
     pregnancyWeeksShort: "Wochen",
     pregnancyWindow: "Am wahrscheinlichsten zwischen {start} und {end}",
     resumingBirthAsk: "Bei Fragen zur Blutung oder zu deiner Erholung wende dich an deine Hebamme oder Ärztin.",
-    resumingBirthOvulation: "Ein Eisprung ist schon vor der ersten Periode möglich. Ciclo ist keine Verhütungsmethode.",
+    resumingBirthOvulation: "Ein Eisprung ist schon vor der ersten Periode möglich.",
     resumingBirthPeriod: "Nach einer Geburt kann es Wochen oder Monate dauern, bis die Periode zurückkommt.",
     resumingBleeding: "Die Blutung kann bis zu zwei Wochen dauern, Schmierblutungen bis zu drei.",
     resumingLearnLink: "Mehr dazu, was jetzt kommt, in Wissen",

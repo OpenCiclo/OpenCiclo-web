@@ -822,7 +822,7 @@ const locale: LocaleModule = {
     pregnancyWindow: "El més probable entre el {start} i el {end}",
     resumingBirthAsk:
       "Davant de qualsevol dubte sobre el sagnat o la teva recuperació, consulta la teva llevadora o el teu metge.",
-    resumingBirthOvulation: "Es pot ovular abans d'aquesta primera regla. Ciclo no és un anticonceptiu.",
+    resumingBirthOvulation: "Es pot ovular abans d'aquesta primera regla.",
     resumingBirthPeriod: "Després d'un part, la regla pot trigar setmanes o mesos a tornar.",
     resumingBleeding: "El sagnat pot durar fins a dues setmanes, i el tacament fins a tres.",
     resumingLearnLink: "Llegeix més sobre el que ve ara a Aprendre",
