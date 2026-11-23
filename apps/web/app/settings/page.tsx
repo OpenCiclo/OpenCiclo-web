@@ -32,6 +32,7 @@ import { UpdateNotice } from "@/components/update-notice";
 import { PhraseQrCode } from "@/components/phrase-qr-code";
 import { SavePhraseForm } from "@/components/save-phrase-form";
 import { SettingsAbout } from "@/components/settings-about";
+import { FeedbackCard } from "@/components/feedback-card";
 import { TimeZoneSelect } from "@/components/time-zone-select";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -760,6 +761,7 @@ export default function SettingsPage() {
         {notice("research")}
       </SettingsDisclosure>
       {/* Privacy, Help and the licenses open over Settings, with the version under them. */}
+      <FeedbackCard />
       <SettingsAbout />
       <Card className="mt-4 flex flex-col gap-3 rounded-3xl">
         {onDevice ? null : (

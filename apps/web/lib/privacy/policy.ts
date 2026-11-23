@@ -128,7 +128,7 @@ function policyEn(context: PolicyContext, updated: string): LegalDoc {
         blocks: [
           {
             kind: "p",
-            text: "Under the GDPR, every use of personal data needs a purpose and a legal basis. These are all the personal data the hosted app handles. If you keep your diary only on your Android phone, none of this reaches us, except the research pool if you turn it on: see “Data that stays on your device”.",
+            text: "Under the GDPR, every use of personal data needs a purpose and a legal basis. These are all the personal data the hosted app handles. If you keep your diary only on your Android phone, none of this reaches us, except the research pool if you turn it on and feedback you send: see “Data that stays on your device”.",
           },
           item(
             "Your diary (encrypted)",
@@ -160,7 +160,7 @@ function policyEn(context: PolicyContext, updated: string): LegalDoc {
           ),
           item(
             "Protection against abuse",
-            "A keyed hash (HMAC) of your IP address, never the address itself, with the time and the kind of request: sign-in challenge, account creation, email code, email sign-in, research upload. For email codes and email sign-in we also keep the keyed hash of the email address.",
+            "A keyed hash (HMAC) of your IP address, never the address itself, with the time and the kind of request: sign-in challenge, account creation, email code, email sign-in, research upload, feedback. For email codes and email sign-in we also keep the keyed hash of the email address.",
             "To stop automated abuse, such as scripts that fill the database, send mass email or guess codes.",
             "Our legitimate interest in keeping Ciclo secure and available (GDPR article 6(1)(f)).",
             "Usually about a day: older records are deleted at the next automatic cleanup.",
@@ -185,6 +185,13 @@ function policyEn(context: PolicyContext, updated: string): LegalDoc {
             "To build an open, combined set of cycle lengths that may later help improve the open-source forecast model. The published model does not use it today.",
             "Your explicit consent (GDPR articles 6(1)(a) and 9(2)(a)), given with the two boxes in Settings. Turn it off at any time to stop future uploads.",
             "Rows already uploaded stay in the pool; no end date has been set. Because they cannot be linked to your account, we cannot find or delete them when you delete your account or ask us to. Settings says so before you agree.",
+          ),
+          item(
+            "Feedback (optional)",
+            "Only if you send a message from Settings → Send feedback: its type (problem, idea or other), the text you write, the email address if you typed one so we can answer, whether it came from the web or the Android app, the app version and the language. It is stored as plain text, not encrypted like your diary, and with no account, account key or IP address, so we cannot tell who sent it unless you include your email. Please leave out health details you would rather not share.",
+            "To read your message, fix problems, improve Ciclo and, if you gave an email address, answer you.",
+            "Your consent (GDPR article 6(1)(a)), given by sending the message. If you write health details in it, by sending them you explicitly agree that we read them for this purpose (article 9(2)(a)).",
+            "Until we have dealt with it, and at most 12 months: older messages are deleted at an automatic cleanup. To have a message deleted sooner, contact us with the email address you gave or the text of the message.",
           ),
           ...(FRIENDS_AVAILABLE
             ? [
@@ -271,6 +278,7 @@ function policyEn(context: PolicyContext, updated: string): LegalDoc {
               "An email sign-up that was never confirmed (an account with an empty diary and a pending entry): until it is deleted on request. There is no automatic cleanup.",
               "Sign-in challenges expire after 5 minutes; abuse-protection records are kept for usually about a day. Both are deleted at the next automatic cleanup after that.",
               "Research pool rows: see “Research pool” above; they cannot be deleted by account.",
+              "Feedback: at most 12 months, then deleted at an automatic cleanup. It is not linked to your account, so deleting the account does not delete it; ask us to.",
               ...(FRIENDS_AVAILABLE
                 ? [
                     "Friends: your friend list until you turn Friends off or delete your account; messages to friends expire 7 weeks at most after they were last written, sooner when you remove the friend.",
@@ -446,7 +454,7 @@ function policyEs(context: PolicyContext, updated: string): LegalDoc {
         blocks: [
           {
             kind: "p",
-            text: "El RGPD exige que cada uso de datos personales tenga una finalidad y una base legal. Estos son todos los datos personales que trata la app alojada. Si guardas el diario solo en tu móvil Android, nada de esto nos llega, salvo el pool de investigación si lo activas: mira «Datos que se quedan en tu dispositivo».",
+            text: "El RGPD exige que cada uso de datos personales tenga una finalidad y una base legal. Estos son todos los datos personales que trata la app alojada. Si guardas el diario solo en tu móvil Android, nada de esto nos llega, salvo el pool de investigación si lo activas y los comentarios que envíes: mira «Datos que se quedan en tu dispositivo».",
           },
           item(
             "Tu diario (cifrado)",
@@ -478,7 +486,7 @@ function policyEs(context: PolicyContext, updated: string): LegalDoc {
           ),
           item(
             "Protección contra abusos",
-            "Un hash con clave (HMAC) de tu dirección IP, nunca la IP en sí, con la hora y el tipo de petición: desafío de acceso, creación de cuenta, código por correo, acceso con correo, envío al pool de investigación. En los códigos por correo y el acceso con correo guardamos también el hash con clave del correo.",
+            "Un hash con clave (HMAC) de tu dirección IP, nunca la IP en sí, con la hora y el tipo de petición: desafío de acceso, creación de cuenta, código por correo, acceso con correo, envío al pool de investigación, comentarios. En los códigos por correo y el acceso con correo guardamos también el hash con clave del correo.",
             "Para frenar abusos automáticos, como scripts que llenan la base de datos, envían correo masivo o intentan adivinar códigos.",
             "Nuestro interés legítimo en mantener Ciclo seguro y disponible (artículo 6.1.f del RGPD).",
             "Normalmente alrededor de un día: los registros más antiguos se borran en la siguiente limpieza automática.",
@@ -503,6 +511,13 @@ function policyEs(context: PolicyContext, updated: string): LegalDoc {
             "Para reunir un conjunto abierto de duraciones de ciclo que más adelante pueda ayudar a mejorar el modelo de pronóstico de código abierto. Hoy el modelo publicado no lo usa.",
             "Tu consentimiento explícito (artículos 6.1.a y 9.2.a del RGPD), que das con las dos casillas de Ajustes. Desactívalo cuando quieras para que no se envíe nada más.",
             "Las filas ya enviadas se quedan en el pool; no se ha fijado una fecha de fin. Como no se pueden vincular a tu cuenta, no podemos encontrarlas ni borrarlas cuando borras la cuenta o nos lo pides. Ajustes lo avisa antes de que aceptes.",
+          ),
+          item(
+            "Comentarios (opcional)",
+            "Solo si envías un mensaje desde Ajustes → Enviar comentarios: su tipo (problema, idea u otro), el texto que escribes, el correo si lo pusiste para que te respondamos, si llegó desde la web o desde la app de Android, la versión de la app y el idioma. Se guarda en texto plano, sin cifrar como tu diario, y sin cuenta, clave de cuenta ni dirección IP, así que no sabemos quién lo envió salvo que incluyas tu correo. No incluyas datos de salud que prefieras no compartir.",
+            "Para leer tu mensaje, arreglar problemas, mejorar Ciclo y, si nos diste un correo, responderte.",
+            "Tu consentimiento (artículo 6.1.a del RGPD), que das al enviar el mensaje. Si escribes en él datos de salud, al enviarlos aceptas de forma explícita que los leamos para esto (artículo 9.2.a).",
+            "Hasta que lo hayamos atendido, y como mucho 12 meses: los mensajes más antiguos se borran en una limpieza automática. Para que borremos un mensaje antes, escríbenos con el correo que diste o el texto del mensaje.",
           ),
           ...(FRIENDS_AVAILABLE
             ? [
@@ -589,6 +604,7 @@ function policyEs(context: PolicyContext, updated: string): LegalDoc {
               "Un alta con correo que nunca se confirmó (una cuenta con el diario vacío y una entrada pendiente): hasta que se borra a petición. No hay limpieza automática.",
               "Los desafíos de acceso caducan a los 5 minutos; los registros de protección contra abusos se guardan normalmente alrededor de un día. Los dos se borran en la siguiente limpieza automática.",
               "Filas del pool de investigación: mira «Pool de investigación» arriba; no se pueden borrar por cuenta.",
+              "Comentarios: como mucho 12 meses; después se borran en una limpieza automática. No van unidos a tu cuenta, así que borrar la cuenta no los borra; pídenoslo.",
               ...(FRIENDS_AVAILABLE
                 ? [
                     "Amigas: tu lista de amigas hasta que desactives Amigas o borres tu cuenta; los mensajes para amigas caducan como mucho 7 semanas después de su última escritura, antes si quitas a la amiga.",

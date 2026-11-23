@@ -32,6 +32,7 @@ npx dotenv -e .env.local -- psql "$DATABASE_URL" -f drizzle/0005_vault_version.s
 npx dotenv -e .env.local -- psql "$DATABASE_URL" -f drizzle/0006_rate_limit_hits.sql
 npx dotenv -e .env.local -- psql "$DATABASE_URL" -f drizzle/0007_lookup_indexes.sql
 npx dotenv -e .env.local -- psql "$DATABASE_URL" -f drizzle/0008_friends.sql
+npx dotenv -e .env.local -- psql "$DATABASE_URL" -f drizzle/0009_feedback.sql
 npm run dev
 ```
 

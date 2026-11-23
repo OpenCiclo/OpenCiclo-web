@@ -29,6 +29,7 @@ services:
       - ./apps/web/drizzle/0006_rate_limit_hits.sql:/docker-entrypoint-initdb.d/0006_rate_limit_hits.sql
       - ./apps/web/drizzle/0007_lookup_indexes.sql:/docker-entrypoint-initdb.d/0007_lookup_indexes.sql
       - ./apps/web/drizzle/0008_friends.sql:/docker-entrypoint-initdb.d/0008_friends.sql
+      - ./apps/web/drizzle/0009_feedback.sql:/docker-entrypoint-initdb.d/0009_feedback.sql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U openciclo -d openciclo"]
       interval: 5s

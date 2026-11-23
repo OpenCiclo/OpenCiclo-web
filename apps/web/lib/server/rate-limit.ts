@@ -8,7 +8,7 @@ import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 
 import { bytesToHex, utf8ToBytes } from "@/lib/crypto/bytes";
 import type * as schema from "@/lib/db/schema";
-import { authChallenges, friendBoxes, mailboxPending, rateLimitHits, recoveryAttempts } from "@/lib/db/schema";
+import { authChallenges, feedback, friendBoxes, mailboxPending, rateLimitHits, recoveryAttempts } from "@/lib/db/schema";
 import { FRIENDS_AVAILABLE } from "@/lib/features";
 import { hashIp, jsonError, requireSecret } from "@/lib/server/env";
 import { describeError } from "@/lib/server/http";
@@ -67,6 +67,11 @@ export const RATE_LIMITS = {
   // the alert to look at, since boxes cannot be attributed to purge them.
   "friends-box-create": { max: 60, windowMs: DAY },
   "friends-box-create-global": { max: 2_000, windowMs: DAY, alert: true },
+  // Feedback from Settings, per IP (many people can share one) and host-wide,
+  // far above what real people send, so a script cannot fill the table.
+  "feedback-submit": { max: 10, windowMs: HOUR },
+  "feedback-submit-day": { max: 30, windowMs: DAY },
+  "feedback-submit-global": { max: 2_000, windowMs: DAY, alert: true },
 } as const satisfies Record<string, RateLimit>;
 
 export type RateLimitBucket = keyof typeof RATE_LIMITS;
@@ -75,6 +80,8 @@ export type RateLimitHit = { bucket: RateLimitBucket; keyHash: string };
 
 // Longest window above; rows older than this are never read again.
 const KEEP_MS = DAY;
+/** How long feedback is kept (lib/privacy/policy.ts says 12 months). */
+export const FEEDBACK_KEEP_MS = 365 * DAY;
 // Clean up on roughly one hit in this many, so no request pays for it often.
 const PRUNE_ONE_IN = 50;
 
@@ -254,8 +261,9 @@ async function applyLimits(
  * Deletes bookkeeping that can no longer matter: rate-limit hits and recovery
  * attempts older than a day, auth challenges and pending email confirmations
  * that have expired, and expired friend boxes (sealed, no account; reads skip
- * them already). None of these rows hold diary data; a pending row holds a
- * wrapped kit and HMAC(email) for a sign-up that was never confirmed.
+ * them already), and feedback older than 12 months. None of these rows hold
+ * diary data; a pending row holds a wrapped kit and HMAC(email) for a sign-up
+ * that was never confirmed.
  */
 export async function pruneEphemeralRows(db: Db, now = new Date()) {
   const cutoff = new Date(now.getTime() - KEEP_MS);
@@ -271,6 +279,12 @@ export async function pruneEphemeralRows(db: Db, now = new Date()) {
       .where(lt(friendBoxes.expiresAt, now))
       .catch((error: unknown) => console.error(`FRIEND_BOX_PRUNE_FAILED ${describeError(error)}`));
   }
+  // Last, so a missing table (0009 not applied yet) cannot get in the way of
+  // the deletes above. Feedback is kept 12 months (the privacy policy says so).
+  await db
+    .delete(feedback)
+    .where(lt(feedback.createdAt, new Date(now.getTime() - FEEDBACK_KEEP_MS)))
+    .catch((error: unknown) => console.error(`FEEDBACK_PRUNE_FAILED ${describeError(error)}`));
 }
 
 export function tooManyRequests(): Response {
