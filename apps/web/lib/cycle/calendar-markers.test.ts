@@ -5,57 +5,13 @@ import { describe, expect, it } from "vitest";
 
 import {
   PERIOD_START_DISPLAY_THRESHOLD,
-  estimatedFertileDates,
-  estimatedFertileWindow,
-  fertileWindowAnchors,
   isEditableDiaryDate,
   isEstimatedBleedingDate,
-  isEstimatedFertileDate,
-  isInEstimatedFertileWindow,
   possiblePeriodStartDates,
   visiblePossiblePeriodStarts,
 } from "./calendar-markers";
 
 describe("calendar markers", () => {
-  it("keeps an inclusive six-day fertile window ending 14 days before the next start", () => {
-    const window = estimatedFertileWindow("2026-08-30");
-    expect(window).toEqual({ start: "2026-08-11", end: "2026-08-16" });
-    expect(isInEstimatedFertileWindow("2026-08-11", "2026-08-30")).toBe(true);
-    expect(isInEstimatedFertileWindow("2026-08-16", "2026-08-30")).toBe(true);
-    expect(isInEstimatedFertileWindow("2026-08-10", "2026-08-30")).toBe(false);
-    expect(isInEstimatedFertileWindow("2026-08-17", "2026-08-30")).toBe(false);
-  });
-
-  it("derives a fertile window from each closed cycle and the open-cycle forecast", () => {
-    const starts = ["2026-06-01", "2026-06-29"];
-    const predictedNext = "2026-07-27";
-    expect(fertileWindowAnchors(starts, predictedNext)).toEqual(["2026-06-29", "2026-07-27"]);
-    expect(isEstimatedFertileDate("2026-06-12", starts, predictedNext)).toBe(true);
-    expect(isEstimatedFertileDate("2026-07-10", starts, predictedNext)).toBe(true);
-    expect(isEstimatedFertileDate("2026-06-20", starts, predictedNext)).toBe(false);
-  });
-
-  it("lists once the same fertile dates the calendar checked one cell at a time", () => {
-    // Out of order, as a diary may hold them, with and without a forecast.
-    const starts = ["2026-03-30", "2026-01-05", "2026-02-02", "2026-03-02"];
-    for (const predictedNext of ["2026-04-27", null]) {
-      const dates = estimatedFertileDates(starts, predictedNext);
-      for (let day = 0; day < 140; day += 1) {
-        const iso = new Date(Date.UTC(2026, 0, 1 + day)).toISOString().slice(0, 10);
-        expect(dates.has(iso), iso).toBe(isEstimatedFertileDate(iso, starts, predictedNext));
-      }
-    }
-    expect(estimatedFertileDates([], null).size).toBe(0);
-    expect([...estimatedFertileDates(["2026-06-01"], "2026-06-29")]).toEqual([
-      "2026-06-10",
-      "2026-06-11",
-      "2026-06-12",
-      "2026-06-13",
-      "2026-06-14",
-      "2026-06-15",
-    ]);
-  });
-
   it("keeps current or future dates at or above the 12% threshold in any month", () => {
     const dates = possiblePeriodStartDates(
       [

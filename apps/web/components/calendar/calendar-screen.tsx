@@ -8,13 +8,13 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { ChevronLeft, ChevronRight, Filter, Moon, Plus, Sparkles } from "lucide-react";
 
 import {
-  estimatedFertileDates,
   isCurrentCalendarMonth,
   isEditableDiaryDate,
   isEstimatedBleedingDate,
   visiblePossiblePeriodStarts,
 } from "@/lib/cycle/calendar-markers";
-import { cycleOverview } from "@/lib/cycle/phases";
+import { estimatedOvulationDates } from "@/lib/cycle/ovulation";
+import { cycleOverview, expectedBleedDays } from "@/lib/cycle/phases";
 import {
   hasNote,
   hasSymptoms,
@@ -174,9 +174,10 @@ export function CalendarScreen() {
   );
   const mostLikelyStart = overview.forecastingEnabled ? overview.nextPeriodDate : null;
   // Once per diary or forecast change, not once per day cell (up to three months during a swipe).
-  const fertileDates = useMemo(
-    () => estimatedFertileDates(diary.periodStarts, overview.nextPeriodDate),
-    [diary.periodStarts, overview.nextPeriodDate],
+  const bleedDays = expectedBleedDays(overview);
+  const ovulationMarks = useMemo(
+    () => estimatedOvulationDates(diary.periodStarts, overview.ovulation, bleedDays),
+    [diary.periodStarts, overview.ovulation, bleedDays],
   );
   const filtersActive = activeFilters.length > 0;
   const labels = weekdayLabels(locale, weekStartsOn);
@@ -449,7 +450,8 @@ export function CalendarScreen() {
                         openable={canOpenDay(iso)}
                         possibleStart={overview.forecastingEnabled && possibleStarts.has(iso)}
                         mostLikelyStart={overview.forecastingEnabled && mostLikelyStart === iso}
-                        estimatedFertile={overview.forecastingEnabled && fertileDates.has(iso)}
+                        ovulationWindow={overview.forecastingEnabled && ovulationMarks.window.has(iso)}
+                        ovulationLikely={overview.forecastingEnabled && ovulationMarks.mostLikely.has(iso)}
                         estimatedBleeding={
                           overview.forecastingEnabled &&
                           isEstimatedBleedingDate(iso, overview.expectedBleedingWindow)
@@ -483,7 +485,8 @@ export function CalendarScreen() {
           <>
             <LegendDot className="border-2 border-dotted border-bleed bg-bleed/10" label={t.legendEstimatedBleeding} />
             <LegendDot className="bg-fertile" label={t.legendFertile} />
-            <LegendDot className="border border-fertile bg-fertile/20" label={t.legendFertileWindow} />
+            <LegendDot className="bg-fertile/45" label={t.legendOvulationWindow} />
+            <LegendDot className="bg-fertile/40 ring-2 ring-inset ring-fertile" label={t.legendOvulationLikely} />
             <LegendDot className="bg-primary" label={t.legendMostLikelyStart} />
             <LegendDot className="bg-primary/40" label={t.legendPossibleStart} />
           </>
@@ -565,7 +568,8 @@ function DayCell({
   openable,
   possibleStart,
   mostLikelyStart,
-  estimatedFertile,
+  ovulationWindow,
+  ovulationLikely,
   estimatedBleeding,
   filtersActive,
   filterMatches,
@@ -586,7 +590,9 @@ function DayCell({
   openable: boolean;
   possibleStart: boolean;
   mostLikelyStart: boolean;
-  estimatedFertile: boolean;
+  /** Inside an estimated ovulation window, and the window's most likely day. */
+  ovulationWindow: boolean;
+  ovulationLikely: boolean;
   estimatedBleeding: boolean;
   filtersActive: boolean;
   filterMatches: SymptomId[];
@@ -633,7 +639,8 @@ function DayCell({
     !bleeding && mostLikelyStart ? t.legendMostLikelyStart : null,
     !bleeding && !mostLikelyStart && possibleStart ? t.legendPossibleStart : null,
     !bleeding && estimatedBleeding ? t.legendEstimatedBleeding : null,
-    !bleeding && estimatedFertile ? t.legendFertileWindow : null,
+    !bleeding && ovulationLikely ? t.legendOvulationLikely : null,
+    !bleeding && ovulationWindow && !ovulationLikely ? t.legendOvulationWindow : null,
     showGenericSymptomDot ? t.legendSymptoms : null,
     note ? t.legendNote : null,
     ...filterMatches.map((id) => symptomLabel(symptomMeta(id, customSymptoms), t)),
@@ -663,8 +670,10 @@ function DayCell({
                 ? probabilityFill
                 : estimatedBleeding
                   ? "border-[3px] border-dotted border-bleed bg-bleed/10 text-bleed"
-                  : estimatedFertile
-                    ? "bg-fertile/20 text-fertile-foreground ring-1 ring-inset ring-fertile/50"
+                  : ovulationLikely
+                    ? "bg-fertile/40 text-fertile-foreground ring-2 ring-inset ring-fertile"
+                    : ovulationWindow
+                      ? "bg-fertile/20 text-fertile-foreground"
                     : isFuture
                       ? cn("text-muted-foreground/50", openable && "hover:bg-muted")
                       : "text-card-foreground hover:bg-muted"),

@@ -11,7 +11,7 @@ V1 predicts:
 1. Next period start
 2. Cycle length
 
-It does **not** predict ovulation, a fertile window for contraception, or pregnancy.
+From those it **estimates** when ovulation may fall (see below). It does **not** confirm ovulation, give safe days for unprotected sex, or detect pregnancy.
 
 ## Where the “typical length” comes from
 
@@ -31,9 +31,15 @@ A day with no log is **unknown**, not proof that the period did not happen.
 
 The Calendar home card and the forecast card on Patterns keep the original most-likely day. Once that day has passed without a logged period start, they count the days late, show how long the open cycle already is, and quote today's chance from the initial forecast. They do not move the date forward. The Patterns chart then shows that same initial calculation, with the original day highlighted. The “from today” summary is hidden in that case.
 
+## Estimated ovulation
+
+Ovulation usually comes about 12 days before the next period (12.4 ± 2.4 days on average in more than 600,000 cycles; [Bull et al. 2019](https://doi.org/10.1038/s41746-019-0152-7)). Ciclo combines that spread with the forecast for your next start. The result is a probability for each day; the calendar shows the most likely day and the shortest window holding 80% of it. The window widens when the next start is uncertain.
+
+It was checked against ovulation dated by daily LH tests in a research dataset (mcPHASES, 110 cycles): about 84% of ovulations fell inside the window, which is about 11 days long. The most likely day was about 3.4 days off on average. The old fixed window (16–10 days before the next start) held 57%. Nothing in that dataset was used to set the window: the luteal numbers are published averages.
+
 ## Phases vs the forecast
 
-The engine’s job is the **next start**. The words Follicular / Ovulation / Luteal on the home card are a separate calendar heuristic. See [Calendar phases and “estimated”](/help/calendar-phases-estimated).
+The engine’s job is the **next start**. The words Follicular / Ovulation / Luteal on the home card are a calendar heuristic built on it. See [Calendar phases and “estimated”](/help/calendar-phases-estimated).
 
 ## Turning forecasts off
 

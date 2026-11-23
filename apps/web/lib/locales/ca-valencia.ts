@@ -259,7 +259,8 @@ const locale: LocaleModule = {
     seasonGuideNotice:
       "Les estacions interiors són una metàfora educativa. No confirmen l'ovulació ni servixen com a anticonceptiu.",
     phaseFollicularBody: "L'energia sol pujar mentres el cos es prepara.",
-    phaseOvulationBody: "Finestra fèrtil estimada. No confirma l'ovulació ni servix com a anticonceptiu.",
+    phaseOvulationBody:
+      "Els dies al voltant de l'ovulació, comptats cap arrere des de la pròxima regla. No la confirma ni servix com a anticonceptiu.",
     phaseLutealBody: "Fase de baixada. Poden aparéixer símptomes premenstruals.",
     phaseCardOpen: "Mostra les teues fases",
     periodInShort: "Regla d'ací a {days} dies",
@@ -295,7 +296,7 @@ const locale: LocaleModule = {
     tipPeriodSoonBody:
       "Amb un cicle mitjà de {length} dies, la regla podria arribar d'ací a uns {days} dies. Tin a mà el que necessites i reserva't estones de descans. És una estimació.",
     tipFertileBody:
-      "Segons els teus inicis de regla, podries estar en els dies més fèrtils. El moc com de clara d'ou de vegades hi coincidix, però un calendari no confirma l'ovulació. Ciclo no és un anticonceptiu.",
+      "Segons els teus inicis de regla, l'ovulació podria caure per estos dies. Els dies fèrtils comencen uns cinc dies abans d'ovular. El moc com de clara d'ou de vegades hi coincidix, però un calendari no confirma l'ovulació. Ciclo no és un anticonceptiu.",
     tipAdviceHeadache:
       "Els mals de cap de vegades coincidixen amb canvis hormonals. Hidratar-te i menjar a hores regulars pot ajudar. Nombre de registres: {count}.",
     tipAdviceMoodSwings:
@@ -303,7 +304,7 @@ const locale: LocaleModule = {
     tipAdviceCravings:
       "Els antulls sovint augmenten abans de la regla. Els menjars amb proteïna i fibra els poden suavitzar. Nombre de registres: {count}.",
     tipAdviceHighLibido:
-      "Un desig sexual més alt de vegades coincidix amb la finestra fèrtil estimada. Nombre de registres: {count}.",
+      "Un desig sexual més alt de vegades coincidix amb els dies pròxims a l'ovulació. Nombre de registres: {count}.",
     tipRegularTitle: "Els teus cicles pareixen regulars",
   },
   marketing: {

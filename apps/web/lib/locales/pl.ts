@@ -75,7 +75,7 @@ const locale: LocaleModule = {
       "Włącza fazy Księżyca. W kalendarzu pokażesz je lub ukryjesz przyciskiem z księżycem.",
     forecastingEnabled: "Pokazuj prognozy",
     forecastingEnabledHint:
-      "Gdy to wyłączysz, kalendarz i Wzorce ukrywają przyszłe daty, szacowane fazy i okno płodne. Twoje wpisy i statystyki zakończonych cykli pozostają widoczne.",
+      "Gdy to wyłączysz, kalendarz i Wzorce ukrywają przyszłe daty, szacowane fazy i szacowaną owulację. Twoje wpisy i statystyki zakończonych cykli pozostają widoczne.",
     toggleLunarPhases: "Pokaż fazy Księżyca",
     hideLunarPhases: "Ukryj fazy Księżyca",
     moonPhaseNewMoon: "Nów",
@@ -476,7 +476,8 @@ const locale: LocaleModule = {
     periodDueUncertainty: "Niepewność: {level}",
     legendBleeding: "Krwawienie",
     legendFertile: "Płodny śluz",
-    legendFertileWindow: "Szacowane okno płodne",
+    legendOvulationWindow: "Możliwa owulacja",
+    legendOvulationLikely: "Najbardziej prawdopodobna owulacja",
     legendPossibleStart: "Możliwy początek miesiączki (≥12%)",
     legendMostLikelyStart: "Najbardziej prawdopodobny początek",
     legendEstimatedBleeding: "Szacowane krwawienie",
@@ -664,7 +665,8 @@ const locale: LocaleModule = {
       "Wewnętrzne pory roku to metafora edukacyjna. Nie potwierdzają owulacji i nie są antykoncepcją.",
     phaseMenstrualBody: "Masz miesiączkę. Postaw na odpoczynek i spokój.",
     phaseFollicularBody: "Energia zwykle rośnie, gdy ciało się przygotowuje.",
-    phaseOvulationBody: "Szacowane okno płodne. Nie potwierdza owulacji i nie jest antykoncepcją.",
+    phaseOvulationBody:
+      "Dni wokół owulacji, liczone wstecz od następnej miesiączki. Nie potwierdza owulacji i nie jest antykoncepcją.",
     phaseLutealBody: "Faza wyciszenia. Mogą pojawić się objawy PMS.",
     // Phase card (calendar) and its expanded view.
     phaseCardOpen: "Zobacz swoje fazy",
@@ -694,7 +696,7 @@ const locale: LocaleModule = {
     phaseFollicularFeel2: "Jaśniejszy umysł",
     phaseFollicularFeel3: "Więcej motywacji",
     phaseFollicularTip: "zaczynanie projektów, nauka czegoś nowego albo intensywniejsze treningi, jeśli masz ochotę.",
-    phaseOvulationSummary: "Szacowane okno płodne.",
+    phaseOvulationSummary: "Dni wokół owulacji.",
     phaseOvulationInside: "Estrogen osiąga szczyt, a wzrost LH może uwolnić komórkę jajową. Progesteron zaczyna rosnąć.",
     phaseOvulationFeel1: "Większa chęć do spotkań",
     phaseOvulationFeel2: "Więcej pewności siebie",
@@ -709,6 +711,9 @@ const locale: LocaleModule = {
     phaseLutealTip: "domykanie zadań i spokojna, szczegółowa praca. Posiłki z białkiem i błonnikiem mogą złagodzić zachcianki.",
     nextPeriodLabel: "Następna miesiączka",
     nextPeriodDetail: "{date} · {when} · szacunkowo",
+    ovulationEstimateLabel: "Szacowana owulacja",
+    ovulationEstimateDetail: "Najprawdopodobniej {date} · okno {range}",
+    ovulationWideNote: "Twoje cykle dość się różnią, więc okno jest szerokie. Test owulacyjny może je zawęzić.",
     inDays: "pozostało dni: {days}",
     inOneDay: "jutro",
     howEstimated: "Jak to jest szacowane?",
@@ -826,9 +831,9 @@ const locale: LocaleModule = {
     tipPeriodSoonTitle: "Miesiączka się zbliża",
     tipPeriodSoonBody:
       "Średnia długość cyklu (dni): {length}. Szacowana liczba dni do miesiączki: około {days}. Przygotuj potrzebne rzeczy i zaplanuj więcej odpoczynku. To szacunek.",
-    tipFertileTitle: "Szacowane okno płodne",
+    tipFertileTitle: "Szacowana owulacja",
     tipFertileBody:
-      "Na podstawie dat początku miesiączki możesz być w swoich bardziej płodnych dniach. Śluz przypominający białko jaja czasem się z tym pokrywa, ale kalendarz nie potwierdza owulacji. Ciclo nie jest antykoncepcją.",
+      "Na podstawie dat początku miesiączki owulacja może wypaść mniej więcej teraz. Dni płodne zaczynają się około pięciu dni przed owulacją. Śluz przypominający białko jaja czasem się z tym pokrywa, ale kalendarz nie potwierdza owulacji. Ciclo nie jest antykoncepcją.",
     tipTopSymptomTitle: "Twój najczęściej zapisywany objaw: {symptom}",
     tipAdviceCramps:
       "Ciepły okład, łagodny ruch i jedzenie bogate w magnez mogą złagodzić skurcze. Jeśli ból jest silny, porozmawiaj z lekarzem. Liczba wpisów: {count}.",
@@ -845,7 +850,7 @@ const locale: LocaleModule = {
     tipAdviceCravings:
       "Zachcianki często nasilają się przed miesiączką. Posiłki z białkiem i błonnikiem mogą je złagodzić. Liczba wpisów: {count}.",
     tipAdviceHighLibido:
-      "Wyższe libido czasem pokrywa się z szacowanym oknem płodnym. Liczba wpisów: {count}.",
+      "Wyższe libido czasem pokrywa się z dniami około owulacji. Liczba wpisów: {count}.",
     tipAdviceSexualActivity:
       "Zapisywanie aktywności seksualnej pomaga dostrzec wzorce w powiązaniu z cyklem. Liczba wpisów: {count}.",
     tipRegularTitle: "Twoje cykle wyglądają na regularne",

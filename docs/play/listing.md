@@ -12,7 +12,7 @@ Rules this text follows, so keep them when you edit it:
 
 Decisions still open that change this text (see the launch tracker):
 
-- **P9, estimated fertile window.** The text mentions the estimated fertile window because the calendar shows it today. If it is removed or reworded for launch, change the "What you can do" bullet in both languages.
+- **P9, estimated ovulation.** The text mentions the estimated ovulation because the calendar shows it (a window of days with the most likely day marked; it replaced the old fixed fertile window in November 2026). If it is removed or reworded for launch, change the "What you can do" bullet in both languages.
 - **P8, research pool.** The listing does not advertise the pool. If it stays, it must be declared in the Data safety form; the listing needs no change.
 - **P4, contact email.** Play asks for a public developer email in the store settings (not in this text). Use the mailbox chosen for P4, and set `PRIVACY_EMAIL` in `apps/web/lib/marketing/copy.ts`.
 - **P11, countries** and **P12, age range.** Set in Play Console, not here. If the US is included, Washington's My Health My Data Act asks for a separate consumer health data policy linked from the home page.
@@ -45,7 +45,7 @@ Ciclo es un diario del periodo con pronósticos del ciclo, hecho por el proyecto
 QUÉ PUEDES HACER
 • Apuntar los días de regla y el sangrado, el moco cervical, síntomas, estados de ánimo, actividad sexual, tests de embarazo y de ovulación, tomas de la píldora y notas breves.
 • Ver cuándo puede llegar tu próximo periodo, siempre con su margen de incertidumbre, nunca con una fecha falsamente exacta.
-• Ver en el calendario las fases estimadas del ciclo y la ventana fértil estimada. Puedes ocultar todos los pronósticos en Ajustes.
+• Ver en el calendario las fases estimadas del ciclo y los días en que puede caer la ovulación (una estimación). Puedes ocultar todos los pronósticos en Ajustes.
 • Ver la duración media de tus ciclos, cómo cambia con el tiempo y tus síntomas más frecuentes.
 • Leer más de 100 artículos de salud con fuentes citadas sobre el ciclo, los síntomas y cuándo pedir ayuda.
 • Exportar tu diario en JSON o CSV cuando quieras.
@@ -60,7 +60,7 @@ PRIVACIDAD DE VERDAD
 • El código y el modelo de pronóstico son abiertos (licencia Apache 2.0).
 
 IMPORTANTE
-Ciclo no es un dispositivo médico. No diagnostica, no trata y no previene ninguna enfermedad. No es un método anticonceptivo: no lo uses para evitar un embarazo. Tampoco es un test de ovulación ni de embarazo. Los pronósticos, las fases y la ventana fértil son estimaciones y pueden fallar. Ante cualquier duda sobre tu salud, consulta a un profesional sanitario.
+Ciclo no es un dispositivo médico. No diagnostica, no trata y no previene ninguna enfermedad. No es un método anticonceptivo: no lo uses para evitar un embarazo. Tampoco es un test de ovulación ni de embarazo. Los pronósticos, las fases y la ovulación estimada son estimaciones y pueden fallar. Ante cualquier duda sobre tu salud, consulta a un profesional sanitario.
 
 Política de privacidad: https://www.openciclo.com/privacy?lang=es
 Borrar tu cuenta: https://www.openciclo.com/delete-account?lang=es
@@ -88,7 +88,7 @@ Ciclo is a period diary with cycle forecasts, made by the open-source OpenCiclo 
 WHAT YOU CAN DO
 • Log period days and flow, cervical mucus, symptoms, moods, sexual activity, pregnancy and ovulation tests, pill intake and short notes.
 • See when your next period may come, always with its range of uncertainty, never a falsely exact date.
-• See estimated cycle phases and the estimated fertile window on the calendar. You can hide all forecasts in Settings.
+• See estimated cycle phases and the days ovulation may fall on (an estimate) on the calendar. You can hide all forecasts in Settings.
 • See your average cycle length, how it changes over time, and your most logged symptoms.
 • Read more than 100 health articles with cited sources about the cycle, symptoms, and when to seek care.
 • Export your diary as JSON or CSV whenever you like.
@@ -103,7 +103,7 @@ REAL PRIVACY
 • The code and the forecast model are open source (Apache 2.0 license).
 
 IMPORTANT
-Ciclo is not a medical device. It does not diagnose, treat or prevent any condition. It is not a contraceptive method: do not use it to avoid pregnancy. It is not an ovulation or pregnancy test either. Forecasts, phases and the fertile window are estimates and can be wrong. For any question about your health, consult a doctor or another health professional.
+Ciclo is not a medical device. It does not diagnose, treat or prevent any condition. It is not a contraceptive method: do not use it to avoid pregnancy. It is not an ovulation or pregnancy test either. Forecasts, phases and the estimated ovulation are estimates and can be wrong. For any question about your health, consult a doctor or another health professional.
 
 Privacy policy: https://www.openciclo.com/privacy?lang=en
 Delete your account: https://www.openciclo.com/delete-account?lang=en

@@ -17,7 +17,7 @@ V1 predicts only:
 1. Next period start
 2. Cycle length
 
-It does **not** predict ovulation, fertile windows, pregnancy, or contraception. Do not use Ciclo as birth control or as medical advice.
+From the calendar alone it estimates when ovulation may fall (a window of days, never a confirmation). It does **not** confirm ovulation, give safe days, detect pregnancy, or work as contraception. Do not use Ciclo as birth control or as medical advice.
 
 ## Studies
 

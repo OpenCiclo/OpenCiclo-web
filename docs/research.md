@@ -53,7 +53,7 @@ Chen, J. Y., Kalani, K., Truong, K., & Mariakakis, A. (2025). mcPHASES [dataset]
 ## Other modeling directions (not implemented)
 
 - State-space / random-walk cycle lengths in athletes (e.g. work in *Scientific Reports*, 2021) — relevant to regime change.
-- BBT state-space models for *within-cycle* phase (Fukaya / Kawamori line of work) — relevant to ovulation, which is **out of V1 scope**.
+- BBT state-space models for *within-cycle* phase (Fukaya / Kawamori line of work) — relevant to ovulation. V1 estimates ovulation from the calendar only (docs/modeling.md, "Estimated ovulation"); BBT and LH signals are later work.
 
 ## Evaluation methodology we commit to
 

@@ -33,7 +33,7 @@ export const FERTILITY_ARTICLES: LearnArticle[] = [
         },
         {
           heading: "Por qué cualquier estimación es solo orientativa",
-          body: "Una app solo puede estimar la ventana fértil. No puede ver lo que hace tu cuerpo este mes. Ciclo muestra una ventana fértil estimada, pero no puede confirmar que hayas ovulado y no es un método anticonceptivo. Incluso los métodos basados en el conocimiento de la fertilidad, que registran varias señales del cuerpo cada día y se aprenden con una persona formada para enseñarlos, solo tienen una eficacia de alrededor del 76% con un uso típico. Eso significa que unas 24 de cada 100 personas que los usan se quedan embarazadas en un año.",
+          body: "Una app solo puede estimar la ventana fértil. No puede ver lo que hace tu cuerpo este mes. Ciclo estima los días en que puede caer la ovulación (la ventana fértil empieza unos días antes), pero no puede confirmar que hayas ovulado y no es un método anticonceptivo. Incluso los métodos basados en el conocimiento de la fertilidad, que registran varias señales del cuerpo cada día y se aprenden con una persona formada para enseñarlos, solo tienen una eficacia de alrededor del 76% con un uso típico. Eso significa que unas 24 de cada 100 personas que los usan se quedan embarazadas en un año.",
         },
         {
           heading: "Buscar o evitar un embarazo",
@@ -60,7 +60,7 @@ export const FERTILITY_ARTICLES: LearnArticle[] = [
         },
         {
           heading: "Why any estimate is only a guide",
-          body: "An app can only estimate a fertile window. It cannot see what your body is doing this month. Ciclo shows an estimated fertile window, but it cannot confirm that you have ovulated and it is not a form of contraception. Even fertility awareness methods, which track several body signs every day and are learned from a trained teacher, are only about 76% effective with typical use. That means about 24 in 100 people using them get pregnant in a year.",
+          body: "An app can only estimate a fertile window. It cannot see what your body is doing this month. Ciclo estimates the days ovulation may fall on (the fertile window starts a few days before), but it cannot confirm that you have ovulated and it is not a form of contraception. Even fertility awareness methods, which track several body signs every day and are learned from a trained teacher, are only about 76% effective with typical use. That means about 24 in 100 people using them get pregnant in a year.",
         },
         {
           heading: "Planning or avoiding pregnancy",

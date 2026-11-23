@@ -75,7 +75,7 @@ const locale: LocaleModule = {
       "Active les phases de la lune. Dans le calendrier, tu pourras les afficher ou les masquer avec le bouton lune.",
     forecastingEnabled: "Afficher les prévisions",
     forecastingEnabledHint:
-      "Si tu désactives cette option, le calendrier et Tendances n’affichent plus les dates futures, les phases estimées ni la fenêtre de fertilité. Tes saisies et les statistiques des cycles terminés restent visibles.",
+      "Si tu désactives cette option, le calendrier et Tendances n’affichent plus les dates futures, les phases estimées ni l’ovulation estimée. Tes saisies et les statistiques des cycles terminés restent visibles.",
     toggleLunarPhases: "Afficher les phases de la lune",
     hideLunarPhases: "Masquer les phases de la lune",
     moonPhaseNewMoon: "Nouvelle lune",
@@ -481,7 +481,8 @@ const locale: LocaleModule = {
     periodDueUncertainty: "Incertitude {level}",
     legendBleeding: "Saignement",
     legendFertile: "Glaire fertile",
-    legendFertileWindow: "Fenêtre de fertilité estimée",
+    legendOvulationWindow: "Ovulation possible",
+    legendOvulationLikely: "Ovulation la plus probable",
     legendPossibleStart: "Début possible des règles (≥ 12 %)",
     legendMostLikelyStart: "Début le plus probable",
     legendEstimatedBleeding: "Saignement estimé",
@@ -669,7 +670,8 @@ const locale: LocaleModule = {
       "Les saisons intérieures sont une métaphore éducative. Elles ne confirment pas l’ovulation et ne servent pas de contraception.",
     phaseMenstrualBody: "Tes règles sont là. Privilégie le repos et le calme.",
     phaseFollicularBody: "L’énergie remonte souvent pendant que ton corps se prépare.",
-    phaseOvulationBody: "Fenêtre de fertilité estimée. Cela ne confirme pas l’ovulation et ne sert pas de contraception.",
+    phaseOvulationBody:
+      "Les jours autour de l’ovulation, comptés à rebours depuis tes prochaines règles. Cela ne confirme pas l’ovulation et ne sert pas de contraception.",
     phaseLutealBody: "Phase de ralentissement. Des symptômes prémenstruels peuvent apparaître.",
     // Phase card (calendar) and its expanded view.
     phaseCardOpen: "Voir tes phases",
@@ -702,7 +704,7 @@ const locale: LocaleModule = {
     phaseFollicularFeel3: "Plus de motivation",
     phaseFollicularTip:
       "lancer des projets, apprendre quelque chose de nouveau ou essayer des entraînements plus intenses, si tu en as envie.",
-    phaseOvulationSummary: "Fenêtre de fertilité estimée.",
+    phaseOvulationSummary: "Les jours autour de l’ovulation.",
     phaseOvulationInside:
       "Les œstrogènes atteignent leur pic et une hausse de LH peut libérer un ovule. La progestérone commence à augmenter.",
     phaseOvulationFeel1: "Plus envie de voir du monde",
@@ -722,6 +724,9 @@ const locale: LocaleModule = {
       "terminer des tâches et faire un travail calme et minutieux. Des repas riches en protéines et en fibres peuvent atténuer les fringales.",
     nextPeriodLabel: "Prochaines règles",
     nextPeriodDetail: "{date} · {when} · estimation",
+    ovulationEstimateLabel: "Ovulation estimée",
+    ovulationEstimateDetail: "Le plus probable : le {date} · fenêtre {range}",
+    ovulationWideNote: "Tes cycles varient pas mal, donc la fenêtre est large. Un test d’ovulation peut la resserrer.",
     inDays: "dans {days} jours",
     inOneDay: "demain",
     howEstimated: "Comment est-ce estimé ?",
@@ -840,9 +845,9 @@ const locale: LocaleModule = {
     tipPeriodSoonTitle: "Tes règles approchent",
     tipPeriodSoonBody:
       "Avec un cycle moyen de {length} jours, tes règles pourraient arriver dans {days} jours environ. Garde le nécessaire à portée de main et prévois du repos. C’est une estimation.",
-    tipFertileTitle: "Fenêtre de fertilité estimée",
+    tipFertileTitle: "Ovulation estimée",
     tipFertileBody:
-      "D’après tes débuts de règles, tu es peut-être dans tes jours les plus fertiles. Une glaire de type blanc d’œuf coïncide parfois avec cette période, mais un calendrier ne peut pas confirmer l’ovulation. Ciclo n’est pas une méthode contraceptive.",
+      "D’après tes débuts de règles, l’ovulation pourrait tomber vers maintenant. Les jours fertiles commencent environ cinq jours avant l’ovulation. Une glaire de type blanc d’œuf coïncide parfois avec cette période, mais un calendrier ne peut pas confirmer l’ovulation. Ciclo n’est pas une méthode contraceptive.",
     tipTopSymptomTitle: "Ton symptôme le plus noté : {symptom}",
     tipAdviceCramps:
       "De la chaleur sur le ventre, des mouvements doux et des aliments riches en magnésium peuvent soulager les crampes. Si la douleur est intense, demande un avis médical. Tu as noté ce symptôme {count} fois.",
@@ -859,7 +864,7 @@ const locale: LocaleModule = {
     tipAdviceCravings:
       "Les fringales augmentent souvent avant les règles. Des repas riches en protéines et en fibres peuvent les atténuer. Tu as noté ce symptôme {count} fois.",
     tipAdviceHighLibido:
-      "Une libido plus élevée coïncide parfois avec la fenêtre de fertilité estimée. Tu as noté ce symptôme {count} fois.",
+      "Une libido plus élevée coïncide parfois avec les jours autour de l’ovulation. Tu as noté ce symptôme {count} fois.",
     tipAdviceSexualActivity:
       "Noter ton activité sexuelle aide à voir des tendances au fil de ton cycle. Tu l’as noté {count} fois.",
     tipRegularTitle: "Tes cycles semblent réguliers",

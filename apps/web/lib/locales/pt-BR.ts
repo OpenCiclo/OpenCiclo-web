@@ -75,7 +75,7 @@ const locale: LocaleModule = {
       "Ativa as fases da lua. No calendário, você pode mostrá-las ou ocultá-las com o botão da lua.",
     forecastingEnabled: "Mostrar previsões",
     forecastingEnabledHint:
-      "Quando desativado, o calendário e Padrões deixam de mostrar datas futuras, fases estimadas e a janela fértil. Seus registros e as estatísticas dos ciclos já completos continuam visíveis.",
+      "Quando desativado, o calendário e Padrões deixam de mostrar datas futuras, fases estimadas e a ovulação estimada. Seus registros e as estatísticas dos ciclos já completos continuam visíveis.",
     toggleLunarPhases: "Mostrar fases da lua",
     hideLunarPhases: "Ocultar fases da lua",
     moonPhaseNewMoon: "Lua nova",
@@ -477,7 +477,8 @@ const locale: LocaleModule = {
     periodDueUncertainty: "Incerteza {level}",
     legendBleeding: "Sangramento",
     legendFertile: "Muco fértil",
-    legendFertileWindow: "Janela fértil estimada",
+    legendOvulationWindow: "Ovulação possível",
+    legendOvulationLikely: "Ovulação mais provável",
     legendPossibleStart: "Possível início da menstruação (≥12%)",
     legendMostLikelyStart: "Início mais provável",
     legendEstimatedBleeding: "Sangramento estimado",
@@ -665,7 +666,8 @@ const locale: LocaleModule = {
       "As estações interiores são uma metáfora educativa. Não confirmam a ovulação nem servem como método anticoncepcional.",
     phaseMenstrualBody: "Sua menstruação chegou. Priorize descanso e calma.",
     phaseFollicularBody: "A energia costuma subir enquanto o corpo se prepara.",
-    phaseOvulationBody: "Janela fértil estimada. Não confirma a ovulação nem serve como método anticoncepcional.",
+    phaseOvulationBody:
+      "Os dias em torno da ovulação, contados para trás a partir da próxima menstruação. Não confirma a ovulação nem serve como método anticoncepcional.",
     phaseLutealBody: "Fase de desaceleração. Podem aparecer sintomas de TPM.",
     // Phase card (calendar) and its expanded view.
     phaseCardOpen: "Ver suas fases",
@@ -695,7 +697,7 @@ const locale: LocaleModule = {
     phaseFollicularFeel2: "Mente mais clara",
     phaseFollicularFeel3: "Mais motivação",
     phaseFollicularTip: "começar projetos, aprender algo novo ou experimentar treinos mais intensos, se tiver vontade.",
-    phaseOvulationSummary: "Janela fértil estimada.",
+    phaseOvulationSummary: "Os dias em torno da ovulação.",
     phaseOvulationInside: "O estrogênio chega ao pico, e uma subida do LH pode liberar um óvulo. A progesterona começa a subir.",
     phaseOvulationFeel1: "Mais vontade de socializar",
     phaseOvulationFeel2: "Mais confiança",
@@ -710,6 +712,9 @@ const locale: LocaleModule = {
     phaseLutealTip: "concluir tarefas e trabalho tranquilo, de detalhe. Refeições com proteína e fibra podem suavizar os desejos por comida.",
     nextPeriodLabel: "Próxima menstruação",
     nextPeriodDetail: "{date} · {when} · estimada",
+    ovulationEstimateLabel: "Ovulação estimada",
+    ovulationEstimateDetail: "Mais provável em {date} · janela {range}",
+    ovulationWideNote: "Seus ciclos variam bastante, então a janela é ampla. Um teste de ovulação pode estreitá-la.",
     inDays: "em {days} dias",
     inOneDay: "amanhã",
     howEstimated: "Como é estimado?",
@@ -827,9 +832,9 @@ const locale: LocaleModule = {
     tipPeriodSoonTitle: "Sua menstruação está chegando",
     tipPeriodSoonBody:
       "Com um ciclo médio de {length} dias, sua menstruação pode chegar em cerca de {days} dias. Tenha à mão o que precisar e reserve um tempo para descansar. É uma estimativa.",
-    tipFertileTitle: "Janela fértil estimada",
+    tipFertileTitle: "Ovulação estimada",
     tipFertileBody:
-      "Pelos inícios da sua menstruação, você pode estar nos dias mais férteis. O muco tipo clara de ovo às vezes coincide, mas um calendário não confirma a ovulação. O Ciclo não é um método anticoncepcional.",
+      "Pelos inícios da sua menstruação, a ovulação pode cair por estes dias. Os dias férteis começam cerca de cinco dias antes da ovulação. O muco tipo clara de ovo às vezes coincide, mas um calendário não confirma a ovulação. O Ciclo não é um método anticoncepcional.",
     tipTopSymptomTitle: "{symptom} é o seu sintoma mais registrado",
     tipAdviceCramps:
       "Calor local, movimento leve e alimentos ricos em magnésio podem aliviar as cólicas. Se a dor for intensa, procure atendimento médico. Total de registros: {count}.",
@@ -846,7 +851,7 @@ const locale: LocaleModule = {
     tipAdviceCravings:
       "Os desejos por comida costumam aumentar antes da menstruação. Refeições com proteína e fibra podem suavizá-los. Total de registros: {count}.",
     tipAdviceHighLibido:
-      "Uma libido mais alta às vezes coincide com a janela fértil estimada. Total de registros: {count}.",
+      "Uma libido mais alta às vezes coincide com os dias perto da ovulação. Total de registros: {count}.",
     tipAdviceSexualActivity:
       "Registrar a atividade sexual ajuda a ver padrões junto com o seu ciclo. Total de registros: {count}.",
     tipRegularTitle: "Seus ciclos parecem regulares",
