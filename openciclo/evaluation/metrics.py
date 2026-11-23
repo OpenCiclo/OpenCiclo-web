@@ -59,6 +59,41 @@ def summarize_metrics(rows: pd.DataFrame) -> pd.DataFrame:
     return pd.concat(pieces, ignore_index=True)
 
 
+# Completed cycles a forecast could see, grouped. Forecasts with little history lean on the
+# population prior; with long history they are personal. Reports show both ends.
+HISTORY_BUCKETS: tuple[tuple[str, int, int | None], ...] = (
+    ("0", 0, 0),
+    ("1-2", 1, 2),
+    ("3-5", 3, 5),
+    ("6-11", 6, 11),
+    ("12+", 12, None),
+)
+
+
+def history_bucket(n_lengths_visible: int) -> str:
+    for label, low, high in HISTORY_BUCKETS:
+        if n_lengths_visible >= low and (high is None or n_lengths_visible <= high):
+            return label
+    raise ValueError(f"n_lengths_visible must be >= 0, got {n_lengths_visible}")
+
+
+def summarize_by_history(rows: pd.DataFrame) -> pd.DataFrame:
+    """The `summarize_metrics` columns per model and history bucket (`subgroup` = bucket)."""
+
+    if rows.empty or "n_lengths_visible" not in rows.columns:
+        return pd.DataFrame()
+    order = {label: index for index, (label, _low, _high) in enumerate(HISTORY_BUCKETS)}
+    # A fresh index: rows concatenated from several runs can repeat index labels.
+    tagged = rows.reset_index(drop=True)
+    tagged["history_bucket"] = tagged["n_lengths_visible"].astype(int).map(history_bucket)
+    pieces: list[pd.DataFrame] = []
+    for model_id, model_group in tagged.groupby("model_id", sort=True):
+        for label in sorted(model_group["history_bucket"].unique(), key=order.__getitem__):
+            group = model_group[model_group["history_bucket"] == label]
+            pieces.append(_summary_row(group, str(model_id), f"history {label}"))
+    return pd.concat(pieces, ignore_index=True)
+
+
 def _summary_row(group: pd.DataFrame, model_id: str, subgroup: str) -> pd.DataFrame:
     errors = group["abs_error"].to_numpy(dtype=float)
     return pd.DataFrame(

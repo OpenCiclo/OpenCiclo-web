@@ -12,7 +12,7 @@ The server assigns an opaque `pool_id`. It does **not** store a map from your ac
 
 ## What it is for
 
-OpenCiclo’s forecast is an open-source model. Aggregate timing from people who opt in can, later, inform that model. Today the **released** prior still comes from the published mcPHASES study, not from this pool. Training on the pool is explicitly out of scope until that is designed and documented.
+OpenCiclo’s forecast is an open-source model. Aggregate timing from people who opt in can, later, inform that model. Today the **released** prior comes from published literature (large studies of real cycles), not from this pool. Training on the pool is explicitly out of scope until that is designed and documented.
 
 ## What you give up
 

@@ -3,11 +3,11 @@
 
 from openciclo.models.baselines import get_forecaster
 from openciclo.models.shrinkage import mixed_scale
-from openciclo.schemas.config import ForecastConfig, literature_placeholder_prior
+from openciclo.schemas.config import ForecastConfig, literature_prior
 
 
 def test_shrinkage_moves_toward_prior() -> None:
-    prior = literature_placeholder_prior()
+    prior = literature_prior()
     config = ForecastConfig(shrinkage_k=2.0)
     personal = [22.0, 22.0]
     result = get_forecaster("shrinkage").estimate(personal, prior, config)
@@ -17,7 +17,7 @@ def test_shrinkage_moves_toward_prior() -> None:
 
 
 def test_shrinkage_weight_grows_with_n() -> None:
-    prior = literature_placeholder_prior()
+    prior = literature_prior()
     config = ForecastConfig(shrinkage_k=2.0)
     short = get_forecaster("v0.shrinkage.median").estimate([22.0], prior, config)
     long = get_forecaster("shrinkage").estimate([22.0] * 8, prior, config)
@@ -26,7 +26,7 @@ def test_shrinkage_weight_grows_with_n() -> None:
 
 
 def test_shrinkage_mean_and_last() -> None:
-    prior = literature_placeholder_prior()
+    prior = literature_prior()
     config = ForecastConfig(shrinkage_k=1.0)
     mean_point = get_forecaster("shrinkage_mean").estimate([20.0, 24.0], prior, config).point
     # n=2, k=1 → 2/3 * 22 + 1/3 * 29
@@ -37,6 +37,6 @@ def test_shrinkage_mean_and_last() -> None:
 
 
 def test_mixed_scale_floors() -> None:
-    prior = literature_placeholder_prior()
+    prior = literature_prior()
     scale = mixed_scale([28.0, 28.0, 28.0], 28.0, prior, shrinkage_k=2.0, min_scale=0.75)
     assert scale >= 0.75

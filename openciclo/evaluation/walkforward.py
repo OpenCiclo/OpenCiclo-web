@@ -11,7 +11,7 @@ from openciclo.data.cycles import cycle_lengths
 from openciclo.evaluation.metrics import brier_within_k, interval_stats, nll
 from openciclo.forecasting.distribution import probability_within_window
 from openciclo.forecasting.engine import predict
-from openciclo.schemas.config import ForecastConfig, PopulationPrior, literature_placeholder_prior
+from openciclo.schemas.config import ForecastConfig, PopulationPrior, literature_prior
 
 
 class WalkForwardSubject(Protocol):
@@ -111,7 +111,7 @@ def walk_forward_cohort(
     config: ForecastConfig | None = None,
 ) -> pd.DataFrame:
     cfg = config or ForecastConfig()
-    fitted_prior = prior or literature_placeholder_prior()
+    fitted_prior = prior or literature_prior()
     records: list[dict[str, object]] = []
     for user in users:
         if len(user.period_starts) < 2:

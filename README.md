@@ -21,13 +21,14 @@ It does **not** predict ovulation, fertile windows, pregnancy, or contraception.
 
 ## Studies
 
-The published prior is **mcPHASES only**. Utah/Creighton is an external check and is **not** mixed into `openciclo/artifacts/released_model.json`.
+The released prior comes from **published literature**: a typical length of 29 days (MAD 3). No local dataset's rows enter `openciclo/artifacts/released_model.json`. mcPHASES chooses the hyperparameters; mcPHASES and Utah/Creighton validate the release.
 
-
-| Study                        | Role                                                                                           | Link                                                                                           |
-| ---------------------------- | ---------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
-| mcPHASES 1.0.0 (Canada)      | Source of the released aggregate prior; model selection (LOO MAE **3.50** days, n=130)         | [https://physionet.org/content/mcphases/1.0.0/](https://physionet.org/content/mcphases/1.0.0/) |
-| Utah / Creighton (1990–2013) | External walk-forward check (LOO MAE **~3.02** days, n=2557). Not used to overwrite the prior. | [https://doi.org/10.7278/S50d-4gxs-s4hj](https://doi.org/10.7278/S50d-4gxs-s4hj)               |
+| Study | Role | Link |
+| --- | --- | --- |
+| Bull et al. 2019 (612,613 cycles) | Published means behind the prior | [https://doi.org/10.1038/s41746-019-0152-7](https://doi.org/10.1038/s41746-019-0152-7) |
+| Li et al. 2023, Apple Women's Health Study (165,668 cycles) | Published means behind the prior | [https://doi.org/10.1038/s41746-023-00848-1](https://doi.org/10.1038/s41746-023-00848-1) |
+| mcPHASES 1.0.0 (Canada) | Hyperparameter selection and validation (MAE **3.51** days, n=130) | [https://physionet.org/content/mcphases/1.0.0/](https://physionet.org/content/mcphases/1.0.0/) |
+| Utah / Creighton (1990–2013) | Validation of the release as shipped (MAE **3.04** days, n=2557) | [https://doi.org/10.7278/S50d-4gxs-s4hj](https://doi.org/10.7278/S50d-4gxs-s4hj) |
 
 
 These numbers describe those cohorts. They are not worldwide product accuracy.
@@ -46,21 +47,22 @@ OpenCiclo does not return a single “certain” date. Internally it produces a 
 - probability within N days
 - an uncertainty label (low / medium / high)
 
-The current engine (**V0.2**) uses interpretable statistical models: V0 baselines plus a shrinkage estimator toward a published population prior. The default `predict()` configuration is the winner of a local mcPHASES timing evaluation, stored as aggregate parameters in `openciclo/artifacts/released_model.json`. The web app ports that same path to TypeScript and checks it against Python parity fixtures.
+The current engine (**0.3**) uses interpretable statistical models: V0 baselines plus a shrinkage estimator toward a population prior taken from published literature. The default `predict()` configuration is the winner of a local mcPHASES timing evaluation with that prior fixed, stored as aggregate parameters in `openciclo/artifacts/released_model.json`. The web app ports that same path to TypeScript and checks it against Python parity fixtures.
 
 Optional symptoms, temperature, and lab-style signals are stored in the data model but **are not used** in this release.
 
 ## Status
 
-- Python forecasting library: V0.2.1 timing models
-- Walk-forward selection on **mcPHASES** (restricted, local): source of truth for the released prior
-- Utah/Creighton: external check only
+- Python forecasting library: 0.3.0 timing models
+- Population prior: published literature (Bull et al. 2019; Li et al. 2023)
+- Walk-forward hyperparameter selection on **mcPHASES** (restricted, local)
+- Utah/Creighton: validation only
 - Synthetic benchmarks: CI only, **not** used to choose `model_id`
 - Web app: `apps/web` (Next.js). Hosted path: Vercel + Neon. Local path: Next.js or Docker.
 - Android app: `apps/mobile` (Capacitor shell around the web app). In development, not on Google Play yet.
 - Public research datasets: documented, not redistributed
 
-Installers get the published aggregate prior. They do **not** need the mcPHASES or Utah CSVs to forecast.
+Installers get the published prior. They do **not** need the mcPHASES or Utah CSVs to forecast.
 
 ## Install
 
@@ -110,7 +112,7 @@ python scripts/generate_forecast_parity.py
 
 ## Benchmarks
 
-Model selection (requires a local DUA copy of mcPHASES):
+Hyperparameter selection and the release file (requires a local DUA copy of mcPHASES):
 
 ```bash
 python -m openciclo.evaluation.mcphases --fit-release
@@ -136,7 +138,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md). Pull requests that change forecasting be
 | [ARCHITECTURE.md](ARCHITECTURE.md)           | System layers, wallet, ciphertext, research pool                  |
 | [PRIVACY.md](PRIVACY.md)                     | User-facing privacy explanation                                   |
 | [DATASETS.md](DATASETS.md)                   | Dataset provenance and licenses                                   |
-| [MODEL_CARD.md](MODEL_CARD.md)               | Released timing model (mcPHASES prior; Utah external)             |
+| [MODEL_CARD.md](MODEL_CARD.md)               | Released timing model (literature prior; mcPHASES, Utah validate) |
 | [docs/research.md](docs/research.md)         | Literature notes and citations                                    |
 | [docs/modeling.md](docs/modeling.md)         | Modeling assumptions                                              |
 | [docs/evaluation.md](docs/evaluation.md)     | Walk-forward protocol and metrics                                 |
@@ -162,7 +164,7 @@ The license does not cover the names OpenCiclo and Ciclo or the round-sea logo. 
 ## Limitations
 
 - V0 baselines are not personalized hierarchical models.
-- Default `predict()` loads aggregate parameters from `openciclo/artifacts/released_model.json` (mcPHASES-fitted prior; no microdata; no Utah mix-in).
-- Evaluation in this repo’s CI uses simulated cycles. Model **selection** uses local mcPHASES when the DUA file is present.
+- Default `predict()` loads aggregate parameters from `openciclo/artifacts/released_model.json` (literature prior; no microdata; one typical length for every age).
+- Evaluation in this repo’s CI uses simulated cycles. Hyperparameter **selection** uses local mcPHASES when the DUA file is present.
 - Forecasts are estimates with uncertainty. They are not diagnoses and not contraception.
 

@@ -218,7 +218,7 @@ const locale: LocaleModule = {
       "Altuerak hilekoa egun horretan hasteko probabilitatea adierazten du. Nabarmendutako barra data probableena da.",
     forecastChartHintInitial:
       "Barra hauek hasierako kalkulua dira. Nabarmendutako barra probabilitate handiena zuen eguna da.",
-    priorNote: "Historia gutxi dagoenean, aurreikuspena populazioaren a priori banaketara hurbiltzen da (mcPHASES, Kanada).",
+    priorNote: "Historia gutxi dagoenean, aurreikuspena argitaratutako ikerketa handietako iraupen tipiko batera hurbiltzen da.",
     exportJson: "Esportatu JSON",
     exportCsv: "Esportatu CSV",
     importData: "Inportatu kopia",
@@ -653,7 +653,7 @@ const locale: LocaleModule = {
     forecastInfoOpen: "Nola kalkulatzen den aurreikuspena",
     forecastInfoTitle: "Nola kalkulatzen den aurreikuspena",
     forecastInfoPrior:
-      "Ziklo oso gutxi edo bat ere ez dagoenean, Ciclok ziklo errealei buruzko ikerketa publiko bateko iraupen tipikoa erabiltzen du: Kanadako 42 pertsona (mcPHASES). Ez da munduko emakume guztien batez bestekoa.",
+      "Ziklo oso gutxi edo bat ere ez dagoenean, Ciclo 29 eguneko iraupen tipiko batetik abiatzen da, ziklo errealei buruzko argitaratutako ikerketa handietatik hartua (750.000 ziklo baino gehiago, batez ere Europakoak eta Estatu Batuetakoak). Ez da munduko emakume guztien batez bestekoa.",
     forecastInfoPersonal:
       "Erregistratzen duzun ziklo oso bakoitzak pisu handiagoa du. Gutxi badira, ikerketak pisu handia du oraindik. Hainbat badira, zure ohiko iraupenak gehiago agintzen du. Sintomak ez dira kalkulu horretan sartzen.",
     forecastInfoMore: "Gehiago jakin",
@@ -957,7 +957,7 @@ const locale: LocaleModule = {
     science: {
       eyebrow: "Eredua",
       title: "Aurreikuspen zintzoa.",
-      body: "OpenCiclok uzkurdura-eredu estatistiko bat (shrinkage) erabiltzen du, zure historia populazioaren a priori banaketa batekin (mcPHASES) nahasten duena. Beti erakusten du ziurgabetasun-tarte bat, faltsuki zehatza den data baten ordez. Ez dago ikaskuntza sakonik, ezta kutxa beltzik ere: eredua irekia eta dokumentatua da.",
+      body: "OpenCiclok uzkurdura-eredu estatistiko bat (shrinkage) erabiltzen du, zure historia argitaratutako ikerketa handietako iraupen tipiko batekin nahasten duena. Beti erakusten du ziurgabetasun-tarte bat, faltsuki zehatza den data baten ordez. Ez dago ikaskuntza sakonik, ezta kutxa beltzik ere: eredua irekia eta dokumentatua da.",
       docsLink: "Irakurri dokumentazioa",
       modelLink: "Ikusi eredua GitHuben",
     },

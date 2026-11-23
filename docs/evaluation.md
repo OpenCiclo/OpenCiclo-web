@@ -6,7 +6,7 @@ Apache License 2.0
 
 We score forecasts the way a real user would live them: only dates that already happened may be used to predict the next start. Randomly shuffling a person’s cycles into train/test leaks the future and makes the model look better than it is.
 
-Walk-forward on **mcPHASES** chooses the released prior. CI uses **synthetic** cycles and must not pick `model_id`. Utah/Creighton is an external check only.
+The released prior comes from published literature (docs/modeling.md). Walk-forward on **mcPHASES** chooses the hyperparameters with that prior fixed; mcPHASES and Utah/Creighton both validate the release. CI uses **synthetic** cycles and must not pick `model_id`.
 
 ## Forbidden split
 
@@ -77,27 +77,32 @@ Tests must assert:
 - walk-forward history never contains the target start
 - population prior fitted on train does not include held-out users’ lengths
 
-## mcPHASES protocol (model selection)
+## mcPHASES protocol (hyperparameter selection)
 
 Restricted CSV stays on disk (`training/dataset-do-not-commit/` or `$OPENCICLO_MCPHASES_CSV`). Git never receives microdata.
 
-**Default protocol is leave-one-person-out.** For each person, fit the prior on everyone else, then walk-forward on that person's series. This uses all 130 next-start forecasts without leaking the scored person into the prior.
-
-Holdout (30% of people) remains available for confirmation and is noisier (`n ≈ 40` per split).
+**Default: `--prior literature`.** Every person is scored with the published literature prior, the same for everyone, so nothing about the scored person enters the prior and no person needs to be held out. This uses all 130 next-start forecasts.
 
 1. Extract period starts as the first day of each `phase == Menstrual` run, grouped by `(id, study_interval)`. Do not concatenate a person’s 2022 and 2024 intervals.
-2. Split **people** (not cycles, not intervals).
-3. Fit the population prior on **train people only**. Default location: median of per-person medians.
-4. Walk-forward with V0 baselines and shrinkage variants (`k` grid, mean/last/recency, optional last-cycle blend and clipping).
-5. Choose the winner (MAE primary; require ≥0.05 days vs personal median; do not tank 80% coverage; prefer no extra knobs when MAE is within 0.05 of the best). Refit aggregate parameters on **all** people and write `openciclo/artifacts/released_model.json`.
+2. Walk-forward with V0 baselines and shrinkage variants (`k` grid, mean/last/recency, optional last-cycle blend and clipping), plus the evaluation references (`v0.reference.*`, never selected).
+3. Choose the winner (MAE primary; require ≥0.05 days vs personal median; do not tank 80% coverage; prefer no extra knobs when MAE is within 0.05 of the best).
+4. With `--fit-release`, write `openciclo/artifacts/released_model.json`: the literature prior plus the winner's settings and aggregate selection metrics. It refuses `--prior fitted` and the log-normal and empirical families (their shape would be fitted on the data).
 
 ```bash
 python -m openciclo.evaluation.mcphases --fit-release
 ```
 
-Local reports under `benchmarks/results/mcphases_*` may contain study ids and are gitignored. The model card may quote **aggregate** MAE, coverage, and n only.
+**Research: `--prior fitted`.** Refit the prior on mcPHASES people: `--protocol loo` (default; for each person, fit on everyone else) or `--protocol holdout` (30% of people, noisier, `n ≈ 40` per split). Never released.
 
-## Creighton / Utah protocol (external check)
+Reports (`benchmarks/results/mcphases_literature_*`, `mcphases_loo_*`, `mcphases_*`) carry an overall table and a **by-history** table (`*_history.csv`, and in the markdown report): the same metrics by how many completed cycles each forecast saw (0, 1–2, 3–5, 6–11, 12+). Report both ends: forecasts with little history lean on the prior, long ones are personal.
+
+Local reports may contain study ids. `benchmarks/results/` is gitignored (some files committed before that rule are still tracked; do not add more). The model card may quote **aggregate** MAE, coverage, and n only.
+
+### Evaluation references
+
+`v0.reference.recent_mean` is a common tracker heuristic: the mean of the last 12 completed lengths that fall within 21–45 days, falling back to the prior median when none do. It runs next to the candidates so reports show how the released model compares with it. `select_winner` skips every `v0.reference.*` id, so a reference can never be released.
+
+## Creighton / Utah protocol (validation)
 
 If `training/dataset-do-not-commit/CrMcyclelength_share.csv` (or `$OPENCICLO_CREIGHTON_CSV`) is present:
 
@@ -105,7 +110,7 @@ If `training/dataset-do-not-commit/CrMcyclelength_share.csv` (or `$OPENCICLO_CRE
 python -m openciclo.evaluation.creighton
 ```
 
-Same leave-one-person-out walk-forward as mcPHASES, on charted cycle **starts**. Reports stay local (`benchmarks/results/creighton_*`) and are gitignored. This does **not** overwrite `released_model.json`. Use `--grid core` for baselines plus median-shrinkage `k`; `--grid full` matches the mcPHASES selection grid.
+Leave-one-person-out walk-forward with a prior refitted on Utah people (research), plus the **released model as shipped** (`creighton_frozen_release_summary.csv` and `_history.csv`): the external check of the release. Charted cycle **starts**. Reports stay local (`benchmarks/results/creighton_*`). This does **not** overwrite `released_model.json`. Use `--grid core` for baselines plus median-shrinkage `k`; `--grid full` matches the mcPHASES selection grid.
 
 ## Cross-dataset transfer (Utah ↔ mcPHASES)
 

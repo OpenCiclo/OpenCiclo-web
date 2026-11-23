@@ -34,7 +34,7 @@ UI / eval         V1 web app or benchmark harness
 | `openciclo.data` | Cycle math, validation, synthetic cohort, mcPHASES loader |
 | `openciclo.features` | Recency weights and length summaries |
 | `openciclo.models` | Baseline predictors, shrinkage, population prior |
-| `openciclo.artifacts` | Published aggregate `released_model.json` (mcPHASES only) |
+| `openciclo.artifacts` | Published `released_model.json` (literature prior + hyperparameters; no microdata) |
 | `openciclo.forecasting` | Length PMF, date mapping, public `predict` |
 | `openciclo.explanations` | Driver lists for V0 |
 | `openciclo.evaluation` | Walk-forward, metrics, Markdown/CSV reports |
@@ -55,9 +55,9 @@ Period starts are calendar `date` values, not timezone-aware timestamps.
 
 ## Scientific engine vs browser port
 
-The Python package is the source of truth. The V1 web app does **not** send period dates to a forecast API. It ports the released path (shrinkage median, k=2, discrete Laplace 1–90) to TypeScript and checks it against `tests/fixtures/forecast_parity.json`.
+The Python package is the source of truth. The V1 web app does **not** send period dates to a forecast API. It ports the released path (shrinkage median, k from the artifact, discrete Laplace 1–90) to TypeScript and checks it against `tests/fixtures/forecast_parity.json`.
 
-`released_model.json` stays an mcPHASES aggregate. Utah/Creighton metrics are documented as an external check and are not mixed into that file.
+`released_model.json` carries a prior taken from published literature plus the hyperparameters chosen on mcPHASES. No dataset's rows enter it; mcPHASES and Utah/Creighton metrics are documented as validation.
 
 ## V1 web runtime
 

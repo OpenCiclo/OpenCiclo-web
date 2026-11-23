@@ -253,7 +253,7 @@ const locale: LocaleModule = {
     symptomSexToys: "Joguets sexuals",
     symptomStress: "Estrés",
     forecastInfoPrior:
-      "Amb pocs cicles complets, o cap, Ciclo usa una durada típica d'un estudi públic amb cicles reals: 42 persones del Canadà (mcPHASES). No és una mitjana de totes les dones del món.",
+      "Amb pocs cicles complets, o cap, Ciclo partix d'una durada típica de 29 dies, presa de grans estudis publicats amb cicles reals (més de 750.000 cicles, sobretot d'Europa i els Estats Units). No és una mitjana de totes les dones del món.",
     forecastInfoPersonal:
       "Cada cicle complet que registres pesa més. Amb pocs, l'estudi encara pesa molt. Amb diversos, compta més la teua durada habitual. Els símptomes no entren en este càlcul.",
     seasonGuideNotice:
@@ -391,7 +391,7 @@ const locale: LocaleModule = {
     },
     science: {
       ...ca.marketing.science,
-      body: "OpenCiclo usa un model estadístic de contracció (shrinkage) que combina el teu historial amb una distribució a priori de població (mcPHASES). Sempre mostra un interval d'incertesa en lloc d'una data falsament exacta. Sense aprenentatge profund ni caixes negres: el model és obert i està documentat.",
+      body: "OpenCiclo usa un model estadístic de contracció (shrinkage) que combina el teu historial amb una durada típica de grans estudis publicats. Sempre mostra un interval d'incertesa en lloc d'una data falsament exacta. Sense aprenentatge profund ni caixes negres: el model és obert i està documentat.",
       docsLink: "Llig la documentació",
     },
     learn: {

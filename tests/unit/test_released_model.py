@@ -15,9 +15,12 @@ def test_released_model_loads_without_csv() -> None:
     assert released.n_users >= 0
     assert released.population_median > 0
     dataset = released.dataset.lower()
-    assert "utah" not in dataset
-    assert "creighton" not in dataset
-    assert "mcphases" in dataset
+    # The prior is published literature; no local dataset's rows enter the artifact.
+    assert "literature" in dataset
+    for local in ("utah", "creighton", "mcphases", "kaggle"):
+        assert local not in dataset
+    assert released.n_users == 0
+    assert released.n_cycles == 0
     assert released.point_estimator_alias in {
         "median",
         "mean",

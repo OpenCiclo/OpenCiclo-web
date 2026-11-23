@@ -6,7 +6,7 @@ from datetime import date
 import pytest
 
 from openciclo.data.synthetic import generate_synthetic_cohort
-from openciclo.schemas.config import literature_placeholder_prior
+from openciclo.schemas.config import literature_prior
 
 
 @pytest.fixture
@@ -16,7 +16,7 @@ def three_starts() -> list[date]:
 
 @pytest.fixture
 def placeholder_prior():
-    return literature_placeholder_prior()
+    return literature_prior()
 
 
 @pytest.fixture

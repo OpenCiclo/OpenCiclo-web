@@ -217,7 +217,7 @@ const locale: LocaleModule = {
       "L'alçada és la probabilitat que la regla comenci aquell dia. La barra destacada és la data més probable.",
     forecastChartHintInitial:
       "Aquestes barres són el càlcul inicial. La barra destacada és el dia que tenia més probabilitat.",
-    priorNote: "Amb poc historial, la previsió s'acosta a una distribució a priori de població (mcPHASES, Canadà).",
+    priorNote: "Amb poc historial, la previsió s'acosta a una durada típica de grans estudis publicats.",
     exportJson: "Exporta JSON",
     exportCsv: "Exporta CSV",
     importData: "Importa una còpia",
@@ -651,7 +651,7 @@ const locale: LocaleModule = {
     forecastInfoOpen: "Com es calcula la previsió",
     forecastInfoTitle: "Com es calcula la previsió",
     forecastInfoPrior:
-      "Amb pocs cicles complets, o cap, Ciclo fa servir una durada típica d'un estudi públic amb cicles reals: 42 persones del Canadà (mcPHASES). No és una mitjana de totes les dones del món.",
+      "Amb pocs cicles complets, o cap, Ciclo parteix d'una durada típica de 29 dies, presa de grans estudis publicats amb cicles reals (més de 750.000 cicles, sobretot d'Europa i els Estats Units). No és una mitjana de totes les dones del món.",
     forecastInfoPersonal:
       "Cada cicle complet que registres pesa més. Amb pocs, l'estudi encara pesa molt. Amb diversos, compta més la teva durada habitual. Els símptomes no entren en aquest càlcul.",
     forecastInfoMore: "Més informació",
@@ -955,7 +955,7 @@ const locale: LocaleModule = {
     science: {
       eyebrow: "El model",
       title: "Una previsió honesta.",
-      body: "OpenCiclo fa servir un model estadístic de contracció (shrinkage) que combina el teu historial amb una distribució a priori de població (mcPHASES). Sempre mostra un interval d'incertesa en lloc d'una data falsament exacta. Sense aprenentatge profund ni caixes negres: el model és obert i està documentat.",
+      body: "OpenCiclo fa servir un model estadístic de contracció (shrinkage) que combina el teu historial amb una durada típica de grans estudis publicats. Sempre mostra un interval d'incertesa en lloc d'una data falsament exacta. Sense aprenentatge profund ni caixes negres: el model és obert i està documentat.",
       docsLink: "Llegeix la documentació",
       modelLink: "Mira el model a GitHub",
     },

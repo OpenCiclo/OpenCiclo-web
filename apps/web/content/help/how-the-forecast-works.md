@@ -15,11 +15,11 @@ It does **not** predict ovulation, a fertile window for contraception, or pregna
 
 ## Where the “typical length” comes from
 
-With little history, the model leans on a published **population prior**: aggregate numbers fitted on the mcPHASES study (42 people in Canada, timing only). That is a convenience typical length, not a worldwide accuracy claim.
+With little history, the model leans on a **population prior**: a typical length of 29 days taken from large published studies of real cycles (more than 750,000 cycles, mostly from Europe and the United States; [Bull et al. 2019](https://doi.org/10.1038/s41746-019-0152-7) and [Li et al. 2023](https://doi.org/10.1038/s41746-023-00848-1)). It is one typical length for everyone, not a worldwide accuracy claim: published averages run a little longer in your early twenties and a little shorter after 35.
 
 As you log more completed cycles, the forecast mixes **your** median length with that prior. The jargon for this mix is **shrinkage**. With few cycles, the prior still weighs a lot. With many, your own history dominates.
 
-Utah / Creighton cycle charts are an external check. They are **not** mixed into the file the app ships (`released_model.json`).
+Two research datasets check the model, a study of young adults in Canada (mcPHASES) and cycle charts from Utah / Creighton. Neither is mixed into the file the app ships (`released_model.json`).
 
 ## Uncertainty
 

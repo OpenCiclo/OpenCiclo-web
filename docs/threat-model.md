@@ -74,7 +74,7 @@ Process memory on a shared computer is still in scope for the user (shoulder sur
 | Photo or screencap of backup QR | Full account takeover | Same reveal toggle as the phrase; payload is not a URL; decode stays in the browser |
 | Bundled consent | Forced research to get backup | Separate toggles; research is not a backup |
 | Lost mnemonic + password | Permanent data loss | Honest UX; export/import offered while the device is unlocked |
-| Utah mixed into prior | Silent cohort blending | `released_model.json` is mcPHASES-only; tests assert that |
+| A local dataset mixed into the prior | Silent cohort blending; restricted rows in a public file | The prior is published literature (`LITERATURE_PRIOR_*`); `--fit-release` refuses a fitted prior and data-fitted shapes; tests assert the artifact names no local dataset and fits no people |
 
 ## Android app
 

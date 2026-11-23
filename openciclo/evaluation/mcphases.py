@@ -1,7 +1,10 @@
 # Copyright © 2026 Emma Flora Harbison & Luis Rey Sánchez
 # SPDX-License-Identifier: Apache-2.0
 
-"""Walk-forward selection on mcPHASES. Restricted CSV stays local; only aggregates are published."""
+"""Hyperparameter selection on mcPHASES with the published literature prior.
+
+The restricted CSV stays local. Only the winner's settings and aggregate metrics are published;
+the prior itself comes from published aggregates (`literature_prior`)."""
 
 from __future__ import annotations
 
@@ -18,6 +21,7 @@ import pandas as pd
 
 from openciclo.artifacts.release import ReleasedModel, write_released_model
 from openciclo.constants import (
+    DEFAULT_LOGNORMAL_SIGMA,
     ENGINE_VERSION,
     MAX_CYCLE_LENGTH,
     MCPHASES_DATA_NOTICE,
@@ -29,16 +33,16 @@ from openciclo.data.mcphases import (
     load_mcphases_series,
     split_by_person,
 )
-from openciclo.evaluation.metrics import summarize_metrics
+from openciclo.evaluation.metrics import summarize_by_history, summarize_metrics
 from openciclo.evaluation.walkforward import (
     PersonHoldoutSeries,
     assert_no_future_dates,
     walk_forward_cohort,
 )
 from openciclo.forecasting.distribution import fit_empirical_pmf, fit_lognormal_sigma
-from openciclo.models.baselines import MANDATORY_BASELINE_ALIASES
+from openciclo.models.baselines import MANDATORY_BASELINE_ALIASES, REFERENCE_ALIASES
 from openciclo.models.population import fit_population_prior
-from openciclo.schemas.config import ForecastConfig, PopulationPrior
+from openciclo.schemas.config import ForecastConfig, PopulationPrior, literature_prior
 
 SHRINKAGE_K_GRID = (0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 4.0, 5.0, 6.0, 8.0)
 RECENCY_K_GRID = (1.0, 2.0, 3.0, 4.0)
@@ -49,6 +53,10 @@ MAE_IMPROVEMENT = 0.05
 COVERAGE_SLACK = 0.05
 DATASET_LABEL = "mcPHASES 1.0.0 hormones_and_selfreport"
 MEDIAN_MODEL_ID = "v0.baseline.median"
+REFERENCE_PREFIX = "v0.reference."
+# Families whose shape the release would have to fit on data. The prior comes from published
+# aggregates only, so a winner in one of these needs a literature-based shape first.
+DATA_FITTED_FAMILIES = frozenset({"lognormal", "empirical"})
 SHRINKAGE_ID = re.compile(
     r"^v0\.shrinkage\.(median|mean|last|recency_median)"
     r"\.k([0-9]+(?:\.[0-9]+)?)"
@@ -122,6 +130,13 @@ def timing_candidates(*, length_family: str = "laplace") -> list[Candidate]:
             tag = f"v0.shrinkage.median.k{_k_tag(k)}.clip{_k_tag(radius)}.{length_family}"
             candidates.append(("shrinkage", tag, cfg))
     return candidates
+
+
+def reference_candidates(*, length_family: str = "laplace") -> list[Candidate]:
+    """Evaluation references (`REFERENCE_ALIASES`): scored and reported, never selected."""
+
+    base = ForecastConfig(length_family=length_family)
+    return [(alias, f"{REFERENCE_PREFIX}{alias}", base) for alias in REFERENCE_ALIASES]
 
 
 def family_candidates(
@@ -319,6 +334,7 @@ def run_loo_benchmark(
 
 def select_winner(summary: pd.DataFrame) -> Winner:
     overall = summary[summary["subgroup"] == "all"].copy()
+    overall = overall[~overall["model_id"].astype(str).str.startswith(REFERENCE_PREFIX)]
     if overall.empty:
         raise ValueError("mcPHASES summary has no overall rows")
     median_hits = overall[overall["model_id"] == MEDIAN_MODEL_ID]
@@ -361,34 +377,28 @@ def select_winner(summary: pd.DataFrame) -> Winner:
     }
 
 
-def build_released_model(
-    *,
-    series: list[McphasesSeries],
-    winner: Winner,
-    prior_location: str = "pooled",
-) -> ReleasedModel:
-    prior = fit_mcphases_prior(series, location=prior_location)
-    all_lengths = [length for item in series for length in item.cycle_lengths]
+def build_released_model(*, winner: Winner) -> ReleasedModel:
+    """The published artifact: the literature prior plus the hyperparameters chosen on mcPHASES.
+
+    Nothing from the dataset's rows enters it, only the winner's settings and its aggregate
+    selection metrics. A winner whose length family needs a shape fitted on data (log-normal
+    sigma, empirical PMF) is refused until that shape has a published source.
+    """
+
     family = winner["length_family"]
-    sigma = fit_lognormal_sigma(all_lengths)
-    empirical = None
-    if family == "empirical":
-        empirical = tuple(
-            fit_empirical_pmf(
-                all_lengths,
-                min_length=MIN_CYCLE_LENGTH,
-                max_length=MAX_CYCLE_LENGTH,
-            )
+    if family in DATA_FITTED_FAMILIES:
+        raise ValueError(
+            f"The {family!r} family would fit its shape on mcPHASES rows; the release takes "
+            "published aggregates only (docs/modeling.md)."
         )
-    point_estimator = winner["point_estimator"]
-    model_id = _released_model_id(winner)
+    prior = literature_prior()
     return ReleasedModel(
-        model_id=model_id,
+        model_id=_released_model_id(winner),
         engine_version=ENGINE_VERSION,
-        dataset=DATASET_LABEL,
+        dataset=prior.source,
         n_users=prior.n_users,
         n_cycles=prior.n_cycles,
-        n_series=len(series),
+        n_series=0,
         population_median=prior.median_length,
         population_mad=prior.mad_length,
         population_mean=prior.mean_length,
@@ -397,15 +407,17 @@ def build_released_model(
         personal_clip_radius=winner["personal_clip_radius"],
         length_family=family,
         lognormal_mu=math.log(max(prior.median_length, 1.0)),
-        lognormal_sigma=sigma,
+        lognormal_sigma=DEFAULT_LOGNORMAL_SIGMA,
         laplace_asymmetry=winner["laplace_asymmetry"],
-        prior_location=prior_location,
-        empirical_probabilities=empirical,
-        point_estimator=point_estimator,
+        prior_location="literature",
+        empirical_probabilities=None,
+        point_estimator=winner["point_estimator"],
         selection_mae=winner["mae"],
         selection_coverage_80=winner["coverage_80"],
         selection_n=winner["n"],
-        selection_reason=winner["reason"],
+        selection_reason=(
+            f"{winner['reason']}; scored on {DATASET_LABEL} walk-forward with the literature prior"
+        ),
     )
 
 
@@ -418,13 +430,19 @@ def write_mcphases_reports(
     protocol: str = "holdout",
 ) -> tuple[Path, Path, Path]:
     output_dir.mkdir(parents=True, exist_ok=True)
-    prefix = "mcphases_loo" if protocol == "loo" else "mcphases"
+    prefix = {"loo": "mcphases_loo", "literature": "mcphases_literature"}.get(protocol, "mcphases")
     csv_path = output_dir / f"{prefix}_summary.csv"
     detail_path = output_dir / f"{prefix}_steps.csv"
     md_path = output_dir / f"{prefix}_report.md"
+    history = summarize_by_history(rows)
     summary.to_csv(csv_path, index=False)
     rows.to_csv(detail_path, index=False)
-    md_path.write_text(_render_markdown(summary, winner, protocol=protocol), encoding="utf-8")
+    if not history.empty:
+        history.to_csv(output_dir / f"{prefix}_history.csv", index=False)
+    md_path.write_text(
+        _render_markdown(summary, winner, protocol=protocol, history=history),
+        encoding="utf-8",
+    )
     return md_path, csv_path, detail_path
 
 
@@ -524,14 +542,27 @@ def _complexity(model_id: str) -> tuple[int, ...]:
     return (estimator_rank, extras, family_rank)
 
 
-def _render_markdown(summary: pd.DataFrame, winner: Winner, *, protocol: str) -> str:
+def _render_markdown(
+    summary: pd.DataFrame,
+    winner: Winner,
+    *,
+    protocol: str,
+    history: pd.DataFrame | None = None,
+) -> str:
     generated = datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
     overall = summary[summary["subgroup"] == "all"].copy()
-    protocol_label = (
-        "Leave-one-person-out walk-forward. Prior fitted on the other people only."
-        if protocol == "loo"
-        else "Person-level holdout walk-forward. Prior fitted on train people only."
-    )
+    protocol_label = {
+        "literature": (
+            "Walk-forward on every person with the published literature prior. "
+            "Nothing about the scored people enters the prior."
+        ),
+        "loo": "Leave-one-person-out walk-forward. Prior fitted on the other people only.",
+    }.get(protocol, "Person-level holdout walk-forward. Prior fitted on train people only.")
+    shown = {winner["model_id"], MEDIAN_MODEL_ID}
+    by_history = pd.DataFrame()
+    if history is not None and not history.empty:
+        ids = history["model_id"].astype(str)
+        by_history = history[ids.isin(shown) | ids.str.startswith(REFERENCE_PREFIX)]
     lines = [
         "# OpenCiclo mcPHASES timing benchmark",
         "",
@@ -561,6 +592,13 @@ def _render_markdown(summary: pd.DataFrame, winner: Winner, *, protocol: str) ->
         "## Overall",
         "",
         _markdown_table(overall),
+        "",
+        "## By completed cycles seen",
+        "",
+        "The selected model, the median baseline and the evaluation references "
+        f"(`{REFERENCE_PREFIX}*`, never selected), by how many completed cycles each forecast saw.",
+        "",
+        _markdown_table(by_history),
         "",
         "Ciclo provides cycle forecasts. Forecasts can be wrong. Ciclo is not a",
         "medical device, diagnosis system, or contraceptive method.",
@@ -631,18 +669,28 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--fit-release",
         action="store_true",
-        help="Write openciclo/artifacts/released_model.json",
+        help="Write openciclo/artifacts/released_model.json (literature prior only)",
+    )
+    parser.add_argument(
+        "--prior",
+        choices=("literature", "fitted"),
+        default="literature",
+        help=(
+            "literature = the published prior for every person (default; the release); "
+            "fitted = a prior refitted on mcPHASES people (research, see --protocol)"
+        ),
     )
     parser.add_argument(
         "--protocol",
         choices=("loo", "holdout"),
         default="loo",
-        help="loo = leave one person out (default); holdout = 30%% people",
+        help="With --prior fitted: loo = leave one person out (default); holdout = 30%% people",
     )
     parser.add_argument(
         "--prior-location",
         choices=("pooled", "person_median"),
         default="person_median",
+        help="With --prior fitted: how the refitted prior picks its location",
     )
     parser.add_argument(
         "--output-dir",
@@ -655,6 +703,10 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--test-fraction", type=float, default=0.3)
     args = parser.parse_args(argv)
 
+    if args.fit_release and args.prior != "literature":
+        print("--fit-release publishes the literature prior only; drop --prior fitted.")
+        return 2
+
     csv_path = args.csv or default_mcphases_csv()
     if not csv_path.is_file():
         print(f"Skipping mcPHASES evaluation: CSV not found at {csv_path}")
@@ -663,12 +715,19 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     series = load_mcphases_series(csv_path)
-    candidates = timing_candidates()
-    if args.protocol == "loo":
+    candidates = timing_candidates() + reference_candidates()
+    if args.prior == "literature":
+        protocol = "literature"
+        rows, summary = score_with_fixed_prior(
+            series, literature_prior(), candidates, notice=MCPHASES_DATA_NOTICE
+        )
+    elif args.protocol == "loo":
+        protocol = "loo"
         rows, summary = run_loo_benchmark(
             series, candidates=candidates, prior_location=args.prior_location
         )
     else:
+        protocol = "holdout"
         rows, summary, _prior, _train, _test = run_mcphases_benchmark(
             series,
             test_fraction=args.test_fraction,
@@ -678,16 +737,14 @@ def main(argv: list[str] | None = None) -> int:
         )
     winner = select_winner(summary)
     md_path, csv_out, detail_path = write_mcphases_reports(
-        summary, rows, winner, args.output_dir, protocol=args.protocol
+        summary, rows, winner, args.output_dir, protocol=protocol
     )
     print(f"Wrote {md_path}")
     print(f"Wrote {csv_out}")
     print(f"Wrote {detail_path}")
     print(f"Winner: {winner['model_id']} ({winner['reason']})")
     if args.fit_release:
-        released = build_released_model(
-            series=series, winner=winner, prior_location=args.prior_location
-        )
+        released = build_released_model(winner=winner)
         artifact = write_released_model(released, args.artifact_path)
         print(f"Wrote {artifact}")
     return 0

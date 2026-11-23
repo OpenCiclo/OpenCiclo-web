@@ -219,7 +219,7 @@ const locale: LocaleModule = {
     forecastChartHintInitial:
       "Diese Balken sind die ursprüngliche Berechnung. Der hervorgehobene Balken ist der Tag mit der höchsten Wahrscheinlichkeit.",
     priorNote:
-      "Bei wenig Verlauf nähert sich die Prognose typischen Werten aus einer Bevölkerungsstudie an (mcPHASES, Kanada).",
+      "Bei wenig Verlauf nähert sich die Prognose einer typischen Länge aus großen veröffentlichten Studien an.",
     exportJson: "JSON exportieren",
     exportCsv: "CSV exportieren",
     importData: "Sicherung importieren",
@@ -654,7 +654,7 @@ const locale: LocaleModule = {
     forecastInfoOpen: "So wird die Prognose berechnet",
     forecastInfoTitle: "So wird die Prognose berechnet",
     forecastInfoPrior:
-      "Bei wenigen oder keinen abgeschlossenen Zyklen nutzt Ciclo eine typische Länge aus einer öffentlichen Studie mit echten Zyklen: 42 Personen in Kanada (mcPHASES). Das ist kein Durchschnitt aller Frauen weltweit.",
+      "Bei wenigen oder keinen abgeschlossenen Zyklen startet Ciclo mit einer typischen Länge von 29 Tagen aus großen veröffentlichten Studien mit echten Zyklen (mehr als 750.000 Zyklen, vor allem aus Europa und den USA). Das ist kein Durchschnitt aller Frauen weltweit.",
     forecastInfoPersonal:
       "Jeder abgeschlossene Zyklus, den du einträgst, zählt stärker. Bei wenigen hat die Studie noch viel Gewicht. Bei mehreren zählt deine übliche Länge mehr. Symptome fließen nicht in diese Berechnung ein.",
     forecastInfoMore: "Mehr erfahren",
@@ -965,7 +965,7 @@ const locale: LocaleModule = {
     science: {
       eyebrow: "Das Modell",
       title: "Eine ehrliche Prognose.",
-      body: "OpenCiclo nutzt ein statistisches Shrinkage-Modell, das deinen eigenen Verlauf mit einem Prior aus Bevölkerungsdaten (mcPHASES) kombiniert. Es zeigt immer eine Unsicherheitsspanne statt eines scheinbar exakten Datums. Kein Deep Learning, keine Blackbox: Das Modell ist offen und dokumentiert.",
+      body: "OpenCiclo nutzt ein statistisches Shrinkage-Modell, das deinen eigenen Verlauf mit einer typischen Länge aus großen veröffentlichten Studien kombiniert. Es zeigt immer eine Unsicherheitsspanne statt eines scheinbar exakten Datums. Kein Deep Learning, keine Blackbox: Das Modell ist offen und dokumentiert.",
       docsLink: "Dokumentation lesen",
       modelLink: "Modell auf GitHub ansehen",
     },
