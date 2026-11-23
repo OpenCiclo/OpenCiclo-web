@@ -231,11 +231,6 @@ const locale: LocaleModule = {
     interval80Hint: "Qui si concentra l'80% della probabilità.",
     forecastMoreInfo: "+ info",
     forecastLessInfo: "Nascondi info",
-    forecastChart: "Probabilità per giorno",
-    forecastChartHint:
-      "L'altezza della barra è la probabilità che le mestruazioni inizino quel giorno. La barra evidenziata è la data più probabile.",
-    forecastChartHintInitial:
-      "Queste barre sono il calcolo iniziale. La barra evidenziata è il giorno che aveva la probabilità più alta.",
     priorNote:
       "Con pochi dati, la previsione si avvicina a una durata tipica tratta da grandi studi pubblicati.",
     exportJson: "Esporta JSON",
@@ -857,7 +852,6 @@ const locale: LocaleModule = {
     dueShortToday: "Il giorno più probabile è arrivato e non c'è ancora sanguinamento registrato. È una stima.",
     dueShortLate: "Il giorno più probabile è passato e non c'è ancora sanguinamento registrato. È una stima.",
     dueDetailsTitle: "Previsione delle mestruazioni",
-    dueChartTitle: "Probabilità di inizio, giorno per giorno",
     dueMostLikely: "Più probabile: {date}",
     dueLikelyBy: "80% di probabilità entro il {date}",
     dueTipStrong: "Quando iniziano, segna il giorno nel calendario.",

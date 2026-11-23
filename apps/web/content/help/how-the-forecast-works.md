@@ -29,7 +29,7 @@ A day with no log is **unknown**, not proof that the period did not happen.
 
 ## When the expected day has passed
 
-The Calendar home card and the forecast card on Patterns keep the original most-likely day. Once that day has passed without a logged period start, they count the days late, show how long the open cycle already is, and quote today's chance from the initial forecast. They do not move the date forward. The Patterns chart then shows that same initial calculation, with the original day highlighted. The “from today” summary is hidden in that case.
+The Calendar home card and the forecast card on Patterns keep the original most-likely day. Once that day has passed without a logged period start, they count the days late, show how long the open cycle already is, and quote today's chance from the initial forecast. They do not move the date forward. Neither draws a chart then, and the “from today” summary is hidden.
 
 ## Estimated ovulation
 

@@ -22,7 +22,7 @@ import { similarJournalEntries, listJournalEntries, type JournalEntry } from "@/
 import { phaseLabel } from "@/lib/cycle/phases";
 import { nextPeriodStat } from "@/lib/cycle/period-timing";
 import { ForecastCard, ForecastDetails } from "@/components/forecast-card";
-import { coverageInterval } from "@/components/forecast-chart";
+import { coverageInterval } from "@/lib/forecast/coverage";
 import { NoteViewer } from "@/components/journal/note-viewer";
 import { cn } from "@/lib/utils";
 

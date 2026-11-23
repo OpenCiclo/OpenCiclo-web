@@ -108,10 +108,6 @@ const locale: LocaleModule = {
     withinDaysOther: "En els pròxims {n} dies",
     fromToday: "A partir de hui",
     interval80Hint: "Ací es concentra el 80% de la probabilitat.",
-    forecastChartHint:
-      "L'alçada és la probabilitat que la regla comence aquell dia. La barra destacada és la data més probable.",
-    forecastChartHintInitial:
-      "Estes barres són el càlcul inicial. La barra destacada és el dia que tenia més probabilitat.",
     importHint:
       "JSON o CSV exportat des de Ciclo. Es fusiona amb este compte. Recupera les dades, no el compte antic.",
     deleteConfirm:
@@ -276,7 +272,6 @@ const locale: LocaleModule = {
       "Fases estimades amb el calendari i els teus registres. No confirmen l'ovulació ni servixen com a anticonceptiu.",
     swipeUpToClose: "Llisca cap amunt per a tancar",
     dueTitleToday: "Podria començar hui",
-    dueChartTitle: "Probabilitat que comence cada dia",
     dueTipStrong: "Quan comence, marca-ho al calendari.",
     dueTipRest: "La previsió del cicle següent s'ajusta sola amb les teues dades.",
     dueNotice: "És una estimació; no confirma que la regla haja començat.",
