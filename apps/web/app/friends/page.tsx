@@ -35,7 +35,8 @@ const HEADER_BUTTON = "size-11 min-w-11 shrink-0 rounded-full bg-card px-0";
  * The Friends screen. The header holds refresh and settings (a sheet). Below,
  * top to bottom: the person's own note (a speech bubble, with a link to how
  * friends see them), their friends' cards, and the two ways to add a friend:
- * invite and join.
+ * invite and join. On the desktop the note and the two ways sit in a side
+ * column, and the cards beside them, one under another in a wider column.
  */
 export default function FriendsPage() {
   if (!FRIENDS_AVAILABLE) notFound();
@@ -114,9 +115,12 @@ export default function FriendsPage() {
 
   const book = friends.book;
   const writable = !readOnly && status === "on";
+  // Desktop: with Friends on, the screen is a dashboard (her own side, then her
+  // friends' cards one under another). Every other state is one card, kept narrow.
+  const dashboard = storageMode !== "device" && status === "on" && Boolean(book);
 
   return (
-    <AppShell size="narrow">
+    <AppShell size={dashboard ? "wide" : "narrow"}>
       <div className="mb-[18px] flex items-center gap-2 desktop:mb-8 desktop:gap-2.5">
         <h1 className="shrink-0 font-serif text-[30px] leading-none font-medium tracking-[-0.01em] text-foreground desktop:text-4xl desktop:tracking-tight">{t.friends}</h1>
         {/* While Friends is new: the sentence that goes with it is in the settings sheet. Remove both once it settles. */}
@@ -189,7 +193,7 @@ export default function FriendsPage() {
           </Button>
         </Card>
       ) : book ? (
-        <div className="flex flex-col gap-[18px]">
+        <div className="flex flex-col gap-[18px] desktop:grid desktop:grid-cols-[22rem_minmax(0,1fr)] desktop:grid-rows-[auto_1fr] desktop:items-start desktop:gap-x-10 desktop:gap-y-6">
           <NoteComposer
             name={book.name}
             note={book.note}
@@ -202,9 +206,9 @@ export default function FriendsPage() {
           />
 
           {friends.cards.length === 0 ? (
-            <Card className="rounded-3xl p-4 text-sm text-muted-foreground">{t.friendsEmpty}</Card>
+            <Card className="rounded-3xl p-4 text-sm text-muted-foreground desktop:col-start-2 desktop:row-span-2 desktop:row-start-1 desktop:p-6">{t.friendsEmpty}</Card>
           ) : (
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-3 desktop:col-start-2 desktop:row-span-2 desktop:row-start-1 desktop:gap-4">
               {friends.cards.map((card, index) => (
                 <FriendPhaseCard
                   key={card.friend.id}
@@ -233,17 +237,19 @@ export default function FriendsPage() {
             </div>
           )}
 
-          <InviteCard
-            book={book}
-            today={today}
-            locale={locale}
-            t={t}
-            writable={writable}
-            busy={busy}
-            initialCode={pendingCode}
-            act={act}
-            onUnreadable={() => setMessage(t.friendsInviteUnreadable)}
-          />
+          <div className="desktop:col-start-1 desktop:row-start-2">
+            <InviteCard
+              book={book}
+              today={today}
+              locale={locale}
+              t={t}
+              writable={writable}
+              busy={busy}
+              initialCode={pendingCode}
+              act={act}
+              onUnreadable={() => setMessage(t.friendsInviteUnreadable)}
+            />
+          </div>
 
           <FriendsSettingsSheet
             open={settingsOpen}

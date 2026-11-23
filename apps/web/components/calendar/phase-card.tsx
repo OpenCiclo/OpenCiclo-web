@@ -146,10 +146,13 @@ export function PhaseHeader({ model, animate }: { model: PhaseCardModel; animate
 export function PhaseCard({
   model,
   details,
+  wideDetails,
   t,
 }: {
   model: PhaseCardModel;
   details: (howEstimated: () => void) => ReactNode;
+  /** The desktop dialog's own layout (see PhaseCardOverlay). */
+  wideDetails?: (howEstimated: () => void, header: ReactNode) => ReactNode;
   t: Messages;
 }) {
   const isDesktop = useIsDesktop();
@@ -209,6 +212,7 @@ export function PhaseCard({
           title={model.dialogTitle}
           header={<PhaseHeader model={model} animate={false} />}
           details={details}
+          wideDetails={wideDetails}
           t={t}
           onClosed={() => {
             restoreFocusRef.current = true;
