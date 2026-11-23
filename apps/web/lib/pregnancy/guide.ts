@@ -90,7 +90,7 @@ export const PREGNANCY_GUIDE: Record<BaseLocale, PregnancyGuideCopy> = {
     sizeWeight: "Pesa alrededor de {size}.",
     sizeChart: "Tamaño habitual de la semana {from} a la {to}",
     lengthNote:
-      "Longitud habitual de la cabeza a las nalgas según estándares internacionales de crecimiento. Cada bebé crece a su ritmo: lo que cuenta son tus ecografías.",
+      "Longitud habitual de la cabeza a las nalgas según mediciones de referencia por ecografía. Cada bebé crece a su ritmo: lo que cuenta son tus ecografías.",
     weightNote:
       "Peso habitual según las tablas de crecimiento fetal de la OMS. Los bebés sanos varían bastante alrededor de esa cifra: lo que cuenta son tus ecografías.",
     bodyLabel: "Tu cuerpo",
@@ -121,7 +121,7 @@ export const PREGNANCY_GUIDE: Record<BaseLocale, PregnancyGuideCopy> = {
       },
       whoopingCough: {
         title: "Vacuna de la tosferina",
-        detail: "Se recomienda en cada embarazo. En España y Estados Unidos, entre las semanas 27 y 36; en el Reino Unido, desde la 16.",
+        detail: "Se recomienda en cada embarazo. En España, desde la semana 27 (mejor en la 27 o la 28); en Estados Unidos, entre la 27 y la 36; en el Reino Unido, desde la 16.",
       },
       thirdTrimester: { title: "Empieza el tercer trimestre", detail: "Semana 28." },
       antiD: { title: "Si eres Rh negativo", detail: "Hacia la semana 28 suele ofrecerse una inyección de anti-D." },
@@ -135,18 +135,18 @@ export const PREGNANCY_GUIDE: Record<BaseLocale, PregnancyGuideCopy> = {
       },
       groupBStrep: {
         title: "Cultivo de estreptococo B",
-        detail: "En países como España o Estados Unidos se toma una muestra vaginal y rectal hacia las semanas 36 a 37. En otros, como el Reino Unido, no es de rutina.",
+        detail: "En países como España o Estados Unidos se toma una muestra vaginal y rectal al final del embarazo (en Estados Unidos, hacia las semanas 36 a 37). En otros, como el Reino Unido, no es de rutina.",
       },
       term: { title: "Embarazo a término", detail: "Desde la semana 37 (a término temprano)." },
       fullTerm: { title: "A término completo", detail: "Desde la semana 39." },
-      dueDate: { title: "Fecha probable de parto", detail: "Semana 40. Solo 1 de cada 20 bebés nace justo ese día." },
+      dueDate: { title: "Fecha probable de parto", detail: "Semana 40. Solo alrededor de 1 de cada 20 bebés nace justo ese día." },
       pastDue: { title: "Pasada la fecha", detail: "Durante la semana 41 suelen ofrecerse más controles y la inducción del parto." },
     },
-    callLabel: "Llama a tu matrona o a tu médico",
+    callLabel: "Llama enseguida a tu matrona o a tu médico",
     callBody:
-      "Sangrado o pérdida de líquido por la vagina, dolor fuerte de vientre que no cede, dolor de cabeza intenso o que no se va, cambios en la vista, hinchazón repentina de cara o manos, fiebre de 38 °C o más, vómitos que no te dejan retener líquidos, una pierna hinchada, roja o dolorida, o si el bebé se mueve menos de lo habitual.",
+      "A cualquier hora, sin esperar al día siguiente: sangrado o pérdida de líquido por la vagina; dolor de vientre que no cede; dolor de cabeza intenso o que no se va; cambios en la vista; hinchazón repentina de cara, manos o pies; dolor fuerte justo debajo de las costillas; fiebre de 38 °C o más; vómitos que no te dejan retener líquidos; un brazo o una pierna hinchados, rojos o doloridos; contracciones regulares antes de la semana 37; o si el bebé se mueve menos de lo habitual.",
     callEmergency:
-      "Pide ayuda de emergencia si te cuesta respirar, tienes dolor en el pecho, te desmayas o piensas en hacerte daño.",
+      "Llama a emergencias si el sangrado es abundante, el dolor es muy fuerte, te cuesta respirar, tienes dolor en el pecho, convulsiones o te desmayas, o si piensas en hacerte daño a ti o al bebé.",
     earlierLabel: "Tus ciclos antes del embarazo",
     earlierOne: "1 ciclo",
     earlierCount: "{count} ciclos",
@@ -159,7 +159,7 @@ export const PREGNANCY_GUIDE: Record<BaseLocale, PregnancyGuideCopy> = {
     sizeWeight: "Weighs about {size}.",
     sizeChart: "Typical size from week {from} to week {to}",
     lengthNote:
-      "Typical length from head to bottom in international growth standards. Babies grow at their own pace: your scans are what count.",
+      "Typical length from head to bottom in ultrasound reference measurements. Babies grow at their own pace: your scans are what count.",
     weightNote:
       "Typical weight in the WHO fetal growth charts. Healthy babies vary quite a lot around it: your scans are what count.",
     bodyLabel: "Your body",
@@ -190,7 +190,7 @@ export const PREGNANCY_GUIDE: Record<BaseLocale, PregnancyGuideCopy> = {
       },
       whoopingCough: {
         title: "Whooping cough vaccine",
-        detail: "Recommended in every pregnancy. In the US and Spain between weeks 27 and 36; in the UK from week 16.",
+        detail: "Recommended in every pregnancy. In Spain from week 27 (ideally week 27 or 28); in the US between weeks 27 and 36; in the UK from week 16.",
       },
       thirdTrimester: { title: "Third trimester begins", detail: "Week 28." },
       antiD: { title: "If you are Rh negative", detail: "An anti-D injection is usually offered around week 28." },
@@ -204,17 +204,18 @@ export const PREGNANCY_GUIDE: Record<BaseLocale, PregnancyGuideCopy> = {
       },
       groupBStrep: {
         title: "Group B strep test",
-        detail: "In countries such as the US and Spain a vaginal and rectal swab is taken around weeks 36 to 37. In others, such as the UK, it is not routine.",
+        detail: "In countries such as the US and Spain a vaginal and rectal swab is taken late in pregnancy (in the US, around weeks 36 to 37). In others, such as the UK, it is not routine.",
       },
       term: { title: "Term begins", detail: "From week 37 (early term)." },
       fullTerm: { title: "Full term", detail: "From week 39." },
       dueDate: { title: "Due date", detail: "Week 40. Only about 1 in 20 babies are born on the day itself." },
       pastDue: { title: "Past the due date", detail: "During week 41 extra checks and inducing labour are usually offered." },
     },
-    callLabel: "Call your midwife or doctor",
+    callLabel: "Call your midwife or doctor straight away",
     callBody:
-      "Bleeding or fluid leaking from your vagina, strong tummy pain that does not go away, a headache that is severe or will not go away, changes in your sight, sudden swelling of your face or hands, a fever of 38 °C (100.4 °F) or more, vomiting so that you cannot keep fluids down, a swollen, red or painful leg, or if the baby moves less than usual.",
-    callEmergency: "Get emergency help if you have trouble breathing, chest pain, you faint, or you think about harming yourself.",
+      "At any hour, without waiting for the next day: bleeding or fluid leaking from your vagina; tummy pain that does not go away; a headache that is severe or will not go away; changes in your sight; sudden swelling of your face, hands or feet; severe pain just below the ribs; a fever of 38 °C (100.4 °F) or more; vomiting so that you cannot keep fluids down; a swollen, red or painful arm or leg; regular tightenings before week 37; or if the baby moves less than usual.",
+    callEmergency:
+      "Call the emergency number if the bleeding is heavy, the pain is severe, you have trouble breathing, chest pain, a fit, you faint, or you have thoughts of harming yourself or your baby.",
     earlierLabel: "Your cycles before the pregnancy",
     earlierOne: "1 cycle",
     earlierCount: "{count} cycles",

@@ -68,11 +68,12 @@ export function pregnancySymptomWeeks(diary: Diary, dueDate: string, today: stri
 
 /**
  * What usually comes when, in days of gestational age: a window (`to` set) or
- * a day. The windows are where ACOG/CDC, NICE/NHS and SEGO overlap, or the
- * widest of them where they do not (first-trimester scan: 11+2 to 14+1 in the
- * UK, 11+0 to 13+6 in Spain; mid-pregnancy scan to 20+6, 21+6 or 22 weeks;
- * whooping cough vaccine at 27 to 36 weeks in the US and Spain, from 16 in the
- * UK; RSV from 28 weeks in the UK, 32 to 36 in season in the US; a growth scan
+ * a day. One window each, though ACOG/CDC, NICE/NHS and SEGO differ: the
+ * first-trimester scan is Spain's 11+0 to 13+6 (11+2 to 14+1 in the UK); the
+ * mid-pregnancy scan runs to 21+6 (20+6 in the UK, 22 weeks in the US); the
+ * whooping cough vaccine is the US window, 27 to 36 weeks (Spain from 27,
+ * ideally 27 or 28; the UK from 16); RSV from 28 weeks as in the UK (32 to 36
+ * in season in the US; Spain protects the baby after birth); a growth scan
  * at 34 to 36 weeks is routine in Spain only; group B strep screening in the US
  * and Spain, not in the UK). What is offered, and when, differs by country and
  * clinic: each text says "usually" or "in some countries", and the screen says

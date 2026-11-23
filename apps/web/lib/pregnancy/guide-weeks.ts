@@ -3,11 +3,17 @@
 
 // Week-by-week data for lib/pregnancy/guide.ts: the texts, the size tables and
 // their sources. Weeks are completed weeks counted from zero ("week 14" is
-// 14+0 to 14+6). The NHS and Mayo Clinic week pages count the same way; ACOG
-// writes in four-week blocks and MedlinePlus counts one ahead, so a fact can
-// sit a week either side of where another source puts it: the texts say
-// "around now" where that matters. Checked against the sources on 2026-11-23;
-// no clinician has reviewed them (PREGNANCY_WEEKS_AVAILABLE, lib/features.ts).
+// 14+0 to 14+6). The NHS week pages count the same way; Mayo Clinic's "week N"
+// describes the state reached at N+0 (the first day of our week N); ACOG writes
+// in four-week blocks and MedlinePlus counts one ahead. So a fact can sit a
+// week either side of where another source puts it: the texts say "around now"
+// where that matters. Checked against the sources on 2026-11-23, twice (the
+// second pass by an independent reader, whose corrections are in); no
+// clinician has reviewed them (PREGNANCY_WEEKS_AVAILABLE, lib/features.ts).
+//
+// Anything that needs a call is worded as the sources word it: "straight
+// away", at any hour, never "the same day" (NHS, RCOG and NICE on the baby's
+// movements; NHS on pre-eclampsia signs).
 
 import type { BaseLocale } from "@/lib/i18n";
 
@@ -21,16 +27,16 @@ export type WeekText = {
 };
 
 /**
- * Crown–rump length in millimetres at the middle of each week (n+3 days),
- * from the published dating equations: Robinson & Fleming 1975 for weeks 6 to
- * 8, INTERGROWTH-21st (Papageorghiou et al. 2014; valid from day 58) for
- * weeks 9 to 13. Rounded to the millimetre.
+ * Crown–rump length in millimetres at the middle of each week (n+3 days):
+ * Robinson & Fleming's 1975 dating formula, inverted, for weeks 6 to 8, and
+ * the INTERGROWTH-21st size-for-age equation (Papageorghiou et al. 2014;
+ * valid from day 58) for weeks 9 to 13. Rounded to the millimetre.
  */
 export const CROWN_RUMP_MM: Record<number, number> = {
   6: 7,
   7: 12,
   8: 19,
-  9: 27,
+  9: 26,
   10: 37,
   11: 49,
   12: 61,
@@ -40,7 +46,7 @@ export const CROWN_RUMP_MM: Record<number, number> = {
 /**
  * Estimated fetal weight in grams, 50th percentile, weeks 14 to 40: the WHO
  * fetal growth charts (Kiserud et al. 2017, Table 11, both sexes). The 10th
- * and 90th percentiles sit about 13% either side.
+ * and 90th percentiles sit about 13 to 16% either side.
  */
 export const WEIGHT_GRAMS: Record<number, number> = {
   14: 90,
@@ -84,7 +90,7 @@ const en: Record<number, WeekText> = {
   4: {
     babyTitle: "The embryo has implanted in the womb.",
     baby: [
-      "The embryo is about 2 mm long, inside a fluid-filled sac, and is fed by a yolk sac until the placenta takes over.",
+      "The embryo is no more than 2 mm long, inside a fluid-filled sac, and is fed by a yolk sac until the placenta takes over.",
       "Its inner cells will become the baby; the outer layer becomes part of the placenta.",
     ],
     body: ["A missed period is often the first sign. Some people already have sore breasts, tiredness, nausea or light spotting; many notice nothing yet."],
@@ -102,7 +108,7 @@ const en: Record<number, WeekText> = {
     baby: [
       "Small buds appear where the arms and legs will grow, and small dents where the ears will be.",
       "The neural tube, which becomes the brain and the spinal cord, closes around now.",
-      "A heartbeat can usually be seen on a vaginal ultrasound in weeks 6 to 7.",
+      "A heartbeat can sometimes be seen on a vaginal ultrasound around weeks 6 to 7, though not always this early.",
     ],
     body: ["Nausea usually starts before week 9, and it can come at any time of day. Tiredness is typical too."],
   },
@@ -128,7 +134,7 @@ const en: Record<number, WeekText> = {
     babyTitle: "",
     baby: [
       "Fingers and toes lose their webbing, and the elbows bend.",
-      "The heart beats about 180 times a minute, and jerky movements can be seen on a scan.",
+      "The heart beats fast, about 170 to 180 times a minute, and jerky movements can be seen on a scan.",
       "From about now doctors say fetus instead of embryo.",
     ],
     body: ["The hormone progesterone relaxes the gut, so bloating, burping and heartburn are common."],
@@ -165,7 +171,9 @@ const en: Record<number, WeekText> = {
   15: {
     babyTitle: "",
     baby: ["Fine hair (lanugo), eyebrows and eyelashes begin to grow.", "The eyes are sensitive to light, and hearing is starting to develop."],
-    body: ["Your balance may be a little less steady. Itchy skin and more vaginal discharge are common."],
+    body: [
+      "Your balance may be a little less steady. Mildly itchy skin and more vaginal discharge are common. If itching becomes severe, especially at night, tell your midwife or doctor.",
+    ],
   },
   16: {
     babyTitle: "",
@@ -217,7 +225,7 @@ const en: Record<number, WeekText> = {
     babyTitle: "",
     baby: ["The skin is still thin and wrinkled.", "About 30 cm from head to heel."],
     body: [
-      "From week 24, get to know the baby's own pattern of movements. If they slow down or stop, call your midwife or maternity unit the same day: do not wait until tomorrow.",
+      "From week 24, get to know the baby's own pattern of movements. If they slow down, stop or change, call your midwife or maternity unit straight away, at any hour: do not wait until the next day.",
       "If you have felt no movement at all by week 24, tell your midwife.",
     ],
   },
@@ -225,7 +233,7 @@ const en: Record<number, WeekText> = {
     babyTitle: "",
     baby: ["The baby may jump at a loud noise and move at a familiar voice.", "You may feel hiccups as small, regular jerks."],
     body: [
-      "Heartburn and indigestion are common. So is mild swelling of the feet and ankles; sudden puffiness of the face, hands or feet should be checked the same day.",
+      "Heartburn and indigestion are common. So is mild swelling of the feet and ankles; sudden swelling of the face, hands or feet needs a call to your midwife or doctor straight away.",
     ],
   },
   26: {
@@ -267,7 +275,7 @@ const en: Record<number, WeekText> = {
   32: {
     babyTitle: "",
     baby: ["Many babies are head down by now.", "The fine hair (lanugo) starts to fall off."],
-    body: ["Movements build up until about week 32 and then stay about the same. They do not slow down before labour: if they do, call the same day."],
+    body: ["Movements build up until about week 32 and then stay about the same. They do not slow down before labour: if they do, call straight away, day or night."],
   },
   33: {
     babyTitle: "",
@@ -282,7 +290,7 @@ const en: Record<number, WeekText> = {
   35: {
     babyTitle: "",
     baby: ["The baby fills most of the space in the womb but still moves as often as before.", "About 46 cm from head to heel."],
-    body: ["Sore ribs are common. Pain just below the ribs should be checked the same day."],
+    body: ["Sore ribs are common. Severe pain just below the ribs needs a call to your midwife or doctor straight away."],
   },
   36: {
     babyTitle: "",
@@ -301,7 +309,7 @@ const en: Record<number, WeekText> = {
   },
   39: {
     babyTitle: "",
-    baby: ["From week 39 the pregnancy is full term.", "The skin is still coated with vernix."],
+    baby: ["From week 39 the pregnancy is full term.", "The skin may still be coated with vernix."],
     body: [
       "A plug of mucus (a \"show\"), backache and pressure low in the pelvis can come before labour. Many maternity units say to call when contractions last about 60 seconds and come every 5 minutes: follow what yours told you.",
     ],
@@ -309,7 +317,7 @@ const en: Record<number, WeekText> = {
   40: {
     babyTitle: "",
     baby: [
-      "At birth babies typically measure about 49 to 50 cm and weigh about 3.2 to 3.3 kg, with a wide healthy range either side.",
+      "At birth babies typically measure about 49 to 50 cm from head to heel, and healthy babies vary a good deal in weight.",
       "Only about 1 in 20 babies are born on their due date.",
     ],
     body: ["Your waters may break as a trickle, not a gush. Call your maternity unit if you think they have."],
@@ -317,7 +325,9 @@ const en: Record<number, WeekText> = {
   41: {
     babyTitle: "The pregnancy is now late term.",
     baby: ["From week 41 the pregnancy is called late term.", "Babies born after their due date may have dry, peeling skin."],
-    body: ["Past the due date extra checks are usually offered, and you will be asked about a membrane sweep and about inducing labour, usually during week 41."],
+    body: [
+      "Past the due date extra checks are usually offered, and inducing labour is usually discussed or offered during week 41. A membrane sweep may be offered too, sometimes earlier.",
+    ],
   },
 };
 
@@ -333,7 +343,7 @@ const es: Record<number, WeekText> = {
   4: {
     babyTitle: "El embrión se ha implantado en el útero.",
     baby: [
-      "El embrión mide unos 2 mm, está dentro de una bolsa llena de líquido y se alimenta de un saco vitelino hasta que la placenta toma el relevo.",
+      "El embrión no mide más de 2 mm, está dentro de una bolsa llena de líquido y se alimenta de un saco vitelino hasta que la placenta toma el relevo.",
       "Sus células internas serán el bebé; la capa externa formará parte de la placenta.",
     ],
     body: [
@@ -351,9 +361,9 @@ const es: Record<number, WeekText> = {
   6: {
     babyTitle: "",
     baby: [
-      "Aparecen unos pequeños brotes donde crecerán los brazos y las piernas, y unas hendiduras donde estarán las orejas.",
+      "Aparecen unos pequeños brotes donde crecerán los brazos y las piernas, y unas pequeñas marcas donde estarán las orejas.",
       "El tubo neural, que será el cerebro y la médula espinal, se cierra por estas fechas.",
-      "El latido suele verse en una ecografía vaginal entre las semanas 6 y 7.",
+      "El latido a veces ya se ve en una ecografía vaginal hacia las semanas 6 a 7, aunque no siempre tan pronto.",
     ],
     body: ["Las náuseas suelen empezar antes de la semana 9 y pueden venir a cualquier hora del día. El cansancio también es habitual."],
   },
@@ -381,7 +391,7 @@ const es: Record<number, WeekText> = {
     babyTitle: "",
     baby: [
       "Los dedos de manos y pies pierden la membrana que los unía, y los codos se doblan.",
-      "El corazón late unas 180 veces por minuto, y en una ecografía se ven movimientos bruscos.",
+      "El corazón late deprisa, entre 170 y 180 veces por minuto, y en una ecografía se ven movimientos bruscos.",
       "Más o menos desde ahora se habla de feto en lugar de embrión.",
     ],
     body: ["La progesterona relaja el intestino, así que la hinchazón, los eructos y el ardor de estómago son frecuentes."],
@@ -420,7 +430,9 @@ const es: Record<number, WeekText> = {
   15: {
     babyTitle: "",
     baby: ["Empiezan a crecer un vello fino (lanugo), las cejas y las pestañas.", "Los ojos son sensibles a la luz, y el oído empieza a desarrollarse."],
-    body: ["Tu equilibrio puede ser algo menos firme. El picor de piel y un flujo vaginal más abundante son frecuentes."],
+    body: [
+      "Tu equilibrio puede ser algo menos firme. Un picor leve de piel y un flujo vaginal más abundante son frecuentes. Si el picor se vuelve intenso, sobre todo de noche, díselo a tu matrona o a tu médico.",
+    ],
   },
   16: {
     babyTitle: "",
@@ -433,7 +445,7 @@ const es: Record<number, WeekText> = {
   17: {
     babyTitle: "",
     baby: ["El bebé gira y da vueltas, y puede reaccionar a un ruido fuerte.", "Empiezan a crecer las uñas de los pies."],
-    body: ["La cintura va desapareciendo a medida que el útero sale de la pelvis. Algunas personas notan los primeros movimientos por ahora."],
+    body: ["La cintura va desapareciendo a medida que el útero sale de la pelvis. Algunas personas notan los primeros movimientos por estas fechas."],
   },
   18: {
     babyTitle: "",
@@ -474,13 +486,13 @@ const es: Record<number, WeekText> = {
       "Los pulmones empiezan a producir surfactante, la sustancia que les permitirá llenarse de aire.",
       "Empiezan los movimientos rápidos de los ojos.",
     ],
-    body: ["El útero, al crecer, puede presionar las costillas y dejarte sin aliento. Los pechos pueden soltar un poco de calostro, la primera leche."],
+    body: ["El útero, al crecer, puede presionar las costillas y hacer que te falte un poco el aire. Los pechos pueden soltar un poco de calostro, la primera leche."],
   },
   24: {
     babyTitle: "",
     baby: ["La piel todavía es fina y arrugada.", "Mide unos 30 cm de la cabeza a los talones."],
     body: [
-      "Desde la semana 24, aprende cómo se mueve tu bebé. Si se mueve menos o deja de moverse, llama a tu matrona o a tu maternidad ese mismo día: no esperes a mañana.",
+      "Desde la semana 24, aprende cómo se mueve tu bebé. Si se mueve menos, deja de moverse o cambia su forma de moverse, llama enseguida a tu matrona o a tu maternidad, a cualquier hora: no esperes al día siguiente.",
       "Si en la semana 24 aún no has notado ningún movimiento, díselo a tu matrona.",
     ],
   },
@@ -488,7 +500,7 @@ const es: Record<number, WeekText> = {
     babyTitle: "",
     baby: ["El bebé puede sobresaltarse con un ruido fuerte y moverse al oír una voz conocida.", "Puedes notar su hipo como pequeñas sacudidas regulares."],
     body: [
-      "El ardor de estómago y la indigestión son frecuentes. También una hinchazón leve de pies y tobillos; si la cara, las manos o los pies se hinchan de repente, hay que consultarlo ese mismo día.",
+      "El ardor de estómago y la indigestión son frecuentes. También una hinchazón leve de pies y tobillos; si la cara, las manos o los pies se hinchan de repente, llama enseguida a tu matrona o a tu médico.",
     ],
   },
   26: {
@@ -533,7 +545,7 @@ const es: Record<number, WeekText> = {
     babyTitle: "",
     baby: ["Muchos bebés ya están cabeza abajo.", "El vello fino (lanugo) empieza a caerse."],
     body: [
-      "Los movimientos van a más hasta la semana 32, más o menos, y luego se mantienen. No disminuyen antes del parto: si lo hacen, llama ese mismo día.",
+      "Los movimientos van a más hasta la semana 32, más o menos, y luego se mantienen. No disminuyen antes del parto: si lo hacen, llama enseguida, sea de día o de noche.",
     ],
   },
   33: {
@@ -544,12 +556,12 @@ const es: Record<number, WeekText> = {
   34: {
     babyTitle: "",
     baby: ["El bebé está acurrucado, con las piernas dobladas.", "Las uñas llegan a la punta de los dedos."],
-    body: ["Si el bebé baja y se encaja en la pelvis, la falta de aliento y el ardor pueden aliviarse, y puede que tengas que orinar más a menudo."],
+    body: ["Si el bebé baja hacia la pelvis, la falta de aire y el ardor pueden aliviarse, y puede que tengas que orinar más a menudo."],
   },
   35: {
     babyTitle: "",
     baby: ["El bebé ocupa casi todo el espacio del útero, pero se mueve tanto como antes.", "Mide unos 46 cm de la cabeza a los talones."],
-    body: ["El dolor de costillas es frecuente. Un dolor justo debajo de las costillas hay que consultarlo ese mismo día."],
+    body: ["El dolor de costillas es frecuente. Un dolor fuerte justo debajo de las costillas pide llamar enseguida a tu matrona o a tu médico."],
   },
   36: {
     babyTitle: "",
@@ -571,7 +583,7 @@ const es: Record<number, WeekText> = {
   },
   39: {
     babyTitle: "",
-    baby: ["Desde la semana 39 el embarazo está a término completo.", "La piel sigue cubierta de vérnix."],
+    baby: ["Desde la semana 39 el embarazo está a término completo.", "La piel puede seguir cubierta de vérnix."],
     body: [
       "La expulsión del tapón mucoso, el dolor de espalda y la presión en la parte baja de la pelvis pueden llegar antes del parto. Muchas maternidades piden llamar cuando las contracciones duran unos 60 segundos y vienen cada 5 minutos: sigue lo que te haya dicho la tuya.",
     ],
@@ -579,8 +591,8 @@ const es: Record<number, WeekText> = {
   40: {
     babyTitle: "",
     baby: [
-      "Al nacer, los bebés suelen medir entre 49 y 50 cm y pesar entre 3,2 y 3,3 kg, con un margen amplio a cada lado dentro de lo sano.",
-      "Solo 1 de cada 20 bebés nace en su fecha probable de parto.",
+      "Al nacer, los bebés suelen medir unos 49 o 50 cm de la cabeza a los talones, y el peso varía bastante entre bebés sanos.",
+      "Solo alrededor de 1 de cada 20 bebés nace en su fecha probable de parto.",
     ],
     body: ["La bolsa puede romperse como un goteo, no como un chorro. Llama a tu maternidad si crees que se ha roto."],
   },
@@ -591,7 +603,7 @@ const es: Record<number, WeekText> = {
       "Los bebés que nacen después de su fecha pueden tener la piel seca y descamada.",
     ],
     body: [
-      "Pasada la fecha suelen ofrecerse más controles, y te hablarán de la maniobra de Hamilton (despegar las membranas) y de inducir el parto, normalmente durante la semana 41.",
+      "Pasada la fecha suelen ofrecerse más controles, y durante la semana 41 suele hablarse de inducir el parto u ofrecerse. También pueden ofrecerte la maniobra de Hamilton (despegar las membranas), a veces antes.",
     ],
   },
 };
@@ -612,7 +624,7 @@ export const GUIDE_SOURCES: { label: string; href: string }[] = [
     label: "Robinson & Fleming, Br J Obstet Gynaecol 1975 — A critical evaluation of sonar crown-rump length measurements",
     href: "https://pubmed.ncbi.nlm.nih.gov/1182090/",
   },
-  { label: "WHO Child Growth Standards — weight and length at birth", href: "https://www.who.int/tools/child-growth-standards/standards/weight-for-age" },
+  { label: "WHO Child Growth Standards — length at birth", href: "https://www.who.int/tools/child-growth-standards/standards/length-height-for-age" },
   {
     label: "Khambalia et al., Int J Gynaecol Obstet 2013 — Predicting date of birth and examining the best time to date a pregnancy",
     href: "https://pubmed.ncbi.nlm.nih.gov/23932061/",
@@ -641,9 +653,19 @@ export const GUIDE_SOURCES: { label: string; href: string }[] = [
     href: "https://www.rcog.org.uk/for-the-public/browse-our-patient-information/your-babys-movements-in-pregnancy/",
   },
   {
-    label: "Mayo Clinic — Fetal development: the first trimester (and the second and third)",
+    label: "Mayo Clinic — Fetal development: the first trimester",
     href: "https://www.mayoclinic.org/healthy-lifestyle/pregnancy-week-by-week/in-depth/prenatal-care/art-20045302",
   },
+  {
+    label: "Mayo Clinic — Fetal development: the second trimester",
+    href: "https://www.mayoclinic.org/healthy-lifestyle/pregnancy-week-by-week/in-depth/fetal-development/art-20046151",
+  },
+  {
+    label: "Mayo Clinic — Fetal development: the third trimester",
+    href: "https://www.mayoclinic.org/healthy-lifestyle/pregnancy-week-by-week/in-depth/fetal-development/art-20045997",
+  },
+  { label: "NHS — Vaginal bleeding in pregnancy", href: "https://www.nhs.uk/pregnancy/related-conditions/common-symptoms/vaginal-bleeding/" },
+  { label: "NHS — Pre-eclampsia", href: "https://www.nhs.uk/conditions/pre-eclampsia/" },
   { label: "MedlinePlus — Fetal development", href: "https://medlineplus.gov/ency/article/002398.htm" },
   {
     label: "SEGO 2017 — Control prenatal del embarazo normal",

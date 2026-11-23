@@ -48,6 +48,42 @@ describe("the week-by-week texts", () => {
   });
 });
 
+describe("what needs a call", () => {
+  const everything = LANGS.map((lang) =>
+    [
+      ...Object.values(WEEK_TEXTS[lang]).flatMap((text) => [...text.baby, ...text.body]),
+      PREGNANCY_GUIDE[lang].callLabel,
+      PREGNANCY_GUIDE[lang].callBody,
+      PREGNANCY_GUIDE[lang].callEmergency,
+    ].join(" "),
+  );
+
+  it("never says to wait: the sources say straight away, at any hour, not the same day", () => {
+    for (const text of everything) expect(text).not.toMatch(/the same day|ese mismo día|until tomorrow|a mañana/i);
+    // Fewer movements (NHS, RCOG, NICE NG201) and the signs of pre-eclampsia (NHS).
+    expect(WEEK_TEXTS.en[24].body[0]).toMatch(/straight away, at any hour/);
+    expect(WEEK_TEXTS.es[24].body[0]).toMatch(/enseguida .* a cualquier hora/);
+    expect(WEEK_TEXTS.en[32].body[0]).toMatch(/straight away, day or night/);
+    expect(WEEK_TEXTS.en[25].body[0]).toMatch(/straight away/);
+    expect(WEEK_TEXTS.en[35].body[0]).toMatch(/straight away/);
+    expect(PREGNANCY_GUIDE.en.callLabel).toMatch(/straight away/);
+    expect(PREGNANCY_GUIDE.es.callLabel).toMatch(/enseguida/);
+  });
+
+  it("sends heavy bleeding, severe pain, fits and thoughts of harm to the emergency number", () => {
+    expect(PREGNANCY_GUIDE.en.callEmergency).toMatch(/bleeding is heavy.*pain is severe.*fit.*yourself or your baby/);
+    expect(PREGNANCY_GUIDE.es.callEmergency).toMatch(/sangrado es abundante.*dolor es muy fuerte.*convulsiones.*a ti o al bebé/);
+    for (const lang of LANGS) {
+      const body = PREGNANCY_GUIDE[lang].callBody;
+      // The urgent maternal warning signs (CDC) and the NHS list, in one place.
+      expect(body.split(";").length).toBeGreaterThanOrEqual(10);
+    }
+    expect(PREGNANCY_GUIDE.en.callBody).toMatch(/moves less than usual/);
+    expect(PREGNANCY_GUIDE.en.callBody).toMatch(/tightenings before week 37/);
+    expect(PREGNANCY_GUIDE.en.callBody).toMatch(/below the ribs/);
+  });
+});
+
 describe("the size tables", () => {
   it("gives a length for weeks 6 to 13 and a weight for weeks 14 to 40, always growing", () => {
     expect(Object.keys(CROWN_RUMP_MM).map(Number)).toEqual([6, 7, 8, 9, 10, 11, 12, 13]);
@@ -55,7 +91,7 @@ describe("the size tables", () => {
     for (let week = 7; week <= 13; week += 1) expect(CROWN_RUMP_MM[week]).toBeGreaterThan(CROWN_RUMP_MM[week - 1]);
     for (let week = 15; week <= 40; week += 1) expect(WEIGHT_GRAMS[week]).toBeGreaterThan(WEIGHT_GRAMS[week - 1]);
     expect(fetalSize(5)).toBeNull();
-    expect(fetalSize(9)).toEqual({ kind: "length", mm: 27 });
+    expect(fetalSize(9)).toEqual({ kind: "length", mm: 26 });
     // The WHO fetal growth charts' medians (Kiserud 2017, Table 11).
     expect(fetalSize(14)).toEqual({ kind: "weight", grams: 90 });
     expect(fetalSize(28)).toEqual({ kind: "weight", grams: 1189 });
