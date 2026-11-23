@@ -35,11 +35,15 @@ def predict(
     model: str | None = None,
     population_prior: PopulationPrior | None = None,
     config: ForecastConfig | None = None,
+    excluded_starts: Sequence[date] = (),
 ) -> Forecast:
     """Forecast next period start from period-start history.
 
     Defaults load aggregate parameters from ``openciclo/artifacts/released_model.json``.
     ``observations`` are accepted for API stability but are not used by V0 models.
+    ``excluded_starts``: starts whose following interval is not a cycle (it held a
+    pregnancy); their lengths are left out. Long-interval warnings stay in
+    ``quality_issues`` (they are warnings, not errors).
     """
 
     released = load_released_model()
@@ -47,6 +51,7 @@ def predict(
     prior = population_prior or released.to_population_prior()
     model_name = model or released.point_estimator_alias
     period_history = _coerce_history(history)
+    excluded = set(excluded_starts)
     issues = validate_history(period_history, reference_date=reference_date, config=cfg)
     errors = [issue for issue in issues if issue.severity is IssueSeverity.ERROR]
     if errors:
@@ -59,7 +64,14 @@ def predict(
     starts = period_history.ordered_dates()
     last_start = starts[-1]
     ref = reference_date or last_start
-    lengths = np.asarray(cycle_lengths(starts), dtype=np.float64)
+    lengths = np.asarray(
+        [
+            length
+            for start, length in zip(starts, cycle_lengths(starts), strict=False)
+            if start not in excluded
+        ],
+        dtype=np.float64,
+    )
 
     forecaster = get_forecaster(model_name)
     point_est = forecaster.estimate(lengths, prior, cfg)

@@ -319,11 +319,18 @@ export function mergeDiaries(current: Diary, incoming: Diary, locale: Locale): D
     };
   }
   const mergedStarts = [...new Set([...current.periodStarts, ...incoming.periodStarts])];
+  // A JSON file can bring pregnancies (a CSV never does): add the ones this diary lacks.
+  const currentPregnancies = current.pregnancies ?? [];
+  const pregnancies = [
+    ...currentPregnancies,
+    ...(incoming.pregnancies ?? []).filter((item) => !currentPregnancies.some((mine) => mine.id === item.id)),
+  ];
   const base = emptyDiary(locale);
   return parseDiary({
     ...base,
     ...current,
     days,
+    pregnancies,
     periodStarts: mergedStarts,
     locale: current.locale ?? locale,
     poolOptIn: current.poolOptIn,

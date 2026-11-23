@@ -19,6 +19,7 @@ import { useFriendsTabChoice } from "@/lib/client/friends-tab";
 import { AppShell } from "@/components/app-shell";
 import { AddEmailSignIn } from "@/components/add-email-sign-in";
 import { useConfirmDialog } from "@/components/confirm-dialog";
+import { PregnancySettings } from "@/components/pregnancy/pregnancy-settings";
 import { InstallPrompt } from "@/components/install-prompt";
 import { LanguageSelect } from "@/components/language-select";
 import { OfflineNotice } from "@/components/offline-notice";
@@ -284,6 +285,7 @@ export default function SettingsPage() {
             className="h-7 w-12 shrink-0 cursor-pointer appearance-none rounded-full bg-muted-foreground/30 p-1 transition-colors before:block before:size-5 before:rounded-full before:bg-white before:shadow-sm before:transition-transform checked:bg-primary checked:before:translate-x-5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
           />
         </label>
+        <PregnancySettings />
         {FRIENDS_AVAILABLE && storageMode === "hosted" ? (
           <label
             htmlFor="friends-tab"

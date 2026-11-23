@@ -1,7 +1,7 @@
 // Copyright © 2026 Emma Flora Harbison & Luis Rey Sánchez
 // SPDX-License-Identifier: Apache-2.0
 
-import { FRIENDS_AVAILABLE } from "@/lib/features";
+import { FRIENDS_AVAILABLE, PREGNANCY_AVAILABLE } from "@/lib/features";
 
 export const HELP_SECTIONS = [
   { id: "product", title: "The app" },
@@ -44,6 +44,17 @@ export const HELP_ARTICLES: HelpArticleMeta[] = [
           slug: "friends",
           title: "Friends: sharing your phase",
           summary: "What close friends see on your card, how invites work, and what Ciclo's server can and cannot see.",
+          section: "product" as const,
+        },
+      ]
+    : []),
+  // Only once pregnancy mode is available: until then /help/pregnancy is a 404 and content/help/pregnancy.md waits.
+  ...(PREGNANCY_AVAILABLE
+    ? [
+        {
+          slug: "pregnancy",
+          title: "Pregnancy mode",
+          summary: "How Ciclo dates a pregnancy, what friends see, and what happens when it ends.",
           section: "product" as const,
         },
       ]

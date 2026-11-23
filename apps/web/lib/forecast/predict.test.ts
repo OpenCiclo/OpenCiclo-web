@@ -7,7 +7,7 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 
 import { discreteLaplacePmf } from "./distribution";
-import { predict } from "./predict";
+import { predict, releasedConfig, releasedPrior } from "./predict";
 import releasedModel from "./released_model.json";
 import {
   estimateScale,
@@ -53,6 +53,8 @@ const parity = JSON.parse(readFileSync(fixturePath, "utf8")) as {
   forecasts: {
     history: string[];
     reference_date: string;
+    excluded_starts: string[];
+    min_laplace_scale: number | null;
     most_likely_date: string;
     most_likely_cycle_length: number;
     uncertainty: string;
@@ -171,7 +173,14 @@ describe("Python parity", () => {
 
   it("matches full predict() vectors from the released model", () => {
     for (const expected of parity.forecasts) {
-      const got = predict(expected.history, expected.reference_date);
+      const config = releasedConfig();
+      const got = predict(
+        expected.history,
+        expected.reference_date,
+        releasedPrior(),
+        expected.min_laplace_scale === null ? config : { ...config, minLaplaceScale: expected.min_laplace_scale },
+        expected.excluded_starts,
+      );
       expect(got.modelId).toBe(expected.model_id);
       expect(got.modelVersion).toBe(expected.model_version);
       expect(got.mostLikelyDate).toBe(expected.most_likely_date);

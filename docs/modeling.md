@@ -99,6 +99,23 @@ The calendar does not follow that truncated date. It keeps the unconditional mod
 
 Wording rules: "estimated ovulation", "may fall"; never "safe days" or a per-day chance of pregnancy. Fertile days start about five days before ovulation ([Wilcox et al. 1995](https://doi.org/10.1056/NEJM199512073332301)); the app says so in its tip but does not draw a fertile window.
 
+## Pregnancy dates
+
+`openciclo/pregnancy.py` and its twin `apps/web/lib/pregnancy/dating.ts` (parity vectors in `tests/fixtures/forecast_parity.json`, "pregnancy"). Pregnancy mode itself is behind `PREGNANCY_AVAILABLE` (agents.txt "Pregnancy").
+
+- **Due date** ([ACOG Committee Opinion 700](https://pubmed.ncbi.nlm.nih.gov/28426621/)): last period + 280 days; ovulation or conception + 266; embryo transfer + 266 − the embryo's age (3 or 5 days); ultrasound date + (280 − gestational age that day). The date she was given is taken as it is. A later ultrasound replaces earlier dating.
+- **Cycle correction** (Naegele with Parikh's correction, [StatPearls](https://www.ncbi.nlm.nih.gov/books/NBK536986/)): + (usual cycle − 28) days, capped at ±7 here; outside 21–35-day cycles the app recommends ultrasound dating. Optional.
+- **Age** counts from 0 ("12 weeks and 3 days" = day 87). Trimesters as usually counted: to 13+6, 14+0–27+6, from 28+0. Term labels from [ACOG Committee Opinion 579](https://pubmed.ncbi.nlm.nih.gov/24150030/): early 37+0–38+6, full 39+0–40+6, late 41+0–41+6, postterm from 42+0. The app shows 37+0–42+0 as the likely window: natural length varies by up to 37 days among pregnancies dated by ovulation ([Jukic et al. 2013](https://pmc.ncbi.nlm.nih.gov/articles/PMC3777570)).
+
+## Cycles around a pregnancy
+
+`apps/web/lib/cycle/segments.ts`; `predict(..., excluded_starts=...)` in Python for parity.
+
+- The interval between the last period before a pregnancy and the first after it is not a cycle: its length is left out of the forecast, the averages, Patterns and the research pool.
+- No forecast while a pregnancy goes on, nor after its end until a period start is logged.
+- Bleeding is never a period start from the estimated conception day (due − 266) while the pregnancy goes on, nor within 20 days of its end: the bleeding of the end lasts up to two weeks, spotting up to three, and ovulation comes on day 13 at the earliest ([Donnet et al. 1990](https://scilit.net/publications/465937c8fd78b56c55cd0adce05c82ce)). After a birth, or an end from 14+0, the window is 42 days: bleeding after a birth can last about six weeks ([Cleveland Clinic, lochia](https://my.clevelandclinic.org/health/body/22485-lochia)); for a loss after 13 weeks that is an assumption with no study behind it.
+- **Assumptions with no data to validate them** (ESTUDIO-final-del-embarazo, section 5): after a loss the forecast reuses earlier cycles with the Laplace scale floored at 3 days (the prior's MAD) for 3 cycles (`POST_LOSS_WIDE_CYCLES`, `POST_PREGNANCY_MIN_SCALE`); after a birth it leaves out every earlier cycle and starts from the prior.
+
 ## Period duration (web, derived)
 
 The published `predict()` path still forecasts **cycle length / next start only**. The web app then derives bleeding duration separately:

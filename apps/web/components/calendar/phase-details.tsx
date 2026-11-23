@@ -347,6 +347,7 @@ export function DueDetails({
   locale,
   t,
   onHowEstimated,
+  onPregnant,
 }: {
   overview: CycleOverview;
   timeline: CycleTimeline | null;
@@ -355,6 +356,8 @@ export function DueDetails({
   locale: Locale;
   t: Messages;
   onHowEstimated: () => void;
+  /** "I'm pregnant": turns pregnancy mode on (PREGNANCY_AVAILABLE). Never suggested, only offered here. */
+  onPregnant?: () => void;
 }) {
   const forecast = overview.forecast;
   const interval = forecast ? coverageInterval(forecast.dailyProbabilities, 0.8) : null;
@@ -412,6 +415,17 @@ export function DueDetails({
         <p className="text-[11px] leading-[1.4] text-muted-foreground">{t.dueNotice}</p>
         <HowEstimated t={t} onClick={onHowEstimated} phase="menstrual" />
       </div>
+      {onPregnant ? (
+        <button
+          type="button"
+          data-close-card=""
+          onClick={onPregnant}
+          className="phase-reveal mx-auto mt-2 px-3 py-2 text-[12.5px] font-bold text-muted-foreground underline underline-offset-4"
+          style={reveal(5)}
+        >
+          {t.pregnancyOfferFromDue}
+        </button>
+      ) : null}
     </div>
   );
 }

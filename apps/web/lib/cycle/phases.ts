@@ -4,10 +4,16 @@
 import { addDaysIso, type Diary } from "@/lib/diary";
 import { mostLikelyLength } from "@/lib/forecast/distribution";
 import { daysBetween } from "@/lib/forecast/math";
-import { predict } from "@/lib/forecast/predict";
 import type { Forecast } from "@/lib/forecast/types";
 import type { Messages } from "@/lib/i18n";
 import { knownCycleOvulation, openCycleOvulation, type OvulationWindow } from "@/lib/cycle/ovulation";
+import {
+  forecastFor,
+  insidePregnancy,
+  pregnancyStatus,
+  validCycleLengths,
+  type PregnancyStatus,
+} from "@/lib/cycle/segments";
 import {
   estimatePeriodDuration,
   expectedBleedingWindow,
@@ -50,6 +56,8 @@ export type CycleOverview = {
   forecastingEnabled: boolean;
   periodRuns: PeriodRun[];
   periodDuration: PeriodDurationStats;
+  /** Where a pregnancy stands (lib/cycle/segments.ts): while one goes on, or until her period comes back, no forecast. */
+  pregnancy: PregnancyStatus;
 };
 
 export const DEFAULT_PERIOD_LENGTH = 5;
@@ -147,6 +155,8 @@ export function phaseAtDate(
   options: { includeEstimated?: boolean } = {},
 ): PhaseAtDate | null {
   const includeEstimated = options.includeEstimated ?? true;
+  // A day inside a pregnancy, or before her period comes back after one, has no phase.
+  if (insidePregnancy(date, diary.periodStarts, diary.pregnancies ?? [])) return null;
   const bounds = cycleContaining(date, diary.periodStarts, predictedNext);
   if (diary.days[date]?.flow) {
     const start = bounds?.start ?? lastPeriodStartOnOrBefore(diary.periodStarts, date);
@@ -217,12 +227,11 @@ export function cycleOverview(diary: Diary, today: string): CycleOverview {
   const runs = periodRuns(diary);
   const periodDuration = estimatePeriodDuration(diary);
   const starts = [...diary.periodStarts].sort();
-  const completedLengths: number[] = [];
-  for (let i = 0; i < starts.length - 1; i += 1) {
-    completedLengths.push(daysBetween(starts[i], starts[i + 1]));
-  }
-  const avgCycleLength = meanRounded(completedLengths);
-  const currentCycleDay = cycleDayAtDate(starts, today);
+  const pregnancies = diary.pregnancies ?? [];
+  const avgCycleLength = meanRounded(validCycleLengths(starts, pregnancies));
+  const pregnancy = pregnancyStatus(starts, pregnancies);
+  // Days since the last start mean nothing while pregnant or before the period comes back.
+  const currentCycleDay = insidePregnancy(today, starts, pregnancies) ? null : cycleDayAtDate(starts, today);
   const forecastingEnabled = diary.forecastingEnabled !== false;
   const empty: CycleOverview = {
     currentCycleDay,
@@ -240,6 +249,7 @@ export function cycleOverview(diary: Diary, today: string): CycleOverview {
     forecastingEnabled,
     periodRuns: runs,
     periodDuration,
+    pregnancy,
   };
 
   if (starts.length === 0) {
@@ -254,7 +264,13 @@ export function cycleOverview(diary: Diary, today: string): CycleOverview {
     };
   }
 
-  const forecast = predict(diary.periodStarts, today);
+  const forecast = forecastFor(starts, pregnancies, today);
+  if (!forecast) {
+    return {
+      ...empty,
+      currentPhase: phaseAtDate(diary, today, null, menstrualLength, { includeEstimated: false }),
+    };
+  }
   const anchorDate = anchoredPeriodDate(forecast);
   const currentPhase = phaseAtDate(diary, today, anchorDate, menstrualLength, {
     includeEstimated: true,

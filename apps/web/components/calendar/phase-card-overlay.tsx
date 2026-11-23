@@ -9,7 +9,7 @@ import { createPortal } from "react-dom";
 import { ChevronUp } from "lucide-react";
 
 import { ForecastInfoDialog } from "@/components/calendar/forecast-info-dialog";
-import { PhaseAura } from "@/components/calendar/phase-visuals";
+import { PhaseAura, type AuraColors } from "@/components/calendar/phase-visuals";
 import { IS_ANDROID_APP } from "@/lib/app-target";
 import { useLatest, usePrefersReducedMotion } from "@/lib/client/hooks";
 import { VelocityTracker, sheetDragIntent, sheetShouldClose } from "@/lib/client/swipe";
@@ -82,15 +82,21 @@ export function PhaseCardOverlay({
   details,
   t,
   onClosed,
+  auraColors,
 }: {
   origin: CardRect;
   desktop: boolean;
   phase: CyclePhase;
   next: CyclePhase;
+  /** The aura's lights when the card is not a phase's (the pregnancy card). */
+  auraColors?: AuraColors;
   /** For screen readers: what the dialog is. */
   title: string;
   header: ReactNode;
-  /** The expanded content; `howEstimated` opens the forecast explainer. */
+  /**
+   * The expanded content; `howEstimated` opens the forecast explainer. A button
+   * in it marked `data-close-card` also closes the card (after its own click).
+   */
   details: (howEstimated: () => void) => ReactNode;
   t: Messages;
   onClosed: () => void;
@@ -136,6 +142,7 @@ export function PhaseCardOverlay({
   // Built once: the card's own state changes (opening, closing) leave the content alone.
   const openInfo = useCallback(() => setInfoOpen(true), []);
   const content = useMemo(() => details(openInfo), [details, openInfo]);
+
 
   // Grow from the card's own height: the expanded height once that one has
   // been drawn (two frames; a timer too, as frames stop in a hidden page).
@@ -184,6 +191,7 @@ export function PhaseCardOverlay({
     }
     setClosing(true);
   }, [desktop, onClosedRef, reduceMotion]);
+
 
   // The phone card reports the end of its height transition; this covers the
   // desktop dialog's animation and a transition that never runs.
@@ -322,7 +330,13 @@ export function PhaseCardOverlay({
         {title}
       </h2>
       {header}
-      {content}
+      <div
+        onClick={(event) => {
+          if (event.target instanceof Element && event.target.closest("[data-close-card]")) requestClose();
+        }}
+      >
+        {content}
+      </div>
     </>
   );
 
@@ -351,7 +365,7 @@ export function PhaseCardOverlay({
               closing ? "animate-sheet-down" : "animate-sheet-up",
             )}
           >
-            <PhaseAura phase={phase} next={next} animate={false} wide />
+            <PhaseAura phase={phase} next={next} animate={false} wide colors={auraColors} />
             {closeButton}
             <div className="relative z-[1] min-h-0 flex-1 overflow-y-auto overscroll-contain px-[18px] pt-4 pb-4">{body}</div>
           </div>
@@ -386,7 +400,7 @@ export function PhaseCardOverlay({
               onClosedRef.current();
             }}
           >
-            <PhaseAura phase={phase} next={next} animate={false} wide={expanded} />
+            <PhaseAura phase={phase} next={next} animate={false} wide={expanded} colors={auraColors} />
             {closeButton}
             {/* Laid out at the open size from the start (less the 2 px border): the
                 card only uncovers it, so nothing inside reflows while it grows or shrinks. */}

@@ -4,6 +4,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  DIARY_SCHEMA_VERSION,
   derivePeriodStarts,
   parseDiary,
   upsertDay,
@@ -18,7 +19,7 @@ describe("diary schema", () => {
       periodStarts: ["2026-06-01", "2026-06-29"],
       locale: "es",
     });
-    expect(diary.schemaVersion).toBe(6);
+    expect(diary.schemaVersion).toBe(DIARY_SCHEMA_VERSION);
     expect(diary.days["2026-06-01"]?.flow).toBe("medium");
     expect(diary.days["2026-06-29"]?.flow).toBe("medium");
     expect(diary.periodStarts).toEqual(["2026-06-01", "2026-06-29"]);
@@ -66,7 +67,7 @@ describe("diary schema", () => {
         },
       },
     });
-    expect(diary.schemaVersion).toBe(6);
+    expect(diary.schemaVersion).toBe(DIARY_SCHEMA_VERSION);
     expect(diary.favoriteSymptomIds).toContain("cramps");
     expect(diary.days["2026-07-05"]?.symptoms).toEqual({
       calm: "present",
@@ -114,7 +115,7 @@ describe("diary schema", () => {
         "2026-08-03": { note: "   ", symptoms: {} },
       },
     });
-    expect(diary.schemaVersion).toBe(6);
+    expect(diary.schemaVersion).toBe(DIARY_SCHEMA_VERSION);
     expect(diary.days["2026-08-01"]).toEqual({ note: "Hoy me siento mejor", symptoms: {} });
     expect(diary.days["2026-08-02"]?.note).toHaveLength(200);
     expect(diary.days["2026-08-03"]).toBeUndefined();
@@ -177,7 +178,7 @@ describe("diary schema", () => {
       days: {},
       forecastingEnabled: false,
     });
-    expect(diary.schemaVersion).toBe(6);
+    expect(diary.schemaVersion).toBe(DIARY_SCHEMA_VERSION);
     expect(diary.forecastingEnabled).toBe(false);
   });
 });
