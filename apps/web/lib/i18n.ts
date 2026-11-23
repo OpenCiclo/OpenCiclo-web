@@ -79,7 +79,7 @@ const es = {
     "Tus fechas se cifran en este dispositivo. Ciclo no puede resetear tu contraseña ni tu frase. Si las pierdes, solo te salva un export previo. Así nadie — ni nosotras — puede leer tu diario en el servidor.",
   signupConsentTitle: "Antes de empezar",
   signupConsentHosted:
-    "Tu diario puede contener datos de salud y de tu vida sexual: periodos, síntomas, salud mental, actividad sexual, tests de embarazo y de ovulación, píldoras anticonceptivas y otros medicamentos, y notas. Ciclo lo cifra en este dispositivo antes de guardarlo. En la nube de Ciclo, nuestro servidor solo guarda la copia cifrada y no puede leerla. Con correo, guarda además una huella codificada de tu dirección, nunca la dirección.",
+    "Tu diario puede contener datos de salud y de tu vida sexual: periodos, síntomas, salud mental, actividad sexual, tests de embarazo y de ovulación, fechas de embarazo, píldoras anticonceptivas y otros medicamentos, y notas. Ciclo lo cifra en este dispositivo antes de guardarlo. En la nube de Ciclo, nuestro servidor solo guarda la copia cifrada y no puede leerla. Con correo, guarda además una huella codificada de tu dirección, nunca la dirección.",
   signupConsentDevice: "Con «Solo en este dispositivo», el diario nunca sale de este móvil.",
   signupConsentAgree:
     "Acepto que Ciclo guarde y trate mis datos de salud como se explica aquí y en la política de privacidad.",
@@ -1035,7 +1035,7 @@ const en = {
     "Your dates are encrypted on this device. Ciclo cannot reset your password or phrase. If you lose them, only a prior export saves you. That way nobody — including us — can read your diary on the server.",
   signupConsentTitle: "Before you start",
   signupConsentHosted:
-    "Your diary can hold health and sex-life data: periods, symptoms, mental health, sexual activity, pregnancy and ovulation tests, contraceptive pills and other medicines, and notes. Ciclo encrypts it on this device before saving it. In the Ciclo cloud, our server keeps only the encrypted copy and cannot read it. With email, it also keeps a coded fingerprint of your address, never the address itself.",
+    "Your diary can hold health and sex-life data: periods, symptoms, mental health, sexual activity, pregnancy and ovulation tests, pregnancy dates, contraceptive pills and other medicines, and notes. Ciclo encrypts it on this device before saving it. In the Ciclo cloud, our server keeps only the encrypted copy and cannot read it. With email, it also keeps a coded fingerprint of your address, never the address itself.",
   signupConsentDevice: "With “Only on this device”, the diary never leaves this phone.",
   signupConsentAgree:
     "I agree that Ciclo stores and processes my health data as described here and in the privacy policy.",

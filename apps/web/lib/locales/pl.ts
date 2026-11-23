@@ -30,7 +30,7 @@ const locale: LocaleModule = {
       "Twoje daty są szyfrowane na tym urządzeniu. Ciclo nie może zresetować twojego hasła ani frazy. Jeśli je zgubisz, uratuje cię tylko wcześniejszy eksport. Dzięki temu nikt — nawet my — nie może przeczytać twojego dziennika na serwerze.",
     signupConsentTitle: "Zanim zaczniesz",
     signupConsentHosted:
-      "Twój dziennik może zawierać dane o zdrowiu i życiu seksualnym: miesiączki, objawy, zdrowie psychiczne, aktywność seksualną, testy ciążowe i owulacyjne, tabletki antykoncepcyjne i inne leki oraz notatki. Ciclo szyfruje go na tym urządzeniu przed zapisaniem. W chmurze Ciclo nasz serwer przechowuje tylko zaszyfrowaną kopię i nie może jej odczytać. Przy logowaniu e-mailem przechowuje też zakodowany odcisk twojego adresu, nigdy sam adres.",
+      "Twój dziennik może zawierać dane o zdrowiu i życiu seksualnym: miesiączki, objawy, zdrowie psychiczne, aktywność seksualną, testy ciążowe i owulacyjne, daty ciąży, tabletki antykoncepcyjne i inne leki oraz notatki. Ciclo szyfruje go na tym urządzeniu przed zapisaniem. W chmurze Ciclo nasz serwer przechowuje tylko zaszyfrowaną kopię i nie może jej odczytać. Przy logowaniu e-mailem przechowuje też zakodowany odcisk twojego adresu, nigdy sam adres.",
     signupConsentDevice: "Przy opcji „Tylko na tym urządzeniu” dziennik nigdy nie opuszcza tego telefonu.",
     signupConsentAgree:
       "Zgadzam się, aby Ciclo przechowywało i przetwarzało moje dane o zdrowiu w sposób opisany tutaj i w polityce prywatności.",

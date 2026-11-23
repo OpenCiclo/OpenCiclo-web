@@ -30,7 +30,7 @@ const locale: LocaleModule = {
       "Tes dates sont chiffrées sur cet appareil. Ciclo ne peut pas réinitialiser ton mot de passe ni ta phrase. Si tu les perds, seul un export fait avant peut te sauver. Ainsi, personne — pas même nous — ne peut lire ton journal sur le serveur.",
     signupConsentTitle: "Avant de commencer",
     signupConsentHosted:
-      "Ton journal peut contenir des données de santé et sur ta vie sexuelle : règles, symptômes, santé mentale, activité sexuelle, tests de grossesse et d’ovulation, pilule contraceptive et autres médicaments, et notes. Ciclo le chiffre sur cet appareil avant de l’enregistrer. Dans le cloud de Ciclo, notre serveur ne garde que la copie chiffrée et ne peut pas la lire. Avec l’e-mail, il garde aussi une empreinte codée de ton adresse, jamais l’adresse elle-même.",
+      "Ton journal peut contenir des données de santé et sur ta vie sexuelle : règles, symptômes, santé mentale, activité sexuelle, tests de grossesse et d’ovulation, dates de grossesse, pilule contraceptive et autres médicaments, et notes. Ciclo le chiffre sur cet appareil avant de l’enregistrer. Dans le cloud de Ciclo, notre serveur ne garde que la copie chiffrée et ne peut pas la lire. Avec l’e-mail, il garde aussi une empreinte codée de ton adresse, jamais l’adresse elle-même.",
     signupConsentDevice: "Avec « Uniquement sur cet appareil », le journal ne quitte jamais ce téléphone.",
     signupConsentAgree:
       "J’accepte que Ciclo enregistre et traite mes données de santé comme expliqué ici et dans la politique de confidentialité.",

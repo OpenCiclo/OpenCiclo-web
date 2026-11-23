@@ -30,7 +30,7 @@ const locale: LocaleModule = {
       "Zure datak gailu honetan zifratzen dira. Ciclok ezin ditu zure pasahitza eta esaldia berrezarri. Galtzen badituzu, aurretik egindako esportazio batek bakarrik salbatuko zaitu. Horrela, inork — ezta guk ere — ezin du zure egunerokoa zerbitzarian irakurri.",
     signupConsentTitle: "Hasi aurretik",
     signupConsentHosted:
-      "Zure egunerokoak osasun-datuak eta zure sexu-bizitzari buruzko datuak izan ditzake: hilekoak, sintomak, osasun mentala, sexu-jarduera, haurdunaldi- eta obulazio-probak, pilula antisorgailuak eta beste botika batzuk, eta oharrak. Ciclok gailu honetan zifratzen du gorde aurretik. Cicloren hodeian, gure zerbitzariak kopia zifratua baino ez du gordetzen, eta ezin du irakurri. Posta elektronikoarekin, zure helbidearen hatz-marka kodetu bat ere gordetzen du, inoiz ez helbidea bera.",
+      "Zure egunerokoak osasun-datuak eta zure sexu-bizitzari buruzko datuak izan ditzake: hilekoak, sintomak, osasun mentala, sexu-jarduera, haurdunaldi- eta obulazio-probak, haurdunaldiaren datak, pilula antisorgailuak eta beste botika batzuk, eta oharrak. Ciclok gailu honetan zifratzen du gorde aurretik. Cicloren hodeian, gure zerbitzariak kopia zifratua baino ez du gordetzen, eta ezin du irakurri. Posta elektronikoarekin, zure helbidearen hatz-marka kodetu bat ere gordetzen du, inoiz ez helbidea bera.",
     signupConsentDevice: "«Gailu honetan bakarrik» aukerarekin, egunerokoa ez da inoiz mugikor honetatik ateratzen.",
     signupConsentAgree:
       "Onartzen dut Ciclok nire osasun-datuak gorde eta tratatzea, hemen eta pribatutasun-politikan azaltzen den bezala.",

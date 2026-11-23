@@ -30,7 +30,7 @@ const locale: LocaleModule = {
       "Deine Daten werden auf diesem Gerät verschlüsselt. Ciclo kann dein Passwort und deine Phrase nicht zurücksetzen. Wenn du sie verlierst, hilft nur ein vorheriger Export. So kann niemand – auch wir nicht – dein Tagebuch auf dem Server lesen.",
     signupConsentTitle: "Bevor du anfängst",
     signupConsentHosted:
-      "Dein Tagebuch kann Gesundheitsdaten und Daten zu deinem Sexualleben enthalten: Perioden, Symptome, psychische Gesundheit, sexuelle Aktivität, Schwangerschafts- und Ovulationstests, Antibabypille und andere Medikamente sowie Notizen. Ciclo verschlüsselt es auf diesem Gerät, bevor es gespeichert wird. In der Ciclo-Cloud speichert unser Server nur die verschlüsselte Kopie und kann sie nicht lesen. Mit E-Mail speichert er außerdem einen codierten Fingerabdruck deiner Adresse, nie die Adresse selbst.",
+      "Dein Tagebuch kann Gesundheitsdaten und Daten zu deinem Sexualleben enthalten: Perioden, Symptome, psychische Gesundheit, sexuelle Aktivität, Schwangerschafts- und Ovulationstests, Daten einer Schwangerschaft, Antibabypille und andere Medikamente sowie Notizen. Ciclo verschlüsselt es auf diesem Gerät, bevor es gespeichert wird. In der Ciclo-Cloud speichert unser Server nur die verschlüsselte Kopie und kann sie nicht lesen. Mit E-Mail speichert er außerdem einen codierten Fingerabdruck deiner Adresse, nie die Adresse selbst.",
     signupConsentDevice: "Mit „Nur auf diesem Gerät“ verlässt das Tagebuch dieses Handy nie.",
     signupConsentAgree:
       "Ich bin einverstanden, dass Ciclo meine Gesundheitsdaten so speichert und verarbeitet, wie es hier und in der Datenschutzerklärung beschrieben ist.",
