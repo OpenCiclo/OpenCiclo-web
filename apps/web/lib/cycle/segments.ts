@@ -108,7 +108,10 @@ export function pregnancyStatus(periodStarts: Starts, pregnancies: Pregnancies =
  */
 export function insidePregnancy(date: string, periodStarts: Starts, pregnancies: Pregnancies = []): boolean {
   for (const record of pregnancies) {
-    if (date < conceptionDate(record.dueDate)) continue;
+    // Before its estimated conception a day is an ordinary cycle day, unless
+    // the pregnancy had already ended by then (one dated from a recent period
+    // and ended within days): from its end on there is no cycle either way.
+    if (date < conceptionDate(record.dueDate) && !(record.end && date >= record.end.date)) continue;
     if (!record.end) return true;
     const endDate = record.end.date;
     const back = [...periodStarts].sort().find((iso) => iso > endDate);

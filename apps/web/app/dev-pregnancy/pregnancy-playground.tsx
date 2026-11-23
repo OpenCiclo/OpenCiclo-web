@@ -3,13 +3,14 @@
 
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
+import { PregnancyPatterns } from "@/components/patterns/pregnancy-patterns";
 import { PregnancyCard } from "@/components/pregnancy/pregnancy-card";
 import { PregnancyEndSheet, PregnancyStartSheet } from "@/components/pregnancy/pregnancy-sheets";
 import { ResumingCard } from "@/components/pregnancy/resuming-card";
 import { Button } from "@/components/ui/button";
-import { addDaysIso } from "@/lib/diary";
+import { addDaysIso, emptyDiary, upsertDay, type Diary, type SymptomMap } from "@/lib/diary";
 import { messages, type BaseLocale } from "@/lib/i18n";
 import type { PregnancyRecord } from "@/lib/pregnancy/record";
 
@@ -36,6 +37,36 @@ const CARDS: [string, PregnancyRecord][] = [
   ["42+3 · asks if it goes on", along(42, 3)],
 ];
 
+/** Patterns at three points of a pregnancy. */
+const PATTERNS: [string, PregnancyRecord][] = [
+  ["9+4", along(9, 4)],
+  ["20+0", along(20, 0)],
+  ["36+2", along(36, 2)],
+];
+
+/** A diary with symptoms logged through the pregnancy: `days[week]` days in a row in each week. */
+function loggedDiary(record: PregnancyRecord, locale: BaseLocale): Diary {
+  const start = addDaysIso(record.dueDate, -280);
+  const rows: [SymptomMap, number[]][] = [
+    [{ nausea: "moderate" }, [0, 0, 0, 0, 0, 1, 4, 6, 7, 6, 5, 4, 3, 1, 0, 0, 0, 0, 0, 0, 0]],
+    [{ fatigue: "mild" }, [0, 0, 0, 0, 0, 0, 3, 5, 6, 6, 5, 5, 4, 4, 2, 1, 0, 2, 1, 0, 1]],
+    [{ tenderBreasts: "mild" }, [0, 0, 0, 0, 2, 3, 5, 4, 3, 2, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0]],
+    [{ headache: "present" }, [0, 0, 0, 0, 0, 0, 0, 1, 0, 2, 1, 0, 1, 2, 1, 0, 0, 1, 0, 2, 1]],
+    [{ backache: "mild" }, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 3, 4, 2]],
+  ];
+  let diary = emptyDiary(locale);
+  for (const [symptoms, weeks] of rows) {
+    weeks.forEach((count, week) => {
+      for (let day = 0; day < count; day += 1) {
+        const iso = addDaysIso(start, week * 7 + day);
+        if (iso > TODAY) continue;
+        diary = upsertDay(diary, iso, { symptoms: { ...(diary.days[iso]?.symptoms ?? {}), ...symptoms } });
+      }
+    });
+  }
+  return diary;
+}
+
 export function PregnancyPlayground() {
   const [locale, setLocale] = useState<BaseLocale>("es");
   const [sheet, setSheet] = useState<"start" | "change" | "end" | "correct" | "past" | "failing" | null>(null);
@@ -47,6 +78,7 @@ export function PregnancyPlayground() {
   };
   const t = messages[locale];
   const changing = sheet === "change" ? CARDS[1][1] : null;
+  const diaries = useMemo(() => PATTERNS.map(([, record]) => loggedDiary(record, locale)), [locale]);
 
   return (
     <div className="min-h-dvh bg-background text-foreground">
@@ -105,6 +137,32 @@ export function PregnancyPlayground() {
           <div className="flex flex-col gap-2">
             <p className="text-xs font-semibold text-muted-foreground">After a birth, before the period</p>
             <ResumingCard outcome="birth" t={t} />
+          </div>
+        </section>
+        <section className="flex flex-col gap-3">
+          <h2 className="font-serif text-2xl">Patterns while a pregnancy goes on</h2>
+          <p className="max-w-xl text-sm leading-relaxed text-muted-foreground">
+            The pregnancy view of Patterns at a phone&apos;s width, with a made-up diary. The row at the foot opens Patterns&apos; usual cards (a
+            stand-in here).
+          </p>
+          <div className="grid gap-8 desktop:grid-cols-3">
+            {PATTERNS.map(([label, record], index) => (
+              <div key={label} className="mx-auto flex w-full max-w-[390px] flex-col gap-[22px]">
+                <p className="text-xs font-semibold text-muted-foreground">{label}</p>
+                <PregnancyPatterns
+                  record={record}
+                  diary={diaries[index]}
+                  today={TODAY}
+                  locale={locale}
+                  t={t}
+                  earlier={{ count: 6, average: 27 }}
+                >
+                  <p className="rounded-3xl border border-dashed border-border p-[18px] text-sm text-muted-foreground">
+                    Patterns&apos; usual cards: the cycles one under another, lengths, recurring symptoms, notes.
+                  </p>
+                </PregnancyPatterns>
+              </div>
+            ))}
           </div>
         </section>
       </div>

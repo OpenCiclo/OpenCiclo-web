@@ -29,5 +29,11 @@ export const FRIENDS_AVAILABLE = true;
  */
 export const PREGNANCY_AVAILABLE = true;
 
-/** The week-by-week cards (phase 3b). Off until they have had a medical review. */
-export const PREGNANCY_WEEKS_AVAILABLE = false;
+/**
+ * The week-by-week texts on Patterns while a pregnancy goes on (phase 3b): the
+ * baby’s typical size and development and what the body commonly does, from
+ * lib/pregnancy/guide.ts with its sources. Turned on at the owner’s request
+ * (2026-11-23); the texts have had no medical review yet. Turned off, Patterns
+ * keeps the week, the trimesters, what she logged and what comes next.
+ */
+export const PREGNANCY_WEEKS_AVAILABLE = true;
