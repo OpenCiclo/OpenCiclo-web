@@ -18,6 +18,7 @@ import {
   type SymptomValue,
 } from "@/lib/diary";
 import type { Locale } from "@/lib/i18n";
+import type { PregnancyRecord } from "@/lib/pregnancy/record";
 
 // YYYY-MM-DD as text. isIsoDate also checks that the day exists.
 const DATE_SHAPE = /^\d{4}-\d{2}-\d{2}$/;
@@ -25,6 +26,8 @@ const DATE_SHAPE = /^\d{4}-\d{2}-\d{2}$/;
 export type ImportPreview = {
   days: number;
   starts: number;
+  /** Pregnancies in the file that this diary does not hold (by id). Only a JSON file brings any. */
+  pregnancies: number;
 };
 
 function csvEscape(value: string): string {
@@ -287,18 +290,44 @@ export function parseImportedFile(text: string): Diary {
   return parseCsvDiary(trimmed);
 }
 
-export function previewImport(incoming: Diary): ImportPreview {
+/** The pregnancies of `incoming` that `current` does not hold, by id. */
+function newPregnancies(current: Diary, incoming: Diary): PregnancyRecord[] {
+  const mine = current.pregnancies ?? [];
+  return (incoming.pregnancies ?? []).filter((item) => !mine.some((record) => record.id === item.id));
+}
+
+export function previewImport(incoming: Diary, current?: Diary): ImportPreview {
   return {
     days: Object.keys(incoming.days).length,
     starts: incoming.periodStarts.length,
+    pregnancies: current ? newPregnancies(current, incoming).length : (incoming.pregnancies ?? []).length,
   };
+}
+
+/**
+ * Whether an import adds the file's pregnancies unless she says otherwise: only
+ * into a diary with nothing in it (a backup restored). Anywhere else she ticks
+ * it herself: the file may hold a pregnancy she deleted on purpose, and nothing
+ * in the diary remembers a deleted one.
+ */
+export function importsPregnanciesByDefault(current: Diary): boolean {
+  return Object.keys(current.days).length === 0 && (current.pregnancies ?? []).length === 0;
 }
 
 function mergeSymptoms(current: SymptomMap | undefined, incoming: SymptomMap | undefined): SymptomMap {
   return { ...current, ...incoming };
 }
 
-export function mergeDiaries(current: Diary, incoming: Diary, locale: Locale): Diary {
+/**
+ * `pregnancies: false` leaves the file's pregnancies out (the import's choice).
+ * Then the days it brings from them count as any other bleeding.
+ */
+export function mergeDiaries(
+  current: Diary,
+  incoming: Diary,
+  locale: Locale,
+  options: { pregnancies?: boolean } = {},
+): Diary {
   const customSymptoms = [
     ...current.customSymptoms,
     ...incoming.customSymptoms.filter(
@@ -319,11 +348,13 @@ export function mergeDiaries(current: Diary, incoming: Diary, locale: Locale): D
     };
   }
   const mergedStarts = [...new Set([...current.periodStarts, ...incoming.periodStarts])];
-  // A JSON file can bring pregnancies (a CSV never does): add the ones this diary lacks.
+  // A JSON file can bring pregnancies (a CSV never does): add the ones this diary
+  // lacks, except a second one that goes on (only one does at a time).
   const currentPregnancies = current.pregnancies ?? [];
+  const goingOn = currentPregnancies.some((item) => !item.end);
   const pregnancies = [
     ...currentPregnancies,
-    ...(incoming.pregnancies ?? []).filter((item) => !currentPregnancies.some((mine) => mine.id === item.id)),
+    ...(options.pregnancies === false ? [] : newPregnancies(current, incoming)).filter((item) => item.end || !goingOn),
   ];
   const base = emptyDiary(locale);
   return parseDiary({

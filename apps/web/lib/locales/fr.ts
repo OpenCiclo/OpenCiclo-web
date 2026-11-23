@@ -225,6 +225,7 @@ const locale: LocaleModule = {
     importData: "Importer une sauvegarde",
     importHint:
       "JSON ou CSV exporté depuis Ciclo. Il est fusionné avec ce compte. Il restaure les données, pas l’ancien compte ni ses clés.",
+    importPregnancies: "Ajouter aussi les grossesses enregistrées dans le fichier ({count}).",
     importPreview: "Jours à ajouter ou à mettre à jour : {days}. Débuts de règles : {starts}.",
     importConfirm: "Importer",
     importOk: "Données importées.",
@@ -758,19 +759,20 @@ const locale: LocaleModule = {
     pregnancyEndEnded: "La grossesse s’est terminée",
     pregnancyEndKeep: "La garder dans mon journal",
     pregnancyEndWhat: "Que s’est-il passé ?",
+    pregnancyEndUndo: "Elle n’est pas terminée : elle est toujours en cours",
     pregnancyEndWhen: "Quand ?",
     pregnancyFriendsNoNews: "Rien de nouveau",
     pregnancyFriendsNoNewsHint:
       "Elles verront la même chose que si tu arrêtais de noter : quelques jours « règles attendues », puis « pas de nouvelles récentes ».",
-    pregnancyFriendsNote: "Rien de la grossesse n’arrive à tes amies.",
+    pregnancyFriendsNote: "Rien de la grossesse n’est partagé avec tes amies.",
     pregnancyFriendsSimulated: "Cycle simulé",
     pregnancyFriendsSimulatedHint:
-      "Tes amies verront des phases qui ne sont pas réelles. Une amie attentive peut remarquer que « noté aujourd’hui » n’apparaît jamais.",
+      "Tes amies verront des phases qui ne sont pas réelles. Une amie attentive peut remarquer que « enregistré aujourd’hui » n’apparaît jamais.",
     pregnancyFriendsTitle: "Ce que verront tes amies",
     pregnancyHowDate: "Comment veux-tu la dater ?",
     pregnancyImplausible: "Ces dates ne correspondent pas à une grossesse en cours. Vérifie-les.",
     pregnancyIrregularHint:
-      "Tes cycles sont plus courts ou plus longs que d’habitude : une échographie donnera une date plus fiable.",
+      "Tes cycles sont plus courts ou plus longs que la moyenne : une échographie donnera une date plus fiable.",
     pregnancyLearnLink: "Lire sur la grossesse dans Apprendre",
     pregnancyLmpLabel: "Premier jour de tes dernières règles",
     pregnancyMethodConception: "l’ovulation ou la conception",
@@ -790,6 +792,7 @@ const locale: LocaleModule = {
     pregnancyOptionUltrasound: "J’ai l’échographie",
     pregnancyScanAgeLabel: "Semaines et jours qu’on t’a donnés ce jour-là",
     pregnancyScanDateLabel: "Date de l’échographie",
+    pregnancyPastNotice: "Avec ces dates, la grossesse serait déjà terminée. Tu peux l’ajouter comme une grossesse précédente.",
     pregnancyStartButton: "Activer",
     pregnancyStartIntro:
       "Ciclo arrêtera de prévoir tes règles et te montrera les semaines. Tu peux le fermer quand tu veux. Tout reste dans ton journal chiffré.",
@@ -815,17 +818,18 @@ const locale: LocaleModule = {
       "Pour toute question sur les saignements ou ta récupération, demande à ta sage-femme ou à ton médecin.",
     resumingBirthOvulation: "On peut ovuler avant ces premières règles. Ciclo n’est pas une méthode contraceptive.",
     resumingBirthPeriod: "Après un accouchement, les règles peuvent mettre des semaines ou des mois à revenir.",
-    resumingBleeding: "Le saignement peut durer jusqu’à deux semaines, et les petites pertes jusqu’à trois.",
+    resumingBleeding: "Le saignement peut durer jusqu’à deux semaines, et le spotting jusqu’à trois.",
     resumingOpen: "Ce qui peut se passer maintenant",
     resumingOvulation:
       "On peut ovuler avant ces premières règles, parfois au bout de deux semaines. Ciclo n’est pas une méthode contraceptive.",
     resumingPeriod:
-      "Les règles reviennent souvent 4 à 8 semaines plus tard ; plus tard si la grossesse était plus avancée.",
+      "Les règles reviennent généralement 4 à 8 semaines plus tard ; plus tard si la grossesse était plus avancée.",
     resumingTitle: "Ton cycle reprendra quand tu noteras tes prochaines règles.",
     resumingWhenToAsk:
       "Consulte si le saignement imbibe une serviette en peu de temps, si tu as de la fièvre ou une forte douleur, si un test est encore positif après 3 semaines ou si tes règles ne sont pas revenues après 8 semaines.",
     settingsPregnancyDeleteConfirm: "Cette grossesse sera supprimée de ton journal. C’est irréversible.",
-    settingsPregnancyHide: "Masquer du calendrier",
+    settingsPregnancyEditEnd: "Corriger la fin",
+    settingsPregnancyHide: "Masquer dans le calendrier",
     settingsPregnancyPast: "Grossesses précédentes",
     settingsPregnancyShow: "Afficher dans le calendrier",
     settingsPregnancyStartHint: "Des dates et des semaines au lieu de prévisions. Tout reste dans ton journal chiffré.",
@@ -949,7 +953,7 @@ const locale: LocaleModule = {
       "Avec un cycle moyen de {length} jours, tes règles pourraient arriver dans {days} jours environ. Garde le nécessaire à portée de main et prévois du repos. C’est une estimation.",
     tipFertileTitle: "Ovulation estimée",
     tipFertileBody:
-      "D’après tes débuts de règles, l’ovulation pourrait tomber vers maintenant. Les jours fertiles commencent environ cinq jours avant l’ovulation. Une glaire de type blanc d’œuf coïncide parfois avec cette période, mais un calendrier ne peut pas confirmer l’ovulation. Ciclo n’est pas une méthode contraceptive.",
+      "D’après tes débuts de règles, l’ovulation pourrait tomber ces jours-ci. Les jours fertiles commencent environ cinq jours avant l’ovulation. Une glaire de type blanc d’œuf coïncide parfois avec cette période, mais un calendrier ne peut pas confirmer l’ovulation. Ciclo n’est pas une méthode contraceptive.",
     tipTopSymptomTitle: "Ton symptôme le plus noté : {symptom}",
     tipAdviceCramps:
       "De la chaleur sur le ventre, des mouvements doux et des aliments riches en magnésium peuvent soulager les crampes. Si la douleur est intense, demande un avis médical. Tu as noté ce symptôme {count} fois.",

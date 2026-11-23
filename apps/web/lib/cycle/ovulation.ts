@@ -21,6 +21,8 @@ import {
   type OvulationEstimate,
 } from "@/lib/forecast/ovulation";
 import type { Forecast } from "@/lib/forecast/types";
+import { cycleSegments } from "@/lib/cycle/segments";
+import type { PregnancyRecord } from "@/lib/pregnancy/record";
 
 /** From this many days on, the card says the window is wide because the cycles vary a lot. */
 export const WIDE_OVULATION_WINDOW_DAYS = 15;
@@ -78,19 +80,21 @@ export type OvulationMarks = { window: Set<string>; mostLikely: Set<string> };
 
 /**
  * Every calendar date inside an estimated ovulation window: each closed cycle
- * (known next start) and the open one. Worked out once per diary or forecast
- * change, not per calendar cell.
+ * (known next start) and the open one. An interval that held a pregnancy is not
+ * a cycle (lib/cycle/segments.ts), so it gets no window: its days have no phase.
+ * Worked out once per diary or forecast change, not per calendar cell.
  */
 export function estimatedOvulationDates(
   periodStarts: readonly string[],
   open: OvulationWindow | null,
   bleedDays: number,
+  pregnancies: readonly PregnancyRecord[] = [],
 ): OvulationMarks {
   const marks: OvulationMarks = { window: new Set(), mostLikely: new Set() };
-  const ordered = [...periodStarts].sort();
   const windows: OvulationWindow[] = [];
-  for (let i = 0; i < ordered.length - 1; i += 1) {
-    const window = knownCycleOvulation(ordered[i], ordered[i + 1], bleedDays);
+  for (const segment of cycleSegments(periodStarts, pregnancies)) {
+    if (segment.pregnancy) continue;
+    const window = knownCycleOvulation(segment.start, segment.next, bleedDays);
     if (window) windows.push(window);
   }
   if (open) windows.push(open);

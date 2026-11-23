@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { SYMPTOM_IDS, type Diary, type SymptomId } from "@/lib/diary";
-import { cycleSegments } from "@/lib/cycle/segments";
+import { cycleSegments, pregnancyStatus } from "@/lib/cycle/segments";
 import { cycleOverview, periodRuns, type CycleOverview } from "@/lib/cycle/phases";
 import { isSexEntry } from "@/lib/symptoms/catalog";
 
@@ -36,6 +36,18 @@ export function completedCycles(diary: Diary): CompletedCycle[] {
     .map((segment) => ({ start: segment.start, end: segment.next, length: segment.length }));
 }
 
+/**
+ * The start of the cycle that is open, or null: with no period logged, while a
+ * pregnancy goes on, and after one until her period comes back. Those days
+ * belong to no cycle, so Patterns draws no "now" row and counts none of them.
+ */
+export function openCycleStart(diary: Diary): string | null {
+  const status = pregnancyStatus(diary.periodStarts, diary.pregnancies ?? []);
+  if (status.kind === "active" || status.kind === "resuming") return null;
+  const starts = [...diary.periodStarts].sort();
+  return starts[starts.length - 1] ?? null;
+}
+
 /** Everything logged with the symptom picker, sex entries included (`patternStats` splits them). */
 export function recurringSymptoms(diary: Diary, lookback = 6): RecurringSymptom[] {
   const symptomIds: SymptomId[] = [
@@ -43,7 +55,7 @@ export function recurringSymptoms(diary: Diary, lookback = 6): RecurringSymptom[
     ...diary.customSymptoms.map((item) => item.id),
   ];
   const cycles = completedCycles(diary).slice(-lookback);
-  const lastStart = diary.periodStarts[diary.periodStarts.length - 1];
+  const lastStart = openCycleStart(diary);
   const windows = [...cycles];
   if (lastStart && (windows.length === 0 || windows[windows.length - 1]?.start !== lastStart)) {
     windows.push({ start: lastStart, end: "9999-12-31", length: 0 });

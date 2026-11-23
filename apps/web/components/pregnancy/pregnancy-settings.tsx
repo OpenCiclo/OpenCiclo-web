@@ -3,11 +3,14 @@
 
 "use client";
 
+import { useState } from "react";
+
 import { useConfirmDialog } from "@/components/confirm-dialog";
 import { weekTitle } from "@/components/pregnancy/pregnancy-card";
 import { usePregnancyFlows } from "@/components/pregnancy/pregnancy-flows";
 import { Button } from "@/components/ui/button";
 import { useCiclo, useTodayIso } from "@/lib/client/ciclo-context";
+import { saveErrorMessage } from "@/lib/client/save-error";
 import { PREGNANCY_AVAILABLE } from "@/lib/features";
 import { formatIsoUtc } from "@/lib/format-date";
 import { deletePregnancy, setFriendsMode, setPregnancyHidden } from "@/lib/pregnancy/actions";
@@ -18,7 +21,7 @@ import { pregnancyCardData } from "@/lib/pregnancy/view";
 /**
  * Settings → Pregnancy: turn it on (PREGNANCY_AVAILABLE), and for one that goes
  * on its dates, what friends see, its end and "turned it on by mistake"; for
- * ended ones, hide from the calendar or delete completely. Shown while the
+ * ended ones, hide from the calendar, correct the end or delete completely. Shown while the
  * diary holds a pregnancy even with the flag off, so it can always be ended.
  */
 export function PregnancySettings() {
@@ -26,13 +29,19 @@ export function PregnancySettings() {
   const today = useTodayIso();
   const flows = usePregnancyFlows();
   const [confirm, confirmDialog] = useConfirmDialog();
+  const [error, setError] = useState<string | null>(null);
   const pregnancies = diary.pregnancies ?? [];
   const active = activePregnancy(pregnancies);
   const ended = pregnancies.filter((record) => record.end);
   if (!PREGNANCY_AVAILABLE && pregnancies.length === 0) return null;
 
+  // A save that fails says so here: nothing changed, and she must not think it did.
   const save = (next: typeof diary) => {
-    if (!readOnly) void persistDiary(next);
+    if (readOnly) return;
+    persistDiary(next).then(
+      () => setError(null),
+      (cause: unknown) => setError(saveErrorMessage(cause, t)),
+    );
   };
   const date = (iso: string) => formatIsoUtc(iso, locale, { day: "numeric", month: "long", year: "numeric" });
 
@@ -113,6 +122,9 @@ export function PregnancySettings() {
                 >
                   {record.hidden ? t.settingsPregnancyShow : t.settingsPregnancyHide}
                 </Button>
+                <Button type="button" variant="outline" disabled={readOnly} onClick={() => flows.openEnd(record.id)}>
+                  {t.settingsPregnancyEditEnd}
+                </Button>
                 <Button
                   type="button"
                   variant="ghost"
@@ -134,6 +146,11 @@ export function PregnancySettings() {
             </div>
           ))}
         </div>
+      ) : null}
+      {error ? (
+        <p role="alert" className="text-xs text-destructive">
+          {error}
+        </p>
       ) : null}
       {confirmDialog}
     </div>

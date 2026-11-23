@@ -24,7 +24,7 @@ The `openciclo` package must remain importable and testable with no sockets, cre
 
 | Store | Contents | Linked to account? |
 | --- | --- | --- |
-| `accounts` | `pubkey_hash`, Ed25519 pubkey, AES-GCM ciphertext + nonce of the diary (schema v6: period starts, daily flow/mucus/symptoms/notes, forecasting preference). No plaintext health columns. | Yes (the account *is* the pubkey) |
+| `accounts` | `pubkey_hash`, Ed25519 pubkey, AES-GCM ciphertext + nonce of the diary (schema v7: period starts, daily flow/mucus/symptoms/notes, forecasting preference, pregnancy dates when pregnancy mode was used). No plaintext health columns. | Yes (the account *is* the pubkey) |
 | `recovery_mailboxes` | HMAC(email), wrapped mnemonic, `account_id`, `verified_at` | Yes — this is optional PII. Created only after the 6-digit inbox code. |
 | `mailbox_pending` | HMAC(email), wrapped kit, hashed 6-digit code, expiry | Yes — dropped on confirm or when the account is deleted (`ON DELETE CASCADE`) |
 | `research_contributions` | `pool_id`, integer cycle lengths, `created_at` | **No** — never symptoms, mucus, or dates |

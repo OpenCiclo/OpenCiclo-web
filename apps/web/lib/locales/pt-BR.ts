@@ -224,6 +224,7 @@ const locale: LocaleModule = {
     importData: "Importar cópia",
     importHint:
       "JSON ou CSV exportado do Ciclo. Os dados são mesclados com esta conta. Restaura os dados, não a conta antiga.",
+    importPregnancies: "Adicionar também as gestações salvas no arquivo ({count}).",
     importPreview: "Dias a adicionar ou atualizar: {days}. Inícios de menstruação: {starts}.",
     importConfirm: "Importar",
     importOk: "Dados importados.",
@@ -731,7 +732,7 @@ const locale: LocaleModule = {
     pregnancyConceptionLabel: "Data da ovulação ou da concepção",
     pregnancyConfirmDue: "Data provável do parto: {date}. Janela provável: {range}.",
     pregnancyCycleCorrection: "Ajustar ao meu ciclo habitual ({days} dias)",
-    pregnancyDatedBy: "Datada por {method}",
+    pregnancyDatedBy: "Datada segundo {method}",
     pregnancyDaysShort: "dias",
     pregnancyDetailsTitle: "Sua gravidez",
     pregnancyDueDateLabel: "Data provável do parto",
@@ -746,10 +747,11 @@ const locale: LocaleModule = {
     pregnancyEndEnded: "A gravidez terminou",
     pregnancyEndKeep: "Guardar no meu diário",
     pregnancyEndWhat: "O que aconteceu?",
+    pregnancyEndUndo: "Não terminou: continua em andamento",
     pregnancyEndWhen: "Quando?",
     pregnancyFriendsNoNews: "Sem novidades",
     pregnancyFriendsNoNewsHint:
-      "Elas verão o mesmo que se você parasse de registrar: alguns dias “menstruação esperada” e depois “sem atualizações recentes”.",
+      "Elas verão o mesmo que se você parasse de registrar: alguns dias “menstruação esperada” e depois “sem atualização recente”.",
     pregnancyFriendsNote: "Nada da gravidez chega às suas amigas.",
     pregnancyFriendsSimulated: "Ciclo simulado",
     pregnancyFriendsSimulatedHint:
@@ -778,9 +780,10 @@ const locale: LocaleModule = {
     pregnancyOptionUltrasound: "Tenho o ultrassom",
     pregnancyScanAgeLabel: "Semanas e dias que te disseram nesse dia",
     pregnancyScanDateLabel: "Data do ultrassom",
+    pregnancyPastNotice: "Com essas datas, a gravidez já teria terminado. Você pode adicioná-la como uma gestação anterior.",
     pregnancyStartButton: "Ativar",
     pregnancyStartIntro:
-      "O Ciclo vai parar de prever menstruações e mostrar as semanas. Você pode fechar quando quiser. Fica só no seu diário criptografado.",
+      "O Ciclo vai parar de prever menstruações e vai mostrar as semanas. Você pode fechar quando quiser. Fica só no seu diário criptografado.",
     pregnancyStartTitle: "Modo gravidez",
     pregnancyStillGoingBody:
       "Já se passaram mais de duas semanas da data provável do parto. Se a gravidez terminou, você pode fechá-la aqui.",
@@ -813,6 +816,7 @@ const locale: LocaleModule = {
     resumingWhenToAsk:
       "Procure atendimento se o sangramento encharcar um absorvente em pouco tempo, se tiver febre ou dor forte, se um teste continuar positivo depois de 3 semanas ou se a menstruação não voltar em 8 semanas.",
     settingsPregnancyDeleteConfirm: "Esta gravidez será apagada do seu diário. Não dá para desfazer.",
+    settingsPregnancyEditEnd: "Corrigir o fim",
     settingsPregnancyHide: "Ocultar do calendário",
     settingsPregnancyPast: "Gestações anteriores",
     settingsPregnancyShow: "Mostrar no calendário",

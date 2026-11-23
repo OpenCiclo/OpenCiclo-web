@@ -30,7 +30,7 @@ const locale: LocaleModule = {
       "Deine Daten werden auf diesem Gerät verschlüsselt. Ciclo kann dein Passwort und deine Phrase nicht zurücksetzen. Wenn du sie verlierst, hilft nur ein vorheriger Export. So kann niemand – auch wir nicht – dein Tagebuch auf dem Server lesen.",
     signupConsentTitle: "Bevor du anfängst",
     signupConsentHosted:
-      "Dein Tagebuch kann Gesundheitsdaten und Daten zu deinem Sexualleben enthalten: Perioden, Symptome, psychische Gesundheit, sexuelle Aktivität, Schwangerschafts- und Ovulationstests, Daten einer Schwangerschaft, Antibabypille und andere Medikamente sowie Notizen. Ciclo verschlüsselt es auf diesem Gerät, bevor es gespeichert wird. In der Ciclo-Cloud speichert unser Server nur die verschlüsselte Kopie und kann sie nicht lesen. Mit E-Mail speichert er außerdem einen codierten Fingerabdruck deiner Adresse, nie die Adresse selbst.",
+      "Dein Tagebuch kann Gesundheitsdaten und Daten zu deinem Sexualleben enthalten: Perioden, Symptome, psychische Gesundheit, sexuelle Aktivität, Schwangerschafts- und Ovulationstests, Datumsangaben zu einer Schwangerschaft, Antibabypille und andere Medikamente sowie Notizen. Ciclo verschlüsselt es auf diesem Gerät, bevor es gespeichert wird. In der Ciclo-Cloud speichert unser Server nur die verschlüsselte Kopie und kann sie nicht lesen. Mit E-Mail speichert er außerdem einen codierten Fingerabdruck deiner Adresse, nie die Adresse selbst.",
     signupConsentDevice: "Mit „Nur auf diesem Gerät“ verlässt das Tagebuch dieses Handy nie.",
     signupConsentAgree:
       "Ich bin einverstanden, dass Ciclo meine Gesundheitsdaten so speichert und verarbeitet, wie es hier und in der Datenschutzerklärung beschrieben ist.",
@@ -225,6 +225,7 @@ const locale: LocaleModule = {
     importData: "Sicherung importieren",
     importHint:
       "JSON oder CSV, aus Ciclo exportiert. Wird mit diesem Konto zusammengeführt. Stellt die Daten wieder her, nicht die Schlüssel des alten Kontos.",
+    importPregnancies: "Auch die in der Datei gespeicherten Schwangerschaften hinzufügen ({count}).",
     importPreview: "{days} Tage und {starts} Periodenbeginne werden hinzugefügt oder aktualisiert.",
     importConfirm: "Importieren",
     importOk: "Daten importiert.",
@@ -754,10 +755,11 @@ const locale: LocaleModule = {
     pregnancyEndEnded: "Die Schwangerschaft hat geendet",
     pregnancyEndKeep: "In meinem Tagebuch behalten",
     pregnancyEndWhat: "Was ist passiert?",
+    pregnancyEndUndo: "Sie hat nicht geendet: Sie besteht noch",
     pregnancyEndWhen: "Wann?",
     pregnancyFriendsNoNews: "Nichts Neues",
     pregnancyFriendsNoNewsHint:
-      "Sie sehen dasselbe, als hättest du aufgehört einzutragen: ein paar Tage „Periode erwartet“, dann „keine neuen Infos“.",
+      "Für sie sieht es so aus, als hättest du aufgehört einzutragen: ein paar Tage „Periode erwartet“, dann „keine neuen Infos“.",
     pregnancyFriendsNote: "Nichts von der Schwangerschaft erreicht deine Freundinnen.",
     pregnancyFriendsSimulated: "Simulierter Zyklus",
     pregnancyFriendsSimulatedHint:
@@ -770,10 +772,10 @@ const locale: LocaleModule = {
     pregnancyLearnLink: "Mehr zur Schwangerschaft in Wissen",
     pregnancyLmpLabel: "Erster Tag deiner letzten Periode",
     pregnancyMethodConception: "Eisprung oder Empfängnis",
-    pregnancyMethodDueDate: "den genannten Termin",
-    pregnancyMethodLmp: "die letzte Periode",
-    pregnancyMethodTransfer: "den Embryotransfer",
-    pregnancyMethodUltrasound: "den Ultraschall",
+    pregnancyMethodDueDate: "dem genannten Termin",
+    pregnancyMethodLmp: "der letzten Periode",
+    pregnancyMethodTransfer: "dem Embryotransfer",
+    pregnancyMethodUltrasound: "dem Ultraschall",
     pregnancyMistake: "Aus Versehen eingeschaltet",
     pregnancyMistakeHint: "Alles zur Schwangerschaft wird gelöscht, als hättest du den Modus nie eingeschaltet.",
     pregnancyNotice: "Ciclo ersetzt keine ärztliche Begleitung. Die Daten sind Schätzungen.",
@@ -786,6 +788,7 @@ const locale: LocaleModule = {
     pregnancyOptionUltrasound: "Ich habe den Ultraschall",
     pregnancyScanAgeLabel: "Wochen und Tage, die dir an dem Tag genannt wurden",
     pregnancyScanDateLabel: "Datum des Ultraschalls",
+    pregnancyPastNotice: "Mit diesen Daten wäre die Schwangerschaft bereits vorbei. Du kannst sie als frühere Schwangerschaft hinzufügen.",
     pregnancyStartButton: "Einschalten",
     pregnancyStartIntro:
       "Ciclo sagt keine Perioden mehr voraus und zeigt stattdessen die Wochen. Du kannst den Modus jederzeit beenden. Er wird nur in deinem verschlüsselten Tagebuch gespeichert.",
@@ -818,9 +821,10 @@ const locale: LocaleModule = {
       "Die Periode kommt meist 4 bis 8 Wochen später zurück; später, wenn die Schwangerschaft weiter fortgeschritten war.",
     resumingTitle: "Dein Zyklus beginnt wieder, wenn du deine nächste Periode einträgst.",
     resumingWhenToAsk:
-      "Hol dir ärztliche Hilfe, wenn eine Binde schnell durchgeblutet ist, du Fieber oder starke Schmerzen hast, ein Test nach 3 Wochen noch positiv ist oder nach 8 Wochen keine Periode kam.",
+      "Hol dir ärztliche Hilfe, wenn eine Binde schnell durchgeblutet ist, du Fieber oder starke Schmerzen hast, ein Test nach 3 Wochen noch positiv ist oder deine Periode nach 8 Wochen noch nicht zurück ist.",
     settingsPregnancyDeleteConfirm:
       "Diese Schwangerschaft wird aus deinem Tagebuch gelöscht. Das lässt sich nicht rückgängig machen.",
+    settingsPregnancyEditEnd: "Ende korrigieren",
     settingsPregnancyHide: "Im Kalender ausblenden",
     settingsPregnancyPast: "Frühere Schwangerschaften",
     settingsPregnancyShow: "Im Kalender zeigen",

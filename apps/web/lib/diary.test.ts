@@ -196,7 +196,7 @@ describe("diary import/export", () => {
     });
     const csv = diaryToCsv(source);
     const incoming = parseImportedFile(csv);
-    expect(previewImport(incoming)).toEqual({ days: 2, starts: 1 });
+    expect(previewImport(incoming)).toEqual({ days: 2, starts: 1, pregnancies: 0 });
     const blank = parseDiary({ schemaVersion: 3, periodStarts: [], days: {}, locale: "en" });
     const merged = mergeDiaries(blank, incoming, "en");
     expect(merged.days["2026-05-02"]?.symptoms).toEqual({ cramps: "severe", bloating: "present" });

@@ -132,7 +132,29 @@ function mergePregnancies(
       bleedAnswers,
     });
   }
-  return merged;
+  return onePregnancyGoingOn(merged, localById);
+}
+
+/**
+ * Only one pregnancy goes on at a time. Each device refuses a second one
+ * (`startPregnancy`), but two devices can each turn the mode on before they
+ * sync: the same pregnancy, entered twice. The one from this device stays (the
+ * edit just made here, as everywhere in this merge); with none from here, the
+ * one due last, which is the one the card shows (`activePregnancy`). Otherwise
+ * ending or deleting the one on screen would bring the other one up.
+ */
+function onePregnancyGoingOn(
+  merged: PregnancyRecord[],
+  localById: ReadonlyMap<string, PregnancyRecord>,
+): PregnancyRecord[] {
+  const goingOn = merged.filter((item) => !item.end);
+  if (goingOn.length < 2) return merged;
+  const mine = goingOn.filter((item) => localById.get(item.id)?.end === null);
+  const candidates = mine.length > 0 ? mine : goingOn;
+  const keep = candidates.reduce((best, item) =>
+    item.dueDate > best.dueDate || (item.dueDate === best.dueDate && item.id > best.id) ? item : best,
+  );
+  return merged.filter((item) => item.end || item.id === keep.id);
 }
 
 export function mergeDiaryEdits(base: Diary, local: Diary, remote: Diary): Diary {

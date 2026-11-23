@@ -148,8 +148,16 @@ export function weeksLeft(dueDate: string, date: string): number {
   return Math.max(0, Math.floor(daysBetween(date, dueDate) / 7));
 }
 
+/** The longest a pregnancy that goes on can have lasted on the day it is entered: 44 weeks. */
+export const MAX_ONGOING_AGE_DAYS = 44 * 7;
+
 /** Whether the dating she entered makes sense on `today`: a pregnancy that has started and is not past 44 weeks. */
 export function plausibleDueDate(dueDate: string, today: string): boolean {
   const age = gestationalDays(dueDate, today);
-  return age >= 0 && age <= 44 * 7;
+  return age >= 0 && age <= MAX_ONGOING_AGE_DAYS;
+}
+
+/** Whether a pregnancy dated like this would be over by `today`: it can only be added as a past one. */
+export function alreadyOver(dueDate: string, today: string): boolean {
+  return gestationalDays(dueDate, today) > MAX_ONGOING_AGE_DAYS;
 }
