@@ -12,6 +12,8 @@ A card with your name, your current phase (Menstrual, Follicular, Ovulation, Lut
 
 They never see your symptoms, the notes in your diary, flow, or past cycles. To draw the card, their phone receives the estimated dates of your current cycle (its start, the expected next start and how long a period usually lasts), so the card stays right on days you do not open Ciclo. Hiding the cycle day or the expected period hides them from the card; the dates still travel inside the encrypted message.
 
+A pregnancy is never shared. While pregnancy mode is on, your friends see either what they would if you had stopped logging (the default) or a simulated cycle, as you choose (see [Pregnancy mode](/help/pregnancy)).
+
 Phases are estimates from each person's own logs, the same as on your Calendar card (see [Calendar phases and “estimated”](/help/calendar-phases-estimated)). They are not medical facts.
 
 ## Adding a friend

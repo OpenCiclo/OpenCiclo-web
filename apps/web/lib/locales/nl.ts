@@ -30,7 +30,7 @@ const locale: LocaleModule = {
       "Je datums worden op dit apparaat versleuteld. Ciclo kan je wachtwoord of herstelzin niet resetten. Ben je ze kwijt, dan red je het alleen met een eerdere export. Zo kan niemand – ook wij niet – je dagboek op de server lezen.",
     signupConsentTitle: "Voordat je begint",
     signupConsentHosted:
-      "Je dagboek kan gezondheidsgegevens en gegevens over je seksleven bevatten: menstruaties, symptomen, mentale gezondheid, seksuele activiteit, zwangerschaps- en ovulatietests, de anticonceptiepil en andere medicijnen, en notities. Ciclo versleutelt het op dit apparaat voordat het wordt opgeslagen. In de Ciclo-cloud bewaart onze server alleen de versleutelde kopie en kan die niet lezen. Met e-mail bewaart hij ook een gecodeerde vingerafdruk van je adres, nooit het adres zelf.",
+      "Je dagboek kan gezondheidsgegevens en gegevens over je seksleven bevatten: menstruaties, symptomen, mentale gezondheid, seksuele activiteit, zwangerschaps- en ovulatietests, datums van een zwangerschap, de anticonceptiepil en andere medicijnen, en notities. Ciclo versleutelt het op dit apparaat voordat het wordt opgeslagen. In de Ciclo-cloud bewaart onze server alleen de versleutelde kopie en kan die niet lezen. Met e-mail bewaart hij ook een gecodeerde vingerafdruk van je adres, nooit het adres zelf.",
     signupConsentDevice: "Met “Alleen op dit apparaat” verlaat het dagboek deze telefoon nooit.",
     signupConsentAgree:
       "Ik ga ermee akkoord dat Ciclo mijn gezondheidsgegevens opslaat en verwerkt zoals hier en in het privacybeleid staat.",

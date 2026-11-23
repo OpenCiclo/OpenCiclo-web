@@ -44,7 +44,7 @@ Hosted app (Neon Postgres in Frankfurt, reached through Vercel functions):
 
 | Item | Where stored | Encrypted? | Purpose | Legal basis | Retention |
 | --- | --- | --- | --- | --- | --- |
-| Diary: period dates, flow, cervical mucus, symptoms, moods, sexual activity, libido, notes, diary settings (language, forecasts on/off, favourite and custom symptoms, pool choice and pool key) | `accounts.ciphertext`, `nonce`; also `schema_version`, `vault_version`, `created_at`, `updated_at` | Yes. AES-256-GCM on the device; the server has no key | Store and sync the diary | Explicit consent, art. 6(1)(a) and 9(2)(a): sign-up checkbox | Until the account is deleted |
+| Diary: period dates, flow, cervical mucus, symptoms, moods, sexual activity, libido, notes, pregnancy dates (pregnancy mode, since 2026-11-23: how it was dated, the due date, the end date and whether it ended in a birth; never why), diary settings (language, forecasts on/off, favourite and custom symptoms, pool choice and pool key) | `accounts.ciphertext`, `nonce`; also `schema_version`, `vault_version`, `created_at`, `updated_at` | Yes. AES-256-GCM on the device; the server has no key | Store and sync the diary | Explicit consent, art. 6(1)(a) and 9(2)(a): sign-up checkbox | Until the account is deleted |
 | Public key and its hash | `accounts.pubkey`, `accounts.pubkey_hash` | No (a public key) | Identify the account, verify sign-in signatures | Contract, art. 6(1)(b) | Until the account is deleted |
 | Sign-in challenges | `auth_challenges`: key hash, nonce, expiry | No | One-time sign-in challenge | Art. 6(1)(b) | Expire after 5 minutes; deleted at a later cleanup (expired rows of the same key at the next challenge, all expired rows on about 1 rate-limited request in 50). Not deleted with the account |
 | Email sign-in | `recovery_mailboxes`: HMAC of the email, password-wrapped phrase, `verified_at` | Email: keyed HMAC (`EMAIL_LOOKUP_SECRET`), never plaintext. Phrase: PBKDF2-SHA-256 + AES-GCM under the user's password | Sign in with email and password | Art. 6(1)(b) | Until the account is deleted (cascade) |
@@ -131,6 +131,6 @@ A DPIA is very likely required: large-scale processing of health data and data a
 ## Play Console items that depend on this checklist
 
 - Privacy policy URL: `https://www.openciclo.com/privacy?lang=en` (Spanish listing: `?lang=es`). The `lang` parameter only picks the language shown; it is never saved.
-- Data safety form: fill it from the data map. Check Play's current definitions of "collected" and "shared" (including how it treats data that is encrypted end to end) before answering; if the research pool stays (P8), declare it.
+- Data safety form: fill it from the data map, including the pregnancy dates the diary can hold (health info). Check Play's current definitions of "collected" and "shared" (including how it treats data that is encrypted end to end) before answering; if the research pool stays (P8), declare it.
 - Account deletion URL: `https://www.openciclo.com/delete-account?lang=en` (Spanish: `?lang=es`).
 - Health apps declaration and the target audience (P12).

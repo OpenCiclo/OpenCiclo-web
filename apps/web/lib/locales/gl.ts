@@ -30,7 +30,7 @@ const locale: LocaleModule = {
       "As túas datas cífranse neste dispositivo. Ciclo non pode restablecer o teu contrasinal nin a túa frase. Se os perdes, só te salva unha exportación previa. Así ninguén — nin sequera nós — pode ler o teu diario no servidor.",
     signupConsentTitle: "Antes de comezar",
     signupConsentHosted:
-      "O teu diario pode conter datos de saúde e da túa vida sexual: períodos, síntomas, saúde mental, actividade sexual, probas de embarazo e de ovulación, pílulas anticonceptivas e outros medicamentos, e notas. Ciclo cífrao neste dispositivo antes de gardalo. Na nube de Ciclo, o noso servidor só garda a copia cifrada e non pode lela. Con correo, garda ademais unha pegada codificada do teu enderezo, nunca o enderezo.",
+      "O teu diario pode conter datos de saúde e da túa vida sexual: períodos, síntomas, saúde mental, actividade sexual, probas de embarazo e de ovulación, datas de embarazo, pílulas anticonceptivas e outros medicamentos, e notas. Ciclo cífrao neste dispositivo antes de gardalo. Na nube de Ciclo, o noso servidor só garda a copia cifrada e non pode lela. Con correo, garda ademais unha pegada codificada do teu enderezo, nunca o enderezo.",
     signupConsentDevice: "Con «Só neste dispositivo», o diario nunca sae deste móbil.",
     signupConsentAgree:
       "Acepto que Ciclo garde e trate os meus datos de saúde tal como se explica aquí e na política de privacidade.",

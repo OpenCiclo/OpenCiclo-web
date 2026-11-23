@@ -30,7 +30,7 @@ const locale: LocaleModule = {
       "Le tue date vengono cifrate su questo dispositivo. Ciclo non può reimpostare la tua password né la tua frase. Se le perdi, ti salva solo un'esportazione fatta prima. Così nessuno — nemmeno noi — può leggere il tuo diario sul server.",
     signupConsentTitle: "Prima di iniziare",
     signupConsentHosted:
-      "Il tuo diario può contenere dati sulla salute e sulla tua vita sessuale: mestruazioni, sintomi, salute mentale, attività sessuale, test di gravidanza e di ovulazione, pillola anticoncezionale e altri farmaci, e note. Ciclo lo cifra su questo dispositivo prima di salvarlo. Nel cloud di Ciclo, il nostro server conserva solo la copia cifrata e non può leggerla. Con l'email conserva anche un'impronta codificata del tuo indirizzo, mai l'indirizzo stesso.",
+      "Il tuo diario può contenere dati sulla salute e sulla tua vita sessuale: mestruazioni, sintomi, salute mentale, attività sessuale, test di gravidanza e di ovulazione, date della gravidanza, pillola anticoncezionale e altri farmaci, e note. Ciclo lo cifra su questo dispositivo prima di salvarlo. Nel cloud di Ciclo, il nostro server conserva solo la copia cifrata e non può leggerla. Con l'email conserva anche un'impronta codificata del tuo indirizzo, mai l'indirizzo stesso.",
     signupConsentDevice: "Con «Solo su questo dispositivo», il diario non lascia mai questo telefono.",
     signupConsentAgree:
       "Accetto che Ciclo conservi e tratti i miei dati sulla salute come spiegato qui e nell'informativa sulla privacy.",

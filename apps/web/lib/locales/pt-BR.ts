@@ -30,7 +30,7 @@ const locale: LocaleModule = {
       "Suas datas são criptografadas neste dispositivo. O Ciclo não pode redefinir sua senha nem sua frase. Se você perdê-las, só uma exportação anterior salva seus dados. Assim, ninguém — nem nós — pode ler seu diário no servidor.",
     signupConsentTitle: "Antes de começar",
     signupConsentHosted:
-      "Seu diário pode conter dados de saúde e da sua vida sexual: menstruações, sintomas, saúde mental, atividade sexual, testes de gravidez e de ovulação, pílulas anticoncepcionais e outros medicamentos, e notas. O Ciclo o criptografa neste dispositivo antes de salvá-lo. Na nuvem do Ciclo, nosso servidor guarda só a cópia criptografada e não consegue lê-la. Com e-mail, ele também guarda uma impressão codificada do seu endereço, nunca o endereço.",
+      "Seu diário pode conter dados de saúde e da sua vida sexual: menstruações, sintomas, saúde mental, atividade sexual, testes de gravidez e de ovulação, datas de gravidez, pílulas anticoncepcionais e outros medicamentos, e notas. O Ciclo o criptografa neste dispositivo antes de salvá-lo. Na nuvem do Ciclo, nosso servidor guarda só a cópia criptografada e não consegue lê-la. Com e-mail, ele também guarda uma impressão codificada do seu endereço, nunca o endereço.",
     signupConsentDevice: "Com “Só neste dispositivo”, o diário nunca sai deste celular.",
     signupConsentAgree:
       "Concordo que o Ciclo armazene e trate meus dados de saúde como explicado aqui e na política de privacidade.",
