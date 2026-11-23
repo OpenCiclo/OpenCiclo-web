@@ -24,6 +24,21 @@ export function apiUrl(path: string): string {
  */
 export const APP_VERSION_CODE = Number.parseInt(process.env.NEXT_PUBLIC_CICLO_VERSION_CODE ?? "", 10) || 0;
 
+/**
+ * What Settings shows as the version: "1.0.0 (1)" in the Android app
+ * (versionName and versionCode), "web · abc1234" on the web (the commit it was
+ * built from, next.config.ts), "web" when the commit is unknown.
+ */
+export function appVersionLabel(): string {
+  const commit = process.env.NEXT_PUBLIC_CICLO_COMMIT ?? "";
+  if (IS_ANDROID_APP) {
+    const name = process.env.NEXT_PUBLIC_CICLO_VERSION_NAME ?? "";
+    const base = name ? `${name} (${APP_VERSION_CODE})` : String(APP_VERSION_CODE);
+    return commit ? `${base} · ${commit}` : base;
+  }
+  return commit ? `web · ${commit}` : "web";
+}
+
 /** The app's Google Play listing (appId in apps/mobile/capacitor.config.ts). Android opens it in the Play Store. */
 export const PLAY_STORE_URL = "https://play.google.com/store/apps/details?id=com.openciclo.app";
 

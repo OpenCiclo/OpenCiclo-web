@@ -51,6 +51,10 @@ const locale: LocaleModule = {
     privacyPolicy: "Política de privacidade",
     helpDocs: "Documentación",
     licensesTitle: "Licenzas de código aberto",
+    aboutTitle: "Acerca de",
+    appVersion: "Versión {version}",
+    sheetLoading: "Cargando…",
+    sheetLoadFailed: "Non se puido cargar.",
     licensesIntro:
       "Ciclo usa estas fontes e paquetes de software de código aberto. As súas licenzas piden amosar estes avisos. Os textos das licenzas están en inglés.",
     licensesFonts: "Fontes",
