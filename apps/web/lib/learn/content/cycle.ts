@@ -115,7 +115,7 @@ export const CYCLE_ARTICLES: LearnArticle[] = [
         },
         {
           heading: "Por qué las fases son solo estimaciones",
-          body: "Las fases y la ventana fértil que muestra Ciclo son estimaciones, y Ciclo no es un método anticonceptivo ni una prueba de fertilidad. Un calendario no puede confirmar si ovulaste ni cuándo, porque el día de la ovulación puede cambiar de un ciclo a otro. Para evitar o planear un embarazo, habla con un médico, una enfermera o un servicio de salud sexual sobre opciones fiables.",
+          body: "Las fases y la ovulación estimada que muestra Ciclo son estimaciones, y Ciclo no es un método anticonceptivo ni una prueba de fertilidad. Un calendario no puede confirmar si ovulaste ni cuándo, porque el día de la ovulación puede cambiar de un ciclo a otro. Para evitar o planear un embarazo, habla con un médico, una enfermera o un servicio de salud sexual sobre opciones fiables.",
         },
       ],
       notice: "Esta es información general. La duración de las fases es distinta para cada persona, y las fases estimadas no pueden confirmar la ovulación ni evitar un embarazo.",
@@ -146,7 +146,7 @@ export const CYCLE_ARTICLES: LearnArticle[] = [
         },
         {
           heading: "Why the phases are only estimates",
-          body: "The phases and fertile window shown in Ciclo are estimates, and Ciclo is not contraception or a fertility test. A calendar cannot confirm whether or when you ovulated, because the day you ovulate can change from cycle to cycle. To avoid or plan a pregnancy, talk to a doctor, nurse or sexual-health clinic about reliable options.",
+          body: "The phases and estimated ovulation shown in Ciclo are estimates, and Ciclo is not contraception or a fertility test. A calendar cannot confirm whether or when you ovulated, because the day you ovulate can change from cycle to cycle. To avoid or plan a pregnancy, talk to a doctor, nurse or sexual-health clinic about reliable options.",
         },
       ],
       notice: "This is general information. Phase timings differ for everyone, and estimated phases cannot confirm ovulation or prevent pregnancy.",
@@ -260,7 +260,7 @@ export const CYCLE_ARTICLES: LearnArticle[] = [
         },
         {
           heading: "Lo que un calendario no puede decirte",
-          body: "La fase de ovulación y la ventana fértil que muestra Ciclo son estimaciones, no una prueba, y Ciclo no es un método anticonceptivo. Un calendario no puede confirmar que ovulaste, ni cuándo exactamente. Las pruebas de ovulación caseras buscan el pico de LH, y si hace falta, un médico puede revisar tus niveles de hormonas con un análisis de sangre. Si quieres evitar un embarazo, pregunta a un médico, una enfermera o un servicio de salud sexual por métodos fiables.",
+          body: "La fase de ovulación y los días de ovulación estimada que muestra Ciclo son estimaciones, no una prueba, y Ciclo no es un método anticonceptivo. Un calendario no puede confirmar que ovulaste, ni cuándo exactamente. Las pruebas de ovulación caseras buscan el pico de LH, y si hace falta, un médico puede revisar tus niveles de hormonas con un análisis de sangre. Si quieres evitar un embarazo, pregunta a un médico, una enfermera o un servicio de salud sexual por métodos fiables.",
         },
         {
           heading: "Cuándo hacerte una revisión",
@@ -291,7 +291,7 @@ export const CYCLE_ARTICLES: LearnArticle[] = [
         },
         {
           heading: "What a calendar cannot tell you",
-          body: "The ovulation phase and fertile window shown in Ciclo are estimates, not a test, and Ciclo is not contraception. A calendar cannot confirm that you ovulated, or exactly when. Home ovulation tests look for the LH surge, and a doctor can check your hormone levels with a blood test if needed. If you want to avoid pregnancy, ask a doctor, nurse or sexual-health clinic about reliable methods.",
+          body: "The ovulation phase and estimated ovulation days shown in Ciclo are estimates, not a test, and Ciclo is not contraception. A calendar cannot confirm that you ovulated, or exactly when. Home ovulation tests look for the LH surge, and a doctor can check your hormone levels with a blood test if needed. If you want to avoid pregnancy, ask a doctor, nurse or sexual-health clinic about reliable methods.",
         },
         {
           heading: "When to get checked",
@@ -335,7 +335,7 @@ export const CYCLE_ARTICLES: LearnArticle[] = [
         },
         {
           heading: "Lo que el moco puede y no puede decirte",
-          body: "El moco transparente, resbaladizo y de tipo clara de huevo es una señal de que probablemente estás cerca de la ovulación, en tus días más fértiles. Pero es una señal, no una prueba de que hayas ovulado. Ciclo te permite registrar estos cinco tipos, pero las fases y la ventana fértil que muestra son estimaciones, y no es un método anticonceptivo ni una prueba de fertilidad. Usar el moco para evitar un embarazo exige revisiones diarias cuidadosas, y aprender bien puede llevar de 2 a 3 ciclos. Con un uso típico, los métodos basados en el conocimiento de la fertilidad solo tienen una eficacia de alrededor del 76%, y no protegen frente a las ITS. Un médico, una enfermera o un servicio de salud sexual pueden aconsejarte.",
+          body: "El moco transparente, resbaladizo y de tipo clara de huevo es una señal de que probablemente estás cerca de la ovulación, en tus días más fértiles. Pero es una señal, no una prueba de que hayas ovulado. Ciclo te permite registrar estos cinco tipos, pero las fases y la ovulación estimada que muestra son estimaciones, y no es un método anticonceptivo ni una prueba de fertilidad. Usar el moco para evitar un embarazo exige revisiones diarias cuidadosas, y aprender bien puede llevar de 2 a 3 ciclos. Con un uso típico, los métodos basados en el conocimiento de la fertilidad solo tienen una eficacia de alrededor del 76%, y no protegen frente a las ITS. Un médico, una enfermera o un servicio de salud sexual pueden aconsejarte.",
         },
         {
           heading: "Cuándo consultar con un médico o una enfermera",
@@ -366,7 +366,7 @@ export const CYCLE_ARTICLES: LearnArticle[] = [
         },
         {
           heading: "What mucus can and cannot tell you",
-          body: "Clear, slippery, egg-white mucus is a sign that you are probably near ovulation, in your most fertile days. But it is a sign, not proof that you have ovulated. Ciclo lets you log these five types, but the phases and fertile window it shows are estimates, and it is not contraception or a fertility test. Using mucus to avoid pregnancy takes careful daily checks, and it can take 2 to 3 cycles to learn properly. With typical use, fertility awareness methods are only about 76% effective, and they do not protect against STIs. A doctor, nurse or sexual-health clinic can advise you.",
+          body: "Clear, slippery, egg-white mucus is a sign that you are probably near ovulation, in your most fertile days. But it is a sign, not proof that you have ovulated. Ciclo lets you log these five types, but the phases and estimated ovulation it shows are estimates, and it is not contraception or a fertility test. Using mucus to avoid pregnancy takes careful daily checks, and it can take 2 to 3 cycles to learn properly. With typical use, fertility awareness methods are only about 76% effective, and they do not protect against STIs. A doctor, nurse or sexual-health clinic can advise you.",
         },
         {
           heading: "When to see a doctor or nurse",
@@ -557,7 +557,7 @@ export const CYCLE_ARTICLES: LearnArticle[] = [
         },
         {
           heading: "Por qué los pronósticos son estimaciones",
-          body: "Ciclo muestra pronósticos del periodo, fases estimadas y una ventana fértil. Son estimaciones, no mediciones. La duración del ciclo puede cambiar de un mes a otro, incluso en la misma persona, así que un pronóstico puede fallar por varios días. Un pronóstico no puede confirmar que ovulaste, y no se puede usar como método anticonceptivo.",
+          body: "Ciclo muestra pronósticos del periodo, fases estimadas y una ovulación estimada. Son estimaciones, no mediciones. La duración del ciclo puede cambiar de un mes a otro, incluso en la misma persona, así que un pronóstico puede fallar por varios días. Un pronóstico no puede confirmar que ovulaste, y no se puede usar como método anticonceptivo.",
         },
         {
           heading: "Cuándo hablar con un médico o una enfermera",
@@ -588,7 +588,7 @@ export const CYCLE_ARTICLES: LearnArticle[] = [
         },
         {
           heading: "Why predictions are estimates",
-          body: "Ciclo shows period predictions, estimated phases and a fertile window. These are estimates, not measurements. Cycle length can change from month to month, even in the same person, so a prediction can be off by several days. A prediction cannot confirm that you ovulated, and it cannot be used as contraception.",
+          body: "Ciclo shows period predictions, estimated phases and an estimated ovulation window. These are estimates, not measurements. Cycle length can change from month to month, even in the same person, so a prediction can be off by several days. A prediction cannot confirm that you ovulated, and it cannot be used as contraception.",
         },
         {
           heading: "When to talk to a doctor or nurse",

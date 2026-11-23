@@ -1,13 +1,15 @@
 // Copyright © 2026 Emma Flora Harbison & Luis Rey Sánchez
 // SPDX-License-Identifier: Apache-2.0
 
-// The days and dates of each phase in one cycle, for the phase card. Same
-// calendar heuristic as `phaseAtDate` (lib/cycle/phases.ts): the expected
-// bleed from the start, the estimated ovulation window 16–10 days before the
-// next start, follicular before it and luteal after. Not the forecast engine.
+// The days and dates of each phase in one cycle, for the phase card and a
+// friend's card. Same heuristic as `phaseAtDate` (lib/cycle/phases.ts): the
+// expected bleed from the start, the ovulation window counted back from the next
+// start with the luteal spread (`knownCycleOvulation`), follicular before it and
+// luteal after.
 
 import { addDaysIso } from "@/lib/diary";
 import { daysBetween } from "@/lib/forecast/math";
+import { knownCycleOvulation } from "@/lib/cycle/ovulation";
 import { CYCLE_PHASES, type CycleOverview, type CyclePhase } from "@/lib/cycle/phases";
 
 /**
@@ -21,10 +23,6 @@ export function showsPeriodDue(overview: CycleOverview): boolean {
   if (overview.nextPeriodInDays === null || overview.nextPeriodInDays > 0) return false;
   return overview.currentPhase === null || overview.currentPhase.source === "estimated";
 }
-
-/** Days before the next start where the estimated ovulation window opens and closes. */
-const OVULATION_OPENS = 16;
-const OVULATION_CLOSES = 10;
 
 export type PhaseSpan = {
   phase: CyclePhase;
@@ -43,6 +41,8 @@ export type CycleTimeline = {
   length: number;
   /** The phases in order. A very short cycle can leave one out (no room for it). */
   spans: PhaseSpan[];
+  /** Cycle day (1-based) of the most likely ovulation, inside the ovulation span. Null without one. */
+  ovulationDay: number | null;
 };
 
 /**
@@ -54,9 +54,10 @@ export function cycleTimeline(cycleStart: string, nextStart: string, periodLengt
   const length = daysBetween(cycleStart, nextStart);
   if (length < 1) return null;
   const bleed = Math.min(length, Math.max(1, Math.round(periodLength)));
+  const window = knownCycleOvulation(cycleStart, nextStart, bleed);
   // Bleeding wins over the ovulation window, as in phaseAtDate.
-  const ovulationStart = Math.max(bleed + 1, length + 1 - OVULATION_OPENS);
-  const ovulationEnd = length + 1 - OVULATION_CLOSES;
+  const ovulationStart = window ? Math.max(bleed + 1, daysBetween(cycleStart, window.start) + 1) : length + 1;
+  const ovulationEnd = window ? Math.min(length, daysBetween(cycleStart, window.end) + 1) : length;
   const days: Record<CyclePhase, [number, number]> = {
     menstrual: [1, bleed],
     follicular: [bleed + 1, ovulationStart - 1],
@@ -68,7 +69,11 @@ export function cycleTimeline(cycleStart: string, nextStart: string, periodLengt
     if (endDay < startDay) return [];
     return [{ phase, startDay, endDay, start: addDaysIso(cycleStart, startDay - 1), end: addDaysIso(cycleStart, endDay - 1) }];
   });
-  return { cycleStart, nextStart, length, spans };
+  const hasOvulation = spans.some((span) => span.phase === "ovulation");
+  const likely = window ? daysBetween(cycleStart, window.mostLikely) + 1 : null;
+  const ovulationDay =
+    hasOvulation && likely !== null ? Math.min(Math.max(likely, ovulationStart), ovulationEnd) : null;
+  return { cycleStart, nextStart, length, spans, ovulationDay };
 }
 
 /**
@@ -90,11 +95,10 @@ export function dayPosition(timeline: CycleTimeline, day: number): number {
 
 /**
  * Where the estimated ovulation sits along the timeline, from 0 to 1: the
- * middle of its window. The first half of the cycle (estrogen) ends there and
- * the second (progesterone) begins.
+ * middle of its most likely day. The first half of the cycle (estrogen) ends
+ * there and the second (progesterone) begins.
  */
 export function ovulationPosition(timeline: CycleTimeline): number | null {
-  const window = timeline.spans.find((span) => span.phase === "ovulation");
-  if (!window) return null;
-  return (window.startDay - 1 + (window.endDay - window.startDay + 1) / 2) / timeline.length;
+  if (timeline.ovulationDay === null) return null;
+  return (timeline.ovulationDay - 0.5) / timeline.length;
 }

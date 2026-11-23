@@ -187,6 +187,9 @@ export function PhaseDetails({
   const nextDate = overview.nextPeriodDate;
   const when =
     days === null ? null : days <= 0 ? t.todayLower : days === 1 ? t.inOneDay : t.inDays.replace("{days}", String(days));
+  // The open cycle's window, as the calendar marks it. Not for another cycle's timeline.
+  const ovulation =
+    overview.ovulation && timeline && overview.ovulation.cycleStart === timeline.cycleStart ? overview.ovulation : null;
 
   return (
     <div className="flex flex-col">
@@ -276,10 +279,34 @@ export function PhaseDetails({
           );
         })}
       </ul>
-      {nextDate && when ? (
+      {ovulation ? (
         <div
           className="phase-reveal mt-2 flex items-center gap-2.5 rounded-[18px] border border-border px-3 py-2.5"
           style={reveal(phases.length + 1)}
+        >
+          <span
+            className="flex size-[30px] shrink-0 items-center justify-center rounded-full"
+            style={{ background: phaseTint("ovulation", 18), color: PHASE_INK.ovulation }}
+          >
+            <PhaseGlyph phase="ovulation" className="size-[15px]" />
+          </span>
+          <span className="block min-w-0 flex-1">
+            <span className="block text-sm font-extrabold">{t.ovulationEstimateLabel}</span>
+            <span className="mt-px block text-xs font-semibold text-muted-foreground first-letter:uppercase">
+              {t.ovulationEstimateDetail
+                .replace("{date}", formatIsoUtc(ovulation.mostLikely, locale, { weekday: "short", day: "numeric", month: "short" }))
+                .replace("{range}", dayRange(ovulation.start, ovulation.end, locale))}
+            </span>
+            {ovulation.wide ? (
+              <span className="mt-1 block text-[11px] leading-[1.4] text-muted-foreground">{t.ovulationWideNote}</span>
+            ) : null}
+          </span>
+        </div>
+      ) : null}
+      {nextDate && when ? (
+        <div
+          className="phase-reveal mt-2 flex items-center gap-2.5 rounded-[18px] border border-border px-3 py-2.5"
+          style={reveal(phases.length + 2)}
         >
           <span
             className="flex size-[30px] shrink-0 items-center justify-center rounded-full"
@@ -300,7 +327,7 @@ export function PhaseDetails({
       ) : null}
       <p
         className="phase-reveal mt-2 text-center text-[10.5px] leading-[1.45] text-muted-foreground"
-        style={reveal(phases.length + 2)}
+        style={reveal(phases.length + 3)}
       >
         {t.phaseDetailsNotice}
       </p>

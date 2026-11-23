@@ -24,6 +24,7 @@ Cursor: also see the short AGENTS.md at the repo root. Do not edit apps/web/AGEN
 - Do not log period dates, mnemonics, passwords, AES keys, or plaintext diary.
 - Do not add `user_id` / `account_id` / `pubkey_hash` to `research_contributions`. A join table account→pool_id is a de-anonymization bug.
 - The population prior in `openciclo/artifacts/released_model.json` comes from published aggregates only (`LITERATURE_PRIOR_*` in `openciclo/constants.py`, cited there and in MODEL_CARD.md). No local dataset's rows enter the artifact: mcPHASES may choose hyperparameters (k, length family) and its aggregate selection metrics are recorded, Utah/Creighton and Kaggle never. `--fit-release` refuses a fitted prior and a length family whose shape would be fitted on data (log-normal, empirical).
+- Estimated ovulation uses a published luteal-phase distribution only (`LUTEAL_*` in `openciclo/constants.py` and `apps/web/lib/forecast/constants.ts`: Bull et al. 2019, Table 1). mcPHASES LH data only score it (`python -m openciclo.evaluation.ovulation`, aggregates only). Wording: "estimated ovulation", "may fall", always with "does not confirm ovulation / is not contraception"; never "safe days", "infertile days", or a chance of pregnancy per day.
 - Do not commit restricted CSVs (mcPHASES, Creighton, etc.). Gitignored under `training/dataset-do-not-commit/`.
 - Do not invent metrics. Do not choose `model_id` from synthetic CI scores.
 - English for code, comments, and documentation. Help pages: English only.
@@ -73,9 +74,9 @@ openciclo.data             cycle math, validation, synthetic, mcPHASES/Creighton
 openciclo.features         recency weights, length summaries
 openciclo.models           baselines, shrinkage, population prior
 openciclo.artifacts        released_model.json (literature prior + hyperparameters; no microdata)
-openciclo.forecasting      public predict()
+openciclo.forecasting      public predict(); ovulation.py: estimated ovulation = next start − luteal phase (most likely day + shortest 80% window)
 openciclo.explanations     drivers (contributed to prediction, not causation)
-openciclo.evaluation       walk-forward; CI synthetic; mcphases --fit-release (literature prior); by-history breakdown; v0.reference.* never selected
+openciclo.evaluation       walk-forward; CI synthetic; mcphases --fit-release (literature prior); by-history breakdown; v0.reference.* never selected; ovulation (LH-dated mcPHASES cycles)
 openciclo.calibration      reliability summaries
 ```
 
@@ -87,7 +88,7 @@ Walk-forward: only starts before s_k may forecast s_k. Never shuffle a person’
 
 Shrinkage (released default): mix personal median with population prior; k from the release artifact (2.5 since engine 0.3.0; the web port reads it from its copy of the JSON; discrete Laplace 1–90). Cold start (0–1 starts) → prior, high uncertainty.
 
-V1 predicts next period start and cycle length only. Optional observations are ignored by V0 predictors.
+V1 predicts next period start and cycle length; estimated ovulation is derived from that forecast and the luteal distribution (docs/modeling.md "Estimated ovulation"). Optional observations are ignored by V0 predictors.
 
 ## Web app map
 
@@ -99,8 +100,9 @@ apps/web/app/api/                auth challenge/verify, vault, recovery register
 apps/web/components/calendar/    status card, season overlay, day sheet
 apps/web/components/calendar/phase-card.tsx  the card above the calendar (phase or expected period); tap to expand (phase-card-overlay.tsx, phase-details.tsx, phase-visuals.tsx)
 apps/web/lib/cycle/phase-timeline.ts  days and dates of each phase in one cycle (same heuristic as phaseAtDate), and when the card shows the expected period
-apps/web/lib/forecast/           TS port of shrinkage + Laplace; must match Python fixtures
+apps/web/lib/forecast/           TS port of shrinkage + Laplace and ovulation.ts; must match Python fixtures
 apps/web/lib/cycle/phases.ts     observed vs estimated phase heuristic (NOT the forecast engine)
+apps/web/lib/cycle/ovulation.ts  ovulation windows: the open cycle's (calendar marks, the card's "estimated ovulation" row) and one counted back from a known next start (phase chapters, closed cycles, a friend's card)
 apps/web/lib/cycle/season-guide.ts  inner-season copy EN/ES
 apps/web/lib/client/ciclo-context.tsx  wallet + diary in memory
 apps/web/lib/client/vault-sync.ts  restore order, 401 and account-mismatch retry, foreground refresh rule, 409 save loop (pure, tested)
@@ -157,7 +159,9 @@ Diary schema currently v6: period starts, daily flow/mucus/symptoms/notes, forec
 
 Old builds and newer diaries: an Android build from Google Play stays in use for months and can open a diary saved by a newer build (the web, or a newer app on another phone). It must never save it back without what it does not know. So: bump `DIARY_SCHEMA_VERSION` (`lib/diary.ts`) for any new field or any new value in a list the diary stores (flow, mucus, built-in symptoms, symptom values, custom symptom categories, `LOCALES`); `lib/diary-schema.test.ts` holds what each version can hold and fails until you bump and add an entry. `parseDiary` throws `NewerDiaryError` for a higher version, so no merge, save, or import can turn a newer diary into a known one; `parseNewerDiaryForDisplay` reads it for showing only and labels it with this build's version. The client then opens it read-only (`updateRequiredBackend`, context `updateRequired`, `UpdateNotice`), on load and on a 409 whose blob is newer. The host is the backstop: `writeVault` never lands a save whose `schemaVersion` is lower than the stored one (it answers 409 with the current blob). Importing a file from a newer build is refused (`importNewerFile`): JSON by its `schemaVersion`, CSV by its `schemaVersion` column (first row; files from before the column existed still import). While a newer diary is open, the JSON export writes its decrypted text unchanged (`exportDiaryJson`, context `diaryNewer`) and CSV export is off, so a backup never drops what this build cannot read. `diary-schema.test.ts` also pins a hash of the code between `diary-format:begin` and `diary-format:end` in `lib/diary.ts` (what a stored diary keeps when read): change it and decide whether the version must go up (the test's header says how).
 
-Phase heuristic (`phaseAtDate` / `cycleOverview`): flow today → menstrual observed; else calendar windows from last start + expected bleed length + ovulation window 16–10 days before next start. Independent of `predict()`. If forecastingEnabled is false, do not show estimated follicular/ovulation/luteal.
+Phase heuristic (`phaseAtDate` / `cycleOverview`): flow today → menstrual observed; else calendar windows from last start + expected bleed length + an ovulation window counted back from the next start with the luteal spread (`knownCycleOvulation`: the shortest 80% of next start − 12.4 ± 2.4 days, about 15–10 days before it, never on an expected bleeding day nor on or after the next start). `cycleTimeline` and a friend's card use the same window, so the sharer's card and the friend's agree; do not feed them the open cycle's wider window without a payload change. If forecastingEnabled is false, do not show estimated follicular/ovulation/luteal.
+
+Estimated ovulation on the calendar (`cycleOverview().ovulation`, `estimatedOvulationDates`): the open cycle's window comes from the forecast's full cycle-length distribution, so it widens with little history or irregular cycles (median 11 days; about 84% of LH-dated ovulations in mcPHASES fell inside), ends before the expected start, and its most likely day gets the stronger mark; closed cycles use the known-length window. The expanded phase card shows it as "Estimated ovulation: most likely … · window …", with a note from `WIDE_OVULATION_WINDOW_DAYS` (15) on. Bleed length: `expectedBleedDays` (diary's expected period length, else 5).
 
 Inner seasons: winter=menstrual, spring=follicular, summer=ovulation, fall=luteal. Overlay: `season-guide-overlay.tsx`. Setting: visualSeasons. Hidden for now: `VISUAL_SEASONS_AVAILABLE` is false, so the Settings switch is hidden and the context reports visualSeasons=false even if `ciclo.visualSeasons` is "true". Keep the stored value; flip the flag to bring it back.
 

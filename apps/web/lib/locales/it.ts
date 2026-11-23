@@ -75,7 +75,7 @@ const locale: LocaleModule = {
       "Attiva le fasi lunari. Nel calendario puoi mostrarle o nasconderle con il pulsante della luna.",
     forecastingEnabled: "Mostra previsioni",
     forecastingEnabledHint:
-      "Se disattivi questa opzione, il calendario e Tendenze non mostrano più date future, fasi stimate e finestra fertile. Restano visibili le tue registrazioni e le statistiche dei cicli già completati.",
+      "Se disattivi questa opzione, il calendario e Tendenze non mostrano più date future, fasi stimate e ovulazione stimata. Restano visibili le tue registrazioni e le statistiche dei cicli già completati.",
     toggleLunarPhases: "Mostra fasi lunari",
     hideLunarPhases: "Nascondi fasi lunari",
     moonPhaseNewMoon: "Luna nuova",
@@ -478,7 +478,8 @@ const locale: LocaleModule = {
     periodDueUncertainty: "Incertezza {level}",
     legendBleeding: "Sanguinamento",
     legendFertile: "Muco fertile",
-    legendFertileWindow: "Finestra fertile stimata",
+    legendOvulationWindow: "Ovulazione possibile",
+    legendOvulationLikely: "Ovulazione più probabile",
     legendPossibleStart: "Possibile inizio delle mestruazioni (≥12%)",
     legendMostLikelyStart: "Inizio più probabile",
     legendEstimatedBleeding: "Sanguinamento stimato",
@@ -666,7 +667,8 @@ const locale: LocaleModule = {
       "Le stagioni interiori sono una metafora educativa. Non confermano l'ovulazione e non sono un metodo contraccettivo.",
     phaseMenstrualBody: "Le mestruazioni sono arrivate. Dai priorità al riposo e alla calma.",
     phaseFollicularBody: "L'energia tende a salire mentre il corpo si prepara.",
-    phaseOvulationBody: "Finestra fertile stimata. Non conferma l'ovulazione e non è un metodo contraccettivo.",
+    phaseOvulationBody:
+      "I giorni intorno all'ovulazione, contati a ritroso dalle prossime mestruazioni. Non conferma l'ovulazione e non è un metodo contraccettivo.",
     phaseLutealBody: "Fase di calo. Possono comparire sintomi premestruali.",
     // Phase card (calendar) and its expanded view.
     phaseCardOpen: "Vedi le tue fasi",
@@ -696,7 +698,7 @@ const locale: LocaleModule = {
     phaseFollicularFeel2: "Mente più lucida",
     phaseFollicularFeel3: "Più motivazione",
     phaseFollicularTip: "iniziare progetti, imparare qualcosa di nuovo o provare allenamenti più intensi, se ne hai voglia.",
-    phaseOvulationSummary: "Finestra fertile stimata.",
+    phaseOvulationSummary: "I giorni intorno all'ovulazione.",
     phaseOvulationInside:
       "Gli estrogeni raggiungono il picco e un aumento dell'LH può far rilasciare un ovulo. Il progesterone inizia a salire.",
     phaseOvulationFeel1: "Più voglia di stare con gli altri",
@@ -714,6 +716,10 @@ const locale: LocaleModule = {
       "chiudere compiti in sospeso e lavori tranquilli e di precisione. Pasti con proteine e fibre possono attenuare le voglie di cibo.",
     nextPeriodLabel: "Prossime mestruazioni",
     nextPeriodDetail: "{date} · {when} · stima",
+    ovulationEstimateLabel: "Ovulazione stimata",
+    ovulationEstimateDetail: "Più probabile il {date} · finestra {range}",
+    ovulationWideNote:
+      "I tuoi cicli variano parecchio, quindi la finestra è ampia. Un test di ovulazione può restringerla.",
     inDays: "tra {days} giorni",
     inOneDay: "domani",
     howEstimated: "Come viene stimato?",
@@ -832,9 +838,9 @@ const locale: LocaleModule = {
     tipPeriodSoonTitle: "Le mestruazioni si avvicinano",
     tipPeriodSoonBody:
       "Con un ciclo medio di {length} giorni, le mestruazioni potrebbero arrivare tra circa {days} giorni. Tieni a portata di mano ciò che ti serve e concediti più riposo. È una stima.",
-    tipFertileTitle: "Finestra fertile stimata",
+    tipFertileTitle: "Ovulazione stimata",
     tipFertileBody:
-      "In base agli inizi delle tue mestruazioni, potresti essere nei giorni più fertili. Il muco tipo albume d'uovo a volte coincide, ma un calendario non può confermare l'ovulazione. Ciclo non è un metodo contraccettivo.",
+      "In base agli inizi delle tue mestruazioni, l'ovulazione potrebbe cadere in questi giorni. I giorni fertili iniziano circa cinque giorni prima dell'ovulazione. Il muco tipo albume d'uovo a volte coincide, ma un calendario non può confermare l'ovulazione. Ciclo non è un metodo contraccettivo.",
     tipTopSymptomTitle: "{symptom} è il sintomo che registri di più",
     tipAdviceCramps:
       "Calore locale, movimento dolce e cibi ricchi di magnesio possono alleviare i crampi. Se il dolore è forte, parlane con un medico. Volte registrate: {count}.",
@@ -851,7 +857,7 @@ const locale: LocaleModule = {
     tipAdviceCravings:
       "Le voglie di cibo aumentano spesso prima delle mestruazioni. Pasti con proteine e fibre possono attenuarle. Volte registrate: {count}.",
     tipAdviceHighLibido:
-      "Un desiderio sessuale più alto a volte coincide con la finestra fertile stimata. Volte registrate: {count}.",
+      "Un desiderio sessuale più alto a volte coincide con i giorni intorno all'ovulazione. Volte registrate: {count}.",
     tipAdviceSexualActivity:
       "Registrare l'attività sessuale ti aiuta a vedere schemi ricorrenti insieme al ciclo. Volte registrate: {count}.",
     tipRegularTitle: "I tuoi cicli sembrano regolari",

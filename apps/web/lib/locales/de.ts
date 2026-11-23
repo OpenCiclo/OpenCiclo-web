@@ -75,7 +75,7 @@ const locale: LocaleModule = {
       "Aktiviert die Mondphasen. Im Kalender kannst du sie mit dem Mondsymbol ein- oder ausblenden.",
     forecastingEnabled: "Prognosen anzeigen",
     forecastingEnabledHint:
-      "Wenn das ausgeschaltet ist, blenden Kalender und Muster zukünftige Daten, geschätzte Phasen und das fruchtbare Fenster aus. Deine Einträge und die Statistiken abgeschlossener Zyklen bleiben sichtbar.",
+      "Wenn das ausgeschaltet ist, blenden Kalender und Muster zukünftige Daten, geschätzte Phasen und den geschätzten Eisprung aus. Deine Einträge und die Statistiken abgeschlossener Zyklen bleiben sichtbar.",
     toggleLunarPhases: "Mondphasen anzeigen",
     hideLunarPhases: "Mondphasen ausblenden",
     moonPhaseNewMoon: "Neumond",
@@ -479,7 +479,8 @@ const locale: LocaleModule = {
     periodDueUncertainty: "Unsicherheit: {level}",
     legendBleeding: "Blutung",
     legendFertile: "Fruchtbarer Schleim",
-    legendFertileWindow: "Geschätztes fruchtbares Fenster",
+    legendOvulationWindow: "Möglicher Eisprung",
+    legendOvulationLikely: "Wahrscheinlichster Eisprung",
     legendPossibleStart: "Möglicher Periodenbeginn (≥ 12 %)",
     legendMostLikelyStart: "Wahrscheinlichster Beginn",
     legendEstimatedBleeding: "Geschätzte Blutung",
@@ -667,7 +668,8 @@ const locale: LocaleModule = {
       "Die inneren Jahreszeiten sind eine Metapher zur Veranschaulichung. Sie bestätigen keinen Eisprung und sind keine Verhütungsmethode.",
     phaseMenstrualBody: "Deine Periode ist da – gönn dir Ruhe und sei sanft zu dir.",
     phaseFollicularBody: "Die Energie steigt oft, während sich dein Körper vorbereitet.",
-    phaseOvulationBody: "Geschätztes fruchtbares Fenster. Das bestätigt keinen Eisprung und ist keine Verhütungsmethode.",
+    phaseOvulationBody:
+      "Die Tage um den Eisprung, von deiner nächsten Periode aus zurückgezählt. Das bestätigt keinen Eisprung und ist keine Verhütungsmethode.",
     phaseLutealBody: "Phase des Herunterfahrens – PMS-Symptome können auftreten.",
     // Phase card (calendar) and its expanded view.
     phaseCardOpen: "Deine Phasen ansehen",
@@ -699,7 +701,7 @@ const locale: LocaleModule = {
     phaseFollicularFeel2: "Klarerer Kopf",
     phaseFollicularFeel3: "Mehr Motivation",
     phaseFollicularTip: "Projekte beginnen, etwas Neues lernen oder intensiver trainieren, wenn du Lust hast.",
-    phaseOvulationSummary: "Geschätztes fruchtbares Fenster.",
+    phaseOvulationSummary: "Die Tage um den Eisprung.",
     phaseOvulationInside:
       "Das Östrogen erreicht seinen Höhepunkt, und ein LH-Anstieg kann eine Eizelle freisetzen. Das Progesteron beginnt zu steigen.",
     phaseOvulationFeel1: "Geselliger",
@@ -717,6 +719,10 @@ const locale: LocaleModule = {
       "Aufgaben abschließen und ruhige, genaue Arbeit. Mahlzeiten mit Protein und Ballaststoffen können Heißhunger mildern.",
     nextPeriodLabel: "Nächste Periode",
     nextPeriodDetail: "{date} · {when} · geschätzt",
+    ovulationEstimateLabel: "Geschätzter Eisprung",
+    ovulationEstimateDetail: "Am wahrscheinlichsten am {date} · Fenster {range}",
+    ovulationWideNote:
+      "Deine Zyklen schwanken ziemlich, deshalb ist das Fenster breit. Ein Ovulationstest kann es eingrenzen.",
     inDays: "in {days} Tagen",
     inOneDay: "morgen",
     howEstimated: "Wie wird das geschätzt?",
@@ -835,9 +841,9 @@ const locale: LocaleModule = {
     tipPeriodSoonTitle: "Deine Periode rückt näher",
     tipPeriodSoonBody:
       "Bei einem durchschnittlichen Zyklus von {length} Tagen könnte deine Periode in etwa {days} Tagen kommen. Leg dir bereit, was du brauchst, und plan mehr Ruhe ein. Das ist eine Schätzung.",
-    tipFertileTitle: "Geschätztes fruchtbares Fenster",
+    tipFertileTitle: "Geschätzter Eisprung",
     tipFertileBody:
-      "Nach deinen Periodenbeginnen könntest du gerade in deinen fruchtbareren Tagen sein. Eiweißartiger Schleim passt manchmal dazu, aber ein Kalender kann keinen Eisprung bestätigen. Ciclo ist keine Verhütungsmethode.",
+      "Nach deinen Periodenbeginnen könnte der Eisprung ungefähr jetzt liegen. Die fruchtbaren Tage beginnen etwa fünf Tage vor dem Eisprung. Eiweißartiger Schleim passt manchmal dazu, aber ein Kalender kann keinen Eisprung bestätigen. Ciclo ist keine Verhütungsmethode.",
     tipTopSymptomTitle: "Häufigstes Symptom: {symptom}",
     tipAdviceCramps:
       "Wärme, sanfte Bewegung und magnesiumreiche Lebensmittel können Krämpfe lindern. Wenn die Schmerzen stark sind, lass dich ärztlich beraten. Du hast das {count}-mal eingetragen.",
@@ -854,7 +860,7 @@ const locale: LocaleModule = {
     tipAdviceCravings:
       "Heißhunger nimmt vor der Periode oft zu. Mahlzeiten mit Protein und Ballaststoffen können ihn abmildern. Du hast das {count}-mal eingetragen.",
     tipAdviceHighLibido:
-      "Eine höhere Libido fällt manchmal mit dem geschätzten fruchtbaren Fenster zusammen. Du hast das {count}-mal eingetragen.",
+      "Eine höhere Libido fällt manchmal mit den Tagen um den Eisprung zusammen. Du hast das {count}-mal eingetragen.",
     tipAdviceSexualActivity:
       "Wenn du sexuelle Aktivität einträgst, erkennst du Muster im Zusammenhang mit deinem Zyklus. Du hast das {count}-mal eingetragen.",
     tipRegularTitle: "Deine Zyklen wirken regelmäßig",

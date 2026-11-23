@@ -71,6 +71,7 @@ function previewOverview(phase: CyclePhase, source: PhaseSource): CycleOverview 
     nextPeriodInDays: sample.nextPeriodInDays,
     initialStartProbability: null,
     forecast: null,
+    ovulation: null,
     forecastingEnabled: true,
     periodRuns: [],
     periodDuration: EMPTY_DURATION,

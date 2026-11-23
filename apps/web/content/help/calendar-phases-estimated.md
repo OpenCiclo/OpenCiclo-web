@@ -23,7 +23,7 @@ This page is about **what the app is doing**. For general biology of the cycle, 
 | --- | --- | --- |
 | Menstrual | Winter | Bleeding / early cycle |
 | Follicular | Spring | After bleeding, before the estimated ovulation window |
-| Ovulation | Summer | Timing window before the next expected period start |
+| Ovulation | Summer | The days around ovulation, counted back from the next expected start |
 | Luteal | Fall | After that window, until the next period |
 
 These labels are educational context. They are not a diagnosis, a fertility test, or contraception.
@@ -34,11 +34,21 @@ These labels are educational context. They are not a diagnosis, a fertility test
 2. If today’s diary has **flow** → **Menstrual**, source **observed**.
 3. Otherwise, if estimated phases are allowed:
    - Days from cycle start through the expected bleeding length → **Menstrual**, still **estimated** if you did not log flow.
-   - A window about **16–10 days before** the next period start → **Ovulation**, estimated.
+   - The days ovulation most likely falls on if the next period comes on its expected day → **Ovulation**, estimated. Ciclo takes the next start minus a luteal phase of 12.4 ± 2.4 days (the average in more than 600,000 cycles, [Bull et al. 2019](https://doi.org/10.1038/s41746-019-0152-7)) and keeps the shortest run of days holding 80% of it: about **15–10 days before** the next start, six days. Never on a day of expected bleeding.
    - Before that window → **Follicular**, estimated.
    - After that window → **Luteal**, estimated.
 
+A friend you share with sees the same phase: their phone works it out from the same three dates the same way.
+
 If you turn forecasting off, Ciclo only shows a phase when flow is observed.
+
+## Estimated ovulation on the calendar
+
+The calendar shades the days ovulation may fall on and marks the most likely one more strongly. Open the phase card to read it as a line: **Estimated ovulation · Most likely 16 Nov · window 11–21 Nov**.
+
+For the cycle you are in, that window is wider than the ovulation chapter. It also carries the uncertainty about when your next period starts, so it widens when you have logged few cycles or your cycles vary. It is usually about 11 days long. In a research dataset where ovulation was dated with daily LH tests, about 8 in 10 ovulations fell inside it, and the most likely day was about 3 days off on average. When the window reaches two weeks or more, the card says your cycles vary a lot and that an ovulation test can narrow it down. Past cycles are counted back from the period that came.
+
+The window never reaches the expected period day. Fertile days start about five days before ovulation ([Wilcox et al. 1995](https://doi.org/10.1056/NEJM199512073332301)). The window is not a list of safe days, and outside it pregnancy is still possible.
 
 ## When the expected day passes
 
@@ -58,7 +68,7 @@ Before October 2026, Ciclo used UTC (Coordinated Universal Time, the world refer
 
 ## Not the same as the period forecast
 
-The forecast engine predicts the **next period start**. Phase labels reuse those dates as a calendar story. They are not a clinical ovulation model.
+The forecast engine predicts the **next period start**. The phase labels and the estimated ovulation are built on top of it with a published luteal-phase length. They are calendar estimates, not a measurement of your hormones.
 
 OpenCiclo does not claim to confirm ovulation. Do not use Ciclo as birth control.
 
@@ -67,6 +77,6 @@ OpenCiclo does not claim to confirm ovulation. Do not use Ciclo as birth control
 - Cycles vary a lot in length.
 - Starts or flow were logged late or incompletely.
 - There is little history, so the next start leans on a population typical length.
-- Real ovulation is not sitting in that fixed pre-period window.
+- Ovulation fell outside the window: about 1 in 6 times in the research data, and more often with irregular cycles.
 
 That is why **estimated** stays on the card.

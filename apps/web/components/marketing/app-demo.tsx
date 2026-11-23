@@ -19,12 +19,9 @@ import {
   X,
 } from "lucide-react";
 
-import {
-  isEstimatedBleedingDate,
-  isEstimatedFertileDate,
-  visiblePossiblePeriodStarts,
-} from "@/lib/cycle/calendar-markers";
-import { cycleOverview, phaseBody, phaseLabel } from "@/lib/cycle/phases";
+import { isEstimatedBleedingDate, visiblePossiblePeriodStarts } from "@/lib/cycle/calendar-markers";
+import { estimatedOvulationDates, type OvulationMarks } from "@/lib/cycle/ovulation";
+import { cycleOverview, expectedBleedDays, phaseBody, phaseLabel } from "@/lib/cycle/phases";
 import { nextPeriodStat } from "@/lib/cycle/period-timing";
 import {
   addDaysIso,
@@ -141,6 +138,11 @@ export function AppDemo({
     [sample, overrides, forecasting],
   );
   const overview = useMemo(() => cycleOverview(diary, today), [diary, today]);
+  const bleedDays = expectedBleedDays(overview);
+  const ovulationMarks = useMemo(
+    () => estimatedOvulationDates(diary.periodStarts, overview.ovulation, bleedDays),
+    [diary.periodStarts, overview.ovulation, bleedDays],
+  );
   const stats = useMemo(() => patternStats(diary, today), [diary, today]);
   const tips = useMemo(() => selectTips(buildTipContext(diary, today), t), [diary, today, t]);
   const catalog = useMemo(() => resolveSymptomCatalog(diary.customSymptoms), [diary.customSymptoms]);
@@ -199,7 +201,8 @@ export function AppDemo({
     if (mostLikelyStart === iso) return t.legendMostLikelyStart;
     if (possibleStarts.has(iso)) return t.legendPossibleStart;
     if (isEstimatedBleedingDate(iso, overview.expectedBleedingWindow)) return t.legendEstimatedBleeding;
-    if (isEstimatedFertileDate(iso, diary.periodStarts, overview.nextPeriodDate)) return t.legendFertileWindow;
+    if (ovulationMarks.mostLikely.has(iso)) return t.legendOvulationLikely;
+    if (ovulationMarks.window.has(iso)) return t.legendOvulationWindow;
     return null;
   }
 
@@ -271,6 +274,7 @@ export function AppDemo({
               selectedInfo={selectedInfo}
               possibleStarts={possibleStarts}
               mostLikelyStart={mostLikelyStart}
+              ovulationMarks={ovulationMarks}
               openEditor={openEditor}
             />
           ) : tab === "patterns" ? (
@@ -445,6 +449,7 @@ function CalendarTab({
   selectedInfo,
   possibleStarts,
   mostLikelyStart,
+  ovulationMarks,
   openEditor,
 }: {
   t: Messages;
@@ -463,6 +468,7 @@ function CalendarTab({
   selectedInfo: string | null;
   possibleStarts: Set<string>;
   mostLikelyStart: string | null;
+  ovulationMarks: OvulationMarks;
   openEditor: (iso: string) => void;
 }) {
   return (
@@ -523,9 +529,8 @@ function CalendarTab({
             const bleeding = log?.flow;
             const symptoms = hasSymptoms(log);
             const note = hasNote(log);
-            const estFertile =
-              overview.forecastingEnabled &&
-              isEstimatedFertileDate(iso, diary.periodStarts, overview.nextPeriodDate);
+            const ovulationLikely = overview.forecastingEnabled && ovulationMarks.mostLikely.has(iso);
+            const ovulationWindow = overview.forecastingEnabled && ovulationMarks.window.has(iso);
             const estBleeding =
               overview.forecastingEnabled && isEstimatedBleedingDate(iso, overview.expectedBleedingWindow);
             const likelyStart = overview.forecastingEnabled && mostLikelyStart === iso;
@@ -562,9 +567,11 @@ function CalendarTab({
                           ? "bg-primary/40 text-primary"
                           : estBleeding
                             ? "border-[3px] border-dotted border-bleed bg-bleed/10 text-bleed"
-                            : estFertile
-                              ? "bg-fertile/20 text-fertile-foreground ring-1 ring-inset ring-fertile/50"
-                              : "text-card-foreground hover:bg-muted",
+                            : ovulationLikely
+                              ? "bg-fertile/40 text-fertile-foreground ring-2 ring-inset ring-fertile"
+                              : ovulationWindow
+                                ? "bg-fertile/20 text-fertile-foreground"
+                                : "text-card-foreground hover:bg-muted",
                     isToday && !bleeding ? "ring-2 ring-primary ring-offset-1 ring-offset-background" : null,
                     selected === iso ? "outline outline-2 outline-offset-2 outline-primary/40" : null,
                   )}
@@ -585,7 +592,8 @@ function CalendarTab({
 
       <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[9px] text-muted-foreground">
         <LegendDot className="bg-bleed" label={t.legendBleeding} />
-        <LegendDot className="bg-fertile/40" label={t.legendFertileWindow} />
+        <LegendDot className="bg-fertile/45" label={t.legendOvulationWindow} />
+        <LegendDot className="bg-fertile/40 ring-1 ring-fertile" label={t.legendOvulationLikely} />
         <LegendDot className="bg-primary" label={t.legendMostLikelyStart} />
       </div>
 

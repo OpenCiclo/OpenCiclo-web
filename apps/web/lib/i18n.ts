@@ -124,7 +124,7 @@ const es = {
     "Activa la función de fases lunares. En el calendario podrás mostrarlas u ocultarlas con el botón de luna.",
   forecastingEnabled: "Mostrar pronósticos",
   forecastingEnabledHint:
-    "Si lo desactivas, el calendario y Patrones dejan de mostrar fechas futuras, fases estimadas y la ventana fértil. Siguen visibles tus registros y las estadísticas de ciclos ya completados.",
+    "Si lo desactivas, el calendario y Patrones dejan de mostrar fechas futuras, fases estimadas y la ovulación estimada. Siguen visibles tus registros y las estadísticas de ciclos ya completados.",
   toggleLunarPhases: "Mostrar fases lunares",
   hideLunarPhases: "Ocultar fases lunares",
   moonPhaseNewMoon: "Luna nueva",
@@ -528,7 +528,8 @@ const es = {
   periodDueUncertainty: "Incertidumbre {level}",
   legendBleeding: "Sangrado",
   legendFertile: "Moco fértil",
-  legendFertileWindow: "Ventana fértil estimada",
+  legendOvulationWindow: "Ovulación posible",
+  legendOvulationLikely: "Ovulación más probable",
   legendPossibleStart: "Posible inicio del periodo (≥12%)",
   legendMostLikelyStart: "Inicio más probable",
   legendEstimatedBleeding: "Sangrado estimado",
@@ -716,7 +717,8 @@ const es = {
     "Las estaciones interiores son una metáfora educativa. No confirman ovulación ni sirven como anticonceptivo.",
   phaseMenstrualBody: "Tu periodo está aquí. Prioriza descanso y calma.",
   phaseFollicularBody: "La energía suele subir mientras el cuerpo se prepara.",
-  phaseOvulationBody: "Ventana fértil estimada. No confirma ovulación ni sirve como anticonceptivo.",
+  phaseOvulationBody:
+    "Los días en torno a la ovulación, contados hacia atrás desde el próximo periodo. No la confirma ni sirve como anticonceptivo.",
   phaseLutealBody: "Fase de bajada. Pueden aparecer síntomas premenstruales.",
   // Phase card (calendar) and its expanded view.
   phaseCardOpen: "Ver tus fases",
@@ -746,7 +748,7 @@ const es = {
   phaseFollicularFeel2: "Mente más clara",
   phaseFollicularFeel3: "Más motivación",
   phaseFollicularTip: "empezar proyectos, aprender algo nuevo o probar entrenos más intensos, si te apetece.",
-  phaseOvulationSummary: "Ventana fértil estimada.",
+  phaseOvulationSummary: "Los días en torno a la ovulación.",
   phaseOvulationInside: "El estrógeno llega a su pico y una subida de LH puede liberar un óvulo. La progesterona empieza a subir.",
   phaseOvulationFeel1: "Más ganas de gente",
   phaseOvulationFeel2: "Más confianza",
@@ -761,6 +763,9 @@ const es = {
   phaseLutealTip: "cerrar tareas y trabajo tranquilo, de detalle. Comidas con proteína y fibra pueden suavizar los antojos.",
   nextPeriodLabel: "Próximo periodo",
   nextPeriodDetail: "{date} · {when} · estimado",
+  ovulationEstimateLabel: "Ovulación estimada",
+  ovulationEstimateDetail: "Lo más probable, el {date} · ventana {range}",
+  ovulationWideNote: "Tus ciclos varían bastante, así que la ventana es amplia. Un test de ovulación puede acotarla.",
   inDays: "en {days} días",
   inOneDay: "mañana",
   howEstimated: "¿Cómo se estima?",
@@ -878,9 +883,9 @@ const es = {
   tipPeriodSoonTitle: "Tu periodo se acerca",
   tipPeriodSoonBody:
     "Con un ciclo medio de {length} días, el periodo podría llegar en unos {days} días. Ten a mano lo que necesites y reserva descanso. Es una estimación.",
-  tipFertileTitle: "Ventana fértil estimada",
+  tipFertileTitle: "Ovulación estimada",
   tipFertileBody:
-    "Según tus inicios de periodo, podrías estar en los días más fértiles. El moco tipo clara de huevo a veces coincide, pero un calendario no confirma ovulación. Ciclo no es anticonceptivo.",
+    "Según tus inicios de periodo, la ovulación podría caer por estos días. Los días fértiles empiezan unos cinco días antes de ovular. El moco tipo clara de huevo a veces coincide, pero un calendario no confirma la ovulación. Ciclo no es anticonceptivo.",
   tipTopSymptomTitle: "{symptom} es tu síntoma más registrado",
   tipAdviceCramps:
     "Calor local, movimiento suave y comidas con magnesio pueden aliviar cólicos. Si el dolor es intenso, consulta. Lo has registrado {count} veces.",
@@ -897,7 +902,7 @@ const es = {
   tipAdviceCravings:
     "Los antojos a menudo suben antes del periodo. Comidas con proteína y fibra pueden suavizarlos. Lo has registrado {count} veces.",
   tipAdviceHighLibido:
-    "Una libido más alta a veces coincide con la ventana fértil estimada. Lo has registrado {count} veces.",
+    "Una libido más alta a veces coincide con los días cerca de la ovulación. Lo has registrado {count} veces.",
   tipAdviceSexualActivity:
     "Registrar la actividad sexual ayuda a ver patrones junto a tu ciclo. Lo has registrado {count} veces.",
   tipRegularTitle: "Tus ciclos se ven regulares",
@@ -975,7 +980,7 @@ const en = {
     "Enable lunar phases. On the calendar you can show or hide them with the moon button.",
   forecastingEnabled: "Show forecasts",
   forecastingEnabledHint:
-    "When this is off, the calendar and Patterns hide future dates, estimated phases, and the fertile window. Your logs and stats from completed cycles stay visible.",
+    "When this is off, the calendar and Patterns hide future dates, estimated phases, and estimated ovulation. Your logs and stats from completed cycles stay visible.",
   toggleLunarPhases: "Show lunar phases",
   hideLunarPhases: "Hide lunar phases",
   moonPhaseNewMoon: "New moon",
@@ -1376,7 +1381,8 @@ const en = {
   periodDueUncertainty: "Uncertainty {level}",
   legendBleeding: "Bleeding",
   legendFertile: "Fertile mucus",
-  legendFertileWindow: "Estimated fertile window",
+  legendOvulationWindow: "Possible ovulation",
+  legendOvulationLikely: "Most likely ovulation",
   legendPossibleStart: "Possible period start (≥12%)",
   legendMostLikelyStart: "Most likely start",
   legendEstimatedBleeding: "Estimated bleeding",
@@ -1564,7 +1570,8 @@ const en = {
     "Inner seasons are an educational metaphor. They do not confirm ovulation and are not contraception.",
   phaseMenstrualBody: "Your period is here — rest and be gentle.",
   phaseFollicularBody: "Energy often rises as your body prepares.",
-  phaseOvulationBody: "Estimated fertile window. This does not confirm ovulation and is not contraception.",
+  phaseOvulationBody:
+    "The days around ovulation, counted back from your next period. This does not confirm ovulation and is not contraception.",
   phaseLutealBody: "Wind-down phase — PMS symptoms may appear.",
   // Phase card (calendar) and its expanded view.
   phaseCardOpen: "See your phases",
@@ -1594,7 +1601,7 @@ const en = {
   phaseFollicularFeel2: "Clearer mind",
   phaseFollicularFeel3: "More motivation",
   phaseFollicularTip: "starting projects, learning something new, or trying harder workouts, if you feel like it.",
-  phaseOvulationSummary: "Estimated fertile window.",
+  phaseOvulationSummary: "The days around ovulation.",
   phaseOvulationInside: "Estrogen peaks and a rise in LH may release an egg. Progesterone starts to rise.",
   phaseOvulationFeel1: "More social",
   phaseOvulationFeel2: "More confident",
@@ -1609,6 +1616,9 @@ const en = {
   phaseLutealTip: "finishing tasks and calm, detailed work. Meals with protein and fibre can soften cravings.",
   nextPeriodLabel: "Next period",
   nextPeriodDetail: "{date} · {when} · estimated",
+  ovulationEstimateLabel: "Estimated ovulation",
+  ovulationEstimateDetail: "Most likely {date} · window {range}",
+  ovulationWideNote: "Your cycles vary quite a bit, so the window is wide. An ovulation test can narrow it down.",
   inDays: "in {days} days",
   inOneDay: "tomorrow",
   howEstimated: "How is this estimated?",
@@ -1726,9 +1736,9 @@ const en = {
   tipPeriodSoonTitle: "Your period is approaching",
   tipPeriodSoonBody:
     "Based on your average {length}-day cycle, your period may arrive in about {days} days. Keep supplies handy and plan extra rest. This is an estimate.",
-  tipFertileTitle: "Estimated fertile window",
+  tipFertileTitle: "Estimated ovulation",
   tipFertileBody:
-    "Based on your period starts, you may be in your more fertile days. Egg-white mucus sometimes lines up with this, but a calendar cannot confirm ovulation. Ciclo is not contraception.",
+    "Based on your period starts, ovulation may fall around now. Fertile days start about five days before ovulation. Egg-white mucus sometimes lines up with this, but a calendar cannot confirm ovulation. Ciclo is not contraception.",
   tipTopSymptomTitle: "{symptom} is your most logged symptom",
   tipAdviceCramps:
     "A warm compress, gentle movement, and magnesium-rich foods can ease cramps. If pain is severe, talk with a clinician. You have logged this {count} times.",
@@ -1745,7 +1755,7 @@ const en = {
   tipAdviceCravings:
     "Cravings often rise before a period. Meals with protein and fibre can keep them gentler. You have logged this {count} times.",
   tipAdviceHighLibido:
-    "Higher libido sometimes lines up with the estimated fertile window. You have logged this {count} times.",
+    "Higher libido sometimes lines up with the days around ovulation. You have logged this {count} times.",
   tipAdviceSexualActivity:
     "Logging sexual activity helps you see patterns alongside your cycle. You have logged this {count} times.",
   tipRegularTitle: "Your cycles look regular",

@@ -102,6 +102,27 @@ Local reports may contain study ids. `benchmarks/results/` is gitignored (some f
 
 `v0.reference.recent_mean` is a common tracker heuristic: the mean of the last 12 completed lengths that fall within 21–45 days, falling back to the prior median when none do. It runs next to the candidates so reports show how the released model compares with it. `select_winner` skips every `v0.reference.*` id, so a reference can never be released.
 
+## Estimated ovulation (mcPHASES LH)
+
+`python -m openciclo.evaluation.ovulation` (local; writes `ovulation_mcphases_summary.csv` and `ovulation_mcphases_report.md`, aggregates only, under the gitignored `benchmarks/results/`). Fixed before the distribution was scored (plan of 2026-11-23):
+
+- **Cycles:** completed mcPHASES cycles of 18–50 days with urinary LH on at least 60% of their days and a peak at least 2.5 times the cycle's median LH, not within 5 days of either start (`load_mcphases_lh_cycles`): 110 cycles, 39 people.
+- **Reference:** ovulation on the day after the LH peak. Ovulation follows the LH peak by about 16 hours on average ([WHO Task Force 1980](https://scilit.com/publications/3e6e5815c2f018f3c28a4df921107bc8)); against ultrasound, the urinary LH peak was on average less than a day before ovulation, but the day it points to was early in about 10% of cycles and late in about 23% ([Ecochard et al. 2001](https://pubmed.ncbi.nlm.nih.gov/11510707/)). The peak day itself is reported as a sensitivity.
+- **Forecast:** walk-forward from the period starts known on the cycle's first day, released model, bleed length 5.
+- **Metrics:** error of the most likely day; share of reference ovulations inside the window; whether the 80% window holds about 80% (also 50% and 90%). Width and the share of the six fertile days ending on the reference ([Wilcox et al. 1995](https://doi.org/10.1056/NEJM199512073332301)) are reported next to them.
+
+Results (engine 0.3.0):
+
+| Rule | MAE (days) | ±1 day | ±2 days | Inside window | Width (days) | Fertile days covered | 50 / 80 / 90% held |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| Old phases: 16–10 days before | 3.49 | 0.29 | 0.45 | 0.57 | 7 | 0.55 | |
+| Old calendar: 6 days ending 14 before | 3.85 | 0.25 | 0.42 | 0.30 | 6 | 0.45 | |
+| Calendar window (shipped) | 3.36 | 0.27 | 0.45 | 0.84 | 11.3 | 0.74 | 0.53 / 0.84 / 0.92 |
+| Phase chapters (shipped) | 3.33 | 0.29 | 0.45 | 0.52 | 6 | 0.47 | |
+| Sensitivity: luteal mean 13.4 | 3.55 | 0.28 | 0.44 | 0.85 | 11.1 | 0.77 | 0.50 / 0.85 / 0.91 |
+
+With the reference on the LH peak day: old phases 3.33 MAE / 0.62 inside, calendar window 3.36 / 0.84, luteal mean 13.4 3.35 / 0.84. By completed cycles seen, the calendar window held 0.75 of ovulations with no completed cycle (51 cycles, width 11.0) and 0.93 with one or two (57, width 11.6). mcPHASES series are short (2–4 starts), so long histories are not tested here. On Utah walk-forward (no LH) the window's median width was 11 days (p90 13); 6% of forecasts reached 15 days or more.
+
 ## Creighton / Utah protocol (validation)
 
 If `training/dataset-do-not-commit/CrMcyclelength_share.csv` (or `$OPENCICLO_CREIGHTON_CSV`) is present:

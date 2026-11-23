@@ -14,6 +14,12 @@ import numpy as np
 from openciclo import predict
 from openciclo.artifacts.release import load_released_model
 from openciclo.forecasting.distribution import discrete_laplace_pmf, estimate_scale
+from openciclo.forecasting.ovulation import (
+    OvulationEstimate,
+    estimate_ovulation,
+    estimate_ovulation_known_length,
+    luteal_pmf,
+)
 from openciclo.models.shrinkage import mixed_scale, shrink_toward_prior
 from openciclo.schemas.config import ForecastConfig, literature_prior
 
@@ -48,6 +54,68 @@ def _forecast_payload(history: list[date], reference: date) -> dict[str, object]
         "support_days": dist.support_days,
         "probabilities": dist.probabilities,
         "notes": forecast.notes,
+    }
+
+
+def _ovulation_payload(estimate: OvulationEstimate | None) -> dict[str, object] | None:
+    if estimate is None:
+        return None
+    return {
+        "cycle_start": estimate.cycle_start.isoformat(),
+        "offsets": estimate.offsets,
+        "probabilities": estimate.probabilities,
+        "most_likely_offset": estimate.most_likely_offset,
+        "window_start_offset": estimate.window_start_offset,
+        "window_end_offset": estimate.window_end_offset,
+        "window_probability": estimate.window_probability,
+    }
+
+
+def _ovulation_cases() -> dict[str, object]:
+    histories = [
+        ([date(2026, 6, 1)], date(2026, 6, 1), 5),
+        ([date(2026, 5, 2), date(2026, 6, 1), date(2026, 6, 29)], date(2026, 7, 20), 5),
+        (
+            [date(2026, 1, 1), date(2026, 1, 29), date(2026, 2, 26), date(2026, 3, 26)],
+            date(2026, 3, 26),
+            4,
+        ),
+        (
+            [date(2025, 11, 1), date(2025, 12, 15), date(2026, 1, 10), date(2026, 3, 1)],
+            date(2026, 3, 15),
+            7,
+        ),
+    ]
+    from_forecast = []
+    for history, reference, bleed in histories:
+        forecast = predict(history, reference_date=reference)
+        from_forecast.append(
+            {
+                "history": [day.isoformat() for day in history],
+                "reference_date": reference.isoformat(),
+                "bleed_days": bleed,
+                "expected": _ovulation_payload(estimate_ovulation(forecast, bleed_days=bleed)),
+            }
+        )
+    known = []
+    for length, bleed in ((21, 5), (28, 5), (35, 5), (20, 6), (12, 6), (8, 7)):
+        start = date(2026, 4, 1)
+        next_start = date.fromordinal(start.toordinal() + length)
+        known.append(
+            {
+                "cycle_start": start.isoformat(),
+                "next_start": next_start.isoformat(),
+                "bleed_days": bleed,
+                "expected": _ovulation_payload(
+                    estimate_ovulation_known_length(start, next_start, bleed_days=bleed)
+                ),
+            }
+        )
+    days, probs = luteal_pmf()
+    return {
+        "luteal": {"days": days, "probabilities": probs},
+        "from_forecast": from_forecast,
+        "known_length": known,
     }
 
 
@@ -137,6 +205,7 @@ def main() -> None:
             "support_days": support.tolist(),
             "probabilities": [float(x) for x in laplace.tolist()],
         },
+        "ovulation": _ovulation_cases(),
         "forecasts": [
             _forecast_payload([date(2026, 6, 1)], date(2026, 6, 1)),
             _forecast_payload(

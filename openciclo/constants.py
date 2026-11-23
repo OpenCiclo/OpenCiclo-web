@@ -42,6 +42,21 @@ LITERATURE_PRIOR_MAD = 3.0
 LITERATURE_PRIOR_MEAN = 29.0
 LITERATURE_PRIOR_SOURCE = "published literature (Bull 2019; Li 2023)"
 
+# Estimated ovulation (docs/modeling.md "Estimated ovulation"). Days from ovulation to the next
+# period start, as a discrete normal truncated to the range the source reports:
+#   Bull et al. 2019, npj Digit Med 2:83, Table 1: luteal phase 12.4 +/- 2.4 days (mean +/- SD)
+#   over 612,613 ovulatory cycles; abstract: 7-17 days. Bull counts the days between their
+#   estimated ovulation day and the next period, both excluded. We read 12.4 as next start minus
+#   ovulation day, which matches ovulation dated the day after the urinary LH peak (the mcPHASES
+#   reference in docs/evaluation.md). A one-day shift (13.4) is reported there as a sensitivity.
+LUTEAL_MEAN_DAYS = 12.4
+LUTEAL_SD_DAYS = 2.4
+LUTEAL_MIN_DAYS = 7
+LUTEAL_MAX_DAYS = 17
+# The window shown for the estimated ovulation: the shortest run of days holding this much
+# probability.
+OVULATION_INTERVAL_COVERAGE = 0.80
+
 SYNTHETIC_DATA_NOTICE = "SYNTHETIC / NON-PRODUCTION"
 MCPHASES_DATA_NOTICE = "mcPHASES restricted / do not redistribute"
 MCPHASES_CSV_ENV = "OPENCICLO_MCPHASES_CSV"

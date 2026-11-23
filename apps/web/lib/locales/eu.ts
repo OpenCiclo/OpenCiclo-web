@@ -75,7 +75,7 @@ const locale: LocaleModule = {
       "Ilargiaren faseen funtzioa aktibatzen du. Egutegian, ilargiaren botoiarekin erakutsi edo ezkutatu ahal izango dituzu.",
     forecastingEnabled: "Erakutsi aurreikuspenak",
     forecastingEnabledHint:
-      "Desaktibatzen baduzu, egutegiak eta Ereduak atalak ez dituzte erakutsiko etorkizuneko datak, fase zenbatetsiak eta leiho emankorra. Zure erregistroak eta osatutako zikloen estatistikak ikusgai geratzen dira.",
+      "Desaktibatzen baduzu, egutegiak eta Ereduak atalak ez dituzte erakutsiko etorkizuneko datak, fase zenbatetsiak eta obulazio zenbatetsia. Zure erregistroak eta osatutako zikloen estatistikak ikusgai geratzen dira.",
     toggleLunarPhases: "Erakutsi ilargiaren faseak",
     hideLunarPhases: "Ezkutatu ilargiaren faseak",
     moonPhaseNewMoon: "Ilberria",
@@ -478,7 +478,8 @@ const locale: LocaleModule = {
     periodDueUncertainty: "Ziurgabetasuna: {level}",
     legendBleeding: "Odoljarioa",
     legendFertile: "Muki emankorra",
-    legendFertileWindow: "Leiho emankor zenbatetsia",
+    legendOvulationWindow: "Obulazio posiblea",
+    legendOvulationLikely: "Obulazio probableena",
     legendPossibleStart: "Hilekoaren hasiera posiblea (≥%12)",
     legendMostLikelyStart: "Hasiera probableena",
     legendEstimatedBleeding: "Odoljario zenbatetsia",
@@ -666,7 +667,8 @@ const locale: LocaleModule = {
       "Barne-urtaroak metafora hezigarri bat dira. Ez dute obulazioa baieztatzen, eta ez dute antisorgailu gisa balio.",
     phaseMenstrualBody: "Hilekoa hemen da. Lehenetsi atsedena eta lasaitasuna.",
     phaseFollicularBody: "Energia igo ohi da gorputza prestatzen den bitartean.",
-    phaseOvulationBody: "Leiho emankor zenbatetsia. Ez du obulazioa baieztatzen, eta ez du antisorgailu gisa balio.",
+    phaseOvulationBody:
+      "Obulazioaren inguruko egunak, hurrengo hilekotik atzera kontatuta. Ez du obulazioa baieztatzen, eta ez du antisorgailu gisa balio.",
     phaseLutealBody: "Jaitsiera-fasea. Hilekoaren aurreko sintomak ager daitezke.",
     // Phase card (calendar) and its expanded view.
     phaseCardOpen: "Ikusi zure faseak",
@@ -696,7 +698,7 @@ const locale: LocaleModule = {
     phaseFollicularFeel2: "Buru argiagoa",
     phaseFollicularFeel3: "Motibazio handiagoa",
     phaseFollicularTip: "proiektuak hastea, zerbait berria ikastea edo entrenamendu biziagoak probatzea, gogoa baduzu.",
-    phaseOvulationSummary: "Leiho emankor zenbatetsia.",
+    phaseOvulationSummary: "Obulazioaren inguruko egunak.",
     phaseOvulationInside: "Estrogenoa gailurrera iristen da, eta LH hormonaren igoera batek obulu bat aska dezake. Progesterona igotzen hasten da.",
     phaseOvulationFeel1: "Jendearekin egoteko gogoa",
     phaseOvulationFeel2: "Konfiantza handiagoa",
@@ -711,6 +713,10 @@ const locale: LocaleModule = {
     phaseLutealTip: "zereginak amaitzea eta lan lasaia eta xehea. Proteina eta zuntza dituzten otorduek gutiziak leun ditzakete.",
     nextPeriodLabel: "Hurrengo hilekoa",
     nextPeriodDetail: "{date} · {when} · zenbatetsia",
+    ovulationEstimateLabel: "Obulazio zenbatetsia",
+    ovulationEstimateDetail: "Litekeena: {date} · leihoa: {range}",
+    ovulationWideNote:
+      "Zure zikloak nahiko aldatzen dira; horregatik leihoa zabala da. Obulazio-test batek estutu dezake.",
     inDays: "{days} egun barru",
     inOneDay: "bihar",
     howEstimated: "Nola zenbatesten da?",
@@ -828,9 +834,9 @@ const locale: LocaleModule = {
     tipPeriodSoonTitle: "Zure hilekoa hurbiltzen ari da",
     tipPeriodSoonBody:
       "Zure batez besteko zikloa {length} egunekoa da, eta hilekoa {days} egun inguru barru iritsi daiteke. Eduki eskura behar duzuna eta gorde atseden-denbora. Zenbatespen bat da.",
-    tipFertileTitle: "Leiho emankor zenbatetsia",
+    tipFertileTitle: "Obulazio zenbatetsia",
     tipFertileBody:
-      "Zure hileko-hasieren arabera, egun emankorrenetan egon zaitezke. Arrautza-zuringo itxurako mukia batzuetan bat dator, baina egutegi batek ezin du obulazioa baieztatu. Ciclo ez da antisorgailua.",
+      "Zure hileko-hasieren arabera, obulazioa egun hauetan izan daiteke. Egun emankorrak obulazioa baino bost egun inguru lehenago hasten dira. Arrautza-zuringo itxurako mukia batzuetan bat dator, baina egutegi batek ezin du obulazioa baieztatu. Ciclo ez da antisorgailua.",
     tipTopSymptomTitle: "Gehien erregistratu duzun sintoma: {symptom}",
     tipAdviceCramps:
       "Bero lokalak, mugimendu leunak eta magnesioa duten janariek kolikoak arin ditzakete. Mina bizia bada, kontsultatu profesional batekin. Erregistratutako aldiak: {count}.",
@@ -847,7 +853,7 @@ const locale: LocaleModule = {
     tipAdviceCravings:
       "Gutiziak askotan handitzen dira hilekoaren aurretik. Proteina eta zuntza dituzten otorduek leun ditzakete. Erregistratutako aldiak: {count}.",
     tipAdviceHighLibido:
-      "Libido handiagoa batzuetan leiho emankor zenbatetsiarekin bat dator. Erregistratutako aldiak: {count}.",
+      "Libido handiagoa batzuetan obulazioaren inguruko egunekin bat dator. Erregistratutako aldiak: {count}.",
     tipAdviceSexualActivity:
       "Sexu-jarduera erregistratzeak zure zikloarekin batera ereduak ikusten laguntzen dizu. Erregistratutako aldiak: {count}.",
     tipRegularTitle: "Zure zikloak erregularrak direla dirudi",

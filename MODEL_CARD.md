@@ -9,7 +9,7 @@ Apache License 2.0
 
 ## Purpose
 
-Provide simple, interpretable statistical forecasts of **next period start** and **cycle length**, with an explicit probability distribution and uncertainty label.
+Provide simple, interpretable statistical forecasts of **next period start** and **cycle length**, with an explicit probability distribution and uncertainty label. From that forecast, an **estimated ovulation** distribution (most likely day and an 80% window) for the calendar.
 
 ## Intended use
 
@@ -20,7 +20,8 @@ Provide simple, interpretable statistical forecasts of **next period start** and
 
 ## Non-intended use
 
-- Contraception or pregnancy prevention
+- Contraception or pregnancy prevention, including "safe days"
+- Confirming ovulation, or a per-day chance of pregnancy
 - Pregnancy detection or fertility treatment
 - Medical diagnosis or treatment decisions
 - Any claim of medically validated or worldwide accuracy
@@ -83,6 +84,29 @@ Log-normal, empirical, and clip/blend variants did not beat the mcPHASES winner 
 
 Protocol: [docs/evaluation.md](docs/evaluation.md).
 
+## Estimated ovulation
+
+Ovulation day = next period start − luteal phase ([docs/modeling.md](docs/modeling.md#estimated-ovulation), `openciclo/forecasting/ovulation.py`, ported to `apps/web/lib/forecast/ovulation.ts`).
+
+| Piece | Value | Source |
+| --- | --- | --- |
+| Luteal phase (days from ovulation to the next start) | discrete normal, mean **12.4**, SD **2.4**, cut to **7–17** days | [Bull et al. 2019](https://doi.org/10.1038/s41746-019-0152-7), Table 1 (612,613 ovulatory cycles) and abstract |
+| Next start | the forecast's full cycle-length distribution | the model above |
+| Window | shortest run of days holding **80%** of the combined distribution; never on an expected bleeding day, never on or after the expected start | design choice |
+
+The calendar shows that window for the open cycle (most likely day marked more strongly). The phase chapters (and a friend's card) count the luteal spread back from the expected start only, so they are narrower and always agree with what a friend sees. Nothing is fitted on data: the luteal numbers are published aggregates.
+
+**Evaluation** on mcPHASES cycles dated by their urinary LH peak (110 cycles, 39 people; reference ovulation = the day after the peak; walk-forward with the released model; metrics fixed before scoring):
+
+| Rule | Error of most likely day (days) | Ovulations inside the window | Window length (days) |
+| --- | ---: | ---: | ---: |
+| Old phase window (16–10 days before the expected start) | 3.49 | 57% | 7 |
+| Old calendar window (6 days ending 14 before) | 3.85 | 30% | 6 |
+| **Calendar window (shipped)** | **3.36** | **84%** | **11.3** |
+| **Phase chapters (shipped)** | **3.33** | **52%** | **6** |
+
+The 50 / 80 / 90% windows held 53 / 84 / 92% of reference ovulations. With the reference on the peak day instead, or a luteal mean of 13.4 days (Bull counts the luteal phase from the day after their estimated ovulation), the numbers move by less than 0.2 days. Protocol and full aggregate tables: [docs/evaluation.md](docs/evaluation.md#estimated-ovulation-mcphases-lh).
+
 ## Population
 
 - **Prior sources (published aggregates):** Natural Cycles app users, mostly Sweden, the UK and the US, ovulatory cycles confirmed by temperature ([Bull et al. 2019](https://doi.org/10.1038/s41746-019-0152-7)); US adults in the Apple Women's Health Study ([Li et al. 2023](https://doi.org/10.1038/s41746-023-00848-1)). App users self-select; neither is a worldwide sample.
@@ -97,6 +121,7 @@ Protocol: [docs/evaluation.md](docs/evaluation.md).
 - Discrete Laplace around a shrinkage point is still an assumption, not a biological law
 - Period truth on mcPHASES is `phase == Menstrual` onsets, not `flow_volume`
 - LH, hormones, and symptoms are unused in this release
+- Estimated ovulation: one luteal distribution for everyone, although Bull et al. report shorter luteal phases in short cycles (8.0 days at 15–20, 11.0 at 21–24) and longer in long ones (12.9 at 31–50); a calendar cannot know this cycle's ovulation, so about 1 in 6 LH-dated ovulations fell outside the 80% window and the most likely day was about 3 days off on average. The reference itself (day after the urinary LH peak) is a convention: ovulation follows the LH peak by about 16 hours on average ([WHO 1980](https://scilit.com/publications/3e6e5815c2f018f3c28a4df921107bc8)) and, against ultrasound, the day the LH peak points to was early in about 10% of cycles and late in about 23% ([Ecochard et al. 2001](https://pubmed.ncbi.nlm.nih.gov/11510707/))
 - Missing logs are not yet a generative skip model
 - 2–4 starts per mcPHASES series: a raw personal median is unstable, which is why shrinkage is the default
 - 80% coverage is 0.79 on mcPHASES but 0.87 on Utah: the interval is a little wide for long, regular histories
@@ -120,7 +145,7 @@ The V1 web app ports this same path to TypeScript and checks it against `tests/f
 
 ## Features
 
-**Used:** historical period-start dates → cycle lengths; published population prior; shrinkage `k`; Laplace scale from residual MAD mixed with the prior MAD.
+**Used:** historical period-start dates → cycle lengths; published population prior; shrinkage `k`; Laplace scale from residual MAD mixed with the prior MAD; published luteal-phase distribution (estimated ovulation only).
 
 **Not used:** symptoms, flow, BBT, LH, mucus, sleep, stress, exercise, contraception, sexual activity.
 
@@ -134,6 +159,7 @@ Listed in [docs/modeling.md](docs/modeling.md). Observed facts, model assumption
 - Regime change → mean/median of the full history lag
 - Skipped logs → very long observed cycles pull mean more than median
 - Invented precision if scale were allowed to collapse to zero (scale is floored)
+- Very irregular cycles → an estimated ovulation window of two weeks or more; the app says so (`WIDE_OVULATION_WINDOW_DAYS`) and suggests an ovulation test
 
 ## Privacy
 

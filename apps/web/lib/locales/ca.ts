@@ -75,7 +75,7 @@ const locale: LocaleModule = {
       "Activa les fases lunars. Al calendari les podràs mostrar o amagar amb el botó de la lluna.",
     forecastingEnabled: "Mostra les previsions",
     forecastingEnabledHint:
-      "Si ho desactives, el calendari i Patrons deixen de mostrar dates futures, fases estimades i la finestra fèrtil. Els teus registres i les estadístiques dels cicles completats continuen visibles.",
+      "Si ho desactives, el calendari i Patrons deixen de mostrar dates futures, fases estimades i l'ovulació estimada. Els teus registres i les estadístiques dels cicles completats continuen visibles.",
     toggleLunarPhases: "Mostra les fases lunars",
     hideLunarPhases: "Amaga les fases lunars",
     moonPhaseNewMoon: "Lluna nova",
@@ -476,7 +476,8 @@ const locale: LocaleModule = {
     periodDueUncertainty: "Incertesa {level}",
     legendBleeding: "Sagnat",
     legendFertile: "Moc fèrtil",
-    legendFertileWindow: "Finestra fèrtil estimada",
+    legendOvulationWindow: "Ovulació possible",
+    legendOvulationLikely: "Ovulació més probable",
     legendPossibleStart: "Possible inici de la regla (≥12%)",
     legendMostLikelyStart: "Inici més probable",
     legendEstimatedBleeding: "Sagnat estimat",
@@ -664,7 +665,8 @@ const locale: LocaleModule = {
       "Les estacions interiors són una metàfora educativa. No confirmen l'ovulació ni serveixen com a anticonceptiu.",
     phaseMenstrualBody: "Tens la regla. Prioritza el descans i la calma.",
     phaseFollicularBody: "L'energia sol pujar mentre el cos es prepara.",
-    phaseOvulationBody: "Finestra fèrtil estimada. No confirma l'ovulació ni serveix com a anticonceptiu.",
+    phaseOvulationBody:
+      "Els dies al voltant de l'ovulació, comptats cap enrere des de la propera regla. No la confirma ni serveix com a anticonceptiu.",
     phaseLutealBody: "Fase de baixada. Poden aparèixer símptomes premenstruals.",
     // Phase card (calendar) and its expanded view.
     phaseCardOpen: "Mostra les teves fases",
@@ -694,7 +696,7 @@ const locale: LocaleModule = {
     phaseFollicularFeel2: "Ment més clara",
     phaseFollicularFeel3: "Més motivació",
     phaseFollicularTip: "començar projectes, aprendre alguna cosa nova o provar entrenaments més intensos, si et ve de gust.",
-    phaseOvulationSummary: "Finestra fèrtil estimada.",
+    phaseOvulationSummary: "Els dies al voltant de l'ovulació.",
     phaseOvulationInside: "L'estrogen arriba al seu pic i una pujada d'LH pot alliberar un òvul. La progesterona comença a pujar.",
     phaseOvulationFeel1: "Més ganes de gent",
     phaseOvulationFeel2: "Més confiança",
@@ -709,6 +711,10 @@ const locale: LocaleModule = {
     phaseLutealTip: "acabar tasques i fer feina tranquil·la i de detall. Els àpats amb proteïna i fibra poden suavitzar els antulls.",
     nextPeriodLabel: "Propera regla",
     nextPeriodDetail: "{date} · {when} · estimada",
+    ovulationEstimateLabel: "Ovulació estimada",
+    ovulationEstimateDetail: "El més probable, el {date} · finestra {range}",
+    ovulationWideNote:
+      "Els teus cicles varien força, així que la finestra és àmplia. Un test d'ovulació la pot acotar.",
     inDays: "d'aquí a {days} dies",
     inOneDay: "demà",
     howEstimated: "Com s'estima?",
@@ -826,9 +832,9 @@ const locale: LocaleModule = {
     tipPeriodSoonTitle: "La regla s'acosta",
     tipPeriodSoonBody:
       "Amb un cicle mitjà de {length} dies, la regla podria arribar d'aquí a uns {days} dies. Tingues a mà el que necessitis i reserva't estones de descans. És una estimació.",
-    tipFertileTitle: "Finestra fèrtil estimada",
+    tipFertileTitle: "Ovulació estimada",
     tipFertileBody:
-      "Segons els teus inicis de regla, podries estar en els dies més fèrtils. El moc com de clara d'ou de vegades hi coincideix, però un calendari no confirma l'ovulació. Ciclo no és un anticonceptiu.",
+      "Segons els teus inicis de regla, l'ovulació podria caure per aquests dies. Els dies fèrtils comencen uns cinc dies abans d'ovular. El moc com de clara d'ou de vegades hi coincideix, però un calendari no confirma l'ovulació. Ciclo no és un anticonceptiu.",
     tipTopSymptomTitle: "El teu símptoma més registrat: {symptom}",
     tipAdviceCramps:
       "La calor local, el moviment suau i els aliments rics en magnesi poden alleujar els còlics. Si el dolor és intens, consulta un professional sanitari. Nombre de registres: {count}.",
@@ -845,7 +851,7 @@ const locale: LocaleModule = {
     tipAdviceCravings:
       "Els antulls sovint augmenten abans de la regla. Els àpats amb proteïna i fibra els poden suavitzar. Nombre de registres: {count}.",
     tipAdviceHighLibido:
-      "Un desig sexual més alt de vegades coincideix amb la finestra fèrtil estimada. Nombre de registres: {count}.",
+      "Un desig sexual més alt de vegades coincideix amb els dies propers a l'ovulació. Nombre de registres: {count}.",
     tipAdviceSexualActivity:
       "Registrar l'activitat sexual t'ajuda a veure patrons al llarg del cicle. Nombre de registres: {count}.",
     tipRegularTitle: "Els teus cicles semblen regulars",

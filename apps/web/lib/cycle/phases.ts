@@ -7,6 +7,7 @@ import { daysBetween } from "@/lib/forecast/math";
 import { predict } from "@/lib/forecast/predict";
 import type { Forecast } from "@/lib/forecast/types";
 import type { Messages } from "@/lib/i18n";
+import { knownCycleOvulation, openCycleOvulation, type OvulationWindow } from "@/lib/cycle/ovulation";
 import {
   estimatePeriodDuration,
   expectedBleedingWindow,
@@ -44,14 +45,14 @@ export type CycleOverview = {
   /** Untruncated probability that the open cycle starts on `today`. Null when forecasting is off. */
   initialStartProbability: number | null;
   forecast: Forecast | null;
+  /** The open cycle's estimated ovulation window. Null when forecasting is off. */
+  ovulation: OvulationWindow | null;
   forecastingEnabled: boolean;
   periodRuns: PeriodRun[];
   periodDuration: PeriodDurationStats;
 };
 
-const DEFAULT_PERIOD_LENGTH = 5;
-const OVULATION_OFFSET_START = 16;
-const OVULATION_OFFSET_END = 10;
+export const DEFAULT_PERIOD_LENGTH = 5;
 
 export const PHASE_COPY: Record<CyclePhase, { label: keyof Messages; body: keyof Messages }> = {
   menstrual: { label: "phaseMenstrual", body: "phaseMenstrualBody" },
@@ -138,12 +139,6 @@ export function untruncatedStartProbability(forecast: Forecast, date: string): n
   return forecast.cycleLengthDistribution.probabilities[index] ?? 0;
 }
 
-function inOvulationWindow(date: string, nextStart: string): boolean {
-  const windowStart = addDaysIso(nextStart, -OVULATION_OFFSET_START);
-  const windowEnd = addDaysIso(nextStart, -OVULATION_OFFSET_END);
-  return date >= windowStart && date <= windowEnd;
-}
-
 export function phaseAtDate(
   diary: Diary,
   date: string,
@@ -176,7 +171,10 @@ export function phaseAtDate(
       nextStart: bounds.next,
     };
   }
-  if (inOvulationWindow(date, bounds.next)) {
+  // Counted back from the (expected) next start, as `cycleTimeline` and a friend's card do.
+  const ovulation = knownCycleOvulation(bounds.start, bounds.next, periodLength);
+  // After the expected start the open cycle stays open, but ovulation is behind it.
+  if (ovulation && date < bounds.next && date >= ovulation.start && date <= ovulation.end) {
     return {
       phase: "ovulation",
       source: "estimated",
@@ -185,14 +183,19 @@ export function phaseAtDate(
       nextStart: bounds.next,
     };
   }
-  const ovulationStart = addDaysIso(bounds.next, -OVULATION_OFFSET_START);
+  const follicular = ovulation ? date < ovulation.start : date < bounds.next;
   return {
-    phase: date < ovulationStart ? "follicular" : "luteal",
+    phase: follicular ? "follicular" : "luteal",
     source: "estimated",
     cycleDay,
     cycleStart: bounds.start,
     nextStart: bounds.next,
   };
+}
+
+/** The bleed length the estimates assume: the diary's expected period length, else 5 days. */
+export function expectedBleedDays(overview: CycleOverview): number {
+  return overview.expectedPeriodLength ?? DEFAULT_PERIOD_LENGTH;
 }
 
 export function isPeriodDueOrOverdue(overview: CycleOverview): boolean {
@@ -233,6 +236,7 @@ export function cycleOverview(diary: Diary, today: string): CycleOverview {
     nextPeriodInDays: null,
     initialStartProbability: null,
     forecast: null,
+    ovulation: null,
     forecastingEnabled,
     periodRuns: runs,
     periodDuration,
@@ -264,5 +268,6 @@ export function cycleOverview(diary: Diary, today: string): CycleOverview {
     nextPeriodInDays: daysBetween(today, anchorDate),
     initialStartProbability: untruncatedStartProbability(forecast, today),
     forecast,
+    ovulation: openCycleOvulation(forecast, menstrualLength, anchorDate),
   };
 }

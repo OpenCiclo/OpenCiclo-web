@@ -86,6 +86,19 @@ If `reference_date` is after `last_start`, probability mass on dates **before** 
 
 The calendar does not follow that truncated date. It keeps the unconditional mode (the most likely day of the full distribution) marked, including after that day has passed. The home card then counts days late from that day and quotes today's probability from the untruncated distribution. Patterns still shows the truncated display forecast.
 
+## Estimated ovulation
+
+`openciclo/forecasting/ovulation.py` (TypeScript twin: `apps/web/lib/forecast/ovulation.ts`, parity vectors in `tests/fixtures/forecast_parity.json`).
+
+- **Model:** ovulation day = next start − luteal phase. With `P(L)` the cycle-length distribution above and `P(l)` the luteal distribution, `P(ovulation on day d) = Σ_L P(L) · P(l = L − d)`, d counted from the cycle's first day.
+- **Luteal phase:** a discrete normal on 7–17 days, mean 12.4, SD 2.4 (`LUTEAL_*` in `openciclo/constants.py`): Table 1 of [Bull et al. 2019](https://doi.org/10.1038/s41746-019-0152-7) (612,613 ovulatory cycles; their abstract gives the 7–17 range). Bull counts the days strictly between their estimated ovulation day (the last low temperature) and the next period, so their gap from ovulation to the next start is 13.4. We read 12.4 as that gap with ovulation dated the day after the urinary LH peak, which is how mcPHASES scores it (gap 12.4 ± 3.0 there); a 13.4 mean is reported as a sensitivity in docs/evaluation.md. Published luteal length also varies with cycle length (8.0 days at 15–20, 12.9 at 31–50); one distribution for everyone is an assumption.
+- **No ovulation on bleeding days:** days before the expected bleed ends get no mass; the rest is renormalised.
+- **Summaries:** the most likely day (earliest among ties within 1e-12) and the shortest run of days holding 80% (`OVULATION_INTERVAL_COVERAGE`; among equal lengths, the one with the most mass, then the earliest).
+- **Open cycle:** uses the full (untruncated) length distribution, so the window stays put as days pass, like the anchored next start; it widens with little history or irregular cycles and is cut to end before the expected start.
+- **Known next start** (closed cycles, the phase chapters, a friend's card): only the luteal spread, `P(L)` a point mass. For a 28-day cycle that is cycle days 14–19, most likely day 17.
+
+Wording rules: "estimated ovulation", "may fall"; never "safe days" or a per-day chance of pregnancy. Fertile days start about five days before ovulation ([Wilcox et al. 1995](https://doi.org/10.1056/NEJM199512073332301)); the app says so in its tip but does not draw a fertile window.
+
 ## Period duration (web, derived)
 
 The published `predict()` path still forecasts **cycle length / next start only**. The web app then derives bleeding duration separately:

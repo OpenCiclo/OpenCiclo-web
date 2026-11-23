@@ -20,3 +20,11 @@ export const HIGH_UNCERTAINTY_MIN_SCALE = 5.0;
 export const HIGH_UNCERTAINTY_MAX_CYCLES = 2;
 export const MEDICAL_DISCLAIMER =
   "Ciclo provides cycle forecasts. Forecasts can be wrong. Ciclo is not a medical device, diagnosis system, or contraceptive method.";
+// Estimated ovulation: days from ovulation to the next start (openciclo.constants LUTEAL_*).
+// Bull et al. 2019, npj Digit Med 2:83, Table 1: luteal phase 12.4 ± 2.4 days; range 7–17.
+export const LUTEAL_MEAN_DAYS = 12.4;
+export const LUTEAL_SD_DAYS = 2.4;
+export const LUTEAL_MIN_DAYS = 7;
+export const LUTEAL_MAX_DAYS = 17;
+/** The estimated-ovulation window: the shortest run of days holding this much probability. */
+export const OVULATION_INTERVAL_COVERAGE = 0.8;

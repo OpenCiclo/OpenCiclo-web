@@ -49,12 +49,14 @@ describe("cycle timeline", () => {
   it("splits a 28-day cycle with a 5-day period", () => {
     const timeline = cycleTimeline("2026-10-23", "2026-11-20", 5);
     expect(timeline?.length).toBe(28);
+    // Ovulation: the shortest 80% of next start − luteal (12.4 ± 2.4 days), most likely on day 17.
     expect(days(timeline)).toEqual([
       ["menstrual", 1, 5],
-      ["follicular", 6, 12],
-      ["ovulation", 13, 19],
+      ["follicular", 6, 13],
+      ["ovulation", 14, 19],
       ["luteal", 20, 28],
     ]);
+    expect(timeline?.ovulationDay).toBe(17);
     expect(timeline?.spans[0]).toMatchObject({ start: "2026-10-23", end: "2026-10-27" });
     expect(timeline?.spans[3]).toMatchObject({ start: "2026-11-11", end: "2026-11-19" });
   });
@@ -62,24 +64,30 @@ describe("cycle timeline", () => {
   it("moves the ovulation window with the cycle length", () => {
     expect(days(cycleTimeline("2026-01-01", "2026-02-05", 5))).toEqual([
       ["menstrual", 1, 5],
-      ["follicular", 6, 19],
-      ["ovulation", 20, 26],
+      ["follicular", 6, 20],
+      ["ovulation", 21, 26],
       ["luteal", 27, 35],
     ]);
   });
 
   it("leaves out a phase that has no room in a short cycle", () => {
-    expect(days(cycleTimeline("2026-01-01", "2026-01-22", 5))).toEqual([
-      ["menstrual", 1, 5],
-      ["ovulation", 6, 12],
-      ["luteal", 13, 21],
+    expect(days(cycleTimeline("2026-01-01", "2026-01-21", 6))).toEqual([
+      ["menstrual", 1, 6],
+      ["ovulation", 7, 11],
+      ["luteal", 12, 20],
     ]);
+  });
+
+  it("never puts ovulation on a day of expected bleeding", () => {
+    const timeline = cycleTimeline("2026-01-01", "2026-01-14", 6);
+    expect(days(timeline)?.[0]).toEqual(["menstrual", 1, 6]);
+    expect(timeline?.spans.find((span) => span.phase === "ovulation")?.startDay ?? 7).toBeGreaterThanOrEqual(7);
   });
 
   it("follows the logged period length", () => {
     expect(days(cycleTimeline("2026-10-23", "2026-11-20", 7))?.slice(0, 2)).toEqual([
       ["menstrual", 1, 7],
-      ["follicular", 8, 12],
+      ["follicular", 8, 13],
     ]);
   });
 
@@ -108,6 +116,6 @@ describe("cycle timeline", () => {
     expect(phaseProgress(timeline, 31)).toEqual([1, 1, 1, 1]);
     expect(dayPosition(timeline, 1)).toBeCloseTo(0.5 / 28);
     expect(dayPosition(timeline, 40)).toBe(1);
-    expect(ovulationPosition(timeline)).toBeCloseTo(15.5 / 28);
+    expect(ovulationPosition(timeline)).toBeCloseTo(16.5 / 28);
   });
 });

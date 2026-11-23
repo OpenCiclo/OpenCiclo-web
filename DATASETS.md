@@ -27,13 +27,13 @@ This file records **provenance**. Public does not mean we may copy a dataset int
 | Limitations | Cannot support accuracy claims about real people |
 | Redistribution | Yes (synthetic). Always labeled **SYNTHETIC / NON-PRODUCTION** |
 
-## Published literature (source of the released prior)
+## Published literature (source of the released prior and the luteal distribution)
 
 The released population prior (`LITERATURE_PRIOR_*` in `openciclo/constants.py`; MODEL_CARD.md) uses **published summary statistics only**. No participant data from these studies is in the repository or the artifact.
 
 | Study | What the prior takes | License | Population |
 | --- | --- | --- | --- |
-| Bull et al. 2019, *npj Digital Medicine* 2:83, [doi:10.1038/s41746-019-0152-7](https://doi.org/10.1038/s41746-019-0152-7) | Mean cycle length 29.3 days (612,613 ovulatory cycles, 124,648 users); Table 1 cohort n, mean and SD, used to estimate the spread | Paper: CC BY 4.0 | Natural Cycles app users, mostly Sweden, the UK and the US; ovulatory cycles of 10–90 days |
+| Bull et al. 2019, *npj Digital Medicine* 2:83, [doi:10.1038/s41746-019-0152-7](https://doi.org/10.1038/s41746-019-0152-7) | Mean cycle length 29.3 days (612,613 ovulatory cycles, 124,648 users); Table 1 cohort n, mean and SD, used to estimate the spread; luteal phase 12.4 ± 2.4 days (Table 1) and its 7–17 range (abstract), the estimated-ovulation distribution (`LUTEAL_*`) | Paper: CC BY 4.0 | Natural Cycles app users, mostly Sweden, the UK and the US; ovulatory cycles of 10–90 days |
 | Li et al. 2023, *npj Digital Medicine* 6:100, [doi:10.1038/s41746-023-00848-1](https://doi.org/10.1038/s41746-023-00848-1) (Apple Women's Health Study) | Mean cycle length 28.7 days (SD 6.1; 165,668 cycles, 12,608 participants) | See the paper | US adults in a research app; self-selected |
 
 ## Candidate external datasets (not bundled)
@@ -50,7 +50,7 @@ Licensing and access must be re-checked before any download script is added. The
 | Access | Registered PhysioNet users who sign the agreement. Local copy (if present): `training/dataset-do-not-commit/hormones_and_selfreport.csv` or `$OPENCICLO_MCPHASES_CSV`. **Gitignored.** |
 | Population | 42 consenting Canadian young-adult menstruators; recruitment via advocacy groups in the Greater Toronto Area; no recent hormonal contraception or diabetes by eligibility |
 | Users / cycles | 42 people; two ~3-month intervals (subset returned for a second interval) |
-| Variables | This OpenCiclo release uses **period timing only**: `phase == Menstrual` onsets. Hormones and symptoms are not used in the V0.1 predictor. |
+| Variables | The predictor uses **period timing only**: `phase == Menstrual` onsets. Urinary LH (`lh`) only scores the estimated ovulation (`openciclo.evaluation.ovulation`, aggregates only); other hormones and symptoms are unused. |
 | Missing data | Nearly daily rows; a few day-index gaps. Missing days of 1 are not treated as a new period. |
 | Known biases | Small n; young adults; Canada / urban recruitment; wearable and CGM users; exclusion of recent hormonal contraception |
 | Preprocessing | `openciclo.data.mcphases`: group by `(id, study_interval)`; period start = first day of each Menstrual run; map `day_in_study` to dates via a documented epoch. Do **not** concatenate 2022 and 2024 for the same person. |

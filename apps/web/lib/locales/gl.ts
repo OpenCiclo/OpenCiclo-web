@@ -75,7 +75,7 @@ const locale: LocaleModule = {
       "Activa as fases da lúa. No calendario poderás amosalas ou ocultalas co botón da lúa.",
     forecastingEnabled: "Amosar previsións",
     forecastingEnabledHint:
-      "Se o desactivas, o calendario e Patróns deixan de amosar datas futuras, fases estimadas e a xanela fértil. Seguen visibles os teus rexistros e as estatísticas dos ciclos xa completados.",
+      "Se o desactivas, o calendario e Patróns deixan de amosar datas futuras, fases estimadas e a ovulación estimada. Seguen visibles os teus rexistros e as estatísticas dos ciclos xa completados.",
     toggleLunarPhases: "Amosar as fases da lúa",
     hideLunarPhases: "Ocultar as fases da lúa",
     moonPhaseNewMoon: "Lúa nova",
@@ -478,7 +478,8 @@ const locale: LocaleModule = {
     periodDueUncertainty: "Incerteza {level}",
     legendBleeding: "Sangrado",
     legendFertile: "Moco fértil",
-    legendFertileWindow: "Xanela fértil estimada",
+    legendOvulationWindow: "Ovulación posible",
+    legendOvulationLikely: "Ovulación máis probable",
     legendPossibleStart: "Posible inicio da regra (≥12%)",
     legendMostLikelyStart: "Inicio máis probable",
     legendEstimatedBleeding: "Sangrado estimado",
@@ -666,7 +667,8 @@ const locale: LocaleModule = {
       "As estacións interiores son unha metáfora educativa. Non confirman a ovulación nin serven como anticonceptivo.",
     phaseMenstrualBody: "Chegou a túa regra. Prioriza o descanso e a calma.",
     phaseFollicularBody: "A enerxía adoita subir mentres o corpo se prepara.",
-    phaseOvulationBody: "Xanela fértil estimada. Non confirma a ovulación nin serve como anticonceptivo.",
+    phaseOvulationBody:
+      "Os días arredor da ovulación, contados cara atrás desde a próxima regra. Non a confirma nin serve como anticonceptivo.",
     phaseLutealBody: "Fase de baixada. Poden aparecer síntomas premenstruais.",
     // Phase card (calendar) and its expanded view.
     phaseCardOpen: "Ver as túas fases",
@@ -698,7 +700,7 @@ const locale: LocaleModule = {
     phaseFollicularFeel3: "Máis motivación",
     phaseFollicularTip:
       "comezar proxectos, aprender algo novo ou probar adestramentos máis intensos, se che apetece.",
-    phaseOvulationSummary: "Xanela fértil estimada.",
+    phaseOvulationSummary: "Os días arredor da ovulación.",
     phaseOvulationInside:
       "O estróxeno chega ao seu pico e unha subida de LH pode liberar un óvulo. A progesterona comeza a subir.",
     phaseOvulationFeel1: "Máis ganas de xente",
@@ -716,6 +718,9 @@ const locale: LocaleModule = {
       "rematar tarefas e traballo tranquilo, de detalle. As comidas con proteína e fibra poden suavizar os antollos.",
     nextPeriodLabel: "Próxima regra",
     nextPeriodDetail: "{date} · {when} · estimada",
+    ovulationEstimateLabel: "Ovulación estimada",
+    ovulationEstimateDetail: "O máis probable, o {date} · xanela {range}",
+    ovulationWideNote: "Os teus ciclos varían bastante, así que a xanela é ampla. Un test de ovulación pode acoutala.",
     inDays: "en {days} días",
     inOneDay: "mañá",
     howEstimated: "Como se estima?",
@@ -834,9 +839,9 @@ const locale: LocaleModule = {
     tipPeriodSoonTitle: "A túa regra achégase",
     tipPeriodSoonBody:
       "Cun ciclo medio de {length} días, a regra podería chegar nuns {days} días. Ten a man o que necesites e reserva tempo para descansar. É unha estimación.",
-    tipFertileTitle: "Xanela fértil estimada",
+    tipFertileTitle: "Ovulación estimada",
     tipFertileBody:
-      "Segundo os teus inicios de regra, poderías estar nos días máis fértiles. O moco tipo clara de ovo ás veces coincide, pero un calendario non pode confirmar a ovulación. Ciclo non é un anticonceptivo.",
+      "Segundo os teus inicios de regra, a ovulación podería caer por estes días. Os días fértiles comezan uns cinco días antes de ovular. O moco tipo clara de ovo ás veces coincide, pero un calendario non pode confirmar a ovulación. Ciclo non é un anticonceptivo.",
     tipTopSymptomTitle: "{symptom} é o teu síntoma máis rexistrado",
     tipAdviceCramps:
       "A calor local, o movemento suave e as comidas ricas en magnesio poden aliviar os cólicos. Se a dor é intensa, consulta cun profesional sanitario. Veces que o rexistraches: {count}.",
@@ -853,7 +858,7 @@ const locale: LocaleModule = {
     tipAdviceCravings:
       "Os antollos adoitan aumentar antes da regra. As comidas con proteína e fibra poden suavizalos. Veces que o rexistraches: {count}.",
     tipAdviceHighLibido:
-      "Unha libido máis alta ás veces coincide coa xanela fértil estimada. Veces que o rexistraches: {count}.",
+      "Unha libido máis alta ás veces coincide cos días arredor da ovulación. Veces que o rexistraches: {count}.",
     tipAdviceSexualActivity:
       "Rexistrar a actividade sexual axuda a ver patróns xunto ao teu ciclo. Veces que o rexistraches: {count}.",
     tipRegularTitle: "Os teus ciclos parecen regulares",

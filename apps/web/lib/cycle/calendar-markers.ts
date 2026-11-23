@@ -1,12 +1,9 @@
 // Copyright © 2026 Emma Flora Harbison & Luis Rey Sánchez
 // SPDX-License-Identifier: Apache-2.0
 
-import { addDaysIso } from "@/lib/diary";
 import type { DailyProbability } from "@/lib/forecast/types";
 
 export const PERIOD_START_DISPLAY_THRESHOLD = 0.12;
-export const FERTILE_WINDOW_LENGTH_DAYS = 6;
-export const FERTILE_OVULATION_OFFSET_DAYS = 14;
 
 export function isCurrentCalendarMonth(viewYear: number, viewMonth: number, today: string): boolean {
   const year = Number(today.slice(0, 4));
@@ -16,51 +13,6 @@ export function isCurrentCalendarMonth(viewYear: number, viewMonth: number, toda
 
 export function isEditableDiaryDate(iso: string, today: string): boolean {
   return iso <= today;
-}
-
-export function estimatedFertileWindow(nextStart: string): { start: string; end: string } {
-  return {
-    start: addDaysIso(nextStart, -(FERTILE_OVULATION_OFFSET_DAYS + FERTILE_WINDOW_LENGTH_DAYS - 1)),
-    end: addDaysIso(nextStart, -FERTILE_OVULATION_OFFSET_DAYS),
-  };
-}
-
-export function isInEstimatedFertileWindow(date: string, nextStart: string): boolean {
-  const { start, end } = estimatedFertileWindow(nextStart);
-  return date >= start && date <= end;
-}
-
-/** Observed next starts of closed cycles, plus the predicted next start of the open cycle. */
-export function fertileWindowAnchors(periodStarts: string[], predictedNext: string | null): string[] {
-  const ordered = [...periodStarts].sort();
-  const anchors = ordered.slice(1);
-  if (predictedNext) anchors.push(predictedNext);
-  return anchors;
-}
-
-export function isEstimatedFertileDate(
-  date: string,
-  periodStarts: string[],
-  predictedNext: string | null,
-): boolean {
-  return fertileWindowAnchors(periodStarts, predictedNext).some((anchor) =>
-    isInEstimatedFertileWindow(date, anchor),
-  );
-}
-
-/**
- * Every date `isEstimatedFertileDate` accepts, worked out once: a calendar
- * asks for each of its cells, and checking each one alone sorts the starts again.
- */
-export function estimatedFertileDates(periodStarts: string[], predictedNext: string | null): Set<string> {
-  const dates = new Set<string>();
-  for (const anchor of fertileWindowAnchors(periodStarts, predictedNext)) {
-    const { start } = estimatedFertileWindow(anchor);
-    for (let offset = 0; offset < FERTILE_WINDOW_LENGTH_DAYS; offset += 1) {
-      dates.add(addDaysIso(start, offset));
-    }
-  }
-  return dates;
 }
 
 export function possiblePeriodStartDates(

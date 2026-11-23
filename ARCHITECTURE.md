@@ -49,7 +49,7 @@ UI / eval         V1 web app or benchmark harness
 - **Prediction** — distribution, point, uncertainty, model version
 - **Consent** — recovery email / research pool, stored apart from health plaintext
 
-The web vault is a single AES-GCM blob. New symptom labels, the forecasting preference, and short day notes do not add Postgres columns. The monthly pool still uploads **cycle lengths only**. Estimated calendar phases (menstrual / follicular / ovulation / luteal) and expected bleeding days are derived on-device from period starts, closed period lengths, and the existing start forecast; they are not a fertility test. Intermenstrual bleeding is a diary symptom and never becomes a period start. Notes are private context only: they are never analyzed or sent to the research pool. Users can turn forecasts off; observed cycle and period statistics remain.
+The web vault is a single AES-GCM blob. New symptom labels, the forecasting preference, and short day notes do not add Postgres columns. The monthly pool still uploads **cycle lengths only**. Estimated calendar phases (menstrual / follicular / ovulation / luteal), the estimated ovulation window and expected bleeding days are derived on-device from period starts, closed period lengths, the existing start forecast and a published luteal-phase distribution; they are not a fertility test. Intermenstrual bleeding is a diary symptom and never becomes a period start. Notes are private context only: they are never analyzed or sent to the research pool. Users can turn forecasts off; observed cycle and period statistics remain.
 
 Period starts are calendar `date` values, not timezone-aware timestamps.
 

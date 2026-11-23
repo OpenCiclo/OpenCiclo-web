@@ -75,7 +75,7 @@ const locale: LocaleModule = {
       "Zet de maanfasen aan. In de kalender kun je ze tonen of verbergen met de maanknop.",
     forecastingEnabled: "Voorspellingen tonen",
     forecastingEnabledHint:
-      "Staat dit uit, dan tonen de kalender en Patronen geen toekomstige datums, geschatte fasen en vruchtbare periode meer. Je registraties en de statistieken van afgeronde cycli blijven zichtbaar.",
+      "Staat dit uit, dan tonen de kalender en Patronen geen toekomstige datums, geschatte fasen en geschatte ovulatie meer. Je registraties en de statistieken van afgeronde cycli blijven zichtbaar.",
     toggleLunarPhases: "Maanfasen tonen",
     hideLunarPhases: "Maanfasen verbergen",
     moonPhaseNewMoon: "Nieuwe maan",
@@ -477,7 +477,8 @@ const locale: LocaleModule = {
     periodDueUncertainty: "Onzekerheid: {level}",
     legendBleeding: "Bloedverlies",
     legendFertile: "Vruchtbaar slijm",
-    legendFertileWindow: "Geschatte vruchtbare periode",
+    legendOvulationWindow: "Mogelijke ovulatie",
+    legendOvulationLikely: "Meest waarschijnlijke ovulatie",
     legendPossibleStart: "Mogelijk begin menstruatie (≥12%)",
     legendMostLikelyStart: "Meest waarschijnlijke begin",
     legendEstimatedBleeding: "Geschat bloedverlies",
@@ -665,7 +666,8 @@ const locale: LocaleModule = {
       "Innerlijke seizoenen zijn een educatieve metafoor. Ze bevestigen geen ovulatie en zijn geen anticonceptie.",
     phaseMenstrualBody: "Je menstruatie is er. Neem rust en wees mild voor jezelf.",
     phaseFollicularBody: "Je energie neemt vaak toe terwijl je lichaam zich voorbereidt.",
-    phaseOvulationBody: "Geschatte vruchtbare periode. Dit bevestigt geen ovulatie en is geen anticonceptie.",
+    phaseOvulationBody:
+      "De dagen rond de ovulatie, teruggeteld vanaf je volgende menstruatie. Dit bevestigt geen ovulatie en is geen anticonceptie.",
     phaseLutealBody: "Fase van afbouw. Er kunnen PMS-klachten optreden.",
     // Phase card (calendar) and its expanded view.
     phaseCardOpen: "Je fasen bekijken",
@@ -695,7 +697,7 @@ const locale: LocaleModule = {
     phaseFollicularFeel2: "Helderder hoofd",
     phaseFollicularFeel3: "Meer motivatie",
     phaseFollicularTip: "projecten starten, iets nieuws leren of zwaardere trainingen proberen, als je daar zin in hebt.",
-    phaseOvulationSummary: "Geschatte vruchtbare periode.",
+    phaseOvulationSummary: "De dagen rond de ovulatie.",
     phaseOvulationInside: "Oestrogeen bereikt zijn piek en een stijging van LH kan een eicel laten vrijkomen. Progesteron begint te stijgen.",
     phaseOvulationFeel1: "Socialer",
     phaseOvulationFeel2: "Meer zelfvertrouwen",
@@ -710,6 +712,9 @@ const locale: LocaleModule = {
     phaseLutealTip: "taken afronden en rustig, precies werk. Maaltijden met eiwit en vezels kunnen trek in eten temperen.",
     nextPeriodLabel: "Volgende menstruatie",
     nextPeriodDetail: "{date} · {when} · geschat",
+    ovulationEstimateLabel: "Geschatte ovulatie",
+    ovulationEstimateDetail: "Meest waarschijnlijk op {date} · periode {range}",
+    ovulationWideNote: "Je cycli variëren behoorlijk, dus de periode is breed. Een ovulatietest kan hem verkleinen.",
     inDays: "over {days} dagen",
     inOneDay: "morgen",
     howEstimated: "Hoe wordt dit geschat?",
@@ -827,9 +832,9 @@ const locale: LocaleModule = {
     tipPeriodSoonTitle: "Je menstruatie komt eraan",
     tipPeriodSoonBody:
       "Met een gemiddelde cyclus van {length} dagen kan je menstruatie over ongeveer {days} dagen komen. Houd bij de hand wat je nodig hebt en plan extra rust. Dit is een schatting.",
-    tipFertileTitle: "Geschatte vruchtbare periode",
+    tipFertileTitle: "Geschatte ovulatie",
     tipFertileBody:
-      "Op basis van het begin van je menstruaties zit je mogelijk in je vruchtbaarste dagen. Eiwitachtig slijm valt hier soms mee samen, maar een kalender kan geen ovulatie bevestigen. Ciclo is geen anticonceptie.",
+      "Op basis van het begin van je menstruaties kan de ovulatie rond nu vallen. De vruchtbare dagen beginnen ongeveer vijf dagen voor de ovulatie. Eiwitachtig slijm valt hier soms mee samen, maar een kalender kan geen ovulatie bevestigen. Ciclo is geen anticonceptie.",
     tipTopSymptomTitle: "Je vaakst geregistreerde symptoom: {symptom}",
     tipAdviceCramps:
       "Warmte, rustig bewegen en voeding met veel magnesium kunnen krampen verlichten. Is de pijn hevig, raadpleeg dan een arts. Aantal keer geregistreerd: {count}.",
@@ -846,7 +851,7 @@ const locale: LocaleModule = {
     tipAdviceCravings:
       "Trek in eten neemt vaak toe voor de menstruatie. Maaltijden met eiwit en vezels kunnen dat temperen. Aantal keer geregistreerd: {count}.",
     tipAdviceHighLibido:
-      "Een hoger libido valt soms samen met de geschatte vruchtbare periode. Aantal keer geregistreerd: {count}.",
+      "Een hoger libido valt soms samen met de dagen rond de ovulatie. Aantal keer geregistreerd: {count}.",
     tipAdviceSexualActivity:
       "Seksuele activiteit registreren helpt je patronen naast je cyclus te zien. Aantal keer geregistreerd: {count}.",
     tipRegularTitle: "Je cycli lijken regelmatig",
