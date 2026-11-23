@@ -795,10 +795,10 @@ const locale: LocaleModule = {
     pregnancyTrimestersTitle: "Hiruhilekoak",
     pregnancyWeekDays: "{weeks}. astea eta {days} egun",
     pregnancyWeekExact: "{weeks}. astea",
-    pregnancyWeekLeft: "Aste 1 falta da · data probablea: {date}",
+    pregnancyWeekLeft: "Aste 1 falta da · erditze-data: {date}",
     pregnancyWeekMark: "Haurdunaldiaren {week}. astea",
     pregnancyWeekOneDay: "{weeks}. astea eta egun 1",
-    pregnancyWeeksLeft: "{weeks} aste falta dira · data probablea: {date}",
+    pregnancyWeeksLeft: "{weeks} aste falta dira · erditze-data: {date}",
     pregnancyWeeksShort: "aste",
     pregnancyWindow: "Litekeena, {start} eta {end} bitartean",
     resumingBirthAsk:
