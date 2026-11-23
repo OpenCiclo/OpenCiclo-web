@@ -97,7 +97,7 @@ def main(argv: list[str] | None = None) -> int:
     frozen_path = args.output_dir / "kaggle_factors_frozen_release_summary.csv"
     frozen_summary.to_csv(frozen_path, index=False)
     print(f"Wrote {frozen_path}")
-    _print_overall_row("Kaggle + frozen mcPHASES released model", frozen_summary)
+    _print_overall_row("Kaggle + released model (literature prior)", frozen_summary)
 
     if mcphases_csv_available():
         canada = load_mcphases_series()

@@ -24,7 +24,7 @@ from openciclo.evaluation.mcphases import (
     select_winner,
     timing_candidates,
 )
-from openciclo.evaluation.metrics import summarize_metrics
+from openciclo.evaluation.metrics import summarize_by_history, summarize_metrics
 from openciclo.evaluation.walkforward import assert_no_future_dates, walk_forward_cohort
 
 DATASET_LABEL = "Creighton/Utah CrMcyclelength_share"
@@ -135,12 +135,18 @@ def main(argv: list[str] | None = None) -> int:
     frozen_path = args.output_dir / "creighton_frozen_release_summary.csv"
     frozen_summary.to_csv(frozen_path, index=False)
     print(f"Wrote {frozen_path}")
+    frozen_history = summarize_by_history(frozen)
+    if not frozen_history.empty:
+        frozen_history.insert(0, "notice", CREIGHTON_DATA_NOTICE)
+        history_path = args.output_dir / "creighton_frozen_release_history.csv"
+        frozen_history.to_csv(history_path, index=False)
+        print(f"Wrote {history_path}")
     _print_overall_row("Utah LOO winner", summary[summary["model_id"] == winner["model_id"]])
     median_summary = summary[summary["model_id"] == "v0.baseline.median"]
     _print_overall_row("Utah LOO personal median", median_summary)
     shrinkage = summary[summary["model_id"] == "v0.shrinkage.median.k2.laplace"]
     _print_overall_row("Utah LOO shrinkage k=2 Laplace", shrinkage)
-    _print_overall_row("Utah + frozen mcPHASES released model", frozen_summary)
+    _print_overall_row("Utah + released model (literature prior)", frozen_summary)
     return 0
 
 

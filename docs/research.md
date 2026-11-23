@@ -28,7 +28,7 @@ Bortot, P., Masarotto, G., & Scarpa, B. (2010). Sequential predictions of menstr
 
 **Takeaway:** treating each person as a short time series, then embedding those series in a Bayesian hierarchy, transfers strength from the population when personal history is short. State-space (temporal) structure matters; i.i.d. cycle lengths are a baseline assumption to test, not a law.
 
-This is the conceptual ancestor of OpenCiclo Phase 2. V0 still implements the i.i.d. baselines that any hierarchical model must beat. V0.2 adds empirical-Bayes shrinkage toward an mcPHASES population median; a full hierarchical posterior remains future work.
+This is the conceptual ancestor of OpenCiclo Phase 2. V0 still implements the i.i.d. baselines that any hierarchical model must beat. V0.2 adds empirical-Bayes shrinkage toward a population median (an mcPHASES aggregate until 0.2.1, published literature since 0.3.0); a full hierarchical posterior remains future work.
 
 ## Self-tracking artifacts
 

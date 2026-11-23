@@ -17,7 +17,7 @@ from openciclo.constants import (
     DEFAULT_SHRINKAGE_K,
     ENGINE_VERSION,
 )
-from openciclo.schemas.config import ForecastConfig, PopulationPrior, literature_placeholder_prior
+from openciclo.schemas.config import ForecastConfig, PopulationPrior, literature_prior
 
 DEFAULT_RELEASE_PATH = Path(__file__).resolve().parent / "released_model.json"
 FALLBACK_POINT_ESTIMATOR = "median"
@@ -121,7 +121,7 @@ def write_released_model(model: ReleasedModel, path: Path | None = None) -> Path
 
 
 def _placeholder_release() -> ReleasedModel:
-    prior = literature_placeholder_prior()
+    prior = literature_prior()
     return ReleasedModel(
         model_id="v0.baseline.median",
         dataset=prior.source,
@@ -131,7 +131,7 @@ def _placeholder_release() -> ReleasedModel:
         population_mad=prior.mad_length,
         population_mean=prior.mean_length,
         point_estimator="median",
-        selection_reason="released_model.json missing; using literature placeholder",
+        selection_reason="released_model.json missing; median baseline with the literature prior",
     )
 
 

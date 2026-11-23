@@ -167,6 +167,38 @@ class PopulationPriorForecaster(BaselineForecaster):
         )
 
 
+# A common tracker heuristic, kept as an evaluation reference so reports show how the released
+# model compares with it: the mean of the most recent cycles that fall in a plausible range.
+# Never a release candidate (`select_winner` skips every "v0.reference." id).
+RECENT_MEAN_WINDOW = 12
+RECENT_MEAN_MIN_DAYS = 21
+RECENT_MEAN_MAX_DAYS = 45
+
+
+class RecentMeanInRangeForecaster(BaselineForecaster):
+    model_id = "v0.reference.recent_mean"
+
+    def _estimate(
+        self,
+        lengths: NDArray[np.float64],
+        prior: PopulationPrior,
+        config: ForecastConfig,
+    ) -> LengthPoint:
+        recent = lengths[-RECENT_MEAN_WINDOW:]
+        kept = recent[(recent >= RECENT_MEAN_MIN_DAYS) & (recent <= RECENT_MEAN_MAX_DAYS)]
+        if kept.size == 0:
+            return LengthPoint(
+                point=float(prior.median_length),
+                used_prior=True,
+                n_lengths=int(lengths.size),
+            )
+        return LengthPoint(
+            point=float(np.mean(kept)),
+            used_prior=False,
+            n_lengths=int(lengths.size),
+        )
+
+
 FORECASTER_ALIASES: dict[str, type[BaselineForecaster]] = {
     "last": LastCycleForecaster,
     "last_cycle": LastCycleForecaster,
@@ -186,7 +218,12 @@ FORECASTER_ALIASES: dict[str, type[BaselineForecaster]] = {
     "population": PopulationPriorForecaster,
     "population_prior": PopulationPriorForecaster,
     "v0.baseline.population_prior": PopulationPriorForecaster,
+    "recent_mean": RecentMeanInRangeForecaster,
+    "v0.reference.recent_mean": RecentMeanInRangeForecaster,
 }
+
+# Evaluation references: reported next to the candidates, never selected for release.
+REFERENCE_ALIASES: tuple[str, ...] = ("recent_mean",)
 
 MANDATORY_BASELINE_ALIASES: tuple[str, ...] = (
     "last_cycle",

@@ -70,11 +70,11 @@ const parity = JSON.parse(readFileSync(fixturePath, "utf8")) as {
   }[];
 };
 
-const placeholderPrior = (median: number, mad: number): PopulationPrior => ({
+const literaturePrior = (median: number, mad: number): PopulationPrior => ({
   medianLength: median,
   madLength: mad,
   meanLength: median,
-  source: "literature_placeholder",
+  source: "published literature (Bull 2019; Li 2023)",
 });
 
 const configFor = (k: number): ForecastConfig => ({
@@ -93,12 +93,16 @@ const configFor = (k: number): ForecastConfig => ({
 });
 
 describe("released model copy", () => {
-  it("stays on the mcPHASES aggregate and does not mix Utah", () => {
-    expect(releasedModel.dataset.toLowerCase()).toContain("mcphases");
-    expect(releasedModel.dataset.toLowerCase()).not.toContain("utah");
-    expect(releasedModel.dataset.toLowerCase()).not.toContain("creighton");
-    expect(releasedModel.population_median).toBe(30.5);
-    expect(releasedModel.shrinkage_k).toBe(2);
+  it("carries the published literature prior and no local dataset", () => {
+    const dataset = releasedModel.dataset.toLowerCase();
+    expect(dataset).toContain("literature");
+    for (const local of ["mcphases", "utah", "creighton", "kaggle"]) {
+      expect(dataset).not.toContain(local);
+    }
+    expect(releasedModel.n_users).toBe(0);
+    expect(releasedModel.population_median).toBe(29);
+    expect(releasedModel.population_mad).toBe(3);
+    expect(releasedModel.shrinkage_k).toBe(2.5);
     expect(releasedModel.length_family).toBe("laplace");
   });
 
@@ -113,9 +117,9 @@ describe("released model copy", () => {
 });
 
 describe("Python parity", () => {
-  it("matches shrinkage toward the placeholder prior", () => {
+  it("matches shrinkage toward the literature prior", () => {
     for (const testCase of parity.shrinkage_cases) {
-      const prior = placeholderPrior(testCase.prior_median, 4);
+      const prior = literaturePrior(testCase.prior_median, 3);
       const got = shrinkTowardPrior(
         testCase.personal,
         testCase.n,
@@ -128,7 +132,7 @@ describe("Python parity", () => {
 
   it("matches mixed Laplace scale", () => {
     for (const testCase of parity.mixed_scale_cases) {
-      const prior = placeholderPrior(testCase.prior_median, testCase.prior_mad);
+      const prior = literaturePrior(testCase.prior_median, testCase.prior_mad);
       const got = mixedScale(
         testCase.lengths,
         testCase.point,
@@ -142,7 +146,7 @@ describe("Python parity", () => {
 
   it("matches estimate_scale for short histories", () => {
     for (const testCase of parity.estimate_scale_cases) {
-      const prior = placeholderPrior(29, testCase.prior_mad);
+      const prior = literaturePrior(29, testCase.prior_mad);
       const got = estimateScale(
         testCase.lengths,
         testCase.point,

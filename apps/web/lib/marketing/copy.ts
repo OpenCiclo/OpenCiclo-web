@@ -227,7 +227,7 @@ export const esMarketing: MarketingCopy = {
   science: {
     eyebrow: "El modelo",
     title: "Un pronóstico honesto.",
-    body: "OpenCiclo usa un modelo estadístico de contracción (shrinkage) que mezcla tu historial con un prior de población (mcPHASES). Siempre muestra un rango de incertidumbre en lugar de una fecha falsamente exacta. Sin aprendizaje profundo ni cajas negras: el modelo es abierto y está documentado.",
+    body: "OpenCiclo usa un modelo estadístico de contracción (shrinkage) que mezcla tu historial con una duración típica de grandes estudios publicados. Siempre muestra un rango de incertidumbre en lugar de una fecha falsamente exacta. Sin aprendizaje profundo ni cajas negras: el modelo es abierto y está documentado.",
     docsLink: "Leer la documentación",
     modelLink: "Ver el modelo en GitHub",
   },
@@ -425,7 +425,7 @@ export const enMarketing: MarketingCopy = {
   science: {
     eyebrow: "The model",
     title: "An honest forecast.",
-    body: "OpenCiclo uses a shrinkage statistical model that blends your own history with a population prior (mcPHASES). It always shows an uncertainty range instead of a falsely exact date. No deep learning, no black boxes: the model is open and documented.",
+    body: "OpenCiclo uses a shrinkage statistical model that blends your own history with a typical length from large published studies. It always shows an uncertainty range instead of a falsely exact date. No deep learning, no black boxes: the model is open and documented.",
     docsLink: "Read the documentation",
     modelLink: "See the model on GitHub",
   },

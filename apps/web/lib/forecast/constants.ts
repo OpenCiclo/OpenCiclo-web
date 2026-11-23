@@ -3,7 +3,7 @@
 
 /** Mirrors openciclo.constants for the released shrinkage + Laplace path. */
 
-export const ENGINE_VERSION = "0.2.1";
+export const ENGINE_VERSION = "0.3.0";
 export const MIN_CYCLE_LENGTH = 1;
 export const MAX_CYCLE_LENGTH = 90;
 // 24–38 days: the adult range in Learn (OWH / FIGO). Notes only, never the forecast.

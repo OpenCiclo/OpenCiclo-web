@@ -5,7 +5,7 @@ from collections.abc import Sequence
 
 import numpy as np
 
-from openciclo.schemas.config import PopulationPrior, literature_placeholder_prior
+from openciclo.schemas.config import PopulationPrior, literature_prior
 
 
 def fit_population_prior(
@@ -17,7 +17,7 @@ def fit_population_prior(
 
     values = np.array([length for row in length_lists for length in row], dtype=np.float64)
     if values.size == 0:
-        return literature_placeholder_prior()
+        return literature_prior()
     median = float(np.median(values))
     mad = float(np.median(np.abs(values - median)))
     if mad < 1e-9:

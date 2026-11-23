@@ -82,8 +82,9 @@ Parity vectors come from `python scripts/generate_forecast_parity.py` at the rep
 
 ## Studies
 
-- mcPHASES (Canada, published prior): https://physionet.org/content/mcphases/1.0.0/
-- Utah/Creighton (external check only): https://doi.org/10.7278/S50d-4gxs-s4hj
+- Published prior: Bull et al. 2019, https://doi.org/10.1038/s41746-019-0152-7, and Li et al. 2023 (Apple Women's Health Study), https://doi.org/10.1038/s41746-023-00848-1
+- mcPHASES (Canada, hyperparameter selection and validation): https://physionet.org/content/mcphases/1.0.0/
+- Utah/Creighton (validation only): https://doi.org/10.7278/S50d-4gxs-s4hj
 
 ## Product Help
 

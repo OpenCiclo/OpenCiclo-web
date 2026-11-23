@@ -16,6 +16,14 @@ export default function PrivacyPage() {
     <AppShell size="reading">
       <LegalPage build={privacyPolicy}>
         <p>
+          <a className="underline" href="https://doi.org/10.1038/s41746-019-0152-7">
+            Bull et al. 2019
+          </a>
+          {" · "}
+          <a className="underline" href="https://doi.org/10.1038/s41746-023-00848-1">
+            Li et al. 2023
+          </a>
+          {" · "}
           <a className="underline" href="https://physionet.org/content/mcphases/1.0.0/">
             mcPHASES
           </a>

@@ -78,3 +78,7 @@ pnpm-debug.log*
 keystore.properties
 id_rsa
 id_rsa.pub
+
+# Local benchmark reports: aggregate and per-step rows from restricted datasets (README).
+# Files committed before this line stay tracked until removed with git rm --cached.
+benchmarks/results/

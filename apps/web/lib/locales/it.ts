@@ -219,7 +219,7 @@ const locale: LocaleModule = {
     forecastChartHintInitial:
       "Queste barre sono il calcolo iniziale. La barra evidenziata è il giorno che aveva la probabilità più alta.",
     priorNote:
-      "Con pochi dati, la previsione si avvicina a una stima a priori della popolazione (mcPHASES, Canada).",
+      "Con pochi dati, la previsione si avvicina a una durata tipica tratta da grandi studi pubblicati.",
     exportJson: "Esporta JSON",
     exportCsv: "Esporta CSV",
     importData: "Importa copia",
@@ -653,7 +653,7 @@ const locale: LocaleModule = {
     forecastInfoOpen: "Come si calcola la previsione",
     forecastInfoTitle: "Come si calcola la previsione",
     forecastInfoPrior:
-      "Con pochi cicli completi, o nessuno, Ciclo usa una durata tipica tratta da uno studio pubblico con cicli reali: 42 persone in Canada (mcPHASES). Non è una media di tutte le donne del mondo.",
+      "Con pochi cicli completi, o nessuno, Ciclo parte da una durata tipica di 29 giorni, tratta da grandi studi pubblicati con cicli reali (oltre 750.000 cicli, soprattutto in Europa e negli Stati Uniti). Non è una media di tutte le donne del mondo.",
     forecastInfoPersonal:
       "Ogni ciclo completo che registri pesa di più. Con pochi cicli, lo studio pesa ancora molto. Con diversi, conta di più la tua durata abituale. I sintomi non entrano in questo calcolo.",
     forecastInfoMore: "Scopri di più",
@@ -961,7 +961,7 @@ const locale: LocaleModule = {
     science: {
       eyebrow: "Il modello",
       title: "Una previsione onesta.",
-      body: "OpenCiclo usa un modello statistico di contrazione (shrinkage) che combina la tua storia con una stima a priori della popolazione (mcPHASES). Mostra sempre un intervallo di incertezza invece di una data falsamente esatta. Niente deep learning né scatole nere: il modello è aperto e documentato.",
+      body: "OpenCiclo usa un modello statistico di contrazione (shrinkage) che combina la tua storia con una durata tipica tratta da grandi studi pubblicati. Mostra sempre un intervallo di incertezza invece di una data falsamente esatta. Niente deep learning né scatole nere: il modello è aperto e documentato.",
       docsLink: "Leggi la documentazione",
       modelLink: "Vedi il modello su GitHub",
     },

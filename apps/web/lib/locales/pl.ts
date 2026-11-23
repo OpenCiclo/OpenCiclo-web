@@ -217,7 +217,7 @@ const locale: LocaleModule = {
       "Wysokość słupka to szansa, że miesiączka zacznie się tego dnia. Wyróżniony słupek to najbardziej prawdopodobna data.",
     forecastChartHintInitial:
       "Te słupki to wstępne obliczenie. Wyróżniony słupek to dzień, który miał największą szansę.",
-    priorNote: "Przy krótkiej historii prognoza zbliża się do populacyjnego rozkładu a priori (mcPHASES, Kanada).",
+    priorNote: "Przy krótkiej historii prognoza zbliża się do typowej długości z dużych opublikowanych badań.",
     exportJson: "Eksportuj JSON",
     exportCsv: "Eksportuj CSV",
     importData: "Importuj kopię",
@@ -651,7 +651,7 @@ const locale: LocaleModule = {
     forecastInfoOpen: "Jak liczona jest prognoza",
     forecastInfoTitle: "Jak liczona jest prognoza",
     forecastInfoPrior:
-      "Przy niewielu pełnych cyklach albo bez żadnego Ciclo używa typowej długości z publicznego badania prawdziwych cykli: 42 osoby w Kanadzie (mcPHASES). To nie jest średnia wszystkich kobiet na świecie.",
+      "Przy niewielu pełnych cyklach albo bez żadnego Ciclo zaczyna od typowej długości 29 dni z dużych opublikowanych badań prawdziwych cykli (ponad 750 000 cykli, głównie z Europy i Stanów Zjednoczonych). To nie jest średnia wszystkich kobiet na świecie.",
     forecastInfoPersonal:
       "Każdy zapisany pełny cykl waży więcej. Przy niewielu cyklach badanie nadal ma duże znaczenie. Przy kilku bardziej liczy się twoja zwykła długość cyklu. Objawy nie wchodzą do tego obliczenia.",
     forecastInfoMore: "Dowiedz się więcej",
@@ -955,7 +955,7 @@ const locale: LocaleModule = {
     science: {
       eyebrow: "Model",
       title: "Uczciwa prognoza.",
-      body: "OpenCiclo korzysta ze statystycznego modelu ze ściąganiem (shrinkage), który łączy twoją historię z populacyjnym rozkładem a priori (mcPHASES). Zawsze pokazuje zakres niepewności zamiast fałszywie dokładnej daty. Bez głębokiego uczenia i czarnych skrzynek: model jest otwarty i udokumentowany.",
+      body: "OpenCiclo korzysta ze statystycznego modelu ze ściąganiem (shrinkage), który łączy twoją historię z typową długością z dużych opublikowanych badań. Zawsze pokazuje zakres niepewności zamiast fałszywie dokładnej daty. Bez głębokiego uczenia i czarnych skrzynek: model jest otwarty i udokumentowany.",
       docsLink: "Przeczytaj dokumentację",
       modelLink: "Zobacz model na GitHubie",
     },
