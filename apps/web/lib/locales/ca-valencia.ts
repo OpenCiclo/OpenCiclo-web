@@ -13,6 +13,7 @@ import type { LocaleModule } from "@/lib/locales/registry";
 const locale: LocaleModule = {
   messages: {
     ...ca.messages,
+    resumingLearnLink: "Llig més sobre el que ve ara a Aprendre",
     moonToday: "Hui, {phase} · {percent} %",
     patternsIntroToday: "Hui · dia {day} del teu cicle",
     patternsIntroNext: "La regla t'arribarà cap al {date}, d'ací a {days}.",
@@ -329,7 +330,7 @@ const locale: LocaleModule = {
       "Han passat més de dues setmanes des de la data probable de part. Si ja ha acabat, el pots tancar ací.",
     resumingBirthOvulation: "Es pot ovular abans d'esta primera regla. Ciclo no és un anticonceptiu.",
     resumingOvulation:
-      "Es pot ovular abans d'esta primera regla, de vegades a les dues setmanes. Ciclo no és un anticonceptiu.",
+      "Es pot ovular abans d'esta primera regla, de vegades a les dues setmanes.",
     resumingBirthPeriod: "Després d'un part, la regla pot tardar setmanes o mesos a tornar.",
     pregnancyImplausible: "Estes dates no encaixen amb un embaràs en curs. Revisa-les.",
     tipAdviceHeadache:

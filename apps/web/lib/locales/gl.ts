@@ -831,9 +831,10 @@ const locale: LocaleModule = {
     resumingBirthOvulation: "Pódese ovular antes desa primeira regra. Ciclo non é un anticonceptivo.",
     resumingBirthPeriod: "Despois dun parto, a regra pode tardar semanas ou meses en volver.",
     resumingBleeding: "O sangrado pode durar ata dúas semanas, e o manchado ata tres.",
+    resumingLearnLink: "Ler máis sobre o que vén agora en Aprender",
     resumingOpen: "Que pode pasar agora",
     resumingOvulation:
-      "Pódese ovular antes desa primeira regra, ás veces ás dúas semanas. Ciclo non é un anticonceptivo.",
+      "Pódese ovular antes desa primeira regra, ás veces ás dúas semanas.",
     resumingPeriod: "A regra adoita volver entre 4 e 8 semanas despois; máis tarde se o embarazo estaba máis avanzado.",
     resumingTitle: "O teu ciclo retomarase cando apuntes a túa próxima regra.",
     resumingWhenToAsk:

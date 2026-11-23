@@ -825,9 +825,10 @@ const locale: LocaleModule = {
     resumingBirthOvulation: "Es pot ovular abans d'aquesta primera regla. Ciclo no és un anticonceptiu.",
     resumingBirthPeriod: "Després d'un part, la regla pot trigar setmanes o mesos a tornar.",
     resumingBleeding: "El sagnat pot durar fins a dues setmanes, i el tacament fins a tres.",
+    resumingLearnLink: "Llegeix més sobre el que ve ara a Aprendre",
     resumingOpen: "Què pot passar ara",
     resumingOvulation:
-      "Es pot ovular abans d'aquesta primera regla, de vegades a les dues setmanes. Ciclo no és un anticonceptiu.",
+      "Es pot ovular abans d'aquesta primera regla, de vegades a les dues setmanes.",
     resumingPeriod: "La regla sol tornar entre 4 i 8 setmanes després; més tard si l'embaràs estava més avançat.",
     resumingTitle: "El teu cicle es reprendrà quan apuntis la propera regla.",
     resumingWhenToAsk:

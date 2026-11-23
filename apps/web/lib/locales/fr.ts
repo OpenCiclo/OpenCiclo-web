@@ -837,9 +837,10 @@ const locale: LocaleModule = {
     resumingBirthOvulation: "On peut ovuler avant ces premières règles. Ciclo n’est pas une méthode contraceptive.",
     resumingBirthPeriod: "Après un accouchement, les règles peuvent mettre des semaines ou des mois à revenir.",
     resumingBleeding: "Le saignement peut durer jusqu’à deux semaines, et le spotting jusqu’à trois.",
+    resumingLearnLink: "En lire plus sur la suite dans Apprendre",
     resumingOpen: "Ce qui peut se passer maintenant",
     resumingOvulation:
-      "On peut ovuler avant ces premières règles, parfois au bout de deux semaines. Ciclo n’est pas une méthode contraceptive.",
+      "On peut ovuler avant ces premières règles, parfois au bout de deux semaines.",
     resumingPeriod:
       "Les règles reviennent généralement 4 à 8 semaines plus tard ; plus tard si la grossesse était plus avancée.",
     resumingTitle: "Ton cycle reprendra quand tu noteras tes prochaines règles.",

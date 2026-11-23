@@ -823,9 +823,10 @@ const locale: LocaleModule = {
     resumingBirthOvulation: "Je kunt ovuleren vóór die eerste menstruatie. Ciclo is geen anticonceptie.",
     resumingBirthPeriod: "Na een bevalling kan het weken of maanden duren voor je menstruatie terugkomt.",
     resumingBleeding: "Het bloedverlies kan tot twee weken duren, en spotting tot drie.",
+    resumingLearnLink: "Lees meer over wat er nu komt in Leren",
     resumingOpen: "Wat er nu kan gebeuren",
     resumingOvulation:
-      "Je kunt ovuleren vóór die eerste menstruatie, soms al na twee weken. Ciclo is geen anticonceptie.",
+      "Je kunt ovuleren vóór die eerste menstruatie, soms al na twee weken.",
     resumingPeriod:
       "De menstruatie komt meestal 4 tot 8 weken later terug; later als de zwangerschap verder gevorderd was.",
     resumingTitle: "Je cyclus begint weer zodra je je volgende menstruatie registreert.",

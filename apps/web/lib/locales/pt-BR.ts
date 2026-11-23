@@ -825,9 +825,10 @@ const locale: LocaleModule = {
       "É possível ovular antes dessa primeira menstruação. O Ciclo não é um método anticoncepcional.",
     resumingBirthPeriod: "Depois de um parto, a menstruação pode levar semanas ou meses para voltar.",
     resumingBleeding: "O sangramento pode durar até duas semanas, e o escape até três.",
+    resumingLearnLink: "Ler mais sobre o que vem agora em Aprender",
     resumingOpen: "O que pode acontecer agora",
     resumingOvulation:
-      "É possível ovular antes dessa primeira menstruação, às vezes depois de duas semanas. O Ciclo não é um método anticoncepcional.",
+      "É possível ovular antes dessa primeira menstruação, às vezes depois de duas semanas.",
     resumingPeriod:
       "A menstruação costuma voltar de 4 a 8 semanas depois; mais tarde se a gravidez estava mais avançada.",
     resumingTitle: "Seu ciclo vai recomeçar quando você registrar sua próxima menstruação.",

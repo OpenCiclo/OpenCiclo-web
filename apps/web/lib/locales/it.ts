@@ -829,9 +829,10 @@ const locale: LocaleModule = {
     resumingBirthOvulation: "Si può ovulare prima delle prime mestruazioni. Ciclo non è un metodo contraccettivo.",
     resumingBirthPeriod: "Dopo un parto, le mestruazioni possono metterci settimane o mesi a tornare.",
     resumingBleeding: "Il sanguinamento può durare fino a due settimane, lo spotting fino a tre.",
+    resumingLearnLink: "Leggi di più su cosa succede ora in Impara",
     resumingOpen: "Cosa può succedere ora",
     resumingOvulation:
-      "Si può ovulare prima delle prime mestruazioni, a volte dopo due settimane. Ciclo non è un metodo contraccettivo.",
+      "Si può ovulare prima delle prime mestruazioni, a volte dopo due settimane.",
     resumingPeriod:
       "Le mestruazioni tornano di solito dopo 4–8 settimane; più tardi se la gravidanza era più avanzata.",
     resumingTitle: "Il tuo ciclo riprenderà quando registrerai le prossime mestruazioni.",

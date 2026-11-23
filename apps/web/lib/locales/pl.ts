@@ -822,9 +822,10 @@ const locale: LocaleModule = {
     resumingBirthOvulation: "Owulacja może wystąpić przed pierwszą miesiączką. Ciclo nie jest antykoncepcją.",
     resumingBirthPeriod: "Po porodzie powrót miesiączki może potrwać tygodnie lub miesiące.",
     resumingBleeding: "Krwawienie może trwać do dwóch tygodni, a plamienie do trzech.",
+    resumingLearnLink: "Czytaj więcej o tym, co teraz, w zakładce Wiedza",
     resumingOpen: "Co może się teraz dziać",
     resumingOvulation:
-      "Owulacja może wystąpić przed pierwszą miesiączką, czasem już po dwóch tygodniach. Ciclo nie jest antykoncepcją.",
+      "Owulacja może wystąpić przed pierwszą miesiączką, czasem już po dwóch tygodniach.",
     resumingPeriod: "Miesiączka zwykle wraca po 4–8 tygodniach; później, jeśli ciąża była bardziej zaawansowana.",
     resumingTitle: "Twój cykl wznowi się, gdy zapiszesz następną miesiączkę.",
     resumingWhenToAsk:
