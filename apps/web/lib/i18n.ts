@@ -311,6 +311,10 @@ const es = {
   priorNote: "Con poca historia, el pronóstico se acerca a una duración típica de grandes estudios publicados.",
   exportJson: "Exportar JSON",
   exportCsv: "Exportar CSV",
+  exportChoiceMessage: "¿Qué quieres hacer con el archivo?",
+  exportSaveToDevice: "Guardar en este móvil",
+  exportShare: "Compartir",
+  exportSaved: "Archivo guardado.",
   importData: "Importar copia",
   importHint:
     "JSON o CSV exportado desde Ciclo. Se fusiona con esta cuenta. No restaura la cuenta antigua, solo los datos.",
@@ -1332,6 +1336,10 @@ const en = {
   priorNote: "With little history, the forecast leans toward a typical length from large published studies.",
   exportJson: "Export JSON",
   exportCsv: "Export CSV",
+  exportChoiceMessage: "What do you want to do with the file?",
+  exportSaveToDevice: "Save on this phone",
+  exportShare: "Share",
+  exportSaved: "File saved.",
   importData: "Import backup",
   importHint:
     "JSON or CSV exported from openciclo. It merges into this account. It restores data, not the old account keys.",

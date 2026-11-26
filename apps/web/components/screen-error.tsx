@@ -9,7 +9,7 @@ import { useRouter } from "next/navigation";
 import { TriangleAlert } from "lucide-react";
 
 import { useCiclo } from "@/lib/client/ciclo-context";
-import { saveFile } from "@/lib/client/save-file";
+import { useSaveFile } from "@/components/save-file-dialog";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
@@ -23,6 +23,7 @@ import { Card } from "@/components/ui/card";
  */
 export function ScreenErrorView({ onRetry }: { onRetry: () => void }) {
   const { t, wallet, storageMode, offline, exportDiaryJson, signOut } = useCiclo();
+  const [saveFile, saveFileDialog] = useSaveFile(t);
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -58,11 +59,12 @@ export function ScreenErrorView({ onRetry }: { onRetry: () => void }) {
           type="button"
           variant="outline"
           disabled={busy}
-          onClick={() => void run(() => saveFile("ciclo-diary.json", exportDiaryJson(), "application/json"))}
+          onClick={() => void run(() => saveFile("ciclo-diary.json", exportDiaryJson, "application/json").then(() => undefined))}
         >
           {t.exportJson}
         </Button>
       ) : null}
+      {saveFileDialog}
       {canSignOut ? (
         <Button
           type="button"

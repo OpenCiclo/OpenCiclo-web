@@ -1,5 +1,6 @@
 package com.openciclo.app;
 
+import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipDescription;
 import android.content.ClipboardManager;
@@ -14,6 +15,7 @@ import android.security.keystore.KeyProperties;
 import android.util.AtomicFile;
 import android.view.WindowManager;
 
+import androidx.activity.result.ActivityResult;
 import androidx.annotation.NonNull;
 import androidx.biometric.BiometricManager;
 import androidx.biometric.BiometricPrompt;
@@ -25,12 +27,14 @@ import com.getcapacitor.JSObject;
 import com.getcapacitor.Plugin;
 import com.getcapacitor.PluginCall;
 import com.getcapacitor.PluginMethod;
+import com.getcapacitor.annotation.ActivityCallback;
 import com.getcapacitor.annotation.CapacitorPlugin;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
@@ -598,6 +602,57 @@ public class DeviceVaultPlugin extends Plugin {
             });
         } catch (IOException | IllegalArgumentException e) {
             call.reject("Could not share the file", "IO_ERROR");
+        }
+    }
+
+    /**
+     * Saves a text file where the person chooses, with Android's own "Save to" screen (phone
+     * storage, Drive, any document provider). Needs no storage permission: the system hands
+     * back one place to write, picked by her. Resolves `saved: false` when she backs out.
+     * The text goes straight to that place; nothing is left in the app's cache.
+     */
+    @PluginMethod
+    public void saveFile(PluginCall call) {
+        String filename = call.getString("filename", "");
+        String mimeType = call.getString("mimeType", "text/plain");
+        if (call.getString("data") == null || filename == null || !filename.matches("[A-Za-z0-9._-]{1,80}")) {
+            call.reject("Invalid file", "INVALID_ARGUMENT");
+            return;
+        }
+        Intent create = new Intent(Intent.ACTION_CREATE_DOCUMENT)
+            .addCategory(Intent.CATEGORY_OPENABLE)
+            .setType(mimeType)
+            .putExtra(Intent.EXTRA_TITLE, filename);
+        try {
+            startActivityForResult(call, create, "saveFileResult");
+        } catch (RuntimeException e) {
+            // No app on the device can show the screen.
+            call.reject("Could not open the save screen", "UNAVAILABLE");
+        }
+    }
+
+    @ActivityCallback
+    private void saveFileResult(PluginCall call, ActivityResult result) {
+        if (call == null) return;
+        Intent chosen = result.getData();
+        Uri uri = chosen == null ? null : chosen.getData();
+        if (result.getResultCode() != Activity.RESULT_OK || uri == null) {
+            JSObject cancelled = new JSObject();
+            cancelled.put("saved", false);
+            call.resolve(cancelled);
+            return;
+        }
+        String data = call.getString("data");
+        // "wt": an existing file she chose to replace is cut to the new length.
+        try (OutputStream out = getContext().getContentResolver().openOutputStream(uri, "wt")) {
+            if (out == null || data == null) throw new IOException("no stream");
+            out.write(data.getBytes(StandardCharsets.UTF_8));
+            out.flush();
+            JSObject done = new JSObject();
+            done.put("saved", true);
+            call.resolve(done);
+        } catch (IOException | RuntimeException e) {
+            call.reject("Could not save the file", "IO_ERROR");
         }
     }
 

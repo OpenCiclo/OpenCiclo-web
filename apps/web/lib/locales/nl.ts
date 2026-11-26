@@ -263,6 +263,10 @@ const locale: LocaleModule = {
     priorNote: "Met weinig geschiedenis schuift de voorspelling op naar een typische lengte uit grote gepubliceerde onderzoeken.",
     exportJson: "JSON exporteren",
     exportCsv: "CSV exporteren",
+    exportChoiceMessage: "Wat wil je met het bestand doen?",
+    exportSaveToDevice: "Opslaan op deze telefoon",
+    exportShare: "Delen",
+    exportSaved: "Bestand opgeslagen.",
     importData: "Back-up importeren",
     importHint:
       "JSON of CSV, geëxporteerd uit Ciclo. Wordt samengevoegd met dit account. Herstelt de gegevens, niet het oude account.",

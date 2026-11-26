@@ -264,6 +264,10 @@ const locale: LocaleModule = {
       "Con pochi dati, la previsione si avvicina a una durata tipica tratta da grandi studi pubblicati.",
     exportJson: "Esporta JSON",
     exportCsv: "Esporta CSV",
+    exportChoiceMessage: "Cosa vuoi fare con il file?",
+    exportSaveToDevice: "Salva su questo telefono",
+    exportShare: "Condividi",
+    exportSaved: "File salvato.",
     importData: "Importa copia",
     importHint:
       "JSON o CSV esportato da Ciclo. Si unisce a questo account. Ripristina solo i dati, non le chiavi del vecchio account.",
