@@ -146,12 +146,25 @@ function CycleBars({
   );
 }
 
-function HowEstimated({ t, onClick, phase }: { t: Messages; onClick: () => void; phase: CyclePhase }) {
+function HowEstimated({
+  t,
+  onClick,
+  phase,
+  className,
+}: {
+  t: Messages;
+  onClick: () => void;
+  phase: CyclePhase;
+  className?: string;
+}) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className="shrink-0 text-[13px] font-extrabold whitespace-nowrap underline-offset-4 hover:underline desktop:text-sm"
+      className={cn(
+        "shrink-0 text-[13px] font-extrabold whitespace-nowrap underline-offset-4 hover:underline desktop:text-sm",
+        className,
+      )}
       style={{ color: PHASE_INK[phase] }}
     >
       {t.howEstimated}
@@ -326,8 +339,9 @@ export function PhaseDetails({
                 .replace("{date}", formatIsoUtc(nextDate, locale, { weekday: "short", day: "numeric", month: "short" }))
                 .replace("{when}", when)}
             </span>
+            {/* On its own line: beside the text, the phone's column left the date three words wide. */}
+            <HowEstimated t={t} onClick={onHowEstimated} phase={phase} className="mt-1 block py-1 text-left" />
           </span>
-          <HowEstimated t={t} onClick={onHowEstimated} phase={phase} />
         </div>
       ) : null}
       <p
@@ -564,9 +578,13 @@ export function DueDetails({
           <span className="font-extrabold text-card-foreground">{t.dueTipStrong}</span> {t.dueTipRest}
         </p>
       </div>
-      <div className={cn("phase-reveal mt-2.5 flex items-center justify-between gap-2.5")} style={reveal(4)}>
+      {/* The link under the notice on a phone, beside it in the desktop dialog. */}
+      <div
+        className="phase-reveal mt-2.5 flex flex-col items-start gap-1 desktop:flex-row desktop:items-center desktop:justify-between desktop:gap-2.5"
+        style={reveal(4)}
+      >
         <p className="text-xs leading-[1.4] text-muted-foreground desktop:text-[13px]">{t.dueNotice}</p>
-        <HowEstimated t={t} onClick={onHowEstimated} phase="menstrual" />
+        <HowEstimated t={t} onClick={onHowEstimated} phase="menstrual" className="py-1 desktop:py-0" />
       </div>
       {onPregnant ? (
         <button
