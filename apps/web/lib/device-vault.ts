@@ -55,6 +55,11 @@ export type DeviceVaultPlugin = {
    */
   clearSessionCookie(options: { url: string }): Promise<void>;
   shareFile(options: { filename: string; data: string; mimeType: string }): Promise<void>;
+  /**
+   * Android's "Save to" screen: writes the text where the person chooses (phone storage,
+   * Drive, any document provider). `saved: false` when she backs out of it.
+   */
+  saveFile(options: { filename: string; data: string; mimeType: string }): Promise<{ saved: boolean }>;
   /** Copies the phrase to the clipboard, marked sensitive (Android 13+ hides it from the preview). */
   copySensitive(options: { text: string }): Promise<void>;
   /**

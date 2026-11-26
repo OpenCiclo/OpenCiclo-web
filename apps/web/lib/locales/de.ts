@@ -264,6 +264,10 @@ const locale: LocaleModule = {
       "Bei wenig Verlauf nähert sich die Prognose einer typischen Länge aus großen veröffentlichten Studien an.",
     exportJson: "JSON exportieren",
     exportCsv: "CSV exportieren",
+    exportChoiceMessage: "Was möchtest du mit der Datei tun?",
+    exportSaveToDevice: "Auf diesem Handy speichern",
+    exportShare: "Teilen",
+    exportSaved: "Datei gespeichert.",
     importData: "Sicherung importieren",
     importHint:
       "JSON oder CSV, aus Ciclo exportiert. Wird mit diesem Konto zusammengeführt. Stellt die Daten wieder her, nicht die Schlüssel des alten Kontos.",

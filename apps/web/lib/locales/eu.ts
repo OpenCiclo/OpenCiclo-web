@@ -263,6 +263,10 @@ const locale: LocaleModule = {
     priorNote: "Historia gutxi dagoenean, aurreikuspena argitaratutako ikerketa handietako iraupen tipiko batera hurbiltzen da.",
     exportJson: "Esportatu JSON",
     exportCsv: "Esportatu CSV",
+    exportChoiceMessage: "Zer egin nahi duzu fitxategiarekin?",
+    exportSaveToDevice: "Gorde telefono honetan",
+    exportShare: "Partekatu",
+    exportSaved: "Fitxategia gordeta.",
     importData: "Inportatu kopia",
     importHint:
       "Ciclotik esportatutako JSON edo CSV fitxategia. Kontu honekin bateratzen da. Ez du kontu zaharra berreskuratzen, datuak bakarrik.",

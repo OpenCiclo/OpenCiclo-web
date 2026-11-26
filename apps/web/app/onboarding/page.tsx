@@ -11,7 +11,7 @@ import { storeBrowserPassword } from "@/lib/client/credentials";
 import { copyPhrase } from "@/lib/client/phrase-clipboard";
 import { AccountMismatchError, HttpError } from "@/lib/client/api";
 import { UpdateRequiredError } from "@/lib/client/http";
-import { saveFile } from "@/lib/client/save-file";
+import { useSaveFile } from "@/components/save-file-dialog";
 import {
   InvalidConfirmError,
   MailNotConfiguredError,
@@ -46,6 +46,7 @@ export default function OnboardingPage() {
     resendEmailCode,
     pendingSignup,
   } = useCiclo();
+  const [saveFile, saveFileDialog] = useSaveFile(t);
   const router = useRouter();
   // An email sign-up left waiting for its code (the app was closed while the
   // email was read) opens on the code step until the person chooses otherwise.
@@ -468,7 +469,7 @@ export default function OnboardingPage() {
                   type="button"
                   variant="outline"
                   className="flex-1"
-                  onClick={() => void saveFile("ciclo-recovery-phrase.txt", wallet.mnemonic, "text/plain")}
+                  onClick={() => void saveFile("ciclo-recovery-phrase.txt", wallet.mnemonic, "text/plain").catch(() => undefined)}
                 >
                   {t.download}
                 </Button>
@@ -504,6 +505,7 @@ export default function OnboardingPage() {
           ) : null}
         </>
       ) : null}
+      {saveFileDialog}
     </AppShell>
   );
 }

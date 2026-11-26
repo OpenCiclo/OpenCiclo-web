@@ -10,7 +10,6 @@ import { InvalidCredentialsError, useCiclo } from "@/lib/client/ciclo-context";
 import { UpdateRequiredError } from "@/lib/client/http";
 import { lastEmail } from "@/lib/client/kit-store";
 import { storeBrowserPassword } from "@/lib/client/credentials";
-import { saveFile } from "@/lib/client/save-file";
 import { NewerDiaryError } from "@/lib/diary";
 import {
   diaryToCsv,
@@ -24,6 +23,7 @@ import { useFriendsTabChoice } from "@/lib/client/friends-tab";
 import { AppShell } from "@/components/app-shell";
 import { AddEmailSignIn } from "@/components/add-email-sign-in";
 import { useConfirmDialog } from "@/components/confirm-dialog";
+import { useSaveFile } from "@/components/save-file-dialog";
 import { PregnancySettings } from "@/components/pregnancy/pregnancy-settings";
 import { InstallPrompt } from "@/components/install-prompt";
 import { LanguageSelect } from "@/components/language-select";
@@ -119,6 +119,7 @@ export default function SettingsPage() {
   // Android 11+ (the app lock needs it). Asked from the device when an on-device diary is open.
   const [lockSupported, setLockSupported] = useState(true);
   const [confirm, confirmDialog] = useConfirmDialog();
+  const [saveFile, saveFileDialog] = useSaveFile(t);
   const [friendsTabVisible, setFriendsTabVisible] = useFriendsTabChoice();
   // The diary says whether this account has an email sign-in. The last email
   // typed on this device does not: it outlives sign-out and other accounts.
@@ -181,7 +182,9 @@ export default function SettingsPage() {
 
   async function exportFile(filename: string, body: () => string, type: string) {
     try {
-      await saveFile(filename, body(), type);
+      // In the Android app the file went where she chose, with nothing else on screen to say so.
+      const outcome = await saveFile(filename, body, type);
+      say("backup", outcome === "saved" ? t.exportSaved : null);
     } catch {
       say("backup", t.errorGeneric);
     }
@@ -831,6 +834,7 @@ export default function SettingsPage() {
       </div>
       </div>
       {confirmDialog}
+      {saveFileDialog}
     </AppShell>
   );
 }

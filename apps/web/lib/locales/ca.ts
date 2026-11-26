@@ -262,6 +262,10 @@ const locale: LocaleModule = {
     priorNote: "Amb poc historial, la previsió s'acosta a una durada típica de grans estudis publicats.",
     exportJson: "Exporta JSON",
     exportCsv: "Exporta CSV",
+    exportChoiceMessage: "Què vols fer amb el fitxer?",
+    exportSaveToDevice: "Desa en aquest mòbil",
+    exportShare: "Comparteix",
+    exportSaved: "Fitxer desat.",
     importData: "Importa una còpia",
     importHint:
       "JSON o CSV exportat des de Ciclo. Es fusiona amb aquest compte. Recupera les dades, no el compte antic.",

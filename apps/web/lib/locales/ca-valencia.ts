@@ -50,6 +50,8 @@ const locale: LocaleModule = {
     temperatureNote:
       "Ciclo dibuixa el que apuntes i no interpreta la gràfica. La temperatura no confirma ni prediu l'ovulació i no servix com a anticonceptiu. Ciclo no és un dispositiu mèdic.",
     temperatureLearnLink: "Llig sobre el coneixement de la fertilitat a Aprendre",
+    exportSaveToDevice: "Guarda en este mòbil",
+    exportSaved: "Fitxer guardat.",
     signupConsentHosted:
       "El teu diari pot contindre dades de salut i de la teua vida sexual: períodes, símptomes, salut mental, activitat sexual, proves d'embaràs i d'ovulació, dates d'embaràs, temperatura, pastilles anticonceptives i altres medicaments, i notes. Ciclo el xifra en este dispositiu abans de guardar-lo. En el núvol de Ciclo, el nostre servidor només en guarda la còpia xifrada i no la pot llegir. Amb correu, també guarda una empremta codificada de la teua adreça, mai l'adreça.",
     signupConsentDevice: "Amb «Només en este dispositiu», el diari no ix mai d'este mòbil.",

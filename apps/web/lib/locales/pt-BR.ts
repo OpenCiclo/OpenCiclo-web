@@ -263,6 +263,10 @@ const locale: LocaleModule = {
     priorNote: "Com pouco histórico, a previsão se aproxima de uma duração típica de grandes estudos publicados.",
     exportJson: "Exportar JSON",
     exportCsv: "Exportar CSV",
+    exportChoiceMessage: "O que você quer fazer com o arquivo?",
+    exportSaveToDevice: "Salvar neste celular",
+    exportShare: "Compartilhar",
+    exportSaved: "Arquivo salvo.",
     importData: "Importar cópia",
     importHint:
       "JSON ou CSV exportado do Ciclo. Os dados são mesclados com esta conta. Restaura os dados, não a conta antiga.",

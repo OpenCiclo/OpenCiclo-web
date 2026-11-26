@@ -30,7 +30,7 @@ If you remove the screen lock or change your fingerprints, the key stops working
 
 ## Backups
 
-There is no copy anywhere else. If you lose the phone or uninstall the app, the diary is gone unless you exported it. Export from Settings → Backup, which opens the Android share sheet.
+There is no copy anywhere else. If you lose the phone or uninstall the app, the diary is gone unless you exported it. Export from Settings → Backup. The app asks what to do with the file: **Save on this phone** opens Android's own screen to pick a folder (Downloads, for example, or a cloud drive you have set up), and **Share** opens the share sheet to send it to another app.
 
 The export file is **not** encrypted. Keep it somewhere private.
 
