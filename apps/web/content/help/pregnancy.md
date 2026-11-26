@@ -49,7 +49,7 @@ With **No news**, bleeding you log reaches your friends as it would without preg
 
 **The pregnancy has ended** is at the bottom of the open card and in Settings. It asks two things: whether your baby was born or the pregnancy ended, and when. It never asks why.
 
-Everything about the pregnancy goes at once: the card, the weeks, the due date. Until you log your next period, the card above the calendar only says that your cycle starts again then. There is no forecast and nothing is ever "late". Bleeding in the first 20 days after the end never counts as a period (six weeks after a birth, or after a pregnancy that ended from 14 weeks on). After that, the first bleeding asks once whether your period has come back.
+Everything about the pregnancy goes at once: the card, the weeks, the due date. Until you log your next period, the card above the calendar only says that your cycle starts again then. Opened, it says what may happen now, and after a pregnancy that ended without a birth it links to a Learn article about recovery, with its sources. There is no forecast and nothing is ever "late". Bleeding in the first 20 days after the end never counts as a period (six weeks after a birth, or after a pregnancy that ended from 14 weeks on). After that, the first bleeding asks once whether your period has come back.
 
 You choose what stays: kept in your diary (a thin line on the calendar that you can hide), or deleted completely. **I turned it on by mistake** deletes it as if it had never been there.
 

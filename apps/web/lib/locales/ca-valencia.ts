@@ -13,6 +13,7 @@ import type { LocaleModule } from "@/lib/locales/registry";
 const locale: LocaleModule = {
   messages: {
     ...ca.messages,
+    resumingLearnLink: "Llig més sobre el que ve ara a Aprendre",
     friendsSharePregnancy: "Compartix la meua setmana d’embaràs",
     friendsSharePregnancyHint:
       "Les teues amigues veuen en quina setmana estàs i res més de l’embaràs. Per a comptar les setmanes, els seus telèfons reben la teua data probable de part. Es deixa de compartir quan l’embaràs acaba o quan ho desactives.",
@@ -326,9 +327,9 @@ const locale: LocaleModule = {
     pregnancyEndBirth: "Va nàixer el meu nadó",
     pregnancyStillGoingBody:
       "Han passat més de dues setmanes des de la data probable de part. Si ja ha acabat, el pots tancar ací.",
-    resumingBirthOvulation: "Es pot ovular abans d'esta primera regla. Ciclo no és un anticonceptiu.",
+    resumingBirthOvulation: "Es pot ovular abans d'esta primera regla.",
     resumingOvulation:
-      "Es pot ovular abans d'esta primera regla, de vegades a les dues setmanes. Ciclo no és un anticonceptiu.",
+      "Es pot ovular abans d'esta primera regla, de vegades a les dues setmanes.",
     resumingBirthPeriod: "Després d'un part, la regla pot tardar setmanes o mesos a tornar.",
     pregnancyImplausible: "Estes dates no encaixen amb un embaràs en curs. Revisa-les.",
     tipAdviceHeadache:

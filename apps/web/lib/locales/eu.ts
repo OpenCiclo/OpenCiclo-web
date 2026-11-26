@@ -823,12 +823,13 @@ const locale: LocaleModule = {
     pregnancyWindow: "Litekeena, {start} eta {end} bitartean",
     resumingBirthAsk:
       "Odoljarioari edo zure suspertzeari buruzko zalantzarik baduzu, galdetu zure emaginari edo medikuari.",
-    resumingBirthOvulation: "Lehen hilekoa baino lehen obula daiteke. Ciclo ez da antisorgailua.",
+    resumingBirthOvulation: "Lehen hilekoa baino lehen obula daiteke.",
     resumingBirthPeriod: "Erditu ondoren, hilekoak asteak edo hilabeteak behar izan ditzake itzultzeko.",
     resumingBleeding: "Odoljarioak bi aste arte iraun dezake, eta orbanek hiru arte.",
+    resumingLearnLink: "Irakurri gehiago orain datorrenari buruz Ikasi atalean",
     resumingOpen: "Zer gerta daitekeen orain",
     resumingOvulation:
-      "Lehen hilekoa baino lehen obula daiteke, batzuetan bi asteren buruan. Ciclo ez da antisorgailua.",
+      "Lehen hilekoa baino lehen obula daiteke, batzuetan bi asteren buruan.",
     resumingPeriod: "Hilekoa 4–8 aste geroago itzuli ohi da; beranduago, haurdunaldia aurreratuago bazegoen.",
     resumingTitle: "Zure zikloa berriro hasiko da hurrengo hilekoa erregistratzen duzunean.",
     resumingWhenToAsk:
