@@ -74,6 +74,8 @@ export default function SettingsPage() {
     setLunarPhasesEnabled,
     weekStartsOn,
     setWeekStartsOn,
+    temperatureUnit,
+    setTemperatureUnit,
     colorScheme,
     setColorScheme,
     diary,
@@ -332,6 +334,25 @@ export default function SettingsPage() {
               onClick={() => setWeekStartsOn(0)}
             >
               {t.weekStartsSunday}
+            </Button>
+          </div>
+        </div>
+        <div>
+          <p className="text-sm font-semibold text-card-foreground">{t.temperatureUnitLabel}</p>
+          <div className="mt-2 grid grid-cols-2 gap-2">
+            <Button
+              type="button"
+              variant={temperatureUnit === "c" ? "default" : "outline"}
+              onClick={() => setTemperatureUnit("c")}
+            >
+              {t.temperatureCelsius}
+            </Button>
+            <Button
+              type="button"
+              variant={temperatureUnit === "f" ? "default" : "outline"}
+              onClick={() => setTemperatureUnit("f")}
+            >
+              {t.temperatureFahrenheit}
             </Button>
           </div>
         </div>

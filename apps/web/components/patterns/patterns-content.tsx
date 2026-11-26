@@ -25,6 +25,7 @@ import { nextPeriodStat } from "@/lib/cycle/period-timing";
 import { ForecastCard, ForecastDetails } from "@/components/forecast-card";
 import { coverageInterval } from "@/lib/forecast/coverage";
 import { NoteViewer } from "@/components/journal/note-viewer";
+import { TemperatureCard } from "@/components/patterns/temperature-card";
 import { cn } from "@/lib/utils";
 
 // The pregnancy view brings its week-by-week texts with it: loaded only for a diary with a pregnancy going on.
@@ -102,7 +103,7 @@ function Advice({ tip, t }: { tip: TipCard | undefined; t: Messages }) {
  * her period comes back there is no forecast to show, so no forecast card.
  */
 export function PatternsContent() {
-  const { t, diary, locale } = useCiclo();
+  const { t, diary, locale, temperatureUnit } = useCiclo();
   const today = useTodayIso();
   const [activeEntry, setActiveEntry] = useState<JournalEntry | null>(null);
   const [closing, setClosing] = useState(false);
@@ -280,6 +281,8 @@ export function PatternsContent() {
           <>
             {stats.forecastingEnabled && !noCycle ? <ForecastCard /> : null}
             {pregnant ? null : <p className="text-sm text-muted-foreground">{t.noPatternsYet}</p>}
+            {/* Readings logged before any period start still show (as not drawn yet). */}
+            {pregnant ? null : <TemperatureCard />}
           </>
         ) : (
           <>
@@ -499,6 +502,9 @@ export function PatternsContent() {
               </section>
             ) : null}
 
+            {/* What she logged, drawn as it is; never under "Your cycles before the pregnancy". */}
+            {pregnant ? null : <TemperatureCard />}
+
             {stats.recurringSex.length > 0 ? (
               <section className={cn(CARD, "gap-3.5")} style={{ animationDelay: "270ms" }}>
                 <SectionLabel color={INK.sex}>{symptomCategoryLabel("sexAndSexDrive", t)}</SectionLabel>
@@ -608,6 +614,7 @@ export function PatternsContent() {
           locale={locale}
           t={t}
           customSymptoms={diary.customSymptoms}
+          temperatureUnit={temperatureUnit}
           closing={closing}
           onClose={closeViewer}
           onExited={handleViewerExited}

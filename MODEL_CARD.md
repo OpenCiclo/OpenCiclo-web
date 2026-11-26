@@ -148,7 +148,7 @@ The V1 web app ports this same path to TypeScript and checks it against `tests/f
 
 **Used:** historical period-start dates → cycle lengths; published population prior; shrinkage `k`; Laplace scale from residual MAD mixed with the prior MAD; published luteal-phase distribution (estimated ovulation only).
 
-**Not used:** symptoms, flow, BBT, LH, mucus, sleep, stress, exercise, contraception, sexual activity.
+**Not used:** symptoms, flow, BBT, LH, mucus, sleep, stress, exercise, contraception, sexual activity. The app can log a day's temperature (BBT) and draw it by cycle day; the forecast and the estimated ovulation never read it, and the app derives nothing from it (no rise, no cover line, no ovulation day).
 
 ## Assumptions
 

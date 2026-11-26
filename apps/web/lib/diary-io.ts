@@ -68,8 +68,10 @@ export function diaryToJson(diary: Diary): string {
 export function diaryToCsv(diary: Diary): string {
   // schemaVersion (first row only, like customSymptoms) lets a later build's
   // file be refused by an older build instead of imported with values dropped.
+  // bbtCelsius: the day's temperature in degrees Celsius with a dot, whatever
+  // unit the screen shows.
   const header =
-    "date,flow,cervicalMucus,symptoms,cramps,headache,note,periodStart,customSymptoms,favoriteSymptomIds,schemaVersion";
+    "date,flow,cervicalMucus,symptoms,cramps,headache,note,periodStart,customSymptoms,favoriteSymptomIds,bbtCelsius,schemaVersion";
   const dates = new Set([...Object.keys(diary.days), ...diary.periodStarts]);
   const sortedDates = [...dates].sort();
   const rows = sortedDates.map((date, index) => {
@@ -86,6 +88,7 @@ export function diaryToCsv(diary: Diary): string {
       start,
       index === 0 ? JSON.stringify(diary.customSymptoms) : "",
       index === 0 ? diary.favoriteSymptomIds.join(";") : "",
+      log.bbt === undefined ? "" : String(log.bbt),
       index === 0 ? String(DIARY_SCHEMA_VERSION) : "",
     ]
       .map((cell) => csvEscape(String(cell)))
@@ -104,6 +107,7 @@ export function diaryToCsv(diary: Diary): string {
         "",
         JSON.stringify(diary.customSymptoms),
         diary.favoriteSymptomIds.join(";"),
+        "",
         String(DIARY_SCHEMA_VERSION),
       ]
         .map((cell) => csvEscape(String(cell)))
@@ -257,6 +261,7 @@ function parseCsvDiary(text: string): Diary {
       index.symptoms !== undefined
         ? parseSymptomsCell(cells[index.symptoms] ?? "", allowedCustomIds)
         : {};
+    const bbtCell = index.bbtcelsius === undefined ? "" : (cells[index.bbtcelsius] ?? "").trim();
     const log = sanitizeDayLog({
       flow: cells[index.flow] || cells[index.bleeding] || undefined,
       cervicalMucus: cells[index.cervicalmucus] || cells[index.cervical_mucus] || cells[index.mucus] || undefined,
@@ -264,6 +269,8 @@ function parseCsvDiary(text: string): Diary {
       cramps: cells[index.cramps] || undefined,
       headache: cells[index.headache] || undefined,
       note: index.note === undefined ? undefined : cells[index.note],
+      // A number with a dot; anything else (a comma, text, out of range) is dropped by the sanitizer.
+      bbt: bbtCell ? Number(bbtCell) : undefined,
     }, allowedCustomIds);
     if (!isEmptyDayLog(log)) days[iso] = log;
     const startFlag = (cells[index.periodstart] ?? cells[index.period_start] ?? "").trim();
@@ -345,6 +352,8 @@ export function mergeDiaries(
       cervicalMucus: log.cervicalMucus ?? existing.cervicalMucus,
       symptoms: mergeSymptoms(existing.symptoms, log.symptoms),
       ...(log.note ? { note: log.note } : existing.note ? { note: existing.note } : {}),
+      // Also the Android move from the device to the host: without this line it would drop every reading.
+      ...(log.bbt !== undefined ? { bbt: log.bbt } : existing.bbt !== undefined ? { bbt: existing.bbt } : {}),
     };
   }
   const mergedStarts = [...new Set([...current.periodStarts, ...incoming.periodStarts])];

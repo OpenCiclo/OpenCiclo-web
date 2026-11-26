@@ -104,6 +104,8 @@ export function CalendarScreen() {
     lunarPhasesVisible,
     setLunarPhasesVisible,
     weekStartsOn,
+    temperatureUnit,
+    setTemperatureUnit,
     readOnly,
     updateRequired,
   } = useCiclo();
@@ -595,6 +597,8 @@ export function CalendarScreen() {
         lunarPhasesEnabled={lunarPhasesEnabled}
         onUpdateSymptomPreferences={updateSymptomPreferences}
         pregnancy={dayPregnancy}
+        temperatureUnit={temperatureUnit}
+        onTemperatureUnit={setTemperatureUnit}
       />
 
       <SymptomFilterSheet

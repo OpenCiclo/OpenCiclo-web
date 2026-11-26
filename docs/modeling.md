@@ -153,6 +153,8 @@ Starting **priors** for optional signals, to be replaced by empirical weights:
 
 V0 does not apply these. Personalized feature effects need an evidence threshold; one or two cramp logs must not dominate.
 
+The app has logged a day's temperature since diary v9. It is stored and drawn by cycle day only: no model reads it, and the app derives nothing from it (no rise, no cover line, no ovulation day). Using it, or an LH test, to narrow the ovulation estimate stays future work, and would first need its own validation and a change to the rule that the estimate comes from the published luteal distribution alone.
+
 ## Recency and regime change
 
 Exponential recency is **investigated** via benchmarks. It is not forced if it loses to equal weights.

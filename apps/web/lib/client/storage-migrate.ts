@@ -16,6 +16,8 @@ export const LUNAR_PHASES_ENABLED_KEY = "ciclo.lunarPhasesEnabled";
 export const LUNAR_PHASES_VISIBLE_KEY = "ciclo.lunarPhasesVisible";
 export const WEEK_STARTS_ON_KEY = "ciclo.weekStartsOn";
 export const TIME_ZONE_KEY = "ciclo.timeZone";
+/** "c" or "f": how this device shows a day's temperature (lib/temperature.ts). */
+export const TEMPERATURE_UNIT_KEY = "ciclo.temperatureUnit";
 
 function hasBrowserStorage() {
   return typeof localStorage !== "undefined" && typeof sessionStorage !== "undefined";

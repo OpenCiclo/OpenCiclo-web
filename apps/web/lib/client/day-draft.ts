@@ -13,6 +13,7 @@ export function isDraftChanged(draft: DayLog, saved: DayLog | undefined): boolea
   if ((draft.flow ?? null) !== (base.flow ?? null)) return true;
   if ((draft.cervicalMucus ?? null) !== (base.cervicalMucus ?? null)) return true;
   if ((draft.note || "") !== (base.note || "")) return true;
+  if ((draft.bbt ?? null) !== (base.bbt ?? null)) return true;
   const ids = new Set([...Object.keys(draft.symptoms), ...Object.keys(base.symptoms)]) as Set<keyof DayLog["symptoms"]>;
   for (const id of ids) {
     if ((draft.symptoms[id] ?? null) !== (base.symptoms[id] ?? null)) return true;

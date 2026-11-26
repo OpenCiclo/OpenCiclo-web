@@ -49,4 +49,4 @@ Settings can hide forecasts. Your logs and completed-cycle statistics stay. Obse
 
 - Forecasts can be wrong, especially with irregular cycles or sparse logs.
 - Do not use Ciclo as birth control.
-- Optional symptoms, temperature, and lab-style signals may be stored in the diary. This release does **not** feed them into the forecast.
+- Symptoms, temperature and test results can be logged in the diary. This release does **not** feed them into the forecast or into the estimated ovulation. Temperature is drawn as a chart you read yourself (see [Temperature](/help/temperature)).

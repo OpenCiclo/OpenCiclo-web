@@ -17,13 +17,16 @@ import {
   Droplet,
   PenLine,
   Sparkles,
+  Thermometer,
   Trash2,
   X,
 } from "lucide-react";
 
 import {
   FLOW_LEVELS,
+  MAX_BBT_CELSIUS,
   MAX_DAILY_NOTE_LENGTH,
+  MIN_BBT_CELSIUS,
   MUCUS_LEVELS,
   emptyDayLog,
   isEmptyDayLog,
@@ -54,6 +57,14 @@ import {
   toggleFavoriteSymptom,
   toggleLoggedSymptom,
 } from "@/lib/symptoms/selection";
+import {
+  TEMPERATURE_UNITS,
+  formatTemperature,
+  parseTemperatureInput,
+  temperatureInputText,
+  unitSymbol,
+  type TemperatureUnit,
+} from "@/lib/temperature";
 import { IS_ANDROID_APP } from "@/lib/app-target";
 import { isDraftChanged } from "@/lib/client/day-draft";
 import { useLatest } from "@/lib/client/hooks";
@@ -65,7 +76,7 @@ import { MoreSymptomsView } from "@/components/calendar/more-symptoms-view";
 import { SymptomChip } from "@/components/calendar/symptom-chip";
 import { useConfirmDialog } from "@/components/confirm-dialog";
 import { Badge } from "@/components/ui/badge";
-import { Textarea } from "@/components/ui/input";
+import { Input, Textarea } from "@/components/ui/input";
 
 const FLOW_DOTS: Record<FlowLevel, number> = {
   spotting: 1,
@@ -165,6 +176,8 @@ export function DaySheet({
   onSave,
   onUpdateSymptomPreferences,
   pregnancy = null,
+  temperatureUnit = "c",
+  onTemperatureUnit,
 }: {
   open: boolean;
   iso: string | null;
@@ -193,8 +206,17 @@ export function DaySheet({
     customSymptoms: CustomSymptomDefinition[],
   ) => void | Promise<void>;
   pregnancy?: DayPregnancyInfo | null;
+  /** How this device shows the day's temperature; the diary holds degrees Celsius. */
+  temperatureUnit?: TemperatureUnit;
+  /** The unit switch in the temperature row; without it the row shows the unit only. */
+  onTemperatureUnit?: (unit: TemperatureUnit) => void;
 }) {
   const titleId = useId();
+  const bbtHintId = useId();
+  // What is typed in the temperature field. `draft.bbt` follows it while it
+  // reads as a temperature; text that does not (a slip, out of range) blocks
+  // Save instead of being guessed at.
+  const [bbtText, setBbtText] = useState(() => temperatureInputText(log?.bbt, temperatureUnit));
   const [draft, setDraft] = useState<DayLog>(() =>
     log ? { ...log, symptoms: { ...log.symptoms }, note: log.note } : emptyDayLog(),
   );
@@ -238,6 +260,7 @@ export function DaySheet({
   if (open && iso && iso !== draftForIso) {
     setDraftForIso(iso);
     setDraft(log ? { ...log, symptoms: { ...log.symptoms }, note: log.note } : emptyDayLog());
+    setBbtText(temperatureInputText(log?.bbt, temperatureUnit));
     setView("quick");
     setCallOpen(false);
   }
@@ -246,6 +269,7 @@ export function DaySheet({
   if (readOnly !== draftReadOnly) {
     setDraftReadOnly(readOnly);
     setDraft(log ? { ...log, symptoms: { ...log.symptoms }, note: log.note } : emptyDayLog());
+    setBbtText(temperatureInputText(log?.bbt, temperatureUnit));
   }
 
   const closing = Boolean(iso) && !open;
@@ -254,7 +278,10 @@ export function DaySheet({
   const locked = busy || readOnly || future;
   const [confirm, confirmDialog] = useConfirmDialog();
   // Edits not saved yet: closing the sheet asks before dropping them.
-  const dirty = !readOnly && !future && isDraftChanged(draft, log);
+  const bbtInvalid = parseTemperatureInput(bbtText, temperatureUnit).kind === "invalid";
+  const dirty = !readOnly && !future && (isDraftChanged(draft, log) || bbtInvalid);
+  // Basal temperature says nothing during a pregnancy: the row stays only for a value already there.
+  const showTemperature = !pregnancyDay || log?.bbt !== undefined || draft.bbt !== undefined || bbtText !== "";
 
   // The close button, a tap outside, Escape, Android Back and the drag handle.
   async function requestClose() {
@@ -344,6 +371,33 @@ export function DaySheet({
       ...current,
       cervicalMucus: current.cervicalMucus === value ? undefined : value,
     }));
+  }
+
+  /** Reads `text` as a temperature in `unit` into the draft; text that is not one leaves the draft as it was. */
+  function readBbt(text: string, unit: TemperatureUnit) {
+    const parsed = parseTemperatureInput(text, unit);
+    if (parsed.kind === "invalid") return;
+    setDraft((current) => {
+      const next = { ...current };
+      if (parsed.kind === "ok") next.bbt = parsed.celsius;
+      else delete next.bbt;
+      return next;
+    });
+  }
+
+  function typeBbt(text: string) {
+    setBbtText(text);
+    readBbt(text, temperatureUnit);
+  }
+
+  // Only typing changes the reading. The switch shows the same reading in the
+  // other unit: converting the text back and forth would move it by a rounding
+  // step and mark the day as edited.
+  function switchUnit(unit: TemperatureUnit) {
+    if (unit === temperatureUnit) return;
+    if (bbtInvalid) readBbt(bbtText, unit);
+    else setBbtText(temperatureInputText(draft.bbt, unit));
+    onTemperatureUnit?.(unit);
   }
 
   function toggleSymptom(id: SymptomId) {
@@ -630,6 +684,71 @@ export function DaySheet({
             </div>
           </Section>
 
+          {showTemperature ? (
+            <Section title={t.temperatureSection} icon={<Thermometer className="size-4 text-primary" />}>
+              <div className="flex items-center gap-2">
+                <div className="relative min-w-0 flex-1">
+                  <Input
+                    type="text"
+                    inputMode="decimal"
+                    autoComplete="off"
+                    enterKeyHint="done"
+                    value={bbtText}
+                    disabled={locked}
+                    aria-label={t.temperatureFieldLabel.replace("{unit}", unitSymbol(temperatureUnit))}
+                    aria-invalid={bbtInvalid}
+                    aria-describedby={bbtHintId}
+                    onChange={(event) => typeBbt(event.target.value)}
+                    className="pr-11"
+                  />
+                  {bbtText && !locked ? (
+                    <button
+                      type="button"
+                      onClick={() => typeBbt("")}
+                      aria-label={t.temperatureClear}
+                      className="absolute top-1/2 right-1 flex size-9 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground"
+                    >
+                      <X className="size-4" aria-hidden />
+                    </button>
+                  ) : null}
+                </div>
+                {onTemperatureUnit ? (
+                  <div
+                    role="group"
+                    aria-label={t.temperatureUnitLabel}
+                    className="flex shrink-0 rounded-2xl border-2 border-border p-0.5"
+                  >
+                    {TEMPERATURE_UNITS.map((unit) => (
+                      <button
+                        key={unit}
+                        type="button"
+                        aria-pressed={temperatureUnit === unit}
+                        disabled={busy}
+                        onClick={() => switchUnit(unit)}
+                        className={cn(
+                          "min-w-11 rounded-xl px-2.5 py-2 text-sm font-bold transition-colors",
+                          temperatureUnit === unit ? "bg-primary text-primary-foreground" : "text-muted-foreground",
+                        )}
+                      >
+                        {unitSymbol(unit)}
+                      </button>
+                    ))}
+                  </div>
+                ) : (
+                  <span className="shrink-0 text-sm font-bold text-muted-foreground">{unitSymbol(temperatureUnit)}</span>
+                )}
+              </div>
+              <p id={bbtHintId} className={cn("mt-1.5 text-xs", bbtInvalid ? "text-destructive" : "text-muted-foreground")}>
+                {bbtInvalid
+                  ? t.temperatureInvalid
+                      .replace("{min}", formatTemperature(MIN_BBT_CELSIUS, temperatureUnit, locale, 1))
+                      .replace("{max}", formatTemperature(MAX_BBT_CELSIUS, temperatureUnit, locale, 1))
+                      .replace("{unit}", unitSymbol(temperatureUnit))
+                  : t.temperatureHint}
+              </p>
+            </Section>
+          ) : null}
+
           <Section title={t.symptoms}>
             {quick.lead.length > 0 ? (
               <div className="mb-3 flex flex-wrap gap-2">
@@ -758,7 +877,7 @@ export function DaySheet({
               ) : null}
               <button
                 type="button"
-                disabled={busy}
+                disabled={busy || bbtInvalid}
                 onClick={() => void onSave(hasData ? draft : emptyDayLog())}
                 className="flex flex-1 items-center justify-center gap-2 rounded-2xl bg-primary py-3.5 text-base font-semibold text-primary-foreground shadow-sm transition-transform active:scale-[0.98]"
               >

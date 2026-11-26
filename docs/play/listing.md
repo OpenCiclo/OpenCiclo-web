@@ -86,7 +86,7 @@ Full description (1907):
 Ciclo is a period diary with cycle forecasts, made by the open-source OpenCiclo project. Your diary is encrypted on your phone before it is saved: not even we can read it.
 
 WHAT YOU CAN DO
-• Log period days and flow, cervical mucus, symptoms, moods, sexual activity, pregnancy and ovulation tests, pill intake and short notes.
+• Log period days and flow, cervical mucus, temperature, symptoms, moods, sexual activity, pregnancy and ovulation tests, pill intake and short notes.
 • See when your next period may come, always with its range of uncertainty, never a falsely exact date.
 • See estimated cycle phases and the days ovulation may fall on (an estimate) on the calendar. You can hide all forecasts in Settings.
 • See your average cycle length, how it changes over time, and your most logged symptoms.

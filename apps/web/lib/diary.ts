@@ -20,13 +20,13 @@ import {
  * Version of the diary format this build reads and writes. Bump it whenever a
  * build would drop or misread something a newer one stores: a new field, or a
  * new value in any list below (flow, mucus, symptoms, symptom values, custom
- * symptom categories, UI languages, pregnancy fields). Builds installed from Google Play stay in
+ * symptom categories, UI languages, pregnancy fields, a day's temperature). Builds installed from Google Play stay in
  * use for months: they open a newer diary read-only instead of saving it back
  * without what they do not know (see `NewerDiaryError`), and the server refuses
  * a save older than the stored version. `diary-schema.test.ts` fails until the
  * bump is made.
  */
-export const DIARY_SCHEMA_VERSION = 8;
+export const DIARY_SCHEMA_VERSION = 9;
 export const MAX_DAILY_NOTE_LENGTH = 200;
 
 /**
@@ -62,6 +62,12 @@ export type DayLog = {
   cervicalMucus?: CervicalMucus;
   symptoms: SymptomMap;
   note?: string;
+  /**
+   * Since v9. Basal body temperature in degrees Celsius, whatever unit she
+   * typed it in (lib/temperature.ts). Logged and drawn; the forecast and the
+   * ovulation estimate never read it.
+   */
+  bbt?: number;
 };
 
 export type Diary = {
@@ -199,6 +205,21 @@ export function sanitizeDailyNote(raw: unknown): string | undefined {
   return normalized.slice(0, MAX_DAILY_NOTE_LENGTH);
 }
 
+/** A day's temperature is kept from 34 to 42 °C; outside that it is a typing slip or another kind of reading. */
+export const MIN_BBT_CELSIUS = 34;
+export const MAX_BBT_CELSIUS = 42;
+
+/**
+ * Three decimals of a degree Celsius: a reading typed in Fahrenheit with two
+ * decimals then reads back exactly as typed (two decimals would not).
+ */
+export function sanitizeBbt(raw: unknown): number | undefined {
+  if (typeof raw !== "number" || !Number.isFinite(raw)) return undefined;
+  const rounded = Math.round(raw * 1000) / 1000;
+  if (rounded < MIN_BBT_CELSIUS || rounded > MAX_BBT_CELSIUS) return undefined;
+  return rounded;
+}
+
 export function sanitizeDayLog(
   raw: unknown,
   allowedCustomIds: ReadonlySet<CustomSymptomId> = new Set(),
@@ -214,11 +235,15 @@ export function sanitizeDayLog(
   }
   const note = sanitizeDailyNote(input.note);
   if (note) log.note = note;
+  const bbt = sanitizeBbt(input.bbt);
+  if (bbt !== undefined) log.bbt = bbt;
   return log;
 }
 
 export function isEmptyDayLog(log: DayLog): boolean {
-  return !log.flow && !log.cervicalMucus && Object.keys(log.symptoms).length === 0 && !log.note;
+  return (
+    !log.flow && !log.cervicalMucus && Object.keys(log.symptoms).length === 0 && !log.note && log.bbt === undefined
+  );
 }
 
 export function hasSymptoms(log: DayLog | undefined): boolean {
