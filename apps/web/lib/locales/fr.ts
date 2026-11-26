@@ -232,11 +232,6 @@ const locale: LocaleModule = {
     interval80Hint: "80 % de la probabilité se concentre dans cette période.",
     forecastMoreInfo: "+ d’infos",
     forecastLessInfo: "Masquer les infos",
-    forecastChart: "Probabilité par jour",
-    forecastChartHint:
-      "La hauteur indique la probabilité que les règles commencent ce jour-là. La barre mise en avant est la date la plus probable.",
-    forecastChartHintInitial:
-      "Ces barres sont le calcul initial. La barre mise en avant est le jour qui avait la plus forte probabilité.",
     priorNote: "Avec peu d’historique, la prévision se rapproche d’une durée typique issue de grandes études publiées.",
     exportJson: "Exporter en JSON",
     exportCsv: "Exporter en CSV",
@@ -450,6 +445,10 @@ const locale: LocaleModule = {
     friendsClearNote: "Effacer la note",
     friendsShowDay: "Montrer mon jour du cycle",
     friendsShowExpected: "Montrer quand mes règles sont attendues",
+    friendsSharePregnancy: "Partager ma semaine de grossesse",
+    friendsSharePregnancyHint:
+      "Tes amies voient à quelle semaine tu en es et rien d’autre sur la grossesse. Pour compter les semaines, leurs téléphones reçoivent ta date prévue d’accouchement. Le partage s’arrête quand la grossesse se termine ou quand tu le désactives.",
+    friendsSharePregnancyChoice: "Ma semaine de grossesse",
     friendsPauseAll: "Mettre en pause avec toutes",
     friendsYourSharing: "Ce que tu partages",
     friendsTurnOff: "Désactiver Amies",
@@ -866,7 +865,6 @@ const locale: LocaleModule = {
     dueShortToday: "Le jour le plus probable est arrivé et aucun saignement n’est encore noté. C’est une estimation.",
     dueShortLate: "Le jour le plus probable est passé et aucun saignement n’est encore noté. C’est une estimation.",
     dueDetailsTitle: "Prévision des règles",
-    dueChartTitle: "Probabilité de début pour chaque jour",
     dueMostLikely: "Le plus probable : {date}",
     dueLikelyBy: "80 % de probabilité d’ici {date}",
     dueTipStrong: "Quand tes règles commencent, note-le dans le calendrier.",

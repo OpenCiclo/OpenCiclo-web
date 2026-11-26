@@ -230,11 +230,6 @@ const locale: LocaleModule = {
     interval80Hint: "W tym przedziale mieści się 80% prawdopodobieństwa.",
     forecastMoreInfo: "+ info",
     forecastLessInfo: "Ukryj info",
-    forecastChart: "Prawdopodobieństwo dla każdego dnia",
-    forecastChartHint:
-      "Wysokość słupka to szansa, że miesiączka zacznie się tego dnia. Wyróżniony słupek to najbardziej prawdopodobna data.",
-    forecastChartHintInitial:
-      "Te słupki to wstępne obliczenie. Wyróżniony słupek to dzień, który miał największą szansę.",
     priorNote: "Przy krótkiej historii prognoza zbliża się do typowej długości z dużych opublikowanych badań.",
     exportJson: "Eksportuj JSON",
     exportCsv: "Eksportuj CSV",
@@ -445,6 +440,10 @@ const locale: LocaleModule = {
     friendsClearNote: "Usuń notatkę",
     friendsShowDay: "Pokazuj mój dzień cyklu",
     friendsShowExpected: "Pokazuj, kiedy spodziewana jest moja miesiączka",
+    friendsSharePregnancy: "Udostępniaj mój tydzień ciąży",
+    friendsSharePregnancyHint:
+      "Twoje przyjaciółki widzą, w którym tygodniu jesteś, i nic więcej o ciąży. Aby liczyć tygodnie, ich telefony dostają twój przewidywany termin porodu. Udostępnianie kończy się, gdy ciąża się skończy albo gdy to wyłączysz.",
+    friendsSharePregnancyChoice: "Mój tydzień ciąży",
     friendsPauseAll: "Wstrzymaj ze wszystkimi",
     friendsYourSharing: "Co udostępniasz",
     friendsTurnOff: "Wyłącz Przyjaciółki",
@@ -849,7 +848,6 @@ const locale: LocaleModule = {
     dueShortToday: "Najbardziej prawdopodobny dzień już nadszedł, a nie zapisano jeszcze krwawienia. To szacunek.",
     dueShortLate: "Najbardziej prawdopodobny dzień już minął, a nie zapisano jeszcze krwawienia. To szacunek.",
     dueDetailsTitle: "Prognoza miesiączki",
-    dueChartTitle: "Szansa na początek w każdym dniu",
     dueMostLikely: "Najbardziej prawdopodobnie: {date}",
     dueLikelyBy: "80% szans do {date}",
     dueTipStrong: "Gdy się zacznie, zaznacz to w kalendarzu.",

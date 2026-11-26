@@ -31,12 +31,17 @@ Trimesters are counted as usual: the first to 13 weeks and 6 days, the second fr
 
 ## Friends
 
-A pregnancy is never shared. While pregnancy mode is on, your friends see one of two things, as you choose:
+A pregnancy is private unless you choose to share it. While pregnancy mode is on, your friends see one of three things, as you choose:
 
 - **No news** (the default): what they would see if you had stopped logging. For a few days your card says the period is expected about now, then that there is no recent update. Turning pregnancy mode on changes nothing they receive.
 - **Simulated cycle**: phases as if your usual cycles went on from your last real period. A friend who looks closely may notice that "logged today" never appears.
+- **My pregnancy week**: your card shows the week you are in and the trimester, and nothing else about the pregnancy: no due date on the card, no symptoms, no notes from your diary. To count the weeks on days you do not open Ciclo, your friends' phones receive your due date inside the encrypted message. It is offered once you have at least one friend, and it is never on unless you turn it on.
 
-You can change this in **Settings** → **Pregnancy**. Once your period comes back after the pregnancy, your card works as before.
+You can change this in **Settings** → **Pregnancy**, or with **Share my pregnancy week** in the Friends settings. **How friends see me** on the Friends screen shows your card as they get it.
+
+Sharing is for that pregnancy only, and only while it goes on. The day you log its end, your friends stop getting the week: their card goes back to what **No news** shows, with no message about what happened. A later pregnancy is not shared unless you turn it on again. Pausing sharing with a friend, or with everyone, also hides the week from them.
+
+Once your period comes back after the pregnancy, your card works as before.
 
 With **No news**, bleeding you log reaches your friends as it would without pregnancy mode: they see a period logged that day and a new cycle from it. That keeps the pregnancy private, but it is not what your own calendar shows. If you would rather they saw nothing, pause sharing in Friends. After a birth, the date friends see for your next period can differ by a day or so from yours, for the same reason: their card is worked out from your diary without the pregnancy.
 

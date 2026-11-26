@@ -67,9 +67,8 @@ export function weeksLeftLine(data: PregnancyCardData, locale: Locale, t: Messag
   return template.replace("{weeks}", String(data.weeksLeft)).replace("{date}", due);
 }
 
-/** Forty weeks as three arcs, one per trimester, filled up to today. */
-export function PregnancyRing({ data, animate }: { data: PregnancyCardData; animate: boolean }) {
-  const size = 58;
+/** Forty weeks as three arcs, one per trimester, filled up to `progress` (0–1). Also a friend's card when she shares hers. */
+export function PregnancyRing({ progress, animate, size = 58 }: { progress: number; animate: boolean; size?: number }) {
   const stroke = 5;
   const radius = (size - stroke) / 2;
   const circumference = 2 * Math.PI * radius;
@@ -81,7 +80,7 @@ export function PregnancyRing({ data, animate }: { data: PregnancyCardData; anim
     const length = share * circumference - gap;
     const from = offset;
     offset += share * circumference;
-    const filledShare = Math.max(0, Math.min(1, (data.progress - from / circumference) / share));
+    const filledShare = Math.max(0, Math.min(1, (progress - from / circumference) / share));
     return { index, from, length, filled: filledShare * length };
   });
   return (
@@ -139,7 +138,7 @@ function PregnancyHeader({
   return (
     <div className="relative z-[1]">
       <div className="flex items-center gap-3">
-        <PregnancyRing data={data} animate={animate} />
+        <PregnancyRing progress={data.progress} animate={animate} />
         <div className="flex min-w-0 flex-col gap-[3px] pr-7">
           <p className="text-[10px] font-extrabold tracking-[0.07em] uppercase" style={{ color: INK }}>
             {ask ? t.pregnancyCardLabel : `${t.pregnancyCardLabel} · ${trimesterLabel(data.trimester, t)}`}

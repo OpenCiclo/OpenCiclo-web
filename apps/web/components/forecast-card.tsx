@@ -4,7 +4,6 @@ import { useState } from "react";
 import Link from "next/link";
 
 import { useCiclo, useTodayIso } from "@/lib/client/ciclo-context";
-import { initialChartWindow, untruncatedDaily } from "@/lib/cycle/initial-chart";
 import { cycleOverview } from "@/lib/cycle/phases";
 import { initialProbabilityLabel, periodTimingChip } from "@/lib/cycle/period-timing";
 import { daysBetween } from "@/lib/forecast/math";
@@ -13,7 +12,7 @@ import { daysUnit, withinDays } from "@/lib/i18n";
 import type { DailyProbability } from "@/lib/forecast/types";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { coverageInterval, ForecastChart } from "@/components/forecast-chart";
+import { coverageInterval } from "@/lib/forecast/coverage";
 
 const NEXT_WINDOWS = ["1", "2", "3", "5", "7"] as const;
 const AROUND_WINDOWS = ["1", "2", "3", "5"] as const;
@@ -137,9 +136,6 @@ export function ForecastCard() {
     dueOrLate && !observed && overview.initialStartProbability !== null
       ? initialProbabilityLabel(overview.initialStartProbability, t)
       : null;
-  const chartWindow = late ? initialChartWindow(anchorDate, today) : null;
-  const chartDaily = late ? untruncatedDaily(forecast) : forecast.dailyProbabilities;
-  const interval = coverageInterval(forecast.dailyProbabilities, 0.8);
 
   return (
     <div className="flex flex-col gap-4">
@@ -168,19 +164,6 @@ export function ForecastCard() {
             {formatDate(overview.expectedBleedingWindow.end, locale)}
           </p>
         ) : null}
-      </Card>
-      <Card>
-        <ForecastChart
-          daily={chartDaily}
-          mostLikelyDate={late ? anchorDate : forecast.mostLikelyDate}
-          interval={late ? null : interval}
-          referenceDate={today}
-          locale={locale}
-          t={t}
-          windowStart={chartWindow?.start}
-          windowEnd={chartWindow?.end}
-          hint={late ? t.forecastChartHintInitial : undefined}
-        />
       </Card>
       <button
         type="button"

@@ -128,14 +128,29 @@ export function PregnancyFlowsProvider({ children }: { children: ReactNode }) {
         busy={busy || readOnly}
         error={error}
         onClose={close}
-        onSave={async (dating: PregnancyDating, friendsMode) => {
+        onSave={async (dating: PregnancyDating, choice) => {
+          // Sharing the week is kept in the friend book; the diary keeps a private mode to fall back on.
+          const friendsMode = choice === "shared" ? "noNews" : choice;
           let saved: boolean;
+          let shareId: string | null = null;
           if (changeRecord) {
             saved = await save(changeDating(diary, changeRecord.id, dating));
           } else if (!active) {
-            saved = await save(startPregnancy(diary, dating, friendsMode));
+            const next = startPregnancy(diary, dating, friendsMode);
+            saved = await save(next);
+            if (choice === "shared") shareId = activePregnancy(next.pregnancies ?? [])?.id ?? null;
           } else {
             saved = await save(setFriendsMode(diary, active.id, friendsMode));
+            if (choice === "shared") shareId = active.id;
+          }
+          if (saved && shareId) {
+            // The pregnancy is saved; if the friend book cannot be, say so and keep the sheet (Save tries again).
+            try {
+              await friends.setProfile({ pregnancy: shareId });
+            } catch (cause) {
+              setError(saveErrorMessage(cause, t));
+              return;
+            }
           }
           if (saved) close();
         }}

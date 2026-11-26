@@ -7,9 +7,11 @@ import { useEffect, useId, useState } from "react";
 import { createPortal } from "react-dom";
 import { Settings2, X } from "lucide-react";
 
+import { useCiclo, useTodayIso } from "@/lib/client/ciclo-context";
 import type { FriendBook } from "@/lib/friends/book";
 import { MAX_NAME_LENGTH } from "@/lib/friends/limits";
 import type { Messages } from "@/lib/i18n";
+import { shareablePregnancy } from "@/lib/pregnancy/friends";
 import { cn } from "@/lib/utils";
 import { useFriends } from "@/components/friends/friends-provider";
 import { Button } from "@/components/ui/button";
@@ -26,6 +28,7 @@ function prefersReducedMotion() {
 /**
  * The Friends settings, in a sheet from the bottom (a dialog on the desktop):
  * the name friends see, what they see, pause with everyone, turn Friends off.
+ * While a pregnancy goes on, a switch shares its week (off until she turns it on).
  * Escape (and so Android Back) closes it, like every sheet in the app.
  */
 export function FriendsSettingsSheet({
@@ -48,6 +51,10 @@ export function FriendsSettingsSheet({
   onTurnOff: () => void;
 }) {
   const friends = useFriends();
+  const { diary } = useCiclo();
+  const today = useTodayIso();
+  // The pregnancy that goes on, if she could share it now; the switch is only there for it.
+  const pregnancy = shareablePregnancy(diary, today);
   const titleId = useId();
   const [present, setPresent] = useState(open);
   const [name, setName] = useState(book.name);
@@ -158,6 +165,23 @@ export function FriendsSettingsSheet({
             </label>
           ))}
           <p className="text-xs leading-5 text-muted-foreground">{t.friendsDatesNote}</p>
+          {pregnancy ? (
+            <>
+              <label htmlFor="friends-share-pregnancy" className="flex cursor-pointer items-center justify-between gap-4 rounded-2xl bg-muted/60 p-3">
+                <span className="text-sm font-semibold text-card-foreground">{t.friendsSharePregnancy}</span>
+                <input
+                  id="friends-share-pregnancy"
+                  type="checkbox"
+                  role="switch"
+                  className={SWITCH_CLASS}
+                  checked={book.pregnancy === pregnancy.id}
+                  disabled={!writable || busy}
+                  onChange={(event) => void act(() => friends.setProfile({ pregnancy: event.target.checked ? pregnancy.id : null }))}
+                />
+              </label>
+              <p className="text-xs leading-5 text-muted-foreground">{t.friendsSharePregnancyHint}</p>
+            </>
+          ) : null}
           {/* While Friends is new. Remove with the friendsExperimental* strings once it settles. */}
           <p className="text-xs leading-5 text-muted-foreground">
             <span className="font-bold text-primary">{t.friendsExperimentalTitle}</span> · {t.friendsExperimental}

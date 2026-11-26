@@ -31,7 +31,8 @@ import {
   type EmbryoAge,
   type PregnancyDating,
 } from "@/lib/pregnancy/dating";
-import type { FriendsPrivateMode, PregnancyEnd, PregnancyOutcome, PregnancyRecord } from "@/lib/pregnancy/record";
+import type { FriendsChoice } from "@/lib/pregnancy/friends";
+import type { PregnancyEnd, PregnancyOutcome, PregnancyRecord } from "@/lib/pregnancy/record";
 import { cn } from "@/lib/utils";
 
 function prefersReducedMotion() {
@@ -275,13 +276,14 @@ export function PregnancyStartSheet({
   busy: boolean;
   error: string | null;
   onClose: () => void;
-  onSave: (dating: PregnancyDating, friendsMode: FriendsPrivateMode) => void;
+  /** `friends` is "shared" when she chose to share the week (kept in the friend book, not in the diary). */
+  onSave: (dating: PregnancyDating, friends: FriendsChoice) => void;
   /** Dates of a pregnancy that would already be over: it goes on to ask how and when it ended. */
   onPast: (dating: PregnancyDating) => void;
 }) {
   const [step, setStep] = useState(0);
   const [draft, setDraft] = useState(() => draftFrom(record, lastStart, today));
-  const [friendsMode, setFriendsMode] = useState<FriendsPrivateMode>(record?.friendsMode ?? "noNews");
+  const [friendsMode, setFriendsMode] = useState<FriendsChoice>(record?.friendsMode ?? "noNews");
   const [wasOpen, setWasOpen] = useState(open);
   if (open && !wasOpen) {
     setWasOpen(true);
@@ -450,7 +452,14 @@ export function PregnancyStartSheet({
             hint={t.pregnancyFriendsSimulatedHint}
             onChange={() => setFriendsMode("simulated")}
           />
-          <p className="text-xs leading-5 text-muted-foreground">{t.pregnancyFriendsNote}</p>
+          <Choice
+            name="pregnancy-friends"
+            checked={friendsMode === "shared"}
+            label={t.friendsSharePregnancyChoice}
+            hint={t.friendsSharePregnancyHint}
+            onChange={() => setFriendsMode("shared")}
+          />
+          {friendsMode === "shared" ? null : <p className="text-xs leading-5 text-muted-foreground">{t.pregnancyFriendsNote}</p>}
         </>
       ) : null}
 

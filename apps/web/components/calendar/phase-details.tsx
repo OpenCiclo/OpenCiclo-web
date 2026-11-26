@@ -6,7 +6,7 @@
 import { useState, type CSSProperties, type ReactNode } from "react";
 import { CalendarDays, Plus } from "lucide-react";
 
-import { coverageInterval, ForecastChart } from "@/components/forecast-chart";
+import { coverageInterval } from "@/lib/forecast/coverage";
 import { NEXT_PHASE, PHASE_INK, PhaseGlyph, phaseTint } from "@/components/calendar/phase-visuals";
 import { initialProbabilityLabel } from "@/lib/cycle/period-timing";
 import { phaseLabel, phaseSeason, type CycleOverview, type CyclePhase, type CycleSeason } from "@/lib/cycle/phases";
@@ -501,8 +501,8 @@ export function PhaseDetailsWide({
 }
 
 /**
- * The expanded card when the period is due or late: the daily probability of
- * it starting, the cycle that has gone by, and what to do when it starts.
+ * The expanded card when the period is due or late: when it is most likely to
+ * start, the cycle that has gone by, and what to do when it starts.
  */
 export function DueDetails({
   overview,
@@ -541,19 +541,7 @@ export function DueDetails({
     <div className="flex flex-col">
       {forecast ? (
         <section className="phase-reveal mt-4" style={reveal(1)}>
-          <h3 className="text-[10px] font-extrabold tracking-[0.1em] text-muted-foreground uppercase">{t.dueChartTitle}</h3>
-          <div className="mt-2">
-            <ForecastChart
-              daily={forecast.dailyProbabilities}
-              mostLikelyDate={forecast.mostLikelyDate}
-              interval={interval}
-              referenceDate={today}
-              locale={locale}
-              t={t}
-              compact
-            />
-          </div>
-          {likely ? <p className="mt-1 text-xs font-bold text-card-foreground/85">{likely}</p> : null}
+          {likely ? <p className="text-xs font-bold text-card-foreground/85">{likely}</p> : null}
           {overview.initialStartProbability !== null ? (
             <p className="mt-1 text-[11px] leading-[1.4] text-muted-foreground">
               {initialProbabilityLabel(overview.initialStartProbability, t)}

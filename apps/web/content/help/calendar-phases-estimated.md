@@ -56,7 +56,7 @@ The most likely start is taken from the full forecast, before days already passe
 
 If that day arrives and you have not logged a new period start, the phase stays **Luteal · estimated**, but the home card switches to the **expected period** (Spanish UI: **Periodo previsto**). On that day it says the period may start today. After it, it counts days late from that date. Open it to see today's chance from the **initial** forecast. Example: if 10 October was 30%, 11 October 15%, and 12 October 11%, then on 12 October the card says you are 2 days late, and the expanded card says the initial forecast gave today an 11% chance. The calendar keeps the most likely day where it was.
 
-The expanded card also shows the forecast with past days removed, like Patterns (its own tab on a phone, next to the calendar on a computer). That chart answers “what is still ahead?” Logging the first day of bleeding ends the expected-period card and starts a new cycle.
+The expanded card also says when the period is now most likely to start, counting only the days still ahead. Logging the first day of bleeding ends the expected-period card and starts a new cycle.
 
 ## Which day is “today”
 
