@@ -231,11 +231,6 @@ const locale: LocaleModule = {
     interval80Hint: "Hierin valt 80% van de kans.",
     forecastMoreInfo: "+ info",
     forecastLessInfo: "Info verbergen",
-    forecastChart: "Kans per dag",
-    forecastChartHint:
-      "De hoogte van een staaf is de kans dat de menstruatie die dag begint. De gemarkeerde staaf is de meest waarschijnlijke datum.",
-    forecastChartHintInitial:
-      "Deze staven zijn de eerste berekening. De gemarkeerde staaf is de dag met de grootste kans.",
     priorNote: "Met weinig geschiedenis schuift de voorspelling op naar een typische lengte uit grote gepubliceerde onderzoeken.",
     exportJson: "JSON exporteren",
     exportCsv: "CSV exporteren",
@@ -852,7 +847,6 @@ const locale: LocaleModule = {
     dueShortToday: "De meest waarschijnlijke dag is er en er is nog geen bloedverlies geregistreerd. Dit is een schatting.",
     dueShortLate: "De meest waarschijnlijke dag is voorbij en er is nog geen bloedverlies geregistreerd. Dit is een schatting.",
     dueDetailsTitle: "Menstruatievoorspelling",
-    dueChartTitle: "Kans op begin per dag",
     dueMostLikely: "Meest waarschijnlijk: {date}",
     dueLikelyBy: "80% kans: uiterlijk {date}",
     dueTipStrong: "Zodra je menstruatie begint, markeer je het in de kalender.",

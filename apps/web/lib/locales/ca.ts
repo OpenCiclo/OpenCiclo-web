@@ -230,11 +230,6 @@ const locale: LocaleModule = {
     interval80Hint: "Aquí es concentra el 80% de la probabilitat.",
     forecastMoreInfo: "+ info",
     forecastLessInfo: "Amaga la info",
-    forecastChart: "Probabilitat per dia",
-    forecastChartHint:
-      "L'alçada és la probabilitat que la regla comenci aquell dia. La barra destacada és la data més probable.",
-    forecastChartHintInitial:
-      "Aquestes barres són el càlcul inicial. La barra destacada és el dia que tenia més probabilitat.",
     priorNote: "Amb poc historial, la previsió s'acosta a una durada típica de grans estudis publicats.",
     exportJson: "Exporta JSON",
     exportCsv: "Exporta CSV",
@@ -851,7 +846,6 @@ const locale: LocaleModule = {
     dueShortToday: "El dia més probable ja ha arribat i encara no hi ha sagnat registrat. És una estimació.",
     dueShortLate: "El dia més probable ja ha passat i encara no hi ha sagnat registrat. És una estimació.",
     dueDetailsTitle: "Previsió de la regla",
-    dueChartTitle: "Probabilitat que comenci cada dia",
     dueMostLikely: "El més probable: {date}",
     dueLikelyBy: "80% de probabilitat com a molt tard: {date}",
     dueTipStrong: "Quan comenci, marca-ho al calendari.",

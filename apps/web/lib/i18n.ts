@@ -279,11 +279,6 @@ const es = {
   interval80Hint: "Ahí se concentra el 80% de la probabilidad.",
   forecastMoreInfo: "+ info",
   forecastLessInfo: "Ocultar info",
-  forecastChart: "Probabilidad por día",
-  forecastChartHint:
-    "La altura es la probabilidad de que el periodo empiece ese día. La barra destacada es la fecha más probable.",
-  forecastChartHintInitial:
-    "Estas barras son el cálculo inicial. La barra destacada es el día que tenía más probabilidad.",
   priorNote: "Con poca historia, el pronóstico se acerca a una duración típica de grandes estudios publicados.",
   exportJson: "Exportar JSON",
   exportCsv: "Exportar CSV",
@@ -901,7 +896,6 @@ const es = {
   dueShortToday: "El día más probable ya llegó y aún no hay sangrado registrado. Es una estimación.",
   dueShortLate: "El día más probable ya pasó y aún no hay sangrado registrado. Es una estimación.",
   dueDetailsTitle: "Pronóstico del periodo",
-  dueChartTitle: "Probabilidad de que empiece cada día",
   dueMostLikely: "Lo más probable: {date}",
   dueLikelyBy: "con un 80% de probabilidad, hasta el {date}",
   dueTipStrong: "Cuando empiece, márcalo en el calendario.",
@@ -1257,11 +1251,6 @@ const en = {
   interval80Hint: "80% of the probability sits in this window.",
   forecastMoreInfo: "+ info",
   forecastLessInfo: "Hide info",
-  forecastChart: "Probability by day",
-  forecastChartHint:
-    "Bar height is the chance the period starts that day. The highlighted bar is the most likely date.",
-  forecastChartHintInitial:
-    "These bars are the initial calculation. The highlighted bar is the day that had the highest chance.",
   priorNote: "With little history, the forecast leans toward a typical length from large published studies.",
   exportJson: "Export JSON",
   exportCsv: "Export CSV",
@@ -1873,7 +1862,6 @@ const en = {
   dueShortToday: "The most likely day is here and no bleeding is logged yet. This is an estimate.",
   dueShortLate: "The most likely day has passed and no bleeding is logged yet. This is an estimate.",
   dueDetailsTitle: "Period forecast",
-  dueChartTitle: "Chance it starts each day",
   dueMostLikely: "Most likely: {date}",
   dueLikelyBy: "80% likely by {date}",
   dueTipStrong: "When it starts, mark it on the calendar.",
