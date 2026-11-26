@@ -3,7 +3,7 @@
 
 "use client";
 
-import { Fragment, useCallback, useMemo, useState, type ReactNode } from "react";
+import { Fragment, Suspense, lazy, useCallback, useMemo, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 
@@ -20,11 +20,17 @@ import { selectTips, symptomAdvice } from "@/lib/tips/rules";
 import type { TipCard } from "@/lib/tips/types";
 import { similarJournalEntries, listJournalEntries, type JournalEntry } from "@/lib/journal/entries";
 import { phaseLabel } from "@/lib/cycle/phases";
+import { pregnancyStatus } from "@/lib/cycle/segments";
 import { nextPeriodStat } from "@/lib/cycle/period-timing";
 import { ForecastCard, ForecastDetails } from "@/components/forecast-card";
 import { coverageInterval } from "@/lib/forecast/coverage";
 import { NoteViewer } from "@/components/journal/note-viewer";
 import { cn } from "@/lib/utils";
+
+// The pregnancy view brings its week-by-week texts with it: loaded only for a diary with a pregnancy going on.
+const PregnancyPatterns = lazy(() =>
+  import("@/components/patterns/pregnancy-patterns").then((module) => ({ default: module.PregnancyPatterns })),
+);
 
 /** The four phase inks, in the order symptoms take them (the same symptom has the same colour on every card). */
 const SYMPTOM_INKS = [
@@ -90,6 +96,10 @@ function Advice({ tip, t }: { tip: TipCard | undefined; t: Messages }) {
  * from similar days, and a tip at the foot of the card it is about. On the
  * desktop it is the right-hand column of the calendar (see CycleDashboard).
  * Needs an unlocked diary.
+ *
+ * While a pregnancy goes on the screen is about it (PregnancyPatterns), and
+ * the cycles from before it stay below, folded away. After it ends and until
+ * her period comes back there is no forecast to show, so no forecast card.
  */
 export function PatternsContent() {
   const { t, diary, locale } = useCiclo();
@@ -98,6 +108,10 @@ export function PatternsContent() {
   const [closing, setClosing] = useState(false);
   const [showDetail, setShowDetail] = useState(false);
   const stats = useMemo(() => patternStats(diary, today), [diary, today]);
+  const pregnancy = useMemo(() => pregnancyStatus(diary.periodStarts, diary.pregnancies ?? []), [diary.periodStarts, diary.pregnancies]);
+  const pregnant = pregnancy.kind === "active" ? pregnancy.record : null;
+  // No open cycle: nothing is expected, so nothing is forecast (never "no bleeding days yet", never "late").
+  const noCycle = pregnancy.kind === "active" || pregnancy.kind === "resuming";
   const pattern = useMemo(() => cyclePattern(diary, stats.periodRuns, stats.recurringSymptoms, stats.recurringSex), [diary, stats]);
   const tips = useMemo(() => selectTips(buildTipContext(diary, today), t), [diary, today, t]);
   const allNotes = useMemo(() => listJournalEntries(diary, stats.nextPeriodDate), [diary, stats.nextPeriodDate]);
@@ -262,19 +276,14 @@ export function PatternsContent() {
     );
   }
 
-  return (
-    <>
-      <div className="flex flex-col gap-[22px] pb-4">
-        <h1 className="font-serif text-[30px] leading-none font-medium tracking-[-0.01em] text-foreground desktop:text-2xl">{t.patterns}</h1>
-
-        {empty ? (
+  const cycles = empty ? (
           <>
-            {stats.forecastingEnabled ? <ForecastCard /> : null}
-            <p className="text-sm text-muted-foreground">{t.noPatternsYet}</p>
+            {stats.forecastingEnabled && !noCycle ? <ForecastCard /> : null}
+            {pregnant ? null : <p className="text-sm text-muted-foreground">{t.noPatternsYet}</p>}
           </>
         ) : (
           <>
-            {introNext || introCycles ? (
+            {!pregnant && (introNext || introCycles) ? (
               <section className="animate-fade-up flex flex-col gap-3.5">
                 {stats.currentCycleDay !== null ? (
                   <SectionLabel>{t.patternsIntroToday.replace("{day}", String(stats.currentCycleDay))}</SectionLabel>
@@ -288,7 +297,7 @@ export function PatternsContent() {
               </section>
             ) : null}
 
-            {stats.forecastingEnabled ? (
+            {stats.forecastingEnabled && !noCycle ? (
               upcoming && stats.nextPeriodDate && stats.nextPeriodInDays !== null ? (
                 <>
                   <section className={CARD} style={{ animationDelay: "60ms" }}>
@@ -563,9 +572,33 @@ export function PatternsContent() {
               </section>
             ) : null}
           </>
+        );
+
+  return (
+    <>
+      <div className="flex flex-col gap-[22px] pb-4">
+        <h1 className="font-serif text-[30px] leading-none font-medium tracking-[-0.01em] text-foreground desktop:text-2xl">{t.patterns}</h1>
+
+        {pregnant ? (
+          <Suspense fallback={null}>
+            <PregnancyPatterns
+              record={pregnant}
+              diary={diary}
+              today={today}
+              locale={locale}
+              t={t}
+              earlier={empty ? null : { count: history.length, average: stats.avgCycleLength }}
+            >
+              {cycles}
+            </PregnancyPatterns>
+          </Suspense>
+        ) : (
+          cycles
         )}
 
-        <p className="px-2 text-center text-xs leading-[1.45] text-muted-foreground text-pretty">{t.tipsDisclaimer}</p>
+        <p className="px-2 text-center text-xs leading-[1.45] text-muted-foreground text-pretty">
+          {pregnant ? t.pregnancyNotice : t.tipsDisclaimer}
+        </p>
       </div>
 
       {activeEntry ? (

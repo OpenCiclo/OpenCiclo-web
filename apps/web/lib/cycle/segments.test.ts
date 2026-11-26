@@ -77,6 +77,21 @@ describe("cycle segments", () => {
     expect(insidePregnancy("2026-04-24", [...BEFORE, "2026-04-25"], [ended])).toBe(true);
     expect(insidePregnancy("2026-04-25", [...BEFORE, "2026-04-25"], [ended])).toBe(false);
   });
+
+  it("has no open cycle after a pregnancy that ended before its estimated conception day", () => {
+    // Dated from a period five days ago and ended today: the estimated conception is still ahead.
+    const early = pregnancy({
+      dating: { method: "lmp", lmp: "2026-03-26", cycleLength: null },
+      dueDate: "2026-12-31",
+      end: { date: "2026-03-31", outcome: "ended" },
+    });
+    const withStart = [...BEFORE, "2026-03-26"];
+    expect(pregnancyStatus(withStart, [early]).kind).toBe("resuming");
+    expect(insidePregnancy("2026-03-30", withStart, [early])).toBe(false);
+    expect(insidePregnancy("2026-03-31", withStart, [early])).toBe(true);
+    expect(insidePregnancy("2026-04-05", withStart, [early])).toBe(true);
+    expect(insidePregnancy("2026-04-28", [...withStart, "2026-04-28"], [early])).toBe(false);
+  });
 });
 
 describe("the forecast around a pregnancy", () => {
