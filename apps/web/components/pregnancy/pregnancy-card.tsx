@@ -7,7 +7,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { CalendarDays, ChevronDown, Heart } from "lucide-react";
 
-import { PhaseAura, type AuraColors } from "@/components/calendar/phase-visuals";
+import { CARD, PhaseAura, type AuraColors } from "@/components/calendar/phase-visuals";
 import { PhaseCardOverlay, type CardRect } from "@/components/calendar/phase-card-overlay";
 import { useIsDesktop } from "@/lib/client/desktop";
 import { addDaysIso } from "@/lib/diary";
@@ -68,7 +68,20 @@ export function weeksLeftLine(data: PregnancyCardData, locale: Locale, t: Messag
 }
 
 /** Forty weeks as three arcs, one per trimester, filled up to `progress` (0–1). Also a friend's card when she shares hers. */
-export function PregnancyRing({ progress, animate, size = 58 }: { progress: number; animate: boolean; size?: number }) {
+export function PregnancyRing({
+  progress,
+  animate,
+  size = 58,
+  sizeClass,
+  glyphClass = "size-[18px]",
+}: {
+  progress: number;
+  animate: boolean;
+  size?: number;
+  /** Size classes for the ring, when CSS decides it (the card: bigger on the desktop); it is then drawn in a `size` box and scaled. */
+  sizeClass?: string;
+  glyphClass?: string;
+}) {
   const stroke = 5;
   const radius = (size - stroke) / 2;
   const circumference = 2 * Math.PI * radius;
@@ -84,8 +97,17 @@ export function PregnancyRing({ progress, animate, size = 58 }: { progress: numb
     return { index, from, length, filled: filledShare * length };
   });
   return (
-    <div className={cn("relative shrink-0", animate && "animate-pop-in")} style={{ width: size, height: size }} aria-hidden>
-      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="-rotate-90">
+    <div
+      className={cn("relative shrink-0", sizeClass, animate && "animate-pop-in")}
+      style={sizeClass ? undefined : { width: size, height: size }}
+      aria-hidden
+    >
+      <svg
+        width={sizeClass ? "100%" : size}
+        height={sizeClass ? "100%" : size}
+        viewBox={`0 0 ${size} ${size}`}
+        className="block -rotate-90"
+      >
         {arcs.map((arc) => (
           <g key={arc.index}>
             <circle
@@ -117,7 +139,7 @@ export function PregnancyRing({ progress, animate, size = 58 }: { progress: numb
         ))}
       </svg>
       <span className="absolute inset-0 flex items-center justify-center" style={{ color: INK }}>
-        <Heart className="size-[18px]" />
+        <Heart className={glyphClass} />
       </span>
     </div>
   );
@@ -137,19 +159,24 @@ function PregnancyHeader({
   const ask = data.askStillGoing;
   return (
     <div className="relative z-[1]">
-      <div className="flex items-center gap-3">
-        <PregnancyRing progress={data.progress} animate={animate} />
-        <div className="flex min-w-0 flex-col gap-[3px] pr-7">
-          <p className="text-[10px] font-extrabold tracking-[0.07em] uppercase" style={{ color: INK }}>
+      <div className={CARD.row}>
+        <PregnancyRing
+          progress={data.progress}
+          animate={animate}
+          sizeClass="size-16 desktop:size-[74px]"
+          glyphClass="size-5 desktop:size-[23px]"
+        />
+        <div className={CARD.column}>
+          <p className={CARD.label} style={{ color: INK }}>
             {ask ? t.pregnancyCardLabel : `${t.pregnancyCardLabel} · ${trimesterLabel(data.trimester, t)}`}
           </p>
-          <p className="font-serif text-[23px] leading-[1.1] text-balance">
+          <p className={CARD.title}>
             {ask ? t.pregnancyStillGoingTitle : weekTitle(data, t)}
           </p>
-          {ask ? null : <p className="text-xs font-bold text-card-foreground/85">{weeksLeftLine(data, locale, t)}</p>}
+          {ask ? null : <p className={CARD.meta}>{weeksLeftLine(data, locale, t)}</p>}
         </div>
       </div>
-      <p className="mt-2.5 text-[13px] leading-[1.45] text-pretty text-card-foreground/85">
+      <p className={CARD.body}>
         {ask ? t.pregnancyStillGoingBody : t.pregnancyNotice}
       </p>
     </div>
@@ -178,25 +205,25 @@ function PregnancyDetails({
   ];
   return (
     <div className="flex flex-col gap-2">
-      <section className="mt-3 rounded-[18px] border border-border px-3 py-2.5">
-        <div className="flex items-start gap-2.5">
+      <section className="mt-3 rounded-[18px] border border-border px-3.5 py-3 desktop:px-4 desktop:py-3.5">
+        <div className="flex items-start gap-3">
           <span
-            className="flex size-[30px] shrink-0 items-center justify-center rounded-full"
+            className="flex size-[34px] shrink-0 items-center justify-center rounded-full desktop:size-[38px]"
             style={{ background: "color-mix(in oklch, var(--pregnancy-ink) 18%, transparent)", color: INK }}
           >
-            <CalendarDays className="size-[15px]" aria-hidden />
+            <CalendarDays className="size-[17px] desktop:size-[19px]" aria-hidden />
           </span>
           <span className="block min-w-0 flex-1">
-            <span className="block text-sm font-extrabold">{t.pregnancyDueDateLabel}</span>
-            <span className="mt-px block text-xs font-semibold text-muted-foreground first-letter:uppercase">
+            <span className="block text-[15px] font-extrabold desktop:text-base">{t.pregnancyDueDateLabel}</span>
+            <span className="mt-px block text-[13px] font-semibold text-muted-foreground first-letter:uppercase desktop:text-sm">
               {formatIsoUtc(data.dueDate, locale, { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
             </span>
-            <span className="mt-1 block text-xs text-muted-foreground">
+            <span className="mt-1 block text-[13px] text-muted-foreground desktop:text-sm">
               {t.pregnancyWindow
                 .replace("{start}", shortDate(data.window.start, locale))
                 .replace("{end}", shortDate(data.window.end, locale))}
             </span>
-            <span className="mt-1 block text-xs text-muted-foreground">
+            <span className="mt-1 block text-[13px] text-muted-foreground desktop:text-sm">
               {t.pregnancyDatedBy.replace("{method}", datingMethodLabel(data.record.dating.method, t))}
             </span>
           </span>
@@ -204,30 +231,30 @@ function PregnancyDetails({
             type="button"
             data-close-card=""
             onClick={onChangeDates}
-            className="shrink-0 text-[11.5px] font-extrabold underline-offset-4 hover:underline"
+            className="shrink-0 text-[13px] font-extrabold underline-offset-4 hover:underline desktop:text-sm"
             style={{ color: INK }}
           >
             {t.pregnancyChange}
           </button>
         </div>
       </section>
-      <section className="rounded-[18px] border border-border px-3 py-2.5">
-        <h3 className="text-[10px] font-extrabold tracking-[0.1em] text-muted-foreground uppercase">{t.pregnancyTrimestersTitle}</h3>
+      <section className="rounded-[18px] border border-border px-3.5 py-3 desktop:px-4 desktop:py-3.5">
+        <h3 className="text-[11px] font-extrabold tracking-[0.1em] text-muted-foreground uppercase desktop:text-xs">{t.pregnancyTrimestersTitle}</h3>
         <ul className="mt-1.5 flex flex-col gap-1">
           {trimesters.map(([number, start, end]) => (
             <li
               key={number}
-              className={cn("flex items-baseline justify-between gap-3 text-sm", number === data.trimester ? "font-extrabold" : "font-semibold text-card-foreground/80")}
+              className={cn("flex items-baseline justify-between gap-3 text-[15px] desktop:text-base", number === data.trimester ? "font-extrabold" : "font-semibold text-card-foreground/80")}
             >
               <span>{trimesterLabel(number, t)}</span>
-              <span className="text-xs text-muted-foreground">{dayRange(start, end, locale)}</span>
+              <span className="text-[13px] text-muted-foreground desktop:text-sm">{dayRange(start, end, locale)}</span>
             </li>
           ))}
         </ul>
       </section>
       <Link
         href="/learn/healthy-pregnancy"
-        className="rounded-[18px] border border-border px-3 py-2.5 text-sm font-bold underline-offset-4 hover:underline"
+        className="rounded-[18px] border border-border px-3.5 py-3 desktop:px-4 desktop:py-3.5 text-[15px] font-bold underline-offset-4 hover:underline desktop:text-base"
         style={{ color: INK }}
       >
         {t.pregnancyLearnLink}
@@ -236,7 +263,7 @@ function PregnancyDetails({
         type="button"
         data-close-card=""
         onClick={onEnd}
-        className="mx-auto mt-1 px-3 py-2 text-[12.5px] font-bold text-muted-foreground underline underline-offset-4"
+        className="mx-auto mt-1 px-3 py-2 text-[13.5px] font-bold text-muted-foreground underline underline-offset-4 desktop:text-[14.5px]"
       >
         {t.pregnancyEndAction}
       </button>
@@ -303,7 +330,9 @@ export function PregnancyCard({
       <section
         ref={cardRef}
         className={cn(
-          "animate-fade-up relative isolate overflow-hidden rounded-3xl border border-border/70 bg-card px-[18px] py-4 text-card-foreground shadow-sm",
+          "animate-fade-up relative isolate overflow-hidden rounded-3xl border border-border/70 bg-card text-card-foreground shadow-sm",
+          CARD.pad,
+          CARD.aura,
           open && !isDesktop && "invisible",
         )}
         style={{ animationDelay: "60ms" }}
@@ -319,11 +348,8 @@ export function PregnancyCard({
           aria-expanded={open}
           className="absolute inset-0 z-10 rounded-[inherit] focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring"
         >
-          <span
-            aria-hidden
-            className="absolute top-3.5 right-3.5 flex size-[26px] items-center justify-center rounded-full border border-[var(--glass-edge)] bg-[var(--glass)] text-card-foreground"
-          >
-            <ChevronDown className="phase-nudge size-3.5" />
+          <span aria-hidden className={cn(CARD.corner, "desktop:top-4 desktop:right-4")}>
+            <ChevronDown className={cn("phase-nudge", CARD.cornerIcon)} />
           </span>
         </button>
       </section>

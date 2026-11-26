@@ -9,7 +9,7 @@ import { createPortal } from "react-dom";
 import { ChevronUp } from "lucide-react";
 
 import { ForecastInfoDialog } from "@/components/calendar/forecast-info-dialog";
-import { PhaseAura, type AuraColors } from "@/components/calendar/phase-visuals";
+import { CARD, PhaseAura, type AuraColors } from "@/components/calendar/phase-visuals";
 import { IS_ANDROID_APP } from "@/lib/app-target";
 import { useLatest, usePrefersReducedMotion } from "@/lib/client/hooks";
 import { VelocityTracker, sheetDragIntent, sheetShouldClose } from "@/lib/client/swipe";
@@ -331,9 +331,9 @@ export function PhaseCardOverlay({
       type="button"
       onClick={requestClose}
       aria-label={t.close}
-      className="absolute top-3.5 right-3.5 z-20 flex size-[26px] items-center justify-center rounded-full border border-[var(--glass-edge)] bg-[var(--glass)] text-card-foreground transition-transform active:scale-90"
+      className={cn(CARD.corner, "z-20 transition-transform active:scale-90 desktop:top-5 desktop:right-5")}
     >
-      <ChevronUp className="size-3.5" aria-hidden />
+      <ChevronUp className={CARD.cornerIcon} aria-hidden />
     </button>
   );
   const body = (
@@ -374,7 +374,10 @@ export function PhaseCardOverlay({
             data-phase-open=""
             className={cn(
               "sheet-dialog pointer-events-auto relative isolate flex w-full flex-col overflow-hidden rounded-4xl border border-border/70 bg-card text-card-foreground shadow-2xl",
-              wide ? "max-h-[90vh] max-w-5xl" : "max-h-[85vh] max-w-md",
+              // The ring's centre for the aura: the padding below plus half the 84 px ring.
+              wide
+                ? "max-h-[90vh] max-w-6xl [--aura-glow:164px] [--aura-x:74px] [--aura-y:70px]"
+                : "max-h-[85vh] max-w-xl [--aura-glow:164px] [--aura-x:70px] [--aura-y:70px]",
               closing ? "animate-sheet-down" : "animate-sheet-up",
             )}
           >
@@ -383,7 +386,7 @@ export function PhaseCardOverlay({
             <div
               className={cn(
                 "relative z-[1] min-h-0 flex-1 overflow-y-auto overscroll-contain",
-                wide ? "px-8 pt-7 pb-6" : "px-[18px] pt-4 pb-4",
+                wide ? "px-8 pt-7 pb-6" : "p-7",
               )}
             >
               {body}
@@ -413,7 +416,10 @@ export function PhaseCardOverlay({
             aria-modal="true"
             aria-labelledby={titleId}
             data-phase-open={expanded ? "" : undefined}
-            className="absolute isolate overflow-hidden rounded-3xl border border-border/70 bg-card text-card-foreground shadow-sm"
+            className={cn(
+              "absolute isolate overflow-hidden rounded-3xl border border-border/70 bg-card text-card-foreground shadow-sm",
+              CARD.aura,
+            )}
             style={{ top, left: origin.left, width: origin.width, height, transition }}
             onTransitionEnd={(event) => {
               if (event.target !== event.currentTarget || event.propertyName !== "height" || !closing) return;
@@ -427,7 +433,8 @@ export function PhaseCardOverlay({
             <div className="relative z-[1] flex flex-col" style={{ height: `calc(${openHeight} - 2px)` }}>
               <div
                 ref={scrollRef}
-                className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-[18px] pt-4"
+                // The card's own padding (CARD.pad, phone), so the header does not move as it opens.
+                className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 pt-[18px]"
                 style={{ paddingBottom: HANDLE_ROOM }}
               >
                 <div ref={contentRef}>{body}</div>
@@ -454,7 +461,7 @@ export function PhaseCardOverlay({
               >
                 <span className="h-[5px] w-[38px] rounded-full bg-muted-foreground/40" />
                 {IS_ANDROID_APP ? (
-                  <span className="text-[10px] font-bold text-muted-foreground">{t.swipeUpToClose}</span>
+                  <span className="text-[11px] font-bold text-muted-foreground">{t.swipeUpToClose}</span>
                 ) : null}
               </button>
             </div>
