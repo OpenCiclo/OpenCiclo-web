@@ -111,7 +111,7 @@ export const PREGNANCY_GUIDE: Record<BaseLocale, PregnancyGuideCopy> = {
     movementFirst: "Lo marcaste por primera vez el {date}, en la semana {week}.",
     movementWeek: "Semana {week}: {days} días",
     movementNote:
-      "Solo muestra los días que lo marcaste: Ciclo no cuenta los movimientos ni los vigila. Si el bebé se mueve menos de lo habitual, llama enseguida a tu matrona o a tu médico.",
+      "Solo muestra los días que lo marcaste: Ciclo no cuenta los movimientos ni los vigila. Si el bebé se mueve menos de lo habitual, o sus movimientos cambian o se detienen, llama de inmediato a tu matrona o a urgencias de maternidad, a cualquier hora.",
     nextLabel: "Lo que viene",
     nextAll: "Ver todo el embarazo",
     nextLess: "Ver menos",
@@ -180,7 +180,7 @@ export const PREGNANCY_GUIDE: Record<BaseLocale, PregnancyGuideCopy> = {
     movementFirst: "You first marked it on {date}, in week {week}.",
     movementWeek: "Week {week}: {days} days",
     movementNote:
-      "This shows only the days you marked it: Ciclo does not count or watch movements. If the baby moves less than usual, call your midwife or doctor straight away.",
+      "This shows only the days you marked it: Ciclo does not count or watch movements. If the baby moves less than usual, or the movements change or stop, call your midwife or maternity unit straight away, at any hour.",
     nextLabel: "Coming up",
     nextAll: "Show the whole pregnancy",
     nextLess: "Show less",

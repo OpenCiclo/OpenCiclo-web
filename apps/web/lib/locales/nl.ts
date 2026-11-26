@@ -749,7 +749,7 @@ const locale: LocaleModule = {
     bleedingSectionTitle: "Bloedverlies",
     bleedingDuringPregnancyHint: "Tijdens de zwangerschap telt bloedverlies nooit als menstruatie.",
     bleedingDuringPregnancyLink: "Wanneer hulp zoeken",
-    pregnancySafetyLine: "Hier iets noteren waarschuwt niemand. Beweegt de baby minder dan normaal, bel dan meteen je verloskundige of arts, op elk uur van de dag.",
+    pregnancySafetyLine: "Hier iets noteren waarschuwt niemand. Beweegt de baby minder dan normaal, of veranderen of stoppen de bewegingen, bel dan meteen je verloskundige of het ziekenhuis, dag en nacht.",
     pregnancySafetyLink: "Wanneer bellen",
     bleedingAfterEndHint: "Bloedverlies na het einde van de zwangerschap. Het telt niet als menstruatie.",
     periodBackQuestion: "Is je menstruatie terug?",

@@ -756,7 +756,7 @@ const locale: LocaleModule = {
     bleedingSectionTitle: "Sangrado",
     bleedingDuringPregnancyHint: "Durante o embarazo, un sangrado nunca conta como regra.",
     bleedingDuringPregnancyLink: "Cando consultar",
-    pregnancySafetyLine: "Anotalo aquí non avisa a ninguén. Se o bebé se move menos do habitual, chama axiña á túa matrona ou ao teu médico, a calquera hora.",
+    pregnancySafetyLine: "Anotalo aquí non avisa a ninguén. Se o bebé se move menos do habitual, ou se os seus movementos cambian ou se deteñen, chama de inmediato á túa matrona ou a urxencias de maternidade, a calquera hora.",
     pregnancySafetyLink: "Cando chamar",
     bleedingAfterEndHint: "Sangrado tras o final do embarazo. Non conta como regra.",
     periodBackQuestion: "Volveu a túa regra?",

@@ -751,7 +751,7 @@ const locale: LocaleModule = {
     bleedingSectionTitle: "Odoljarioa",
     bleedingDuringPregnancyHint: "Haurdunaldian, odoljario bat ez da inoiz hilekotzat hartzen.",
     bleedingDuringPregnancyLink: "Noiz kontsultatu",
-    pregnancySafetyLine: "Hemen idazteak ez dio inori abisatzen. Haurra ohi baino gutxiago mugitzen bada, deitu berehala zure emaginari edo medikuari, edozein ordutan.",
+    pregnancySafetyLine: "Hemen idazteak ez dio inori abisatzen. Haurra ohi baino gutxiago mugitzen bada, edo mugimenduak aldatu edo gelditzen badira, deitu berehala zure emaginari edo amatasun-larrialdietara, edozein ordutan.",
     pregnancySafetyLink: "Noiz deitu",
     bleedingAfterEndHint: "Haurdunaldia amaitu ondorengo odoljarioa. Ez da hilekotzat hartzen.",
     periodBackQuestion: "Itzuli zaizu hilekoa?",

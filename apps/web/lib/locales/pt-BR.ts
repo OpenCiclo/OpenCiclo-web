@@ -749,7 +749,7 @@ const locale: LocaleModule = {
     bleedingSectionTitle: "Sangramento",
     bleedingDuringPregnancyHint: "Na gravidez, um sangramento nunca conta como menstruação.",
     bleedingDuringPregnancyLink: "Quando procurar ajuda",
-    pregnancySafetyLine: "Registrar aqui não avisa ninguém. Se o bebê se mexer menos do que o normal, ligue imediatamente para sua obstetriz ou seu médico, a qualquer hora.",
+    pregnancySafetyLine: "Registrar aqui não avisa ninguém. Se o bebê se mexer menos do que o normal, ou se os movimentos mudarem ou pararem, ligue imediatamente para quem acompanha seu pré-natal ou para a maternidade, a qualquer hora.",
     pregnancySafetyLink: "Quando ligar",
     bleedingAfterEndHint: "Sangramento depois do fim da gravidez. Não conta como menstruação.",
     periodBackQuestion: "Sua menstruação voltou?",

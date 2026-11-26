@@ -398,7 +398,7 @@ export function PregnancyPatterns({
             className="grid items-center gap-[3px]"
             style={{ gridTemplateColumns: `minmax(0, 7rem) repeat(${movements.weeks.length}, minmax(0, 1fr))` }}
           >
-            <FragmentRow name={fillText(guide.logDays, { days: movements.days.reduce((sum, value) => sum + value, 0) })} days={movements.days} />
+            <FragmentRow name={fillText(guide.logDays, { days: movements.total })} days={movements.days} />
             <span className="text-[11px] font-bold text-muted-foreground">{guide.weekAxis}</span>
             {movements.weeks.map((value, index) => (
               <span

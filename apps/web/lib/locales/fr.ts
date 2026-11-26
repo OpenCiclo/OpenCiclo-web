@@ -761,7 +761,7 @@ const locale: LocaleModule = {
     bleedingSectionTitle: "Saignement",
     bleedingDuringPregnancyHint: "Pendant la grossesse, un saignement ne compte jamais comme des règles.",
     bleedingDuringPregnancyLink: "Quand consulter",
-    pregnancySafetyLine: "Le noter ici ne prévient personne. Si le bébé bouge moins que d’habitude, appelle tout de suite ta sage-femme ou ton médecin, à toute heure.",
+    pregnancySafetyLine: "Le noter ici ne prévient personne. Si le bébé bouge moins que d’habitude, ou si ses mouvements changent ou s’arrêtent, appelle tout de suite ta sage-femme ou la maternité, à toute heure.",
     pregnancySafetyLink: "Quand appeler",
     bleedingAfterEndHint: "Saignement après la fin de la grossesse. Il ne compte pas comme des règles.",
     periodBackQuestion: "Tes règles sont-elles revenues ?",

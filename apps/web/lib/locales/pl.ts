@@ -748,7 +748,7 @@ const locale: LocaleModule = {
     bleedingSectionTitle: "Krwawienie",
     bleedingDuringPregnancyHint: "W ciąży krwawienie nigdy nie liczy się jako miesiączka.",
     bleedingDuringPregnancyLink: "Kiedy szukać pomocy",
-    pregnancySafetyLine: "Wpis tutaj nikogo nie powiadamia. Jeśli dziecko rusza się mniej niż zwykle, od razu zadzwoń do położnej lub lekarza, o każdej porze.",
+    pregnancySafetyLine: "Wpis tutaj nikogo nie powiadamia. Jeśli dziecko rusza się mniej niż zwykle albo jego ruchy się zmieniają lub ustają, od razu zadzwoń do położnej lub na oddział położniczy, o każdej porze.",
     pregnancySafetyLink: "Kiedy dzwonić",
     bleedingAfterEndHint: "Krwawienie po zakończeniu ciąży. Nie liczy się jako miesiączka.",
     periodBackQuestion: "Czy miesiączka wróciła?",

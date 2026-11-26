@@ -146,6 +146,7 @@ describe("the Pregnancy group in what she logged", () => {
     expect(movement.weeks).toEqual(pregnancySymptomWeeks(diary, DUE, TODAY).weeks);
     expect(movement.days.slice(-3)).toEqual([2, 0, 3]);
     expect(movement.days.reduce((sum, value) => sum + value, 0)).toBe(5);
+    expect(movement.total).toBe(5);
   });
 
   it("puts the first movements in 'coming up' from the week the day sheet offers them", () => {

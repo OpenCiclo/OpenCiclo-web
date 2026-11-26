@@ -749,7 +749,7 @@ const locale: LocaleModule = {
     bleedingSectionTitle: "Sagnat",
     bleedingDuringPregnancyHint: "Durant l'embaràs, un sagnat mai no compta com a regla.",
     bleedingDuringPregnancyLink: "Quan consultar",
-    pregnancySafetyLine: "Anotar-ho aquí no avisa ningú. Si el nadó es mou menys de l'habitual, truca de seguida a la teva llevadora o al teu metge, a qualsevol hora.",
+    pregnancySafetyLine: "Anotar-ho aquí no avisa ningú. Si el nadó es mou menys de l'habitual, o els seus moviments canvien o s'aturen, truca de seguida a la teva llevadora o a urgències de maternitat, a qualsevol hora.",
     pregnancySafetyLink: "Quan trucar",
     bleedingAfterEndHint: "Sagnat després del final de l'embaràs. No compta com a regla.",
     periodBackQuestion: "Ha tornat la regla?",

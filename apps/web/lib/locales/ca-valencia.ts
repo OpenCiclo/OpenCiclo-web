@@ -316,7 +316,7 @@ const locale: LocaleModule = {
     resumingTitle: "El teu cicle es reprendrà quan apuntes la pròxima regla.",
     settingsPregnancyStartHint: "Dates i setmanes en lloc de prediccions. Només es guarda al teu diari xifrat.",
     settingsPregnancyDeleteConfirm: "S'esborrarà este embaràs del teu diari, junt amb el que vas anotar del grup Embaràs en els seus dies. La resta del que vas anotar es queda. No es pot desfer.",
-    pregnancySafetyLine: "Anotar-ho ací no avisa ningú. Si el nadó es mou menys de l'habitual, telefona de seguida a la teua llevadora o al teu metge, a qualsevol hora.",
+    pregnancySafetyLine: "Anotar-ho ací no avisa ningú. Si el nadó es mou menys de l'habitual, o els seus moviments canvien o s'aturen, telefona de seguida a la teua llevadora o a urgències de maternitat, a qualsevol hora.",
     pregnancySafetyLink: "Quan telefonar",
     pregnancyStillGoingTitle: "Continua en curs este embaràs?",
     pregnancyPastNotice: "Amb estes dates, l'embaràs ja hauria acabat. El pots afegir com un embaràs anterior.",

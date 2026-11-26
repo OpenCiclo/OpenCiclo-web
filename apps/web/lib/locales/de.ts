@@ -757,7 +757,7 @@ const locale: LocaleModule = {
     bleedingSectionTitle: "Blutung",
     bleedingDuringPregnancyHint: "In der Schwangerschaft zählt eine Blutung nie als Periode.",
     bleedingDuringPregnancyLink: "Wann du Hilfe holen solltest",
-    pregnancySafetyLine: "Ein Eintrag hier benachrichtigt niemanden. Wenn sich das Baby weniger bewegt als sonst, ruf sofort deine Hebamme oder Ärztin an, zu jeder Uhrzeit.",
+    pregnancySafetyLine: "Ein Eintrag hier benachrichtigt niemanden. Wenn sich das Baby weniger bewegt als sonst oder sich seine Bewegungen verändern oder aufhören, ruf sofort deine Hebamme oder den Kreißsaal an, zu jeder Uhrzeit.",
     pregnancySafetyLink: "Wann anrufen",
     bleedingAfterEndHint: "Blutung nach dem Ende der Schwangerschaft. Sie zählt nicht als Periode.",
     periodBackQuestion: "Ist deine Periode zurück?",

@@ -84,6 +84,8 @@ export type BabyMovementLog = {
   weeks: number[];
   /** Days logged in each of those weeks. */
   days: number[];
+  /** Days logged in the whole pregnancy so far, like a symptom row's `total`. */
+  total: number;
 };
 
 /**
@@ -96,8 +98,10 @@ export function babyMovementLog(diary: Diary, dueDate: string, today: string): B
   const { current, first, weeks } = loggedWeeks(dueDate, today);
   const days = weeks.map(() => 0);
   let earliest: string | null = null;
+  let total = 0;
   for (const [iso, log] of Object.entries(diary.days)) {
     if (iso < start || iso > today || !log.symptoms[BABY_MOVEMENT_ID]) continue;
+    total += 1;
     if (earliest === null || iso < earliest) earliest = iso;
     const week = Math.floor(daysBetween(start, iso) / 7);
     if (week >= first && week <= current) days[week - first] += 1;
@@ -106,6 +110,7 @@ export function babyMovementLog(diary: Diary, dueDate: string, today: string): B
     first: earliest === null ? null : { date: earliest, week: Math.floor(daysBetween(start, earliest) / 7) },
     weeks,
     days,
+    total,
   };
 }
 

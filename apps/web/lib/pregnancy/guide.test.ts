@@ -61,10 +61,11 @@ describe("the day sheet's safety line", () => {
   });
 
   it("says logging alerts no one, and to call straight away at any hour when the baby moves less, in every language", () => {
-    expect(messages.en.pregnancySafetyLine).toMatch(/does not alert anyone.*moves less than usual.*straight away, at any hour/);
-    expect(messages.es.pregnancySafetyLine).toMatch(/no avisa a nadie.*se mueve menos de lo habitual.*enseguida.*a cualquier hora/);
-    expect(PREGNANCY_GUIDE.en.movementNote).toMatch(/does not count or watch.*straight away/);
-    expect(PREGNANCY_GUIDE.es.movementNote).toMatch(/no cuenta los movimientos.*enseguida/);
+    // NHS "Your baby's movements" and RCOG: less, changed or stopped; midwife or maternity unit; immediately, day or night.
+    expect(messages.en.pregnancySafetyLine).toMatch(/does not alert anyone.*moves less than usual, or the movements change or stop.*maternity unit straight away, at any hour/);
+    expect(messages.es.pregnancySafetyLine).toMatch(/no avisa a nadie.*menos de lo habitual, o sus movimientos cambian o se detienen.*de inmediato.*maternidad, a cualquier hora/);
+    expect(PREGNANCY_GUIDE.en.movementNote).toMatch(/does not count or watch.*change or stop.*straight away, at any hour/);
+    expect(PREGNANCY_GUIDE.es.movementNote).toMatch(/no cuenta los movimientos.*cambian o se detienen.*de inmediato/);
   });
 
   it("never says to wait", async () => {
