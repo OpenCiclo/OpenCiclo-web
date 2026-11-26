@@ -231,11 +231,6 @@ const locale: LocaleModule = {
     interval80Hint: "In diesem Zeitraum liegen 80 % der Wahrscheinlichkeit.",
     forecastMoreInfo: "+ Info",
     forecastLessInfo: "Info ausblenden",
-    forecastChart: "Wahrscheinlichkeit pro Tag",
-    forecastChartHint:
-      "Die Balkenhöhe zeigt, wie wahrscheinlich die Periode an diesem Tag beginnt. Der hervorgehobene Balken ist das wahrscheinlichste Datum.",
-    forecastChartHintInitial:
-      "Diese Balken sind die ursprüngliche Berechnung. Der hervorgehobene Balken ist der Tag mit der höchsten Wahrscheinlichkeit.",
     priorNote:
       "Bei wenig Verlauf nähert sich die Prognose einer typischen Länge aus großen veröffentlichten Studien an.",
     exportJson: "JSON exportieren",
@@ -448,6 +443,10 @@ const locale: LocaleModule = {
     friendsClearNote: "Notiz löschen",
     friendsShowDay: "Meinen Zyklustag zeigen",
     friendsShowExpected: "Zeigen, wann meine Periode erwartet wird",
+    friendsSharePregnancy: "Meine Schwangerschaftswoche teilen",
+    friendsSharePregnancyHint:
+      "Deine Freundinnen sehen, in welcher Woche du bist, und sonst nichts über die Schwangerschaft. Zum Zählen der Wochen bekommen ihre Handys deinen errechneten Geburtstermin. Das Teilen endet, wenn die Schwangerschaft endet oder du es hier ausschaltest.",
+    friendsSharePregnancyChoice: "Meine Schwangerschaftswoche",
     friendsPauseAll: "Mit allen pausieren",
     friendsYourSharing: "Was du teilst",
     friendsTurnOff: "Freundinnen ausschalten",
@@ -862,7 +861,6 @@ const locale: LocaleModule = {
     dueShortToday: "Der wahrscheinlichste Tag ist da, und es ist noch keine Blutung eingetragen. Das ist eine Schätzung.",
     dueShortLate: "Der wahrscheinlichste Tag ist vorbei, und es ist noch keine Blutung eingetragen. Das ist eine Schätzung.",
     dueDetailsTitle: "Periodenprognose",
-    dueChartTitle: "Wahrscheinlichkeit des Beginns pro Tag",
     dueMostLikely: "Am wahrscheinlichsten: {date}",
     dueLikelyBy: "80 % Wahrscheinlichkeit bis {date}",
     dueTipStrong: "Wenn sie beginnt, markiere sie im Kalender.",

@@ -9,8 +9,8 @@ import { describe, expect, it } from "vitest";
 import { addDaysIso, parseDiary, upsertDay, withPregnancies, type Diary } from "@/lib/diary";
 import { sealBox } from "@/lib/friends/crypto";
 import { BOX_CIPHERTEXT_LENGTH } from "@/lib/friends/limits";
-import { buildStatus, readStatus, type SharerProfile } from "@/lib/friends/payload";
-import { friendsSource, simulatedCycle } from "@/lib/pregnancy/friends";
+import { buildStatus, parseStatusMessage, readStatus, type SharerProfile } from "@/lib/friends/payload";
+import { friendsSource, shareablePregnancy, sharedPregnancy, simulatedCycle } from "@/lib/pregnancy/friends";
 import type { PregnancyRecord } from "@/lib/pregnancy/record";
 
 const STARTS = ["2026-01-05", "2026-02-02", "2026-03-02", "2026-03-30"];
@@ -91,12 +91,14 @@ describe("friends never learn of a private pregnancy", () => {
     }
   });
 
-  it("after the end, no status carries anything about it, whatever the mode", () => {
+  it("after the end, no status carries anything about it, whatever the mode, even one she had shared", () => {
     for (const friendsMode of ["noNews", "simulated"] as const) {
       const ended = withPregnancies(before, [pregnancy({ friendsMode, end: { date: "2026-05-15", outcome: "ended" } })]);
-      for (const today of days("2026-05-15", 40)) {
-        const text = JSON.stringify(buildStatus(ended, today, profile));
-        expect(text).not.toMatch(/pregnan|dueDate|outcome|ended"/i);
+      for (const sharer of [profile, { ...profile, pregnancy: pregnancy().id }]) {
+        for (const today of days("2026-05-15", 40)) {
+          const text = JSON.stringify(buildStatus(ended, today, sharer));
+          expect(text).not.toMatch(/pregnan|dueDate|due"|2027-01-04|outcome|ended"/i);
+        }
       }
     }
   });
@@ -108,5 +110,89 @@ describe("friends never learn of a private pregnancy", () => {
     expect(friendsSource(diary, "2026-06-01").kind).toBe("simulated");
     for (const iso of days("2026-06-20", 4)) diary = upsertDay(diary, iso, { flow: "medium", symptoms: {} });
     expect(friendsSource(diary, "2026-06-22").kind).toBe("diary");
+  });
+});
+
+describe("a pregnancy she chose to share", () => {
+  const before = diaryWithStarts(STARTS);
+  const record = pregnancy();
+  const sharing: SharerProfile = { ...profile, pregnancy: record.id };
+  const diary = withPregnancies(before, [record]);
+
+  it("sends the due date and nothing else about it, in place of a cycle", () => {
+    const status = buildStatus(diary, "2026-06-10", sharing);
+    expect(status.pregnancy).toEqual({ due: "2027-01-04" });
+    expect(status.cycle).toBeNull();
+    expect(status.observed).toBeNull();
+    expect(Object.keys(status).sort()).toEqual(
+      [...Object.keys(buildStatus(before, "2026-06-10", profile)), "pregnancy"].sort(),
+    );
+    // Nothing of the record but the date: no id, no dating method, no private mode.
+    const text = JSON.stringify(status).replace(JSON.stringify(profile.selfId), "");
+    expect(text).not.toMatch(/lmp|dating|noNews|simulated|bleedAnswers|hidden/);
+    expect(text).not.toContain(record.id);
+  });
+
+  it("never sends bleeding logged during it", () => {
+    const withBleed = upsertDay(diary, "2026-06-10", { flow: "light", symptoms: { nausea: "moderate" }, note: "private" });
+    const text = JSON.stringify(buildStatus(withBleed, "2026-06-10", sharing));
+    expect(text).not.toMatch(/nausea|private|light/);
+    expect(buildStatus(withBleed, "2026-06-10", sharing).observed).toBeNull();
+  });
+
+  it("is off unless the friend book names this very pregnancy", () => {
+    const privately = JSON.stringify(buildStatus(diary, "2026-06-10", profile));
+    expect(JSON.stringify(buildStatus(diary, "2026-06-10", { ...profile, pregnancy: null }))).toBe(privately);
+    expect(JSON.stringify(buildStatus(diary, "2026-06-10", { ...profile, pregnancy: "f".repeat(32) }))).toBe(privately);
+    expect(privately).not.toMatch(/pregnan|2027-01-04/);
+    // A later pregnancy is never shared because an earlier one was.
+    const later = withPregnancies(before, [
+      pregnancy({ end: { date: "2026-05-15", outcome: "ended" } }),
+      pregnancy({ id: "1".repeat(32), dueDate: "2027-08-02", dating: { method: "dueDate", dueDate: "2027-08-02" } }),
+    ]);
+    expect(buildStatus(later, "2026-11-10", sharing).pregnancy).toBeUndefined();
+  });
+
+  it("stops the day it ends, and with a pause", () => {
+    const ended = withPregnancies(before, [pregnancy({ end: { date: "2026-06-09", outcome: "ended" } })]);
+    expect(buildStatus(ended, "2026-06-10", sharing).pregnancy).toBeUndefined();
+    expect(sharedPregnancy(ended, record.id, "2026-06-10")).toBeNull();
+    const paused = buildStatus(diary, "2026-06-10", { ...sharing, paused: true });
+    expect(paused).toMatchObject({ state: "paused", cycle: null, observed: null, note: null });
+    expect(paused.pregnancy).toBeUndefined();
+  });
+
+  it("stops at 42 weeks with no end logged, like her own card", () => {
+    expect(shareablePregnancy(diary, "2027-01-17")?.id).toBe(record.id); // 41+6
+    expect(shareablePregnancy(diary, "2027-01-18")).toBeNull(); // 42+0
+    expect(buildStatus(diary, "2027-01-18", sharing).pregnancy).toBeUndefined();
+  });
+
+  it("a friend's device shows the week on its own date, counted like her card", () => {
+    const status = buildStatus(diary, "2026-06-10", sharing);
+    // 2026-03-30 is 0+0: 2026-06-10 is 10 weeks and 2 days.
+    expect(readStatus(status, "2026-06-10")).toMatchObject({ kind: "pregnancy", weeks: 10, days: 2, trimester: 1 });
+    // The same status read later, with no new one: the week moves on by itself.
+    expect(readStatus(status, "2026-07-06")).toMatchObject({ kind: "pregnancy", weeks: 14, days: 0, trimester: 2 });
+    // But not for ever: an old status reads as no recent update.
+    expect(readStatus(status, "2026-08-01")).toEqual({ kind: "stale" });
+    // And never past 42 weeks.
+    const late = buildStatus(diary, "2027-01-10", sharing);
+    expect(readStatus(late, "2027-01-17").kind).toBe("pregnancy");
+    expect(readStatus(late, "2027-01-18")).toEqual({ kind: "noEstimate" });
+  });
+
+  it("survives the box, fits its size, and a build from before it reads no estimate", async () => {
+    const status = buildStatus(diary, "2026-06-10", sharing);
+    expect((await sealBox(new Uint8Array(32), status)).ciphertext.length).toBe(BOX_CIPHERTEXT_LENGTH);
+    expect(parseStatusMessage(JSON.parse(JSON.stringify(status)))).toEqual(status);
+    expect(parseStatusMessage({ ...status, pregnancy: { due: "soon" } })).toBeNull();
+    expect(parseStatusMessage({ ...status, pregnancy: "2027-01-04" })).toBeNull();
+    // Paused and ended statuses never carry one, whatever was sent.
+    expect(parseStatusMessage({ ...status, state: "paused" })?.pregnancy).toBeUndefined();
+    // An older build drops the field it does not know: what is left has no cycle.
+    const { pregnancy: dropped, ...old } = status;
+    expect(dropped).toBeDefined();
+    expect(readStatus(old, "2026-06-10")).toEqual({ kind: "noEstimate" });
   });
 });

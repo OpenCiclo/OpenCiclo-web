@@ -231,11 +231,6 @@ const locale: LocaleModule = {
     interval80Hint: "80% da probabilidade está nesse intervalo.",
     forecastMoreInfo: "+ info",
     forecastLessInfo: "Ocultar info",
-    forecastChart: "Probabilidade por dia",
-    forecastChartHint:
-      "A altura é a probabilidade de a menstruação começar nesse dia. A barra destacada é a data mais provável.",
-    forecastChartHintInitial:
-      "Estas barras são o cálculo inicial. A barra destacada é o dia que tinha a maior probabilidade.",
     priorNote: "Com pouco histórico, a previsão se aproxima de uma duração típica de grandes estudos publicados.",
     exportJson: "Exportar JSON",
     exportCsv: "Exportar CSV",
@@ -446,6 +441,10 @@ const locale: LocaleModule = {
     friendsClearNote: "Apagar nota",
     friendsShowDay: "Mostrar meu dia do ciclo",
     friendsShowExpected: "Mostrar quando minha menstruação é esperada",
+    friendsSharePregnancy: "Compartilhar minha semana de gravidez",
+    friendsSharePregnancyHint:
+      "Suas amigas veem em que semana você está e nada mais sobre a gravidez. Para contar as semanas, os celulares delas recebem a sua data provável do parto. O compartilhamento para quando a gravidez termina ou quando você desativa esta opção.",
+    friendsSharePregnancyChoice: "Minha semana de gravidez",
     friendsPauseAll: "Pausar com todas",
     friendsYourSharing: "O que você compartilha",
     friendsTurnOff: "Desativar Amigas",
@@ -852,7 +851,6 @@ const locale: LocaleModule = {
     dueShortToday: "O dia mais provável já chegou e ainda não há sangramento registrado. É uma estimativa.",
     dueShortLate: "O dia mais provável já passou e ainda não há sangramento registrado. É uma estimativa.",
     dueDetailsTitle: "Previsão da menstruação",
-    dueChartTitle: "Probabilidade de começar em cada dia",
     dueMostLikely: "Mais provável: {date}",
     dueLikelyBy: "80% de probabilidade até {date}",
     dueTipStrong: "Quando começar, marque no calendário.",

@@ -230,11 +230,6 @@ const locale: LocaleModule = {
     interval80Hint: "Aquí es concentra el 80% de la probabilitat.",
     forecastMoreInfo: "+ info",
     forecastLessInfo: "Amaga la info",
-    forecastChart: "Probabilitat per dia",
-    forecastChartHint:
-      "L'alçada és la probabilitat que la regla comenci aquell dia. La barra destacada és la data més probable.",
-    forecastChartHintInitial:
-      "Aquestes barres són el càlcul inicial. La barra destacada és el dia que tenia més probabilitat.",
     priorNote: "Amb poc historial, la previsió s'acosta a una durada típica de grans estudis publicats.",
     exportJson: "Exporta JSON",
     exportCsv: "Exporta CSV",
@@ -445,6 +440,10 @@ const locale: LocaleModule = {
     friendsClearNote: "Esborra la nota",
     friendsShowDay: "Mostra el meu dia del cicle",
     friendsShowExpected: "Mostra quan s’espera la meva regla",
+    friendsSharePregnancy: "Comparteix la meva setmana d’embaràs",
+    friendsSharePregnancyHint:
+      "Les teves amigues veuen en quina setmana ets i res més de l’embaràs. Per comptar les setmanes, els seus telèfons reben la teva data probable de part. Es deixa de compartir quan l’embaràs acaba o quan ho desactives.",
+    friendsSharePregnancyChoice: "La meva setmana d’embaràs",
     friendsPauseAll: "Posa en pausa amb totes",
     friendsYourSharing: "Què comparteixes",
     friendsTurnOff: "Desactiva Amigues",
@@ -851,7 +850,6 @@ const locale: LocaleModule = {
     dueShortToday: "El dia més probable ja ha arribat i encara no hi ha sagnat registrat. És una estimació.",
     dueShortLate: "El dia més probable ja ha passat i encara no hi ha sagnat registrat. És una estimació.",
     dueDetailsTitle: "Previsió de la regla",
-    dueChartTitle: "Probabilitat que comenci cada dia",
     dueMostLikely: "El més probable: {date}",
     dueLikelyBy: "80% de probabilitat com a molt tard: {date}",
     dueTipStrong: "Quan comenci, marca-ho al calendari.",

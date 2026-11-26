@@ -231,11 +231,6 @@ const locale: LocaleModule = {
     interval80Hint: "Probabilitatearen %80 tarte honetan dago.",
     forecastMoreInfo: "+ info",
     forecastLessInfo: "Ezkutatu info",
-    forecastChart: "Probabilitatea egunez egun",
-    forecastChartHint:
-      "Altuerak hilekoa egun horretan hasteko probabilitatea adierazten du. Nabarmendutako barra data probableena da.",
-    forecastChartHintInitial:
-      "Barra hauek hasierako kalkulua dira. Nabarmendutako barra probabilitate handiena zuen eguna da.",
     priorNote: "Historia gutxi dagoenean, aurreikuspena argitaratutako ikerketa handietako iraupen tipiko batera hurbiltzen da.",
     exportJson: "Esportatu JSON",
     exportCsv: "Esportatu CSV",
@@ -447,6 +442,10 @@ const locale: LocaleModule = {
     friendsClearNote: "Ezabatu oharra",
     friendsShowDay: "Erakutsi nire zikloaren eguna",
     friendsShowExpected: "Erakutsi nire hilekoa noiz espero den",
+    friendsSharePregnancy: "Partekatu nire haurdunaldiko astea",
+    friendsSharePregnancyHint:
+      "Zure lagunek zein astetan zauden ikusten dute, eta haurdunaldiari buruz besterik ez. Asteak zenbatzeko, haien telefonoek zure erditze-data probablea jasotzen dute. Haurdunaldia amaitzean edo hau desaktibatzean uzten da partekatzeari.",
+    friendsSharePregnancyChoice: "Nire haurdunaldiko astea",
     friendsPauseAll: "Pausatu guztiekin",
     friendsYourSharing: "Partekatzen duzuna",
     friendsTurnOff: "Desaktibatu Lagunak",
@@ -854,7 +853,6 @@ const locale: LocaleModule = {
     dueShortToday: "Egun probableena iritsi da, eta oraindik ez dago odoljariorik erregistratuta. Zenbatespen bat da.",
     dueShortLate: "Egun probableena igaro da, eta oraindik ez dago odoljariorik erregistratuta. Zenbatespen bat da.",
     dueDetailsTitle: "Hilekoaren aurreikuspena",
-    dueChartTitle: "Egun bakoitzean hasteko probabilitatea",
     dueMostLikely: "Probableena: {date}",
     dueLikelyBy: "%80ko probabilitatez, data hau baino lehen: {date}",
     dueTipStrong: "Hasten denean, markatu egutegian.",
