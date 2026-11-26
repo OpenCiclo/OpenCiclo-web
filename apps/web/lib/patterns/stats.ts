@@ -4,7 +4,7 @@
 import { SYMPTOM_IDS, type Diary, type SymptomId } from "@/lib/diary";
 import { cycleSegments, pregnancyStatus } from "@/lib/cycle/segments";
 import { cycleOverview, periodRuns, type CycleOverview } from "@/lib/cycle/phases";
-import { isSexEntry } from "@/lib/symptoms/catalog";
+import { isPregnancyEntry, isSexEntry } from "@/lib/symptoms/catalog";
 
 export type CompletedCycle = {
   start: string;
@@ -48,10 +48,14 @@ export function openCycleStart(diary: Diary): string | null {
   return starts[starts.length - 1] ?? null;
 }
 
-/** Everything logged with the symptom picker, sex entries included (`patternStats` splits them). */
+/**
+ * Everything logged with the symptom picker, sex entries included (`patternStats`
+ * splits them), but never the "Pregnancy" group: those days hold no cycle, and
+ * an entry logged there belongs to pregnancy Patterns (lib/pregnancy/patterns.ts).
+ */
 export function recurringSymptoms(diary: Diary, lookback = 6): RecurringSymptom[] {
   const symptomIds: SymptomId[] = [
-    ...SYMPTOM_IDS,
+    ...SYMPTOM_IDS.filter((id) => !isPregnancyEntry(id)),
     ...diary.customSymptoms.map((item) => item.id),
   ];
   const cycles = completedCycles(diary).slice(-lookback);

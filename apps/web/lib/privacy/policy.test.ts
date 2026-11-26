@@ -122,11 +122,11 @@ describe("privacy policy", () => {
 
   it("names the most sensitive things a diary can hold, in the policy and at sign-up", () => {
     const en = text(privacyPolicy("en", DEFAULT_POLICY_CONTEXT));
-    for (const word of ["pregnancy", "ovulation test", "contraceptive pill", "medicines", "anxiety", "obsessive thoughts", "urinary", "alcohol", "travel", "sexual activity"]) {
+    for (const word of ["pregnancy", "ovulation test", "contraceptive pill", "medicines", "anxiety", "obsessive thoughts", "urinary", "alcohol", "travel", "sexual activity", "felt the baby move"]) {
       expect(en, word).toContain(word);
     }
     const es = text(privacyPolicy("es", DEFAULT_POLICY_CONTEXT));
-    for (const word of ["embarazo", "ovulación", "píldora anticonceptiva", "medicamentos", "ansiedad", "pensamientos obsesivos", "urinarias", "alcohol", "viajes", "actividad sexual"]) {
+    for (const word of ["embarazo", "ovulación", "píldora anticonceptiva", "medicamentos", "ansiedad", "pensamientos obsesivos", "urinarias", "alcohol", "viajes", "actividad sexual", "sentiste al bebé moverse"]) {
       expect(es, word).toContain(word);
     }
     for (const word of ["pregnancy", "contraceptive", "mental health", "sex"]) expect(messages.en.signupConsentHosted, word).toContain(word);

@@ -2,8 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 // A pregnancy as the encrypted diary stores it (diary format v7), and the one
-// rule that changes which logged bleeding counts as a period start. Nothing
-// about the baby is stored, and the reason a pregnancy ended is never asked
+// rule that changes which logged bleeding counts as a period start. The record
+// holds nothing about the baby (a day can hold that she felt it move: the
+// Pregnancy symptom group, diary v8), and the reason a pregnancy ended is never asked
 // (PLAN 4.2 and ESTUDIO-final-del-embarazo: "nació mi bebé" or "el embarazo
 // terminó", and the date). Read by `parseDiary` (lib/diary.ts).
 

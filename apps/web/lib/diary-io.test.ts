@@ -82,3 +82,16 @@ describe("CSV backups", () => {
     expect(Object.keys(back.days).sort()).toEqual(Object.keys(diary.days).sort());
   });
 });
+
+describe("Pregnancy entries in backups", () => {
+  it("round-trip through CSV and JSON", () => {
+    const withPregnancy: Diary = {
+      ...emptyDiary("en"),
+      days: {
+        "2026-08-01": { symptoms: { babyMovement: "present", heartburn: "mild", smellSensitivity: "present" } },
+      },
+    };
+    expect(parseImportedFile(diaryToCsv(withPregnancy)).days).toEqual(withPregnancy.days);
+    expect(parseImportedFile(diaryToJson(withPregnancy)).days).toEqual(withPregnancy.days);
+  });
+});

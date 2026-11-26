@@ -9,7 +9,7 @@ import { ArrowLeft, Check, ChevronRight, Filter, X } from "lucide-react";
 
 import type { CustomSymptomDefinition, SymptomId } from "@/lib/diary";
 import type { Messages } from "@/lib/i18n";
-import { visibleSymptomCatalog } from "@/lib/symptoms/catalog";
+import { pickerCatalog, visibleSymptomCatalog } from "@/lib/symptoms/catalog";
 import { toggleSymptomSelection } from "@/lib/symptoms/filter";
 import {
   idsToSymptomMap,
@@ -30,6 +30,7 @@ export function SymptomFilterSheet({
   selected,
   favoriteSymptomIds,
   customSymptoms,
+  pregnancyGroup = false,
   t,
   onClose,
   onExited,
@@ -41,6 +42,8 @@ export function SymptomFilterSheet({
   selected: SymptomId[];
   favoriteSymptomIds: SymptomId[];
   customSymptoms: CustomSymptomDefinition[];
+  /** The diary holds a pregnancy: the Pregnancy group can be filtered on. */
+  pregnancyGroup?: boolean;
   t: Messages;
   onClose: () => void;
   onExited: () => void;
@@ -51,12 +54,22 @@ export function SymptomFilterSheet({
   const [draft, setDraft] = useState<SymptomId[]>(selected);
   const [draftReady, setDraftReady] = useState(false);
   const [view, setView] = useState<"quick" | "all">("quick");
-  const catalog = useMemo(() => visibleSymptomCatalog(customSymptoms), [customSymptoms]);
+  const draftMap = useMemo(() => idsToSymptomMap(draft), [draft]);
+  const fullCatalog = useMemo(() => visibleSymptomCatalog(customSymptoms), [customSymptoms]);
+  // The Pregnancy group only for a diary that holds a pregnancy (or a filter already on one).
+  const catalog = useMemo(
+    () =>
+      pickerCatalog(fullCatalog, idsToSymptomMap(selected), {
+        pregnancy: pregnancyGroup,
+        movement: pregnancyGroup,
+        hideCycleOnly: false,
+      }),
+    [fullCatalog, pregnancyGroup, selected],
+  );
   const quickCatalog = useMemo(
     () => quickSymptomCatalogFromIds(catalog, favoriteSymptomIds, draft),
     [catalog, draft, favoriteSymptomIds],
   );
-  const draftMap = useMemo(() => idsToSymptomMap(draft), [draft]);
 
   if (present && !draftReady) {
     setDraftReady(true);

@@ -8,6 +8,7 @@ import {
   MAX_SYMPTOM_ROWS,
   MILESTONES,
   SYMPTOM_WEEKS,
+  babyMovementLog,
   comingUp,
   milestoneDates,
   pregnancySymptomWeeks,
@@ -123,5 +124,32 @@ describe("what usually comes when", () => {
     expect(weekDates(DUE, 0)).toEqual({ start: START, end: "2026-08-20" });
     expect(weekDates(DUE, 14)).toEqual({ start: "2026-11-20", end: "2026-11-26" });
     expect(weekDates(DUE, 40).start).toBe(DUE);
+  });
+});
+
+describe("the Pregnancy group in what she logged", () => {
+  it("counts its symptoms, but never ranks baby movement", () => {
+    let diary = weekOf(emptyDiary("en"), 13, 5, { heartburn: "present", babyMovement: "present" });
+    diary = weekOf(diary, 14, 3, { babyMovement: "present" });
+    const { rows } = pregnancySymptomWeeks(diary, DUE, TODAY);
+    expect(rows.map((row) => row.id)).toEqual(["heartburn"]);
+  });
+
+  it("gives baby movement its own line: the first day with its week, and days per week", () => {
+    expect(babyMovementLog(emptyDiary("en"), DUE, TODAY).first).toBeNull();
+    let diary = weekOf(emptyDiary("en"), 12, 2, { babyMovement: "present" });
+    diary = weekOf(diary, 14, 3, { babyMovement: "present" });
+    // After today: not counted.
+    diary = log(diary, addDaysIso(TODAY, 1), { babyMovement: "present" });
+    const movement = babyMovementLog(diary, DUE, TODAY);
+    expect(movement.first).toEqual({ date: addDaysIso(START, 12 * 7), week: 12 });
+    expect(movement.weeks).toEqual(pregnancySymptomWeeks(diary, DUE, TODAY).weeks);
+    expect(movement.days.slice(-3)).toEqual([2, 0, 3]);
+    expect(movement.days.reduce((sum, value) => sum + value, 0)).toBe(5);
+    expect(movement.total).toBe(5);
+  });
+
+  it("puts the first movements in 'coming up' from the week the day sheet offers them", () => {
+    expect(MILESTONES.find((item) => item.id === "movements")?.from).toBe(16 * 7);
   });
 });

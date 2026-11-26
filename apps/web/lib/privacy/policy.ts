@@ -19,7 +19,7 @@ import { DATABASE_PLACE, FUNCTION_REGIONS, type HostingRegion } from "@/lib/priv
 import type { LegalBlock, LegalDoc } from "@/lib/privacy/legal-doc";
 
 /** The day this text last changed (YYYY-MM-DD). Change it with the text. */
-export const PRIVACY_POLICY_UPDATED = "2026-11-23";
+export const PRIVACY_POLICY_UPDATED = "2026-11-26";
 
 /**
  * What a diary can hold, in plain words. Keep it in step with
@@ -27,8 +27,8 @@ export const PRIVACY_POLICY_UPDATED = "2026-11-23";
  * sign-up consent (`signupConsentHosted` in lib/i18n.ts and the locales).
  */
 export const DIARY_CONTENTS: Record<BaseLocale, string> = {
-  en: "Everything you log: period dates and bleeding; cervical mucus and vaginal discharge; physical symptoms, such as cramps and other pain, nausea and digestion, hot flashes, urinary infections, vaginal itching or dryness; moods and mental health, such as anxiety, low mood, guilt or obsessive thoughts; sexual activity, protection, libido and orgasm; pregnancy and ovulation test results; with pregnancy mode, the dates of a pregnancy (what you dated it by, its due date and, if you log it, the day it ended and whether it ended in a birth); contraceptive pill intake and other medicines you add; illness or injury, alcohol, stress, exercise, meditation and travel; and the short notes you write.",
-  es: "Todo lo que apuntas: fechas del periodo y sangrado; moco cervical y flujo vaginal; síntomas físicos, como cólicos y otros dolores, náuseas y digestión, sofocos, infecciones urinarias, picor o sequedad vaginal; estados de ánimo y salud mental, como ansiedad, ánimo bajo, culpa o pensamientos obsesivos; actividad sexual, protección, libido y orgasmo; resultados de tests de embarazo y de ovulación; con el modo embarazo, las fechas de un embarazo (con qué lo fechaste, la fecha probable de parto y, si lo apuntas, el día en que terminó y si terminó en un parto); tomas de la píldora anticonceptiva y otros medicamentos que añadas; enfermedad o lesión, alcohol, estrés, ejercicio, meditación y viajes; y las notas breves que escribes.",
+  en: "Everything you log: period dates and bleeding; cervical mucus and vaginal discharge; physical symptoms, such as cramps and other pain, nausea and digestion, hot flashes, urinary infections, vaginal itching or dryness; moods and mental health, such as anxiety, low mood, guilt or obsessive thoughts; sexual activity, protection, libido and orgasm; pregnancy and ovulation test results; with pregnancy mode, the dates of a pregnancy (what you dated it by, its due date and, if you log it, the day it ended and whether it ended in a birth) and, on its days, pregnancy symptoms such as heartburn, swelling or tightenings and whether you felt the baby move; contraceptive pill intake and other medicines you add; illness or injury, alcohol, stress, exercise, meditation and travel; and the short notes you write.",
+  es: "Todo lo que apuntas: fechas del periodo y sangrado; moco cervical y flujo vaginal; síntomas físicos, como cólicos y otros dolores, náuseas y digestión, sofocos, infecciones urinarias, picor o sequedad vaginal; estados de ánimo y salud mental, como ansiedad, ánimo bajo, culpa o pensamientos obsesivos; actividad sexual, protección, libido y orgasmo; resultados de tests de embarazo y de ovulación; con el modo embarazo, las fechas de un embarazo (con qué lo fechaste, la fecha probable de parto y, si lo apuntas, el día en que terminó y si terminó en un parto) y, en sus días, síntomas del embarazo como ardor de estómago, hinchazón o endurecimientos y si sentiste al bebé moverse; tomas de la píldora anticonceptiva y otros medicamentos que añadas; enfermedad o lesión, alcohol, estrés, ejercicio, meditación y viajes; y las notas breves que escribes.",
 };
 
 export type PolicyContext = {

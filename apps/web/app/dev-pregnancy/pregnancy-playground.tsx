@@ -5,14 +5,19 @@
 
 import { useMemo, useState } from "react";
 
+import { DaySheet, type DayPregnancyInfo } from "@/components/calendar/day-sheet";
 import { PregnancyPatterns } from "@/components/patterns/pregnancy-patterns";
 import { PregnancyCard } from "@/components/pregnancy/pregnancy-card";
 import { PregnancyEndSheet, PregnancyStartSheet } from "@/components/pregnancy/pregnancy-sheets";
 import { ResumingCard } from "@/components/pregnancy/resuming-card";
 import { Button } from "@/components/ui/button";
-import { addDaysIso, emptyDiary, upsertDay, type Diary, type SymptomMap } from "@/lib/diary";
+import { addDaysIso, emptyDiary, upsertDay, type DayLog, type Diary, type SymptomId, type SymptomMap } from "@/lib/diary";
 import { messages, type BaseLocale } from "@/lib/i18n";
+import { deletePregnancy } from "@/lib/pregnancy/actions";
+import { pregnancyStart } from "@/lib/pregnancy/dating";
 import type { PregnancyRecord } from "@/lib/pregnancy/record";
+import { pregnancyDay } from "@/lib/pregnancy/view";
+import { DEFAULT_FAVORITE_SYMPTOM_IDS } from "@/lib/symptoms/definitions";
 
 const TODAY = "2026-07-01";
 
@@ -44,6 +49,60 @@ const PATTERNS: [string, PregnancyRecord][] = [
   ["36+2", along(36, 2)],
 ];
 
+/** An ended pregnancy, kept or hidden, that ran from 0+0 to `weeks` weeks, ending `endedDaysAgo` before TODAY. */
+function ended(id: string, weeks: number, endedDaysAgo: number, hidden: boolean): PregnancyRecord {
+  const end = addDaysIso(TODAY, -endedDaysAgo);
+  const lmp = addDaysIso(end, -weeks * 7);
+  return {
+    id: id.repeat(32).slice(0, 32),
+    dating: { method: "lmp", lmp, cycleLength: null },
+    dueDate: addDaysIso(lmp, 280),
+    end: { date: end, outcome: "ended" },
+    hidden,
+    friendsMode: "noNews",
+    bleedAnswers: {},
+  };
+}
+
+type DayState = {
+  label: string;
+  pregnancies: PregnancyRecord[];
+  iso: string;
+  log?: DayLog;
+  readOnly?: boolean;
+};
+
+const KEPT = ended("a", 10, 120, false);
+const HIDDEN = ended("b", 10, 120, true);
+
+/** The day sheet in each state of the Pregnancy symptoms (diary v8). */
+const DAY_STATES: DayState[] = [
+  { label: "12+0 · before 16 weeks", pregnancies: [along(12, 0)], iso: TODAY },
+  { label: "20+0 · from 16 weeks (baby movement)", pregnancies: [along(20, 0)], iso: TODAY, log: { symptoms: { babyMovement: "present", heartburn: "present" } } },
+  { label: "20+0 · an ovulation test logged that day", pregnancies: [along(20, 0)], iso: TODAY, log: { symptoms: { ovulationTestNegative: "present" } } },
+  { label: "Past pregnancy, kept", pregnancies: [KEPT], iso: addDaysIso(KEPT.end!.date, -20) },
+  { label: "Past pregnancy, hidden", pregnancies: [HIDDEN], iso: addDaysIso(HIDDEN.end!.date, -20) },
+  { label: "Ordinary day, Pregnancy entry logged", pregnancies: [], iso: TODAY, log: { symptoms: { heartburn: "present", cramps: "present" } } },
+  { label: "20+0 · read-only", pregnancies: [along(20, 0)], iso: TODAY, readOnly: true, log: { symptoms: { nausea: "present" } } },
+];
+
+/** A diary with a pregnancy going on and Pregnancy entries on its days, before and after "delete it completely". */
+function deleteDemo(): { before: Diary; after: Diary } {
+  const record = along(20, 0);
+  let diary: Diary = { ...emptyDiary("en"), pregnancies: [record] };
+  diary = upsertDay(diary, addDaysIso(TODAY, -3), { symptoms: { babyMovement: "present", nausea: "present" } });
+  diary = upsertDay(diary, addDaysIso(TODAY, -2), { symptoms: { heartburn: "present" } });
+  diary = upsertDay(diary, addDaysIso(pregnancyStart(record.dueDate), -10), { symptoms: { heartburn: "present" } });
+  return { before: diary, after: deletePregnancy(diary, record.id) };
+}
+
+function daysText(diary: Diary): string {
+  return Object.entries(diary.days)
+    .sort(([left], [right]) => (left < right ? -1 : 1))
+    .map(([iso, log]) => `${iso}: ${Object.keys(log.symptoms).join(", ") || "(empty)"}`)
+    .join("\n");
+}
+
 /** A diary with symptoms logged through the pregnancy: `days[week]` days in a row in each week. */
 function loggedDiary(record: PregnancyRecord, locale: BaseLocale): Diary {
   const start = addDaysIso(record.dueDate, -280);
@@ -53,6 +112,8 @@ function loggedDiary(record: PregnancyRecord, locale: BaseLocale): Diary {
     [{ tenderBreasts: "mild" }, [0, 0, 0, 0, 2, 3, 5, 4, 3, 2, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0]],
     [{ headache: "present" }, [0, 0, 0, 0, 0, 0, 0, 1, 0, 2, 1, 0, 1, 2, 1, 0, 0, 1, 0, 2, 1]],
     [{ backache: "mild" }, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 3, 4, 2]],
+    [{ heartburn: "present" }, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 2, 3, 2, 3, 4]],
+    [{ babyMovement: "present" }, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 4, 5]],
   ];
   let diary = emptyDiary(locale);
   for (const [symptoms, weeks] of rows) {
@@ -79,6 +140,21 @@ export function PregnancyPlayground() {
   const t = messages[locale];
   const changing = sheet === "change" ? CARDS[1][1] : null;
   const diaries = useMemo(() => PATTERNS.map(([, record]) => loggedDiary(record, locale)), [locale]);
+  const [dayState, setDayState] = useState<number | null>(null);
+  const [dayOpen, setDayOpen] = useState(false);
+  const [favorites, setFavorites] = useState<SymptomId[]>([...DEFAULT_FAVORITE_SYMPTOM_IDS]);
+  const demo = useMemo(() => deleteDemo(), []);
+  const state = dayState === null ? null : DAY_STATES[dayState];
+  const dayPregnancy: DayPregnancyInfo | null = state
+    ? {
+        bleed: { kind: "none" },
+        test: "none",
+        past: null,
+        day: pregnancyDay(state.pregnancies, state.iso),
+        onAnswerBleed: () => undefined,
+        onStartPregnancy: null,
+      }
+    : null;
 
   return (
     <div className="min-h-dvh bg-background text-foreground">
@@ -140,6 +216,32 @@ export function PregnancyPlayground() {
           </div>
         </section>
         <section className="flex flex-col gap-3">
+          <h2 className="font-serif text-2xl">Day sheet: pregnancy symptoms</h2>
+          <p className="max-w-xl text-sm leading-relaxed text-muted-foreground">
+            The day sheet in each state. Saving only logs here; the favourite stars change the list below.
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {DAY_STATES.map((item, index) => (
+              <Button
+                key={item.label}
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  setDayState(index);
+                  setDayOpen(true);
+                }}
+              >
+                {item.label}
+              </Button>
+            ))}
+          </div>
+          <p className="font-mono text-xs text-muted-foreground">favourites: {favorites.join(", ")}</p>
+          <div className="grid gap-3 desktop:grid-cols-2">
+            <pre className="rounded-2xl bg-muted p-3 text-xs whitespace-pre-wrap">{"Before delete\n" + daysText(demo.before)}</pre>
+            <pre className="rounded-2xl bg-muted p-3 text-xs whitespace-pre-wrap">{"After \"delete it completely\"\n" + daysText(demo.after)}</pre>
+          </div>
+        </section>
+        <section className="flex flex-col gap-3">
           <h2 className="font-serif text-2xl">Patterns while a pregnancy goes on</h2>
           <p className="max-w-xl text-sm leading-relaxed text-muted-foreground">
             The pregnancy view of Patterns at a phone&apos;s width, with a made-up diary. The row at the foot opens Patterns&apos; usual cards (a
@@ -166,6 +268,27 @@ export function PregnancyPlayground() {
           </div>
         </section>
       </div>
+      <DaySheet
+        open={dayOpen}
+        iso={state?.iso ?? null}
+        log={state?.log}
+        locale={locale}
+        t={t}
+        favoriteSymptomIds={favorites}
+        customSymptoms={[]}
+        saving={false}
+        error={null}
+        lunarPhasesEnabled={false}
+        readOnly={state?.readOnly ?? false}
+        onClose={() => setDayOpen(false)}
+        onExited={() => setDayState(null)}
+        onSave={(saved) => {
+          setLog(JSON.stringify(saved.symptoms));
+          setDayOpen(false);
+        }}
+        onUpdateSymptomPreferences={(next) => setFavorites(next)}
+        pregnancy={dayPregnancy}
+      />
       <PregnancyStartSheet
         open={sheet === "start" || sheet === "change"}
         record={changing}

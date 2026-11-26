@@ -637,6 +637,7 @@ export function PregnancyEndSheet({
           >
             {t.pregnancyEndDelete}
           </Button>
+          <p className="text-xs leading-relaxed text-muted-foreground">{t.settingsPregnancyDeleteConfirm}</p>
         </>
       ) : null}
     </SheetFrame>

@@ -21,7 +21,14 @@ import {
   type FetalSize,
   type PregnancyGuideCopy,
 } from "@/lib/pregnancy/guide";
-import { comingUp, milestoneDates, pregnancySymptomWeeks, weekDates, type MilestoneDate } from "@/lib/pregnancy/patterns";
+import {
+  babyMovementLog,
+  comingUp,
+  milestoneDates,
+  pregnancySymptomWeeks,
+  weekDates,
+  type MilestoneDate,
+} from "@/lib/pregnancy/patterns";
 import type { PregnancyRecord } from "@/lib/pregnancy/record";
 import { pregnancyCardData } from "@/lib/pregnancy/view";
 import { findSymptomMeta, symptomLabel } from "@/lib/symptoms/catalog";
@@ -105,6 +112,7 @@ export function PregnancyPatterns({
   const sourcesId = useId();
   const week = Math.min(LAST_WEEK, Math.max(0, picked ?? currentWeek));
   const logged = useMemo(() => pregnancySymptomWeeks(diary, record.dueDate, today), [diary, record.dueDate, today]);
+  const movements = useMemo(() => babyMovementLog(diary, record.dueDate, today), [diary, record.dueDate, today]);
   const milestones = useMemo(() => milestoneDates(record.dueDate, today), [record.dueDate, today]);
   const next = useMemo(() => comingUp(record.dueDate, today, NEXT_SHOWN), [record.dueDate, today]);
   const shortDate = (iso: string) => formatIsoUtc(iso, locale, { day: "numeric", month: "short" });
@@ -372,6 +380,36 @@ export function PregnancyPatterns({
               </span>
             ))}
           </div>
+        </section>
+      ) : null}
+
+      {movements.first ? (
+        // Not ranked with the symptoms: only the days she marked, never a count of movements.
+        <section className={cn(CARD, "gap-3")} style={{ animationDelay: "150ms" }}>
+          <Label color={INK.pregnancy}>{t.symptomBabyMovement}</Label>
+          <p className="text-sm leading-[1.5] text-pretty">
+            {fillText(guide.movementFirst, { date: shortDate(movements.first.date), week: movements.first.week })}
+          </p>
+          <div
+            role="img"
+            aria-label={movements.weeks
+              .map((value, index) => fillText(guide.movementWeek, { week: value, days: movements.days[index] }))
+              .join(". ")}
+            className="grid items-center gap-[3px]"
+            style={{ gridTemplateColumns: `minmax(0, 7rem) repeat(${movements.weeks.length}, minmax(0, 1fr))` }}
+          >
+            <FragmentRow name={fillText(guide.logDays, { days: movements.total })} days={movements.days} />
+            <span className="text-[11px] font-bold text-muted-foreground">{guide.weekAxis}</span>
+            {movements.weeks.map((value, index) => (
+              <span
+                key={value}
+                className={cn("text-center text-[11px] font-bold", value === currentWeek ? "font-extrabold text-card-foreground" : "text-muted-foreground")}
+              >
+                {index % 2 === (movements.weeks.length - 1) % 2 ? value : ""}
+              </span>
+            ))}
+          </div>
+          <p className="text-xs leading-[1.45] text-muted-foreground text-pretty">{guide.movementNote}</p>
         </section>
       ) : null}
 

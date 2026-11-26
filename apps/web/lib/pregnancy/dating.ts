@@ -32,6 +32,11 @@ export const EMBRYO_AGES = [3, 5] as const;
 export type EmbryoAge = (typeof EMBRYO_AGES)[number];
 export const SECOND_TRIMESTER_DAYS = 14 * 7;
 export const THIRD_TRIMESTER_DAYS = 28 * 7;
+/**
+ * First movements are usually felt from 16 to 24 weeks (NHS): the "coming up"
+ * window starts here, and the day sheet offers "Felt the baby move" from here on.
+ */
+export const MOVEMENTS_FROM_DAYS = 16 * 7;
 /** The likely window for the birth: 37+0 to 42+0. */
 export const LIKELY_WINDOW_FROM_DAYS = 37 * 7;
 export const LIKELY_WINDOW_TO_DAYS = 42 * 7;

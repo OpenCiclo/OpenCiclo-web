@@ -103,3 +103,25 @@ describe("pattern stats", () => {
     expect(off.avgPeriodLength).toBe(3);
   });
 });
+
+describe("the Pregnancy group in ordinary Patterns", () => {
+  it("never enters recurring symptoms (nor the cycle rows and tips that read them)", () => {
+    const diary = parseDiary({
+      schemaVersion: 8,
+      locale: "en",
+      periodStarts: ["2026-05-01", "2026-05-29", "2026-06-26"],
+      days: {
+        "2026-05-01": { flow: "medium", symptoms: { cramps: "present", heartburn: "present" } },
+        "2026-05-10": { symptoms: { babyMovement: "present", dizziness: "present" } },
+        "2026-05-29": { flow: "medium", symptoms: { heartburn: "present", sexualActivity: "present" } },
+        "2026-06-26": { flow: "medium", symptoms: {} },
+      },
+    });
+    expect(diary.days["2026-05-10"]?.symptoms).toEqual({ babyMovement: "present", dizziness: "present" });
+    const stats = patternStats(diary, "2026-07-01");
+    const all = [...recurringSymptoms(diary), ...stats.recurringSymptoms, ...stats.recurringSex].map((item) => item.id);
+    expect(all).toContain("cramps");
+    expect(all).toContain("sexualActivity");
+    for (const id of ["heartburn", "babyMovement", "dizziness"]) expect(all).not.toContain(id);
+  });
+});

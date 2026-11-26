@@ -10,6 +10,7 @@ import {
   ArrowLeft,
   CalendarClock,
   Check,
+  ChevronDown,
   ChevronRight,
   CircleArrowUp,
   CloudOff,
@@ -34,16 +35,20 @@ import {
   type SymptomId,
 } from "@/lib/diary";
 import { formatIsoUtc } from "@/lib/format-date";
+import { PREGNANCY_CALL_COPY } from "@/lib/pregnancy/call-copy";
 import type { BleedAnswer } from "@/lib/pregnancy/record";
-import type { BleedContext, PregnancyTestContext } from "@/lib/pregnancy/view";
-import type { Locale, Messages } from "@/lib/i18n";
+import type { BleedContext, PregnancyDay, PregnancyTestContext } from "@/lib/pregnancy/view";
+import { contentLocale, type Locale, type Messages } from "@/lib/i18n";
 import {
+  PREGNANCY_CATEGORY_ORDER,
+  pickerCatalog,
   resolveSymptomCatalog,
   symptomLabel,
   visibleSymptomCatalog,
 } from "@/lib/symptoms/catalog";
 import { createCustomSymptomId, isCustomSymptomId } from "@/lib/symptoms/definitions";
 import {
+  pregnancyQuickCatalog,
   quickSymptomCatalog,
   removeCustomSymptom,
   toggleFavoriteSymptom,
@@ -59,6 +64,7 @@ import { MoonPhaseIcon, moonPhaseName, moonPhaseText } from "@/components/calend
 import { MoreSymptomsView } from "@/components/calendar/more-symptoms-view";
 import { SymptomChip } from "@/components/calendar/symptom-chip";
 import { useConfirmDialog } from "@/components/confirm-dialog";
+import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/input";
 
 const FLOW_DOTS: Record<FlowLevel, number> = {
@@ -133,6 +139,8 @@ export type DayPregnancyInfo = {
   test: PregnancyTestContext;
   /** "Pregnancy · 12 Jan to 3 Mar" on a day of an ended pregnancy she kept. */
   past: { start: string; end: string } | null;
+  /** The pregnancy whose days hold this one (`pregnancyDay`): the symptoms offered follow it. */
+  day: PregnancyDay | null;
   onAnswerBleed: (answer: BleedAnswer) => void;
   /** Offered after a positive test (PREGNANCY_AVAILABLE); never turns anything on by itself. */
   onStartPregnancy: (() => void) | null;
@@ -193,21 +201,45 @@ export function DaySheet({
   const [draftForIso, setDraftForIso] = useState<string | null>(iso);
   const [draftReadOnly, setDraftReadOnly] = useState(readOnly);
   const [view, setView] = useState<"quick" | "more">("quick");
+  const [callOpen, setCallOpen] = useState(false);
+  const callId = useId();
+  const pregnancyDay = pregnancy?.day ?? null;
+  const movement = Boolean(pregnancyDay?.movement);
   const catalog = useMemo(() => resolveSymptomCatalog(customSymptoms), [customSymptoms]);
   const visibleCatalog = useMemo(() => visibleSymptomCatalog(customSymptoms), [customSymptoms]);
-  const quickCatalog = useMemo(
-    () => quickSymptomCatalog(catalog, favoriteSymptomIds, draft.symptoms),
-    [catalog, draft.symptoms, favoriteSymptomIds],
+  // Inside a pregnancy the chips lead with its short set; elsewhere, as always.
+  const quick = useMemo(
+    () =>
+      pregnancyDay
+        ? pregnancyQuickCatalog(catalog, favoriteSymptomIds, draft.symptoms, { movement })
+        : { lead: [], rest: quickSymptomCatalog(catalog, favoriteSymptomIds, draft.symptoms) },
+    [catalog, draft.symptoms, favoriteSymptomIds, movement, pregnancyDay],
   );
+  // What "More symptoms" offers on this day. An entry saved on it, or ticked
+  // since, keeps showing until the sheet closes, so untoggling it does not
+  // make it vanish under the finger.
+  const moreCatalog = useMemo(
+    () =>
+      pickerCatalog(
+        visibleCatalog,
+        { ...log?.symptoms, ...draft.symptoms },
+        { pregnancy: Boolean(pregnancyDay), movement, hideCycleOnly: Boolean(pregnancyDay) },
+      ),
+    [draft.symptoms, log?.symptoms, movement, pregnancyDay, visibleCatalog],
+  );
+  const callLang = contentLocale(locale);
+  const callCopy = PREGNANCY_CALL_COPY[callLang];
 
   if (!iso && draftForIso !== null) {
     setDraftForIso(null);
     setView("quick");
+    setCallOpen(false);
   }
   if (open && iso && iso !== draftForIso) {
     setDraftForIso(iso);
     setDraft(log ? { ...log, symptoms: { ...log.symptoms }, note: log.note } : emptyDayLog());
     setView("quick");
+    setCallOpen(false);
   }
   // Back online with the sheet open: the day may have changed on the host, so
   // editing starts from the day as loaded now, not from the old copy.
@@ -599,8 +631,53 @@ export function DaySheet({
           </Section>
 
           <Section title={t.symptoms}>
+            {quick.lead.length > 0 ? (
+              <div className="mb-3 flex flex-wrap gap-2">
+                {quick.lead.map((item) => (
+                  <SymptomChip
+                    key={item.id}
+                    item={item}
+                    active={Boolean(draft.symptoms[item.id])}
+                    favorite={favoriteSymptomIds.includes(item.id)}
+                    disabled={locked}
+                    t={t}
+                    onToggle={() => toggleSymptom(item.id)}
+                  />
+                ))}
+              </div>
+            ) : null}
+            {pregnancyDay?.goingOn ? (
+              // One quiet line while the pregnancy goes on, never on the days of
+              // one that ended. "When to call" opens in place: no page change,
+              // so an unsaved day is not lost.
+              <div className="mb-3 rounded-2xl bg-muted/60 px-3 py-2.5">
+                <p className="text-xs leading-relaxed text-muted-foreground">
+                  {t.pregnancySafetyLine}{" "}
+                  <button
+                    type="button"
+                    aria-expanded={callOpen}
+                    aria-controls={callId}
+                    onClick={() => setCallOpen((current) => !current)}
+                    className="inline-flex items-center gap-0.5 font-semibold text-primary underline-offset-4 hover:underline"
+                  >
+                    {t.pregnancySafetyLink}
+                    <ChevronDown className={cn("size-3.5 transition-transform", callOpen && "rotate-180")} aria-hidden />
+                  </button>
+                </p>
+                {callOpen ? (
+                  <div id={callId} className="mt-2.5 flex flex-col gap-1.5 border-t border-border pt-2.5">
+                    {callLang !== locale ? (
+                      <Badge className="self-start">{callLang === "es" ? t.learnSpanishOnly : t.learnEnglishOnly}</Badge>
+                    ) : null}
+                    <p className="text-sm font-semibold text-card-foreground">{callCopy.callLabel}</p>
+                    <p className="text-sm leading-relaxed text-card-foreground text-pretty">{callCopy.callBody}</p>
+                    <p className="text-xs leading-relaxed text-muted-foreground text-pretty">{callCopy.callEmergency}</p>
+                  </div>
+                ) : null}
+              </div>
+            ) : null}
             <div className="flex flex-wrap gap-2">
-              {quickCatalog.map((item) => (
+              {quick.rest.map((item) => (
                 <SymptomChip
                   key={item.id}
                   item={item}
@@ -637,7 +714,8 @@ export function DaySheet({
             </>
           ) : (
             <MoreSymptomsView
-              catalog={visibleCatalog}
+              catalog={moreCatalog}
+              categoryOrder={pregnancyDay ? PREGNANCY_CATEGORY_ORDER : undefined}
               selected={draft.symptoms}
               favorites={favoriteSymptomIds}
               disabled={locked}
