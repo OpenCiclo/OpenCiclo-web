@@ -33,6 +33,20 @@ function friend(byte: number, selfId: string | null = null) {
 }
 
 describe("friend book", () => {
+  it("keeps the pregnancy she shares, and reads anything else as none", () => {
+    const book = setProfile(newFriendBook("Emma"), { pregnancy: "0123456789abcdef0123456789abcdef" });
+    expect(parseFriendBook(JSON.parse(JSON.stringify(book))).pregnancy).toBe("0123456789abcdef0123456789abcdef");
+    expect(newFriendBook("Emma").pregnancy).toBeNull();
+    expect(setProfile(book, { pregnancy: null }).pregnancy).toBeNull();
+    // A book saved before the field existed, or with a damaged value: not shared.
+    const older: Record<string, unknown> = { ...book };
+    delete older.pregnancy;
+    expect(parseFriendBook(older).pregnancy).toBeNull();
+    for (const value of [true, 7, "", "yes", { id: "0123456789abcdef" }]) {
+      expect(parseFriendBook({ ...book, pregnancy: value }).pregnancy).toBeNull();
+    }
+  });
+
   it("survives sealing and parsing unchanged", async () => {
     let book = newFriendBook("  Emma ");
     book = addInvite(book, invite(9), "2026-09-30");

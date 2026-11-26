@@ -6,16 +6,18 @@
 import { useState } from "react";
 
 import { useConfirmDialog } from "@/components/confirm-dialog";
+import { useFriends } from "@/components/friends/friends-provider";
 import { weekTitle } from "@/components/pregnancy/pregnancy-card";
 import { usePregnancyFlows } from "@/components/pregnancy/pregnancy-flows";
 import { Button } from "@/components/ui/button";
 import { useCiclo, useTodayIso } from "@/lib/client/ciclo-context";
 import { saveErrorMessage } from "@/lib/client/save-error";
-import { PREGNANCY_AVAILABLE } from "@/lib/features";
+import { FRIENDS_AVAILABLE, PREGNANCY_AVAILABLE } from "@/lib/features";
 import { formatIsoUtc } from "@/lib/format-date";
 import { deletePregnancy, setFriendsMode, setPregnancyHidden } from "@/lib/pregnancy/actions";
 import { pregnancyStart } from "@/lib/pregnancy/dating";
-import { activePregnancy, type FriendsPrivateMode } from "@/lib/pregnancy/record";
+import { shareablePregnancy, type FriendsChoice } from "@/lib/pregnancy/friends";
+import { activePregnancy } from "@/lib/pregnancy/record";
 import { pregnancyCardData } from "@/lib/pregnancy/view";
 
 /**
@@ -28,6 +30,7 @@ export function PregnancySettings() {
   const { diary, persistDiary, readOnly, locale, t } = useCiclo();
   const today = useTodayIso();
   const flows = usePregnancyFlows();
+  const friends = useFriends();
   const [confirm, confirmDialog] = useConfirmDialog();
   const [error, setError] = useState<string | null>(null);
   const pregnancies = diary.pregnancies ?? [];
@@ -44,6 +47,26 @@ export function PregnancySettings() {
     );
   };
   const date = (iso: string) => formatIsoUtc(iso, locale, { day: "numeric", month: "long", year: "numeric" });
+
+  // Sharing the week with friends: offered with Friends on, kept in the friend book as this pregnancy's id.
+  const book = FRIENDS_AVAILABLE && friends.status === "on" ? friends.book : null;
+  const canShare = book !== null && active !== null && shareablePregnancy(diary, today)?.id === active.id;
+  const sharing = book !== null && active !== null && book.pregnancy === active.id;
+  const friendsChoice: FriendsChoice = sharing ? "shared" : (active?.friendsMode ?? "noNews");
+  function chooseFriends(choice: FriendsChoice) {
+    if (readOnly || !active) return;
+    const failed = (cause: unknown) => setError(saveErrorMessage(cause, t));
+    if (choice === "shared") {
+      friends.setProfile({ pregnancy: active.id }).then(() => setError(null), failed);
+      return;
+    }
+    // Stop sharing first; the private mode is saved only once the friend book took it.
+    const stopped = sharing ? friends.setProfile({ pregnancy: null }) : Promise.resolve();
+    stopped.then(() => {
+      if (choice !== active.friendsMode) save(setFriendsMode(diary, active.id, choice));
+      else setError(null);
+    }, failed);
+  }
 
   return (
     <div className="flex flex-col gap-2 rounded-2xl bg-muted/60 p-3">
@@ -70,16 +93,21 @@ export function PregnancySettings() {
           </label>
           <select
             id="pregnancy-friends-mode"
-            value={active.friendsMode}
+            value={friendsChoice}
             disabled={readOnly}
-            onChange={(event) => save(setFriendsMode(diary, active.id, event.target.value as FriendsPrivateMode))}
+            onChange={(event) => chooseFriends(event.target.value as FriendsChoice)}
             className="h-10 rounded-xl border border-border bg-background px-3 text-sm"
           >
             <option value="noNews">{t.pregnancyFriendsNoNews}</option>
             <option value="simulated">{t.pregnancyFriendsSimulated}</option>
+            {canShare || sharing ? <option value="shared">{t.friendsSharePregnancyChoice}</option> : null}
           </select>
           <p className="text-xs leading-relaxed text-muted-foreground">
-            {active.friendsMode === "simulated" ? t.pregnancyFriendsSimulatedHint : t.pregnancyFriendsNoNewsHint}
+            {friendsChoice === "shared"
+              ? t.friendsSharePregnancyHint
+              : friendsChoice === "simulated"
+                ? t.pregnancyFriendsSimulatedHint
+                : t.pregnancyFriendsNoNewsHint}
           </p>
           <Button type="button" variant="outline" disabled={readOnly} onClick={() => flows.openEnd(active.id)}>
             {t.pregnancyEndAction}

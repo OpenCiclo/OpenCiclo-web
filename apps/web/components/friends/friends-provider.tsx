@@ -31,7 +31,14 @@ import type { FriendNote, InviteMessage, ShareChoices } from "@/lib/friends/payl
 
 export type FriendsStatus = "unavailable" | "idle" | "loading" | "off" | "on" | "newer" | "error";
 
-type ProfileChange = Partial<{ name: string; show: ShareChoices; pausedAll: boolean; note: FriendNote | null }>;
+type ProfileChange = Partial<{
+  name: string;
+  show: ShareChoices;
+  pausedAll: boolean;
+  note: FriendNote | null;
+  /** The id of the pregnancy to share with friends, or null to stop. */
+  pregnancy: string | null;
+}>;
 
 type FriendsValue = {
   status: FriendsStatus;

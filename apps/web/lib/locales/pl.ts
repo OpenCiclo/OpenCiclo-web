@@ -440,6 +440,10 @@ const locale: LocaleModule = {
     friendsClearNote: "Usuń notatkę",
     friendsShowDay: "Pokazuj mój dzień cyklu",
     friendsShowExpected: "Pokazuj, kiedy spodziewana jest moja miesiączka",
+    friendsSharePregnancy: "Udostępniaj mój tydzień ciąży",
+    friendsSharePregnancyHint:
+      "Twoje przyjaciółki widzą, w którym tygodniu jesteś, i nic więcej o ciąży. Aby liczyć tygodnie, ich telefony dostają twój przewidywany termin porodu. Udostępnianie kończy się, gdy ciąża się skończy albo gdy to wyłączysz.",
+    friendsSharePregnancyChoice: "Mój tydzień ciąży",
     friendsPauseAll: "Wstrzymaj ze wszystkimi",
     friendsYourSharing: "Co udostępniasz",
     friendsTurnOff: "Wyłącz Przyjaciółki",

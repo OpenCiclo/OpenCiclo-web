@@ -66,6 +66,13 @@ export type FriendBook = {
   show: ShareChoices;
   pausedAll: boolean;
   note: FriendNote | null;
+  /**
+   * The id of the pregnancy (a diary record) she chose to share with her
+   * friends, or null. Only that pregnancy, and only while it goes on: another
+   * one is never shared without asking again. A build from before this field
+   * drops it when it saves the book, which stops the sharing (the safe way round).
+   */
+  pregnancy: string | null;
   friends: Friend[];
   invites: PendingInvite[];
 };
@@ -93,6 +100,7 @@ export function newFriendBook(name: string): FriendBook {
     show: { day: true, expected: true },
     pausedAll: false,
     note: null,
+    pregnancy: null,
     friends: [],
     invites: [],
   };
@@ -161,7 +169,7 @@ export function removeFriend(book: FriendBook, id: string): FriendBook {
 
 export function setProfile(
   book: FriendBook,
-  change: Partial<{ name: string; show: ShareChoices; pausedAll: boolean; note: FriendNote | null }>,
+  change: Partial<{ name: string; show: ShareChoices; pausedAll: boolean; note: FriendNote | null; pregnancy: string | null }>,
 ): FriendBook {
   const next = { ...book, ...change };
   if (change.name !== undefined) next.name = cleanText(change.name, MAX_NAME_LENGTH);
@@ -196,6 +204,8 @@ function isDate(value: unknown): value is string {
 }
 
 const ID = /^[0-9a-f]{32}$/;
+/** A pregnancy record's id (PREGNANCY_ID, lib/pregnancy/record.ts). */
+const PREGNANCY = /^[0-9a-f]{16,64}$/;
 const KEY = /^[A-Za-z0-9_-]{43}$/;
 const PUBLIC_KEY = /^[A-Za-z0-9_-]{87}$/;
 const PRIVATE_KEY = /^[A-Za-z0-9_-]{100,400}$/;
@@ -250,6 +260,7 @@ export function parseFriendBook(value: unknown): FriendBook {
     show: { day: show.day !== false, expected: show.expected !== false },
     pausedAll: value.pausedAll === true,
     note,
+    pregnancy: typeof value.pregnancy === "string" && PREGNANCY.test(value.pregnancy) ? value.pregnancy : null,
     friends: friends as Friend[],
     invites: invites as PendingInvite[],
   };

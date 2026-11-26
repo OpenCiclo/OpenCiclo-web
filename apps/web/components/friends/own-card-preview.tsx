@@ -51,6 +51,7 @@ export function OwnCardPreview({
     show: book.show,
     note: book.note,
     paused: book.pausedAll,
+    pregnancy: book.pregnancy,
   });
 
   return createPortal(

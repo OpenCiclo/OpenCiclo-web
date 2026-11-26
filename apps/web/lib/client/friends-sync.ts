@@ -540,6 +540,7 @@ function statusFor(book: FriendBook, friend: Friend, diary: Diary, today: string
     show: book.show,
     note: book.note,
     paused: !sharesWith(book, friend),
+    pregnancy: book.pregnancy,
   });
 }
 

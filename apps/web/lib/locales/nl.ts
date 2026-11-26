@@ -441,6 +441,10 @@ const locale: LocaleModule = {
     friendsClearNote: "Notitie wissen",
     friendsShowDay: "Mijn cyclusdag tonen",
     friendsShowExpected: "Tonen wanneer mijn menstruatie verwacht wordt",
+    friendsSharePregnancy: "Mijn zwangerschapsweek delen",
+    friendsSharePregnancyHint:
+      "Je vriendinnen zien in welke week je bent en verder niets over de zwangerschap. Om de weken te tellen krijgen hun telefoons je uitgerekende datum. Het delen stopt wanneer de zwangerschap eindigt of wanneer je dit uitzet.",
+    friendsSharePregnancyChoice: "Mijn zwangerschapsweek",
     friendsPauseAll: "Met iedereen pauzeren",
     friendsYourSharing: "Wat je deelt",
     friendsTurnOff: "Vriendinnen uitzetten",
