@@ -19,6 +19,7 @@ import {
   pastPregnancyOn,
   pregnancyCalendarMarks,
   pregnancyCardData,
+  pregnancyDay,
   pregnancyTestContext,
 } from "@/lib/pregnancy/view";
 
@@ -114,5 +115,67 @@ describe("what the screens show", () => {
     const ended = endPregnancy(pregnant, ID, "ended", "2026-03-01");
     expect(pregnancyTestContext(ended, "2026-03-20")).toBe("recentEnd");
     expect(pregnancyTestContext(ended, "2026-04-15")).toBe("offer");
+  });
+});
+
+describe("the pregnancy a day belongs to (the symptoms the day sheet offers)", () => {
+  // Due 2026-10-17: 0+0 is 2026-01-10, conception (2+0) 2026-01-24, 16+0 2026-05-02.
+  const records = pregnant.pregnancies;
+
+  it("starts on the estimated conception day, not on the last period", () => {
+    expect(pregnancyDay(records, "2026-01-23")).toBeNull();
+    expect(pregnancyDay(records, "2026-01-24")).toMatchObject({ goingOn: true, movement: false });
+  });
+
+  it("offers baby movement from 16 weeks, and only while it goes on", () => {
+    expect(pregnancyDay(records, "2026-05-01")?.movement).toBe(false);
+    expect(pregnancyDay(records, "2026-05-02")?.movement).toBe(true);
+    const over = endPregnancy(pregnant, ID, "ended", "2026-06-01");
+    expect(pregnancyDay(over.pregnancies, "2026-05-20")).toMatchObject({ goingOn: false, movement: false });
+  });
+
+  it("covers an ended pregnancy she kept up to its end, never the days after or a hidden one", () => {
+    const over = endPregnancy(pregnant, ID, "ended", "2026-06-01");
+    expect(pregnancyDay(over.pregnancies, "2026-06-01")?.record.id).toBe(ID);
+    expect(pregnancyDay(over.pregnancies, "2026-06-02")).toBeNull();
+    const hidden = setPregnancyHidden(over, ID, true);
+    expect(pregnancyDay(hidden.pregnancies, "2026-05-20")).toBeNull();
+  });
+
+  it("is null in a diary with no pregnancy", () => {
+    expect(pregnancyDay([], "2026-05-02")).toBeNull();
+  });
+});
+
+describe("deleting a pregnancy takes its Pregnancy entries with it", () => {
+  const logged = [
+    ["2026-03-01", { babyMovement: "present", nausea: "present" }],
+    ["2026-03-02", { heartburn: "present" }],
+    ["2025-12-01", { heartburn: "present" }],
+  ] as const;
+  let diary = pregnant;
+  for (const [iso, symptoms] of logged) diary = upsertDay(diary, iso, { symptoms: { ...symptoms } });
+
+  it("strips the group from its days, keeps everything else, and drops a day left empty", () => {
+    const after = deletePregnancy(diary, ID);
+    expect(after.pregnancies).toEqual([]);
+    expect(after.days["2026-03-01"]?.symptoms).toEqual({ nausea: "present" });
+    expect(after.days["2026-03-02"]).toBeUndefined();
+    // Before the pregnancy's 0+0: not its day.
+    expect(after.days["2025-12-01"]?.symptoms).toEqual({ heartburn: "present" });
+    // Bleeding logged around it stays, so the period starts do too.
+    expect(after.periodStarts).toEqual(base.periodStarts);
+  });
+
+  it("leaves a day another pregnancy kept in the diary still covers", () => {
+    const over = endPregnancy(diary, ID, "ended", "2026-03-20");
+    const other = { ...over.pregnancies[0], id: "f".repeat(32) };
+    const both = { ...over, pregnancies: [...over.pregnancies, other] };
+    const after = deletePregnancy(both, ID);
+    expect(after.days["2026-03-01"]?.symptoms.babyMovement).toBe("present");
+  });
+
+  it("changes nothing for an unknown id", () => {
+    expect(deletePregnancy(diary, "e".repeat(32))).toBe(diary);
   });
 });

@@ -91,6 +91,19 @@ export const BUILT_IN_SYMPTOM_IDS = [
   "ocTakenOnTime",
   "ocYesterdaysPill",
   "sexualActivity",
+  // Pregnancy (diary v8): offered only on days inside a pregnancy.
+  "babyMovement",
+  "heartburn",
+  "vomiting",
+  "frequentUrination",
+  "swelling",
+  "braxtonHicks",
+  "pelvicPain",
+  "legCramps",
+  "shortOfBreath",
+  "dizziness",
+  "foodAversions",
+  "smellSensitivity",
 ] as const;
 
 export const DEFAULT_FAVORITE_SYMPTOM_IDS = [
@@ -110,6 +123,7 @@ export const SYMPTOM_CATEGORIES = [
   "symptoms",
   "vaginalDischarge",
   "digestionAndStool",
+  "pregnancy",
   "pregnancyTest",
   "ovulationTest",
   "other",

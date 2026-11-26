@@ -18,6 +18,7 @@ import {
   bleedContext,
   pastPregnancyOn,
   pregnancyCalendarMarks,
+  pregnancyDay,
   pregnancyTestContext,
   type PregnancyMarks,
 } from "@/lib/pregnancy/view";
@@ -200,6 +201,7 @@ export function CalendarScreen() {
       bleed: bleedContext(diary, activeIso),
       test: pregnancyTestContext(diary, activeIso),
       past: past?.end ? { start: pregnancyStart(past.dueDate), end: past.end.date } : null,
+      day: pregnancyDay(pregnancies, activeIso),
       onAnswerBleed: (answer) => {
         const context = bleedContext(diary, activeIso);
         if (context.kind !== "ask" || readOnly) return;
@@ -601,6 +603,7 @@ export function CalendarScreen() {
         selected={activeFilters}
         favoriteSymptomIds={diary.favoriteSymptomIds}
         customSymptoms={diary.customSymptoms}
+        pregnancyGroup={(diary.pregnancies ?? []).length > 0}
         t={t}
         onClose={closeFilter}
         onExited={handleFilterExited}

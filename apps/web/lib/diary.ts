@@ -26,7 +26,7 @@ import {
  * a save older than the stored version. `diary-schema.test.ts` fails until the
  * bump is made.
  */
-export const DIARY_SCHEMA_VERSION = 7;
+export const DIARY_SCHEMA_VERSION = 8;
 export const MAX_DAILY_NOTE_LENGTH = 200;
 
 /**

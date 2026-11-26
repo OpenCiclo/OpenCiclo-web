@@ -8,6 +8,7 @@ import {
   CircleDot,
   Dumbbell,
   HeartHandshake,
+  HeartPulse,
   Pill,
   Smile,
   Sparkles,
@@ -49,6 +50,7 @@ const CATEGORY_STYLE: Record<
   symptoms: { icon: Activity, color: "oklch(0.62 0.18 25)", labelKey: "symptomCategorySymptoms" },
   vaginalDischarge: { icon: Waves, color: "oklch(0.62 0.12 200)", labelKey: "symptomCategoryDischarge" },
   digestionAndStool: { icon: Apple, color: "oklch(0.64 0.14 85)", labelKey: "symptomCategoryDigestion" },
+  pregnancy: { icon: HeartPulse, color: "oklch(0.55 0.11 285)", labelKey: "symptomCategoryPregnancy" },
   pregnancyTest: { icon: Baby, color: "oklch(0.65 0.15 15)", labelKey: "symptomCategoryPregnancyTest" },
   ovulationTest: { icon: CircleDot, color: "oklch(0.68 0.16 45)", labelKey: "symptomCategoryOvulationTest" },
   other: { icon: Sparkles, color: "oklch(0.55 0.14 280)", labelKey: "symptomCategoryOther" },
@@ -174,6 +176,21 @@ export const SYMPTOM_CATALOG: SymptomMeta[] = [
 
   builtIn("ocTakenOnTime", "oralContraceptives", "symptomOcTakenOnTime", { exclusiveGroup: "oralContraceptives" }),
   builtIn("ocYesterdaysPill", "oralContraceptives", "symptomOcYesterdaysPill", { exclusiveGroup: "oralContraceptives" }),
+
+  // Offered only on days inside a pregnancy (`pickerCatalog`). No none-group:
+  // "Everything fine" belongs to "Symptoms" and must not clear these.
+  builtIn("babyMovement", "pregnancy", "symptomBabyMovement"),
+  builtIn("heartburn", "pregnancy", "symptomHeartburn"),
+  builtIn("vomiting", "pregnancy", "symptomVomiting"),
+  builtIn("frequentUrination", "pregnancy", "symptomFrequentUrination"),
+  builtIn("swelling", "pregnancy", "symptomSwelling"),
+  builtIn("braxtonHicks", "pregnancy", "symptomBraxtonHicks"),
+  builtIn("pelvicPain", "pregnancy", "symptomPelvicPain"),
+  builtIn("legCramps", "pregnancy", "symptomLegCramps"),
+  builtIn("shortOfBreath", "pregnancy", "symptomShortOfBreath"),
+  builtIn("dizziness", "pregnancy", "symptomDizziness"),
+  builtIn("foodAversions", "pregnancy", "symptomFoodAversions"),
+  builtIn("smellSensitivity", "pregnancy", "symptomSmellSensitivity"),
 ];
 
 if (SYMPTOM_CATALOG.length !== BUILT_IN_SYMPTOM_IDS.length) {
@@ -192,10 +209,80 @@ export function isSexEntry(id: SymptomId): boolean {
   return SEX_ENTRY_IDS.has(id);
 }
 
+const PREGNANCY_ENTRY_IDS: ReadonlySet<SymptomId> = new Set(
+  SYMPTOM_CATALOG.filter((item) => item.category === "pregnancy").map((item) => item.id),
+);
+
+/**
+ * Whether `id` is in the "Pregnancy" group. Offered only on days inside a
+ * pregnancy, never ranked among a cycle's recurring symptoms, and removed from
+ * its days when that pregnancy is deleted.
+ */
+export function isPregnancyEntry(id: SymptomId): boolean {
+  return PREGNANCY_ENTRY_IDS.has(id);
+}
+
+/** "Felt the baby move": a plain daily mark, not counted and not ranked as a symptom. */
+export const BABY_MOVEMENT_ID = "babyMovement" as const satisfies BuiltInSymptomId;
+
+/**
+ * The short set the day sheet leads with on a day inside a pregnancy, in this
+ * order (most often reported in pregnancy: Foxcroft et al. 2013). Baby movement
+ * only when `pregnancyDay(...).movement` says so.
+ */
+export const PREGNANCY_LEAD_IDS = [
+  BABY_MOVEMENT_ID,
+  "nausea",
+  "fatigue",
+  "heartburn",
+  "backache",
+  "insomnia",
+  "frequentUrination",
+  "swelling",
+] as const satisfies readonly BuiltInSymptomId[];
+
+/** Groups that are about a cycle, left out of "More symptoms" during a pregnancy unless logged that day. */
+const CYCLE_ONLY_CATEGORIES: ReadonlySet<SymptomCategory | "custom"> = new Set(["ovulationTest", "oralContraceptives"]);
+
 export const SYMPTOM_CATEGORY_ORDER = [
   "custom",
   ...SYMPTOM_CATEGORIES,
 ] as const satisfies readonly (SymptomCategory | "custom")[];
+
+/** "More symptoms" on a day inside a pregnancy: the Pregnancy group first. */
+export const PREGNANCY_CATEGORY_ORDER = [
+  "pregnancy",
+  ...SYMPTOM_CATEGORY_ORDER.filter((category) => category !== "pregnancy"),
+] as const satisfies readonly (SymptomCategory | "custom")[];
+
+export type PickerOptions = {
+  /** The day is inside a pregnancy (`pregnancyDay` is not null): the Pregnancy group is offered. */
+  pregnancy: boolean;
+  /** "Felt the baby move" is offered (from 16 weeks, while the pregnancy goes on). */
+  movement: boolean;
+  /** Leave out ovulation tests and oral contraceptives (a day inside a pregnancy). */
+  hideCycleOnly: boolean;
+};
+
+/**
+ * What a symptom picker offers on one day: the Pregnancy group only on days
+ * inside a pregnancy, and the cycle-only groups only outside one. Whatever is
+ * logged that day (`selected`) always shows, whatever the day.
+ */
+export function pickerCatalog(
+  catalog: readonly SymptomMeta[],
+  selected: Partial<Record<SymptomId, unknown>>,
+  options: PickerOptions,
+): SymptomMeta[] {
+  return catalog.filter((item) => {
+    if (selected[item.id]) return true;
+    if (item.category === "pregnancy") {
+      return options.pregnancy && (item.id !== BABY_MOVEMENT_ID || options.movement);
+    }
+    if (options.hideCycleOnly && CYCLE_ONLY_CATEGORIES.has(item.category)) return false;
+    return true;
+  });
+}
 
 export function resolveSymptomCatalog(customSymptoms: readonly CustomSymptomDefinition[] = []): SymptomMeta[] {
   return [

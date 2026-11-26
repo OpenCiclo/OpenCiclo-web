@@ -196,3 +196,22 @@ describe("a pregnancy she chose to share", () => {
     expect(readStatus(old, "2026-06-10")).toEqual({ kind: "noEstimate" });
   });
 });
+
+describe("pregnancy symptoms never reach friends", () => {
+  it("a baby movement or any Pregnancy entry leaves every status byte for byte the same", () => {
+    const record = pregnancy();
+    const sharing: SharerProfile = { ...profile, pregnancy: record.id };
+    for (const mode of ["noNews", "simulated"] as const) {
+      const diary = withPregnancies(diaryWithStarts(STARTS), [{ ...record, friendsMode: mode }]);
+      let logged = diary;
+      for (const iso of days("2026-07-25", 10)) {
+        logged = upsertDay(logged, iso, { symptoms: { babyMovement: "present", heartburn: "present", braxtonHicks: "present" } });
+      }
+      for (const today of days("2026-07-25", 20)) {
+        for (const who of [profile, sharing]) {
+          expect(JSON.stringify(buildStatus(logged, today, who)), today).toBe(JSON.stringify(buildStatus(diary, today, who)));
+        }
+      }
+    }
+  });
+});

@@ -3,13 +3,14 @@
 
 // What the Patterns screen shows while a pregnancy goes on, worked out without
 // React: what she logged week by week, and what usually comes when, with the
-// dates counted from her due date. Nothing here is stored, and nothing about
-// the baby is: the week texts live in lib/pregnancy/guide.ts.
+// dates counted from her due date. Nothing here is stored: the week texts
+// live in lib/pregnancy/guide.ts. "Felt the baby move" is a day's mark she
+// logged, shown as logged, never read as a count or a sign of anything.
 
 import type { Diary, SymptomId } from "@/lib/diary";
 import { addDays, daysBetween } from "@/lib/forecast/math";
-import { dateAtGestationalDays, gestationalDays, pregnancyStart } from "@/lib/pregnancy/dating";
-import { findSymptomMeta } from "@/lib/symptoms/catalog";
+import { MOVEMENTS_FROM_DAYS, dateAtGestationalDays, gestationalDays, pregnancyStart } from "@/lib/pregnancy/dating";
+import { BABY_MOVEMENT_ID, findSymptomMeta } from "@/lib/symptoms/catalog";
 import type { SymptomCategory } from "@/lib/symptoms/definitions";
 
 /** How many weeks of logs the screen draws, the one she is in last. */
@@ -26,6 +27,7 @@ const FELT: ReadonlySet<SymptomCategory | "custom"> = new Set([
   "symptoms",
   "vaginalDischarge",
   "digestionAndStool",
+  "pregnancy",
   "other",
   "custom",
 ]);
@@ -37,12 +39,20 @@ export type SymptomWeeks = {
   rows: { id: SymptomId; total: number; days: number[] }[];
 };
 
-/** Days with each symptom logged, per week of the pregnancy, up to `today`. */
-export function pregnancySymptomWeeks(diary: Diary, dueDate: string, today: string): SymptomWeeks {
-  const start = pregnancyStart(dueDate);
+/** The weeks the log draws: the last SYMPTOM_WEEKS up to the one `today` is in, counted from zero. */
+function loggedWeeks(dueDate: string, today: string): { current: number; first: number; weeks: number[] } {
   const current = Math.max(0, Math.floor(gestationalDays(dueDate, today) / 7));
   const first = Math.max(0, current - SYMPTOM_WEEKS + 1);
-  const weeks = Array.from({ length: current - first + 1 }, (_, index) => first + index);
+  return { current, first, weeks: Array.from({ length: current - first + 1 }, (_, index) => first + index) };
+}
+
+/**
+ * Days with each symptom logged, per week of the pregnancy, up to `today`.
+ * "Felt the baby move" is not a symptom and is not ranked: `babyMovementLog`.
+ */
+export function pregnancySymptomWeeks(diary: Diary, dueDate: string, today: string): SymptomWeeks {
+  const start = pregnancyStart(dueDate);
+  const { current, first, weeks } = loggedWeeks(dueDate, today);
   const counts = new Map<SymptomId, { total: number; days: number[] }>();
   for (const [iso, log] of Object.entries(diary.days)) {
     if (iso < start || iso > today) continue;
@@ -50,6 +60,7 @@ export function pregnancySymptomWeeks(diary: Diary, dueDate: string, today: stri
     for (const [key, value] of Object.entries(log.symptoms)) {
       if (!value) continue;
       const id = key as SymptomId;
+      if (id === BABY_MOVEMENT_ID) continue;
       const meta = findSymptomMeta(id, diary.customSymptoms);
       // "Everything fine" and "no discharge" say nothing was felt.
       if (!meta || meta.noneRole || !FELT.has(meta.category)) continue;
@@ -64,6 +75,38 @@ export function pregnancySymptomWeeks(diary: Diary, dueDate: string, today: stri
     .sort((left, right) => right.total - left.total || (left.id < right.id ? -1 : 1))
     .slice(0, MAX_SYMPTOM_ROWS);
   return { weeks, rows };
+}
+
+export type BabyMovementLog = {
+  /** The first day she logged "Felt the baby move" in this pregnancy, with its week (from zero); null if none. */
+  first: { date: string; week: number } | null;
+  /** The weeks drawn, the same as `pregnancySymptomWeeks`'s. */
+  weeks: number[];
+  /** Days logged in each of those weeks. */
+  days: number[];
+};
+
+/**
+ * The days she marked "Felt the baby move", up to `today`: when she first did,
+ * and how many days a week since. Only what she logged: a week with fewer marks
+ * says nothing about the baby.
+ */
+export function babyMovementLog(diary: Diary, dueDate: string, today: string): BabyMovementLog {
+  const start = pregnancyStart(dueDate);
+  const { current, first, weeks } = loggedWeeks(dueDate, today);
+  const days = weeks.map(() => 0);
+  let earliest: string | null = null;
+  for (const [iso, log] of Object.entries(diary.days)) {
+    if (iso < start || iso > today || !log.symptoms[BABY_MOVEMENT_ID]) continue;
+    if (earliest === null || iso < earliest) earliest = iso;
+    const week = Math.floor(daysBetween(start, iso) / 7);
+    if (week >= first && week <= current) days[week - first] += 1;
+  }
+  return {
+    first: earliest === null ? null : { date: earliest, week: Math.floor(daysBetween(start, earliest) / 7) },
+    weeks,
+    days,
+  };
 }
 
 /**
@@ -82,7 +125,7 @@ export function pregnancySymptomWeeks(diary: Diary, dueDate: string, today: stri
 export const MILESTONES = [
   { id: "firstScan", from: 11 * 7, to: 13 * 7 + 6 },
   { id: "secondTrimester", from: 14 * 7, to: null },
-  { id: "movements", from: 16 * 7, to: 24 * 7 },
+  { id: "movements", from: MOVEMENTS_FROM_DAYS, to: 24 * 7 },
   { id: "anatomyScan", from: 18 * 7, to: 21 * 7 + 6 },
   { id: "glucose", from: 24 * 7, to: 28 * 7 },
   { id: "whoopingCough", from: 27 * 7, to: 36 * 7 },

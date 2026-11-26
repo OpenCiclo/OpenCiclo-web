@@ -9,10 +9,12 @@
 import { addDaysIso, type Diary } from "@/lib/diary";
 import { daysBetween } from "@/lib/forecast/math";
 import {
+  MOVEMENTS_FROM_DAYS,
   PREGNANCY_DAYS,
   STILL_GOING_ASK_DAYS,
   conceptionDate,
   gestationalAge,
+  gestationalDays,
   likelyWindow,
   pregnancyStart,
   trimesterFor,
@@ -107,6 +109,33 @@ export function pregnancyCalendarMarks(pregnancies: readonly PregnancyRecord[]):
 export function pastPregnancyOn(pregnancies: readonly PregnancyRecord[], iso: string): PregnancyRecord | null {
   for (const record of pregnancies) {
     if (record.end && !record.hidden && iso >= pregnancyStart(record.dueDate) && iso <= record.end.date) return record;
+  }
+  return null;
+}
+
+export type PregnancyDay = {
+  record: PregnancyRecord;
+  /** The pregnancy has not ended: the day sheet shows its safety line. */
+  goingOn: boolean;
+  /** "Felt the baby move" is offered: from 16 weeks on that day, and only while the pregnancy goes on. */
+  movement: boolean;
+};
+
+/**
+ * The pregnancy whose days hold `iso`, for the symptoms the day sheet offers:
+ * from the estimated conception day (as the rest of the mode counts), up to
+ * the end of an ended one she kept and did not hide, or onwards while one goes
+ * on. Null on any other day. Not `insidePregnancy` (lib/cycle/segments.ts),
+ * which also covers the days after an end until her period comes back.
+ */
+export function pregnancyDay(pregnancies: readonly PregnancyRecord[], iso: string): PregnancyDay | null {
+  const active = activePregnancy(pregnancies);
+  if (active && iso >= conceptionDate(active.dueDate)) {
+    return { record: active, goingOn: true, movement: gestationalDays(active.dueDate, iso) >= MOVEMENTS_FROM_DAYS };
+  }
+  for (const record of pregnancies) {
+    if (!record.end || record.hidden) continue;
+    if (iso >= conceptionDate(record.dueDate) && iso <= record.end.date) return { record, goingOn: false, movement: false };
   }
   return null;
 }

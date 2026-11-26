@@ -11,7 +11,7 @@ import type {
   SymptomId,
   SymptomMap,
 } from "@/lib/diary";
-import { isCustomSymptomId } from "@/lib/symptoms/definitions";
+import { isCustomSymptomId, type SymptomCategory } from "@/lib/symptoms/definitions";
 import type { Messages } from "@/lib/i18n";
 import {
   SYMPTOM_CATEGORY_ORDER,
@@ -21,8 +21,12 @@ import {
 } from "@/lib/symptoms/catalog";
 import { SymptomChip } from "@/components/calendar/symptom-chip";
 
+/** Groups whose entries get no favourite star: the Pregnancy group is offered only on its days. */
+const NO_FAVORITE_CATEGORIES: ReadonlySet<SymptomCategory | "custom"> = new Set(["pregnancy"]);
+
 export function MoreSymptomsView({
   catalog,
+  categoryOrder = SYMPTOM_CATEGORY_ORDER,
   selected,
   favorites,
   disabled,
@@ -33,6 +37,8 @@ export function MoreSymptomsView({
   onDeleteCustom,
 }: {
   catalog: readonly SymptomMeta[];
+  /** The order of the groups (a day inside a pregnancy puts Pregnancy first). */
+  categoryOrder?: readonly (SymptomCategory | "custom")[];
   selected: SymptomMap;
   favorites: readonly SymptomId[];
   disabled: boolean;
@@ -48,7 +54,7 @@ export function MoreSymptomsView({
 }) {
   return (
     <div className="pb-3">
-      {SYMPTOM_CATEGORY_ORDER.map((category) => {
+      {categoryOrder.map((category) => {
         const items = catalog.filter((item) => item.category === category);
         if (
           items.length === 0 &&
@@ -69,7 +75,7 @@ export function MoreSymptomsView({
                     item={item}
                     active={Boolean(selected[item.id])}
                     favorite={favorites.includes(item.id)}
-                    showFavorite
+                    showFavorite={!NO_FAVORITE_CATEGORIES.has(category)}
                     disabled={disabled}
                     t={t}
                     onToggle={() => onToggle(item.id)}

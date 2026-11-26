@@ -4,8 +4,8 @@
 // Every change pregnancy mode makes to the diary, pure. Each returns the next
 // diary with its period starts worked out again (`withPregnancies`).
 
-import { addDaysIso, withPregnancies, type Diary } from "@/lib/diary";
-import { dueDateFrom, type PregnancyDating } from "@/lib/pregnancy/dating";
+import { addDaysIso, isEmptyDayLog, withPregnancies, type DayLog, type Diary, type SymptomId } from "@/lib/diary";
+import { dueDateFrom, pregnancyStart, type PregnancyDating } from "@/lib/pregnancy/dating";
 import {
   activePregnancy,
   newPregnancyId,
@@ -15,6 +15,7 @@ import {
   type PregnancyOutcome,
   type PregnancyRecord,
 } from "@/lib/pregnancy/record";
+import { isPregnancyEntry } from "@/lib/symptoms/catalog";
 
 function edit(diary: Diary, id: string, change: (record: PregnancyRecord) => PregnancyRecord | null): Diary {
   const next: PregnancyRecord[] = [];
@@ -111,9 +112,40 @@ export function reopenPregnancy(diary: Diary, id: string): Diary {
   return edit(diary, id, (record) => ({ ...record, end: null, hidden: false, bleedAnswers: {} }));
 }
 
-/** "Lo activé por error" and "Borrar del todo": as if it had never been in the diary. */
+/** Whether `iso` falls between a pregnancy's 0+0 and its end (no end: onwards). */
+function coversDay(record: PregnancyRecord, iso: string): boolean {
+  return iso >= pregnancyStart(record.dueDate) && (!record.end || iso <= record.end.date);
+}
+
+/**
+ * "Lo activé por error" and "Borrar del todo": as if it had never been in the
+ * diary. The "Pregnancy" group's entries go from its days too (a "Felt the baby
+ * move" left behind would say otherwise), unless another pregnancy kept in the
+ * diary covers that day. Everything else logged on those days stays.
+ */
 export function deletePregnancy(diary: Diary, id: string): Diary {
-  return edit(diary, id, () => null);
+  const deleted = (diary.pregnancies ?? []).find((record) => record.id === id);
+  if (!deleted) return diary;
+  const others = (diary.pregnancies ?? []).filter((record) => record.id !== id);
+  const days: Record<string, DayLog> = {};
+  let changed = false;
+  for (const [iso, log] of Object.entries(diary.days)) {
+    const strip =
+      coversDay(deleted, iso) &&
+      !others.some((record) => coversDay(record, iso)) &&
+      Object.keys(log.symptoms).some((key) => isPregnancyEntry(key as SymptomId));
+    if (!strip) {
+      days[iso] = log;
+      continue;
+    }
+    changed = true;
+    const symptoms = Object.fromEntries(
+      Object.entries(log.symptoms).filter(([key]) => !isPregnancyEntry(key as SymptomId)),
+    ) as DayLog["symptoms"];
+    const next = { ...log, symptoms };
+    if (!isEmptyDayLog(next)) days[iso] = next;
+  }
+  return edit(changed ? { ...diary, days } : diary, id, () => null);
 }
 
 /** An ended pregnancy kept in the diary but not drawn on the calendar (or drawn again). */

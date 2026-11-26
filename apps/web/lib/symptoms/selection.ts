@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import type { CustomSymptomDefinition, SymptomId, SymptomMap } from "@/lib/diary";
-import type { SymptomMeta } from "@/lib/symptoms/catalog";
+import { BABY_MOVEMENT_ID, PREGNANCY_LEAD_IDS, type SymptomMeta } from "@/lib/symptoms/catalog";
 
 export function toggleLoggedSymptom(
   current: SymptomMap,
@@ -38,7 +38,13 @@ export function toggleFavoriteSymptom(
 ): SymptomId[] {
   if (current.includes(id)) return current.filter((item) => item !== id);
   const selected = new Set([...current, id]);
-  return catalog.filter((item) => selected.has(item.id)).map((item) => item.id);
+  const known = new Set(catalog.map((item) => item.id));
+  // A picker may hand a filtered catalog (a day inside a pregnancy leaves some
+  // groups out): favourites it does not list are kept, never dropped.
+  return [
+    ...catalog.filter((item) => selected.has(item.id)).map((item) => item.id),
+    ...current.filter((item) => !known.has(item)),
+  ];
 }
 
 export function removeCustomSymptom(
@@ -76,6 +82,31 @@ export function quickSymptomCatalog(
     ...(Object.keys(selected) as SymptomId[]),
   ]);
   return catalog.filter((item) => visible.has(item.id));
+}
+
+/**
+ * The quick chips on a day inside a pregnancy: `lead` is the short pregnancy
+ * set (PREGNANCY_LEAD_IDS, in that order; baby movement only with `movement`),
+ * `rest` her favourites and then whatever else is logged that day, each in
+ * catalog order, without the ones already in `lead`.
+ */
+export function pregnancyQuickCatalog(
+  catalog: readonly SymptomMeta[],
+  favorites: readonly SymptomId[],
+  selected: SymptomMap,
+  { movement }: { movement: boolean },
+): { lead: SymptomMeta[]; rest: SymptomMeta[] } {
+  const byId = new Map(catalog.map((item) => [item.id, item]));
+  const lead = PREGNANCY_LEAD_IDS.filter((id) => id !== BABY_MOVEMENT_ID || movement)
+    .map((id) => byId.get(id))
+    .filter((item): item is SymptomMeta => Boolean(item));
+  const inLead = new Set(lead.map((item) => item.id));
+  const favorite = new Set(favorites);
+  const rest = [
+    ...catalog.filter((item) => !inLead.has(item.id) && favorite.has(item.id)),
+    ...catalog.filter((item) => !inLead.has(item.id) && !favorite.has(item.id) && Boolean(selected[item.id])),
+  ];
+  return { lead, rest };
 }
 
 export function quickSymptomCatalogFromIds(

@@ -4,8 +4,16 @@
 import { describe, expect, it } from "vitest";
 
 import { parseDiary, type CustomSymptomDefinition, type SymptomMap } from "@/lib/diary";
-import { resolveSymptomCatalog } from "@/lib/symptoms/catalog";
 import {
+  PREGNANCY_CATEGORY_ORDER,
+  PREGNANCY_LEAD_IDS,
+  isPregnancyEntry,
+  pickerCatalog,
+  resolveSymptomCatalog,
+  visibleSymptomCatalog,
+} from "@/lib/symptoms/catalog";
+import {
+  pregnancyQuickCatalog,
   quickSymptomCatalog,
   quickSymptomCatalogFromIds,
   removeCustomSymptom,
@@ -127,5 +135,67 @@ describe("symptom selection", () => {
     });
     expect(saved.customSymptoms).toEqual([]);
     expect(saved.days["2026-08-10"]?.symptoms).toEqual({ cramps: "present" });
+  });
+});
+
+describe("pregnancy symptoms in the pickers", () => {
+  const visible = visibleSymptomCatalog();
+  const ids = (items: readonly { id: string }[]) => items.map((item) => item.id);
+
+  it("has twelve entries in its own group, none in a none-group", () => {
+    const group = catalog.filter((item) => item.category === "pregnancy");
+    expect(group).toHaveLength(12);
+    expect(group.every((item) => isPregnancyEntry(item.id) && !item.noneGroup && !item.exclusiveGroup)).toBe(true);
+    // "Everything fine" does not clear them.
+    let selected: SymptomMap = toggleLoggedSymptom({}, "heartburn", catalog);
+    selected = toggleLoggedSymptom(selected, "everythingFine", catalog);
+    expect(selected).toEqual({ heartburn: "present", everythingFine: "present" });
+  });
+
+  it("leads with the short set of 8 in its order, baby movement only from 16 weeks", () => {
+    expect(PREGNANCY_LEAD_IDS).toHaveLength(8);
+    const early = pregnancyQuickCatalog(catalog, ["cramps"], {}, { movement: false });
+    expect(ids(early.lead)).toEqual(PREGNANCY_LEAD_IDS.slice(1));
+    const later = pregnancyQuickCatalog(catalog, ["cramps"], {}, { movement: true });
+    expect(ids(later.lead)).toEqual([...PREGNANCY_LEAD_IDS]);
+  });
+
+  it("then her favourites, then what is logged, never twice", () => {
+    const { lead, rest } = pregnancyQuickCatalog(
+      catalog,
+      ["fatigue", "headache", "cramps"],
+      { nausea: "present", dizziness: "present", travel: "present", cramps: "present" },
+      { movement: true },
+    );
+    expect(ids(rest)).toEqual(["cramps", "headache", "travel", "dizziness"]);
+    expect(ids(lead).filter((id) => ids(rest).includes(id))).toEqual([]);
+  });
+
+  it("offers the group only on days inside a pregnancy, and anything logged always", () => {
+    const outside = pickerCatalog(visible, {}, { pregnancy: false, movement: false, hideCycleOnly: false });
+    expect(outside.some((item) => item.category === "pregnancy")).toBe(false);
+    expect(ids(outside)).toContain("ovulationTestPositive");
+    const logged = pickerCatalog(visible, { heartburn: "present" }, { pregnancy: false, movement: false, hideCycleOnly: false });
+    expect(ids(logged.filter((item) => item.category === "pregnancy"))).toEqual(["heartburn"]);
+  });
+
+  it("inside a pregnancy, leaves out ovulation tests and the pill unless logged that day", () => {
+    const early = pickerCatalog(visible, {}, { pregnancy: true, movement: false, hideCycleOnly: true });
+    expect(ids(early)).not.toContain("babyMovement");
+    expect(ids(early)).toContain("heartburn");
+    expect(early.some((item) => item.category === "ovulationTest" || item.category === "oralContraceptives")).toBe(false);
+    expect(ids(early)).toContain("pregnancyTestPositive");
+    const logged = pickerCatalog(visible, { ocTakenOnTime: "present" }, { pregnancy: true, movement: true, hideCycleOnly: true });
+    expect(ids(logged)).toContain("ocTakenOnTime");
+    expect(ids(logged)).not.toContain("ocYesterdaysPill");
+    expect(ids(logged)).toContain("babyMovement");
+    expect(PREGNANCY_CATEGORY_ORDER[0]).toBe("pregnancy");
+  });
+
+  it("keeps favourites a filtered catalog does not list", () => {
+    const filtered = pickerCatalog(visible, {}, { pregnancy: true, movement: true, hideCycleOnly: true });
+    const favorites = toggleFavoriteSymptom(["ovulationTestPositive", "cramps"], "headache", filtered);
+    expect(favorites).toEqual(["cramps", "headache", "ovulationTestPositive"]);
+    expect(toggleFavoriteSymptom(favorites, "cramps", filtered)).toEqual(["headache", "ovulationTestPositive"]);
   });
 });

@@ -3,6 +3,9 @@
 
 import { describe, expect, it } from "vitest";
 
+import { LOCALES, messages } from "@/lib/i18n";
+import { loadLocale } from "@/lib/locales/registry";
+import { PREGNANCY_CALL_COPY } from "@/lib/pregnancy/call-copy";
 import { GUIDE_SOURCES, PREGNANCY_GUIDE, fetalSize, sizeSeries, weekGuide } from "@/lib/pregnancy/guide";
 import { CROWN_RUMP_MM, WEEK_TEXTS, WEIGHT_GRAMS } from "@/lib/pregnancy/guide-weeks";
 import { MILESTONES } from "@/lib/pregnancy/patterns";
@@ -45,6 +48,31 @@ describe("the week-by-week texts", () => {
       .toLowerCase();
     expect(all).not.toMatch(/\b(lemon|kiwi|grape|avocado|melon|limón|uva|aguacate|melón|sandía|watermelon)\b/);
     expect(all).not.toMatch(/congratulations|enhorabuena|felicidades|!/);
+  });
+});
+
+describe("the day sheet's safety line", () => {
+  it("opens the same 'when to call' text as Patterns, from its own small file", () => {
+    for (const lang of LANGS) {
+      expect(PREGNANCY_GUIDE[lang].callLabel).toBe(PREGNANCY_CALL_COPY[lang].callLabel);
+      expect(PREGNANCY_GUIDE[lang].callBody).toBe(PREGNANCY_CALL_COPY[lang].callBody);
+      expect(PREGNANCY_GUIDE[lang].callEmergency).toBe(PREGNANCY_CALL_COPY[lang].callEmergency);
+    }
+  });
+
+  it("says logging alerts no one, and to call straight away at any hour when the baby moves less, in every language", () => {
+    expect(messages.en.pregnancySafetyLine).toMatch(/does not alert anyone.*moves less than usual.*straight away, at any hour/);
+    expect(messages.es.pregnancySafetyLine).toMatch(/no avisa a nadie.*se mueve menos de lo habitual.*enseguida.*a cualquier hora/);
+    expect(PREGNANCY_GUIDE.en.movementNote).toMatch(/does not count or watch.*straight away/);
+    expect(PREGNANCY_GUIDE.es.movementNote).toMatch(/no cuenta los movimientos.*enseguida/);
+  });
+
+  it("never says to wait", async () => {
+    for (const tag of LOCALES) {
+      const { messages: t } = await loadLocale(tag);
+      expect(t.pregnancySafetyLine, tag).not.toMatch(/the same day|ese mismo día|until tomorrow|a mañana|tomorrow|mañana/i);
+    }
+    for (const lang of LANGS) expect(PREGNANCY_GUIDE[lang].movementNote).not.toMatch(/the same day|ese mismo día|tomorrow|mañana/i);
   });
 });
 

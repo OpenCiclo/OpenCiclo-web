@@ -14,6 +14,7 @@
 // PREGNANCY_WEEKS_AVAILABLE (lib/features.ts). Sources: GUIDE_SOURCES, below.
 
 import type { BaseLocale } from "@/lib/i18n";
+import { PREGNANCY_CALL_COPY } from "@/lib/pregnancy/call-copy";
 import type { MilestoneId } from "@/lib/pregnancy/patterns";
 import { CROWN_RUMP_MM, WEEK_TEXTS, WEIGHT_GRAMS, type WeekText } from "@/lib/pregnancy/guide-weeks";
 
@@ -64,6 +65,11 @@ export type PregnancyGuideCopy = {
   weekAxis: string;
   /** 1–2 days, 3–4 days, 5–7 days. */
   logLegend: [string, string, string];
+  /** "Felt the baby move": the first day she marked it, and its week. */
+  movementFirst: string;
+  /** Days marked in one week, for screen readers. */
+  movementWeek: string;
+  movementNote: string;
   nextLabel: string;
   nextAll: string;
   nextLess: string;
@@ -102,6 +108,10 @@ export const PREGNANCY_GUIDE: Record<BaseLocale, PregnancyGuideCopy> = {
     logDays: "{days} días",
     weekAxis: "Semana",
     logLegend: ["1–2 días", "3–4 días", "5–7 días por semana"],
+    movementFirst: "Lo marcaste por primera vez el {date}, en la semana {week}.",
+    movementWeek: "Semana {week}: {days} días",
+    movementNote:
+      "Solo muestra los días que lo marcaste: Ciclo no cuenta los movimientos ni los vigila. Si el bebé se mueve menos de lo habitual, llama enseguida a tu matrona o a tu médico.",
     nextLabel: "Lo que viene",
     nextAll: "Ver todo el embarazo",
     nextLess: "Ver menos",
@@ -142,11 +152,7 @@ export const PREGNANCY_GUIDE: Record<BaseLocale, PregnancyGuideCopy> = {
       dueDate: { title: "Fecha probable de parto", detail: "Semana 40. Solo alrededor de 1 de cada 20 bebés nace justo ese día." },
       pastDue: { title: "Pasada la fecha", detail: "Durante la semana 41 suelen ofrecerse más controles y la inducción del parto." },
     },
-    callLabel: "Llama enseguida a tu matrona o a tu médico",
-    callBody:
-      "A cualquier hora, sin esperar al día siguiente: sangrado o pérdida de líquido por la vagina; dolor de vientre que no cede; dolor de cabeza intenso o que no se va; cambios en la vista; hinchazón repentina de cara, manos o pies; dolor fuerte justo debajo de las costillas; fiebre de 38 °C o más; vómitos que no te dejan retener líquidos; un brazo o una pierna hinchados, rojos o doloridos; contracciones regulares antes de la semana 37; o si el bebé se mueve menos de lo habitual.",
-    callEmergency:
-      "Llama a emergencias si el sangrado es abundante, el dolor es muy fuerte, te cuesta respirar, tienes dolor en el pecho, convulsiones o te desmayas, o si piensas en hacerte daño a ti o al bebé.",
+    ...PREGNANCY_CALL_COPY.es,
     earlierLabel: "Tus ciclos antes del embarazo",
     earlierOne: "1 ciclo",
     earlierCount: "{count} ciclos",
@@ -171,6 +177,10 @@ export const PREGNANCY_GUIDE: Record<BaseLocale, PregnancyGuideCopy> = {
     logDays: "{days} days",
     weekAxis: "Week",
     logLegend: ["1–2 days", "3–4 days", "5–7 days a week"],
+    movementFirst: "You first marked it on {date}, in week {week}.",
+    movementWeek: "Week {week}: {days} days",
+    movementNote:
+      "This shows only the days you marked it: Ciclo does not count or watch movements. If the baby moves less than usual, call your midwife or doctor straight away.",
     nextLabel: "Coming up",
     nextAll: "Show the whole pregnancy",
     nextLess: "Show less",
@@ -211,11 +221,7 @@ export const PREGNANCY_GUIDE: Record<BaseLocale, PregnancyGuideCopy> = {
       dueDate: { title: "Due date", detail: "Week 40. Only about 1 in 20 babies are born on the day itself." },
       pastDue: { title: "Past the due date", detail: "During week 41 extra checks and inducing labour are usually offered." },
     },
-    callLabel: "Call your midwife or doctor straight away",
-    callBody:
-      "At any hour, without waiting for the next day: bleeding or fluid leaking from your vagina; tummy pain that does not go away; a headache that is severe or will not go away; changes in your sight; sudden swelling of your face, hands or feet; severe pain just below the ribs; a fever of 38 °C (100.4 °F) or more; vomiting so that you cannot keep fluids down; a swollen, red or painful arm or leg; regular tightenings before week 37; or if the baby moves less than usual.",
-    callEmergency:
-      "Call the emergency number if the bleeding is heavy, the pain is severe, you have trouble breathing, chest pain, a fit, you faint, or you have thoughts of harming yourself or your baby.",
+    ...PREGNANCY_CALL_COPY.en,
     earlierLabel: "Your cycles before the pregnancy",
     earlierOne: "1 cycle",
     earlierCount: "{count} cycles",
