@@ -194,8 +194,8 @@ const locale: LocaleModule = {
     newPassword: "Novo contrasinal",
     changePasswordOk: "Contrasinal actualizado.",
     backupTitle: "Copia de seguranza",
-    showBackupPhrase: "Ver QR da frase",
-    hideBackupPhrase: "Ocultar QR",
+    showBackupPhrase: "Ver a frase e o seu QR",
+    hideBackupPhrase: "Ocultar a frase",
     backupPhraseHint:
       "Só para o modo superprivado ou para unha copia manual. Non fai falta se usas correo e contrasinal.",
     backupQrHint:

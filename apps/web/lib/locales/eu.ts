@@ -194,8 +194,8 @@ const locale: LocaleModule = {
     newPassword: "Pasahitz berria",
     changePasswordOk: "Pasahitza eguneratu da.",
     backupTitle: "Babeskopia",
-    showBackupPhrase: "Ikusi esaldiaren QR kodea",
-    hideBackupPhrase: "Ezkutatu QR kodea",
+    showBackupPhrase: "Ikusi esaldia eta QR kodea",
+    hideBackupPhrase: "Ezkutatu esaldia",
     backupPhraseHint: "Modu superpribaturako edo eskuzko kopiarako bakarrik. Ez da beharrezkoa e-posta eta pasahitza erabiltzen badituzu.",
     backupQrHint:
       "QR kode hau 12 hitzeko esaldi bera da. Beste gailu batean, joan Sartu → Modu superpribatua → Eskaneatu QR kodea atalera, kontua idatzi gabe irekitzeko. Ez erakutsi pantaila partekatu batean: argazki batek kontua irekitzen du.",

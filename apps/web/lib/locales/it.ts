@@ -194,8 +194,8 @@ const locale: LocaleModule = {
     newPassword: "Nuova password",
     changePasswordOk: "Password aggiornata.",
     backupTitle: "Backup",
-    showBackupPhrase: "Mostra il QR della frase",
-    hideBackupPhrase: "Nascondi QR",
+    showBackupPhrase: "Mostra la frase e il suo QR",
+    hideBackupPhrase: "Nascondi la frase",
     backupPhraseHint: "Solo per la modalità super privata o per una copia manuale. Non serve se usi email e password.",
     backupQrHint:
       "Questo QR è la stessa frase di 12 parole. Su un altro dispositivo, vai su Accedi → Modalità super privata → Scansiona QR per entrare senza digitarla. Non mostrarlo su uno schermo condiviso: basta una foto per aprire l'account.",

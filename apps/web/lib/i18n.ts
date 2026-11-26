@@ -242,8 +242,8 @@ const es = {
   newPassword: "Nueva contraseña",
   changePasswordOk: "Contraseña actualizada.",
   backupTitle: "Copia de seguridad",
-  showBackupPhrase: "Ver QR de la frase",
-  hideBackupPhrase: "Ocultar QR",
+  showBackupPhrase: "Ver la frase y su QR",
+  hideBackupPhrase: "Ocultar la frase",
   backupPhraseHint: "Solo para modo super privado o copia manual. No hace falta si usas correo y contraseña.",
   backupQrHint:
     "Este QR es la misma frase de 12 palabras. En otro dispositivo, entra en Entrar → Modo super privado → Escanear QR para abrir la cuenta sin teclearla. No lo muestres en una pantalla compartida: una foto abre la cuenta.",
@@ -1267,8 +1267,8 @@ const en = {
   newPassword: "New password",
   changePasswordOk: "Password updated.",
   backupTitle: "Backup",
-  showBackupPhrase: "Show phrase QR",
-  hideBackupPhrase: "Hide QR",
+  showBackupPhrase: "Show the phrase and its QR",
+  hideBackupPhrase: "Hide the phrase",
   backupPhraseHint: "For super private mode or manual backup. Not needed if you use email and password.",
   backupQrHint:
     "This QR is the same 12-word phrase. On another device, open Sign in → Super private mode → Scan QR to sign in without typing it. Do not show it on a shared screen: a photo opens the account.",

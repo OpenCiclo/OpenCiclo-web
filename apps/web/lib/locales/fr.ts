@@ -194,8 +194,8 @@ const locale: LocaleModule = {
     newPassword: "Nouveau mot de passe",
     changePasswordOk: "Mot de passe mis à jour.",
     backupTitle: "Sauvegarde",
-    showBackupPhrase: "Voir le QR de la phrase",
-    hideBackupPhrase: "Masquer le QR",
+    showBackupPhrase: "Voir la phrase et son QR",
+    hideBackupPhrase: "Masquer la phrase",
     backupPhraseHint:
       "Seulement pour le mode super privé ou une sauvegarde manuelle. Inutile si tu utilises e-mail et mot de passe.",
     backupQrHint:

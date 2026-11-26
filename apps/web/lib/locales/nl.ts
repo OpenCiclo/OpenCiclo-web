@@ -194,8 +194,8 @@ const locale: LocaleModule = {
     newPassword: "Nieuw wachtwoord",
     changePasswordOk: "Wachtwoord bijgewerkt.",
     backupTitle: "Back-up",
-    showBackupPhrase: "QR van herstelzin tonen",
-    hideBackupPhrase: "QR verbergen",
+    showBackupPhrase: "Herstelzin en QR tonen",
+    hideBackupPhrase: "Herstelzin verbergen",
     backupPhraseHint: "Alleen voor de superprivémodus of een handmatige back-up. Niet nodig als je e-mail en wachtwoord gebruikt.",
     backupQrHint:
       "Deze QR is dezelfde herstelzin van 12 woorden. Ga op een ander apparaat naar Inloggen → Superprivémodus → QR scannen om in te loggen zonder hem te typen. Toon hem niet op een gedeeld scherm: een foto ervan opent het account.",
