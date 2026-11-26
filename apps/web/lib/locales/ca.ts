@@ -193,8 +193,8 @@ const locale: LocaleModule = {
     newPassword: "Contrasenya nova",
     changePasswordOk: "Contrasenya actualitzada.",
     backupTitle: "Còpia de seguretat",
-    showBackupPhrase: "Mostra el QR de la frase",
-    hideBackupPhrase: "Amaga el QR",
+    showBackupPhrase: "Mostra la frase i el QR",
+    hideBackupPhrase: "Amaga la frase",
     backupPhraseHint: "Només per al mode superprivat o per a una còpia manual. No cal si fas servir correu i contrasenya.",
     backupQrHint:
       "Aquest QR és la mateixa frase de 12 paraules. En un altre dispositiu, ves a Entra → Mode superprivat → Escaneja el QR per obrir el compte sense escriure-la. No el mostris en una pantalla compartida: una foto obre el compte.",

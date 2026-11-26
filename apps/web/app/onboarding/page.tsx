@@ -8,7 +8,6 @@ import { type Wallet } from "@/lib/crypto/wallet";
 import { useBackStep } from "@/lib/client/android-back";
 import { goBack, returnTo } from "@/lib/client/back-navigation";
 import { storeBrowserPassword } from "@/lib/client/credentials";
-import { copyPhrase } from "@/lib/client/phrase-clipboard";
 import { AccountMismatchError, HttpError } from "@/lib/client/api";
 import { UpdateRequiredError } from "@/lib/client/http";
 import { useSaveFile } from "@/components/save-file-dialog";
@@ -25,7 +24,7 @@ import { gatedSignupMethod, type SignupMethod } from "@/lib/client/signup-consen
 import { PolicyDialog } from "@/components/policy-dialog";
 import { AppShell } from "@/components/app-shell";
 import { UpdateNotice, updateErrorMessage } from "@/components/update-notice";
-import { PhraseQrCode } from "@/components/phrase-qr-code";
+import { PhraseBackup } from "@/components/phrase-backup";
 import { SavePhraseForm } from "@/components/save-phrase-form";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -60,7 +59,6 @@ export default function OnboardingPage() {
   const consentHintId = useId();
   const consentHint = consented ? undefined : consentHintId;
   const [wallet, setWallet] = useState<Wallet | null>(null);
-  const [copied, setCopied] = useState(false);
   const [step, setStep] = useState<"show" | "confirm">("show");
   const [chosenEmailPhase, setEmailPhase] = useState<"form" | "code" | null>(null);
   const emailPhase = chosenEmailPhase ?? (pendingSignup ? "code" : "form");
@@ -214,7 +212,6 @@ export default function OnboardingPage() {
   }
   useBackStep(method === "choose" ? null : stepBack);
 
-  const words = wallet?.mnemonic.split(" ") ?? [];
 
   return (
     <AppShell>
@@ -441,39 +438,7 @@ export default function OnboardingPage() {
           ) : null}
           {wallet && step === "show" ? (
             <Card className="mt-6 flex flex-col gap-3">
-              <ol className="grid grid-cols-2 gap-2 text-sm">
-                {words.map((word, index) => (
-                  <li key={`${word}-${index}`} className="rounded-lg bg-secondary px-3 py-2">
-                    <span className="text-muted-foreground">{index + 1}.</span> {word}
-                  </li>
-                ))}
-              </ol>
-              <div className="flex flex-col items-center gap-2 py-1">
-                <PhraseQrCode mnemonic={wallet.mnemonic} label={t.backupQrLabel} />
-                <p className="text-center text-xs text-muted-foreground">{t.backupQrHint}</p>
-              </div>
-              <div className="flex gap-2">
-                <Button
-                  type="button"
-                  variant="secondary"
-                  className="flex-1"
-                  onClick={async () => {
-                    // Marked sensitive in the app, and cleared from the clipboard a minute later.
-                    await copyPhrase(wallet.mnemonic);
-                    setCopied(true);
-                  }}
-                >
-                  {copied ? t.copied : t.copy}
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="flex-1"
-                  onClick={() => void saveFile("ciclo-recovery-phrase.txt", wallet.mnemonic, "text/plain").catch(() => undefined)}
-                >
-                  {t.download}
-                </Button>
-              </div>
+              <PhraseBackup mnemonic={wallet.mnemonic} t={t} onSave={saveFile} />
               <SavePhraseForm key={wallet.mnemonic} mnemonic={wallet.mnemonic} t={t} />
               <Button type="button" onClick={() => setStep("confirm")}>
                 {t.next}

@@ -193,8 +193,8 @@ const locale: LocaleModule = {
     newPassword: "Nowe hasło",
     changePasswordOk: "Hasło zaktualizowane.",
     backupTitle: "Kopia zapasowa",
-    showBackupPhrase: "Pokaż kod QR frazy",
-    hideBackupPhrase: "Ukryj kod QR",
+    showBackupPhrase: "Pokaż frazę i jej kod QR",
+    hideBackupPhrase: "Ukryj frazę",
     backupPhraseHint: "Do trybu superprywatnego lub ręcznej kopii zapasowej. Niepotrzebne, jeśli używasz e-maila i hasła.",
     backupQrHint:
       "Ten kod QR to ta sama fraza z 12 słów. Na innym urządzeniu wybierz Zaloguj się → Tryb superprywatny → Zeskanuj QR, aby zalogować się bez wpisywania. Nie pokazuj go na wspólnym ekranie: zdjęcie otwiera konto.",

@@ -194,8 +194,8 @@ const locale: LocaleModule = {
     newPassword: "Nova senha",
     changePasswordOk: "Senha atualizada.",
     backupTitle: "Cópia de segurança",
-    showBackupPhrase: "Ver QR da frase",
-    hideBackupPhrase: "Ocultar QR",
+    showBackupPhrase: "Ver a frase e o QR",
+    hideBackupPhrase: "Ocultar a frase",
     backupPhraseHint: "Só para o modo superprivado ou cópia manual. Não é necessário se você usa e-mail e senha.",
     backupQrHint:
       "Este QR é a mesma frase de 12 palavras. Em outro dispositivo, vá em Entrar → Modo superprivado → Escanear QR para abrir a conta sem digitá-la. Não o mostre em uma tela compartilhada: uma foto abre a conta.",

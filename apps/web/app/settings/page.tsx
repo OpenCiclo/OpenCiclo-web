@@ -29,7 +29,7 @@ import { InstallPrompt } from "@/components/install-prompt";
 import { LanguageSelect } from "@/components/language-select";
 import { OfflineNotice } from "@/components/offline-notice";
 import { UpdateNotice } from "@/components/update-notice";
-import { PhraseQrCode } from "@/components/phrase-qr-code";
+import { PhraseBackup } from "@/components/phrase-backup";
 import { SavePhraseForm } from "@/components/save-phrase-form";
 import { SettingsAbout } from "@/components/settings-about";
 import { FeedbackCard } from "@/components/feedback-card";
@@ -659,7 +659,7 @@ export default function SettingsPage() {
         ) : null}
         {notice("backup")}
       </SettingsDisclosure>
-      {/* In the app there is no browser to save to: the section is the phrase itself (QR). */}
+      {/* In the app there is no browser to save to: the section is the phrase itself (words, QR, copy, save). */}
       <SettingsDisclosure title={IS_ANDROID_APP ? t.onboardingTitle : t.saveInBrowser}>
         {onDevice || IS_ANDROID_APP ? null : (
           <form
@@ -698,12 +698,8 @@ export default function SettingsPage() {
         <button type="button" className="text-left text-sm underline" onClick={() => setShowPhrase((v) => !v)}>
           {showPhrase ? t.hideBackupPhrase : t.showBackupPhrase}
         </button>
-        {showPhrase ? (
-          <div className="flex flex-col items-center gap-2">
-            <PhraseQrCode mnemonic={wallet.mnemonic} label={t.backupQrLabel} />
-            <p className="text-center text-xs text-muted-foreground">{t.backupQrHint}</p>
-          </div>
-        ) : null}
+        {/* Behind the button: the words open the diary, so they are not on screen until asked for. */}
+        {showPhrase ? <PhraseBackup mnemonic={wallet.mnemonic} t={t} onSave={saveFile} /> : null}
         {notice("phrase")}
       </SettingsDisclosure>
       <SettingsDisclosure title={t.researchTitle}>
