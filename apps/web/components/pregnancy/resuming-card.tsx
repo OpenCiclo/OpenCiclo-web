@@ -7,7 +7,7 @@ import { useId, useState } from "react";
 import Link from "next/link";
 import { ChevronDown, ChevronRight } from "lucide-react";
 
-import { PhaseAura } from "@/components/calendar/phase-visuals";
+import { CARD, PhaseAura } from "@/components/calendar/phase-visuals";
 import { PREGNANCY_AURA } from "@/components/pregnancy/pregnancy-card";
 import type { Messages } from "@/lib/i18n";
 import type { PregnancyOutcome } from "@/lib/pregnancy/record";
@@ -33,18 +33,21 @@ export function ResumingCard({ outcome, t }: { outcome: PregnancyOutcome; t: Mes
   const listId = useId();
   return (
     <section
-      className="animate-fade-up relative isolate overflow-hidden rounded-3xl border border-border/70 bg-card px-[18px] py-4 text-card-foreground shadow-sm"
+      className={cn(
+        "animate-fade-up relative isolate overflow-hidden rounded-3xl border border-border/70 bg-card text-card-foreground shadow-sm",
+        CARD.pad,
+      )}
       style={{ animationDelay: "60ms" }}
     >
       <PhaseAura phase="luteal" next="menstrual" animate colors={PREGNANCY_AURA} />
       <div className="relative z-[1]">
-        <p className="font-serif text-[21px] leading-[1.2] text-balance">{t.resumingTitle}</p>
+        <p className="font-serif text-2xl leading-[1.2] text-balance desktop:text-[27px]">{t.resumingTitle}</p>
         <button
           type="button"
           onClick={() => setOpen((value) => !value)}
           aria-expanded={open}
           aria-controls={listId}
-          className="mt-2 inline-flex items-center gap-1 text-[12.5px] font-bold underline-offset-4 hover:underline"
+          className="mt-2 inline-flex items-center gap-1 text-[13.5px] font-bold underline-offset-4 hover:underline desktop:text-[14.5px]"
           style={{ color: "var(--pregnancy-ink)" }}
         >
           {t.resumingOpen}
@@ -52,7 +55,7 @@ export function ResumingCard({ outcome, t }: { outcome: PregnancyOutcome; t: Mes
         </button>
         {open ? (
           <div id={listId}>
-            <ul className="mt-2 flex flex-col gap-1.5 text-[13px] leading-[1.45] text-card-foreground/85">
+            <ul className="mt-2 flex flex-col gap-1.5 text-sm leading-[1.45] text-card-foreground/85 desktop:text-[15px]">
               {FACTS[outcome].map((key) => (
                 <li key={key} className="flex gap-2">
                   <span aria-hidden className="mt-[7px] size-1 shrink-0 rounded-full bg-card-foreground/50" />
@@ -63,7 +66,7 @@ export function ResumingCard({ outcome, t }: { outcome: PregnancyOutcome; t: Mes
             {outcome === "ended" ? (
               <Link
                 href={`/learn/${AFTER_END_ARTICLE}`}
-                className="-mb-2 inline-flex min-h-11 items-center gap-1 text-[12.5px] font-bold underline-offset-4 hover:underline"
+                className="-mb-2 inline-flex min-h-11 items-center gap-1 text-[13.5px] font-bold underline-offset-4 hover:underline desktop:text-[14.5px]"
                 style={{ color: "var(--pregnancy-ink)" }}
               >
                 {t.resumingLearnLink}

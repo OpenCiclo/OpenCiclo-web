@@ -7,7 +7,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { ChevronDown } from "lucide-react";
 
 import { PhaseCardOverlay, type CardRect } from "@/components/calendar/phase-card-overlay";
-import { NEXT_PHASE, PHASE_INK, PhaseAura, PhaseRing } from "@/components/calendar/phase-visuals";
+import { CARD, NEXT_PHASE, PHASE_INK, PhaseAura, PhaseRing } from "@/components/calendar/phase-visuals";
 import { useIsDesktop } from "@/lib/client/desktop";
 import { phaseBody, phaseLabel, type CycleOverview, type CyclePhase } from "@/lib/cycle/phases";
 import { cycleTimeline, type CycleTimeline } from "@/lib/cycle/phase-timeline";
@@ -108,29 +108,28 @@ export function dueCardModel(overview: CycleOverview, t: Messages): PhaseCardMod
 export function PhaseHeader({ model, animate }: { model: PhaseCardModel; animate: boolean }) {
   return (
     <div className="relative z-[1]">
-      <div className="flex items-center gap-3">
+      <div className={CARD.row}>
         <PhaseRing
           timeline={model.timeline}
           day={model.day}
           phase={model.phase}
           due={model.kind === "due"}
           animate={animate}
+          sizeClass={CARD.ring}
+          glyphClass={CARD.ringGlyph}
         />
-        <div
-          className={cn("flex min-w-0 flex-col gap-[3px] pr-7", animate && "animate-fade-up")}
-          style={animate ? { animationDelay: "300ms" } : undefined}
-        >
+        <div className={cn(CARD.column, animate && "animate-fade-up")} style={animate ? { animationDelay: "300ms" } : undefined}>
           {model.label ? (
-            <p className="text-[10px] font-extrabold tracking-[0.07em] uppercase" style={{ color: PHASE_INK[model.phase] }}>
+            <p className={CARD.label} style={{ color: PHASE_INK[model.phase] }}>
               {model.label}
             </p>
           ) : null}
-          <p className="font-serif text-[23px] leading-[1.1] text-balance">{model.title}</p>
-          <p className="text-xs font-bold text-card-foreground/85">{model.meta}</p>
+          <p className={CARD.title}>{model.title}</p>
+          <p className={CARD.meta}>{model.meta}</p>
         </div>
       </div>
       <p
-        className={cn("mt-2.5 text-[13px] leading-[1.45] text-pretty text-card-foreground/85", animate && "animate-fade-up")}
+        className={cn(CARD.body, animate && "animate-fade-up")}
         style={animate ? { animationDelay: "450ms" } : undefined}
       >
         {model.body}
@@ -179,7 +178,9 @@ export function PhaseCard({
       <section
         ref={cardRef}
         className={cn(
-          "animate-fade-up relative isolate overflow-hidden rounded-3xl border border-border/70 bg-card px-[18px] py-4 text-card-foreground shadow-sm",
+          "animate-fade-up relative isolate overflow-hidden rounded-3xl border border-border/70 bg-card text-card-foreground shadow-sm",
+          CARD.pad,
+          CARD.aura,
           open && !isDesktop && "invisible",
         )}
         style={{ animationDelay: "60ms" }}
@@ -195,11 +196,8 @@ export function PhaseCard({
           aria-expanded={open}
           className="absolute inset-0 z-10 rounded-[inherit] focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring"
         >
-          <span
-            aria-hidden
-            className="absolute top-3.5 right-3.5 flex size-[26px] items-center justify-center rounded-full border border-[var(--glass-edge)] bg-[var(--glass)] text-card-foreground"
-          >
-            <ChevronDown className="phase-nudge size-3.5" />
+          <span aria-hidden className={cn(CARD.corner, "desktop:top-4 desktop:right-4")}>
+            <ChevronDown className={cn("phase-nudge", CARD.cornerIcon)} />
           </span>
         </button>
       </section>
@@ -228,11 +226,14 @@ export function PhaseCard({
 export function CycleDayCard({ day, t }: { day: number; t: Messages }) {
   return (
     <section
-      className="animate-fade-up relative isolate overflow-hidden rounded-3xl border border-border/70 bg-card px-[18px] py-4 text-card-foreground shadow-sm"
+      className={cn(
+        "animate-fade-up relative isolate overflow-hidden rounded-3xl border border-border/70 bg-card text-card-foreground shadow-sm",
+        CARD.pad,
+      )}
       style={{ animationDelay: "60ms" }}
     >
       <PhaseAura phase="luteal" next="menstrual" animate />
-      <p className="relative z-[1] font-serif text-[23px] leading-[1.1]">{t.cycleDay.replace("{day}", String(day))}</p>
+      <p className={cn("relative z-[1]", CARD.title)}>{t.cycleDay.replace("{day}", String(day))}</p>
     </section>
   );
 }

@@ -68,6 +68,31 @@ export function PhaseGlyph({ phase, className }: { phase: CyclePhase; className?
   return <Icon className={className} aria-hidden />;
 }
 
+/**
+ * Sizes shared by the cards above the calendar (phase, expected period,
+ * pregnancy) and the header of their expanded views, in one place so they
+ * cannot drift apart. The phone and the Android app get the plain classes; the
+ * desktop, where the card sits beside 24 px headings, a step up. `aura` tells
+ * PhaseAura where the ring's centre is (card padding + half the ring).
+ */
+export const CARD = {
+  pad: "px-5 py-[18px] desktop:px-[26px] desktop:py-[22px]",
+  aura: "[--aura-x:56px] [--aura-y:54px] [--aura-glow:140px] desktop:[--aura-x:68px] desktop:[--aura-y:64px] desktop:[--aura-glow:164px]",
+  row: "flex items-center gap-3.5 desktop:gap-4",
+  /** The right padding keeps the text clear of the chevron. */
+  column: "flex min-w-0 flex-col gap-[3px] pr-7",
+  label: "text-[11px] font-extrabold tracking-[0.07em] uppercase desktop:text-xs",
+  title: "font-serif text-[26px] leading-[1.1] text-balance desktop:text-[30px]",
+  meta: "text-[13px] font-bold text-card-foreground/85 desktop:text-sm",
+  body: "mt-2.5 text-sm leading-[1.45] text-pretty text-card-foreground/85 desktop:mt-3 desktop:text-[15px]",
+  ring: "size-[72px] desktop:size-[84px]",
+  ringGlyph: "size-[22px] desktop:size-[26px]",
+  /** The round button in the card's corner: the chevron that opens it, and the one that closes it. */
+  corner:
+    "absolute top-3.5 right-3.5 flex size-8 items-center justify-center rounded-full border border-[var(--glass-edge)] bg-[var(--glass)] text-card-foreground desktop:size-[34px]",
+  cornerIcon: "size-4 desktop:size-[17px]",
+} as const;
+
 const SIZE = 66;
 const RADIUS = 27;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
@@ -91,6 +116,8 @@ export function PhaseRing({
   due = false,
   animate,
   delay = 0,
+  sizeClass,
+  glyphClass = "size-5",
 }: {
   timeline: CycleTimeline | null;
   day: number;
@@ -99,6 +126,9 @@ export function PhaseRing({
   animate: boolean;
   /** Milliseconds to hold the first-show animation back (one ring after another in a list). */
   delay?: number;
+  /** Size classes for the ring, when CSS decides it (the card: bigger on the desktop). Without them it is 66 px. */
+  sizeClass?: string;
+  glyphClass?: string;
 }) {
   const progress = timeline ? (due ? timeline.spans.map(() => 1) : phaseProgress(timeline, day)) : [];
   const current = timeline ? timeline.spans.findIndex((span) => span.phase === phase) : -1;
@@ -126,8 +156,19 @@ export function PhaseRing({
   useSharedClock(rootRef);
 
   return (
-    <div ref={rootRef} className="relative shrink-0" style={{ width: SIZE, height: SIZE }} aria-hidden>
-      <svg width={SIZE} height={SIZE} viewBox={`0 0 ${SIZE} ${SIZE}`} className="absolute inset-0 overflow-visible">
+    <div
+      ref={rootRef}
+      className={cn("relative shrink-0", sizeClass)}
+      style={sizeClass ? undefined : { width: SIZE, height: SIZE }}
+      aria-hidden
+    >
+      {/* Drawn in a 66 px box; with `sizeClass` the box scales to the ring's size. */}
+      <svg
+        width={sizeClass ? "100%" : SIZE}
+        height={sizeClass ? "100%" : SIZE}
+        viewBox={`0 0 ${SIZE} ${SIZE}`}
+        className="absolute inset-0 overflow-visible"
+      >
         <g className={animate ? "phase-ring-in" : undefined} style={animate && delay ? { animationDelay: `${100 + delay}ms` } : undefined}>
           <g transform={`rotate(-90 ${SIZE / 2} ${SIZE / 2})`}>
             {timeline ? (
@@ -179,7 +220,7 @@ export function PhaseRing({
         style={{ color: PHASE_INK[due ? "menstrual" : phase], animationDelay: animate ? `${due ? delay + 600 : glyphDelay}ms` : undefined }}
       >
         <span className={cn("flex", due ? "phase-beat" : "phase-float")}>
-          <PhaseGlyph phase={due ? "menstrual" : phase} className="size-5" />
+          <PhaseGlyph phase={due ? "menstrual" : phase} className={glyphClass} />
         </span>
       </div>
     </div>
@@ -188,8 +229,10 @@ export function PhaseRing({
 
 /**
  * The blurred light behind the ring: a glow in the phase's colour and two
- * lights orbiting it (the next phase's and the brand rose). Laid out for a
- * card with the ring 18 px from the left and 16 px from the top.
+ * lights orbiting it (the next phase's and the brand rose). Centred on the
+ * ring: the card says where that is with `--aura-x` / `--aura-y` and how big
+ * the glow is with `--aura-glow` (`CARD.aura`); without them, a 66 px ring
+ * 18 px from the left and 16 px from the top.
  */
 /** The two lights of an aura when it is not a phase's (the pregnancy card). */
 export type AuraColors = { glow: string; blob: string };
@@ -216,10 +259,10 @@ export function PhaseAura({
       <div
         className="absolute will-change-transform"
         style={{
-          left: -13,
-          top: -15,
-          width: 128,
-          height: 128,
+          left: "calc(var(--aura-x, 51px) - var(--aura-glow, 128px) / 2)",
+          top: "calc(var(--aura-y, 49px) - var(--aura-glow, 128px) / 2)",
+          width: "var(--aura-glow, 128px)",
+          height: "var(--aura-glow, 128px)",
           transform: wide ? "scale(1.7)" : "scale(1)",
           transition: wide
             ? "transform 0.7s cubic-bezier(0.22, 1, 0.36, 1)"
@@ -231,7 +274,7 @@ export function PhaseAura({
           style={{ background: colors?.glow ?? PHASE_AURA[phase], opacity: "var(--aura-glow)" }}
         />
       </div>
-      <div className="phase-spin absolute will-change-transform" style={{ left: 51, top: 49, width: 0, height: 0 }}>
+      <div className="phase-spin absolute will-change-transform" style={{ left: "var(--aura-x, 51px)", top: "var(--aura-y, 49px)", width: 0, height: 0 }}>
         <div
           className="absolute size-[76px] rounded-full blur-[26px]"
           style={{ left: 24, top: -40, background: colors?.blob ?? PHASE_AURA[next], opacity: "var(--aura-blob)" }}
