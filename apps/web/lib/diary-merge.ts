@@ -58,11 +58,13 @@ function mergeDay(base?: DayLog, local?: DayLog, remote?: DayLog): DayLog | unde
   const flow = pick(base?.flow, local?.flow, remote?.flow);
   const cervicalMucus = pick(base?.cervicalMucus, local?.cervicalMucus, remote?.cervicalMucus);
   const note = pick(base?.note, local?.note, remote?.note);
+  const bbt = pick(base?.bbt, local?.bbt, remote?.bbt);
   return {
     ...(flow ? { flow } : {}),
     ...(cervicalMucus ? { cervicalMucus } : {}),
     symptoms: symptoms as DayLog["symptoms"],
     ...(note ? { note } : {}),
+    ...(bbt !== undefined ? { bbt } : {}),
   };
 }
 

@@ -10,14 +10,17 @@ import { describe, expect, it } from "vitest";
 import {
   DIARY_SCHEMA_VERSION,
   FLOW_LEVELS,
+  MAX_BBT_CELSIUS,
   MAX_DAILY_NOTE_LENGTH,
+  MIN_BBT_CELSIUS,
   MUCUS_LEVELS,
   NewerDiaryError,
   SYMPTOM_VALUES,
-  emptyDayLog,
   emptyDiary,
   parseDiary,
   parseNewerDiaryForDisplay,
+  sanitizeBbt,
+  sanitizeDayLog,
 } from "@/lib/diary";
 import { LOCALES } from "@/lib/i18n";
 import { BUILT_IN_SYMPTOM_IDS, CUSTOM_SYMPTOM_CATEGORIES, isCustomSymptomId } from "@/lib/symptoms/definitions";
@@ -219,6 +222,71 @@ const FORMATS: Record<number, unknown> = {
       "pelvicPain", "legCramps", "shortOfBreath", "dizziness", "foodAversions", "smellSensitivity",
     ],
   },
+  9: {
+    parser: "ef929b9034ed3cca",
+    maxNoteLength: 200,
+    customSymptomIds: {
+      "custom-0a1b2c3d": true,
+      "custom-0a1b-2c3d-AB": true,
+      "custom-12345678": true,
+      "custom-1234567": false,
+      "custom-short": false,
+      "custom-0a1b_2c3d": false,
+      "custom-0a1b.2c3d": false,
+      "pill-0a1b2c3d": false,
+      "custom-3f2504e0-4f89-41d3-9a0c-0305e82c3301": true,
+    },
+    diaryKeys: [
+      "customSymptoms",
+      "days",
+      "favoriteSymptomIds",
+      "forecastingEnabled",
+      "locale",
+      "periodStarts",
+      "poolContributorKey",
+      "poolLastSyncedAt",
+      "poolOptIn",
+      "pregnancies",
+      "recoveryEmailSet",
+      "schemaVersion",
+    ],
+    // v9: a day's temperature, in degrees Celsius.
+    dayKeys: ["bbt", "cervicalMucus", "flow", "note", "symptoms"],
+    bbtRange: [34, 42],
+    bbtDecimals: 3,
+    flow: ["spotting", "light", "medium", "heavy"],
+    mucus: ["dry", "sticky", "creamy", "watery", "eggwhite"],
+    symptomValues: ["present", "mild", "moderate", "severe"],
+    customSymptomCategories: ["custom", "otherPills"],
+    pregnancyKeys: ["bleedAnswers", "dating", "dueDate", "end", "friendsMode", "hidden", "id"],
+    pregnancyDatingMethods: ["lmp", "dueDate", "ultrasound", "conception", "transfer"],
+    pregnancyOutcomes: ["birth", "ended"],
+    pregnancyFriendsModes: ["noNews", "simulated"],
+    pregnancyBleedAnswers: ["period", "notPeriod"],
+    embryoAges: [3, 5],
+    locales: ["es", "en", "pt-BR", "fr", "de", "it", "nl", "pl", "ca", "ca-valencia", "eu", "gl"],
+    builtInSymptoms: [
+      "didntHaveSex", "protectedSex", "unprotectedSex", "oralSex", "analSex", "masturbation",
+      "sensualTouch", "sexToys", "orgasm", "noOrgasm", "highLibido", "neutralLibido", "lowLibido",
+      "calm", "happy", "energetic", "frisky", "moodSwings", "irritated", "sad", "anxious",
+      "depressed", "feelingGuilty", "obsessiveThoughts", "lowEnergy", "apathetic", "confused",
+      "verySelfCritical", "everythingFine", "cramps", "tenderBreasts", "headache", "acne",
+      "backache", "fatigue", "cravings", "insomnia", "abdominalPain", "vaginalItching",
+      "vaginalDryness", "uti", "hotFlashes", "nightSweats", "jointPain", "brainFog", "drySkin",
+      "dryEyes", "intermenstrualBleeding", "noDischarge", "dischargeCreamy", "dischargeWatery",
+      "dischargeSticky", "dischargeEggWhite", "dischargeSpotting", "dischargeUnusual",
+      "dischargeClumpyWhite", "dischargeGray", "nausea", "bloating", "constipation", "diarrhea",
+      "pregnancyTestNotTaken", "pregnancyTestPositive", "pregnancyTestNegative",
+      "pregnancyTestFaintLine", "ovulationTestNotTaken", "ovulationTestPositive",
+      "ovulationTestNegative", "ovulationMyMethod", "travel", "stress", "meditation", "journaling",
+      "kegelExercises", "breathingExercises", "diseaseOrInjury", "alcohol", "didntExercise", "yoga",
+      "gym", "aerobicsDancing", "swimming", "teamSports", "running", "cycling", "walking",
+      "ocTakenOnTime", "ocYesterdaysPill", "sexualActivity",
+      // v8: the Pregnancy group.
+      "babyMovement", "heartburn", "vomiting", "frequentUrination", "swelling", "braxtonHicks",
+      "pelvicPain", "legCramps", "shortOfBreath", "dizziness", "foodAversions", "smellSensitivity",
+    ],
+  },
 };
 
 // The format code between the diary-format markers in these files, without
@@ -257,7 +325,15 @@ const SAMPLE_CUSTOM_IDS = [
 ];
 
 function currentFormat(version: number) {
-  const fullDay = { ...emptyDayLog(), flow: "light", cervicalMucus: "dry", note: "x" };
+  // Through the sanitizer, so a day field it does not keep is not counted.
+  const fullDay = sanitizeDayLog({ flow: "light", cervicalMucus: "dry", note: "x", symptoms: {}, bbt: 36.5 });
+  const temperature =
+    version >= 9
+      ? {
+          bbtRange: [MIN_BBT_CELSIUS, MAX_BBT_CELSIUS],
+          bbtDecimals: String(sanitizeBbt(36.123456789)).split(".")[1]?.length ?? 0,
+        }
+      : {};
   const fullPregnancy = sanitizePregnancy({
     id: "0123456789abcdef",
     dating: { method: "lmp", lmp: "2026-01-10", cycleLength: 29 },
@@ -285,6 +361,7 @@ function currentFormat(version: number) {
     customSymptomIds,
     diaryKeys: Object.keys(emptyDiary("en")).sort(),
     dayKeys: Object.keys(fullDay).sort(),
+    ...temperature,
     flow: [...FLOW_LEVELS],
     mucus: [...MUCUS_LEVELS],
     symptomValues: [...SYMPTOM_VALUES],

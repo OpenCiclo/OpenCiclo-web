@@ -16,7 +16,7 @@ import { formatIsoUtc } from "@/lib/format-date";
 import { filterJournalEntries, listJournalEntries, type JournalEntry } from "@/lib/journal/entries";
 
 export default function DiaryHistoryPage() {
-  const { t, diary, wallet, locale } = useCiclo();
+  const { t, diary, wallet, locale, temperatureUnit } = useCiclo();
   const [query, setQuery] = useState("");
   const [activeEntry, setActiveEntry] = useState<JournalEntry | null>(null);
   const [closing, setClosing] = useState(false);
@@ -137,6 +137,7 @@ export default function DiaryHistoryPage() {
           locale={locale}
           t={t}
           customSymptoms={diary.customSymptoms}
+          temperatureUnit={temperatureUnit}
           closing={closing}
           onClose={closeViewer}
           onExited={handleViewerExited}

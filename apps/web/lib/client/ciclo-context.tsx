@@ -64,6 +64,7 @@ import {
   LOCALE_KEY,
   LUNAR_PHASES_ENABLED_KEY,
   LUNAR_PHASES_VISIBLE_KEY,
+  TEMPERATURE_UNIT_KEY,
   TIME_ZONE_KEY,
   VISUAL_SEASONS_KEY,
   WEEK_STARTS_ON_KEY,
@@ -99,6 +100,7 @@ import {
   type TimeZoneSetting,
 } from "@/lib/time-zone";
 import { todayInSavedZone, useTodayIn } from "@/lib/client/today";
+import { defaultTemperatureUnit, parseTemperatureUnit, type TemperatureUnit } from "@/lib/temperature";
 
 type UnlockOptions = { create?: boolean; persist?: boolean };
 type PersistOptions = { persist?: boolean };
@@ -112,6 +114,8 @@ type CicloContextValue = {
   lunarPhasesEnabled: boolean;
   lunarPhasesVisible: boolean;
   weekStartsOn: 0 | 1;
+  /** How this device shows a day's temperature; the diary always holds degrees Celsius. */
+  temperatureUnit: TemperatureUnit;
   timeZone: TimeZoneSetting;
   colorScheme: ColorScheme;
   t: Messages;
@@ -218,6 +222,7 @@ type CicloContextValue = {
   setLunarPhasesEnabled: (enabled: boolean) => void;
   setLunarPhasesVisible: (visible: boolean) => void;
   setWeekStartsOn: (weekStartsOn: 0 | 1) => void;
+  setTemperatureUnit: (unit: TemperatureUnit) => void;
   setTimeZone: (timeZone: TimeZoneSetting) => void;
   setColorScheme: (scheme: ColorScheme) => void;
   startOnboarding: () => Wallet;
@@ -454,6 +459,7 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
   const [lunarPhasesEnabled, setLunarPhasesEnabledState] = useState(true);
   const [lunarPhasesVisible, setLunarPhasesVisibleState] = useState(false);
   const [weekStartsOn, setWeekStartsOnState] = useState<0 | 1>(1);
+  const [temperatureUnit, setTemperatureUnitState] = useState<TemperatureUnit>("c");
   const [timeZone, setTimeZoneState] = useState<TimeZoneSetting>(TIME_ZONE_AUTO);
   const [colorScheme, setColorSchemeState] = useState<ColorScheme>("system");
   const [error, setError] = useState<string | null>(null);
@@ -1065,6 +1071,9 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
           parseLunarPhasesVisible(localStorage.getItem(LUNAR_PHASES_VISIBLE_KEY)),
         );
         setWeekStartsOnState(parseWeekStartsOn(localStorage.getItem(WEEK_STARTS_ON_KEY)));
+        setTemperatureUnitState(
+          parseTemperatureUnit(localStorage.getItem(TEMPERATURE_UNIT_KEY), defaultTemperatureUnit(navigator.languages ?? [])),
+        );
         setTimeZoneState(parseTimeZoneSetting(localStorage.getItem(TIME_ZONE_KEY)));
         setColorSchemeState(parseColorScheme(localStorage.getItem(COLOR_SCHEME_KEY)));
         await restoreStoredSession(isCancelled);
@@ -1615,6 +1624,7 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
       lunarPhasesEnabled,
       lunarPhasesVisible,
       weekStartsOn,
+      temperatureUnit,
       timeZone,
       colorScheme,
       t,
@@ -1672,6 +1682,10 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
       setWeekStartsOn: (next) => {
         localStorage.setItem(WEEK_STARTS_ON_KEY, String(next));
         setWeekStartsOnState(next);
+      },
+      setTemperatureUnit: (next) => {
+        localStorage.setItem(TEMPERATURE_UNIT_KEY, next);
+        setTemperatureUnitState(next);
       },
       setTimeZone: (next) => {
         const parsed = parseTimeZoneSetting(next);
@@ -1972,6 +1986,7 @@ export function CicloProvider({ children }: { children: React.ReactNode }) {
       lunarPhasesEnabled,
       lunarPhasesVisible,
       weekStartsOn,
+      temperatureUnit,
       timeZone,
       colorScheme,
       pendingSignup,

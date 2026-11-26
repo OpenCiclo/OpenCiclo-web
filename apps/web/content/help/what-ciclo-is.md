@@ -6,7 +6,7 @@ It is a logging and forecasting tool. Forecasts can be wrong.
 
 ## What it does
 
-- Records period starts, flow, mucus, symptoms, and short day notes.
+- Records period starts, flow, mucus, temperature, symptoms, and short day notes.
 - Encrypts that diary in the browser, then stores the encrypted blob.
 - Forecasts the next period start as a probability over upcoming days, not a single certain date.
 - Optionally labels the current cycle phase (menstrual, follicular, ovulation, luteal) as an educational calendar guess, and estimates the days ovulation may fall on.

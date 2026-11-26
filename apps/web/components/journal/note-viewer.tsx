@@ -5,11 +5,12 @@
 
 import Link from "next/link";
 import { useEffect, useId } from "react";
-import { CalendarDays, Droplet, Sparkles, X } from "lucide-react";
+import { CalendarDays, Droplet, Sparkles, Thermometer, X } from "lucide-react";
 
 import type { DayLog, FlowLevel, CervicalMucus } from "@/lib/diary";
 import { formatIsoUtc } from "@/lib/format-date";
 import type { Locale, Messages } from "@/lib/i18n";
+import { formatTemperature, unitSymbol, type TemperatureUnit } from "@/lib/temperature";
 import type { JournalEntry } from "@/lib/journal/entries";
 import { phaseLabel } from "@/lib/cycle/phases";
 import { resolveSymptomCatalog, symptomLabel } from "@/lib/symptoms/catalog";
@@ -41,6 +42,7 @@ export function NoteViewer({
   locale,
   t,
   customSymptoms,
+  temperatureUnit = "c",
   closing,
   onClose,
   onExited,
@@ -50,6 +52,8 @@ export function NoteViewer({
   locale: Locale;
   t: Messages;
   customSymptoms: CustomSymptomDefinition[];
+  /** How this device shows the day's temperature. */
+  temperatureUnit?: TemperatureUnit;
   closing: boolean;
   onClose: () => void;
   onExited: () => void;
@@ -157,6 +161,12 @@ export function NoteViewer({
                   <span className="inline-flex items-center gap-1.5 rounded-full bg-fertile/15 px-3 py-1.5 text-xs font-semibold text-fertile-foreground">
                     <Sparkles className="size-3.5" aria-hidden />
                     {t.cervicalMucus}: {t[MUCUS_LABELS[log.cervicalMucus]]}
+                  </span>
+                ) : null}
+                {log?.bbt !== undefined ? (
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-muted px-3 py-1.5 text-xs font-semibold text-card-foreground">
+                    <Thermometer className="size-3.5" aria-hidden />
+                    {t.temperatureSection}: {formatTemperature(log.bbt, temperatureUnit, locale)} {unitSymbol(temperatureUnit)}
                   </span>
                 ) : null}
               </div>

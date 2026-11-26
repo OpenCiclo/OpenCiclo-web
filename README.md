@@ -49,7 +49,7 @@ OpenCiclo does not return a single “certain” date. Internally it produces a 
 
 The current engine (**0.3**) uses interpretable statistical models: V0 baselines plus a shrinkage estimator toward a population prior taken from published literature. The default `predict()` configuration is the winner of a local mcPHASES timing evaluation with that prior fixed, stored as aggregate parameters in `openciclo/artifacts/released_model.json`. The web app ports that same path to TypeScript and checks it against Python parity fixtures.
 
-Optional symptoms, temperature, and lab-style signals are stored in the data model but **are not used** in this release.
+Optional symptoms, temperature, and lab-style signals are stored in the data model but **are not used** by the forecast in this release. The app logs temperature and draws it as a chart; it does not interpret it.
 
 ## Status
 

@@ -60,6 +60,12 @@ export const HELP_ARTICLES: HelpArticleMeta[] = [
       ]
     : []),
   {
+    slug: "temperature",
+    title: "Temperature",
+    summary: "Log a day's temperature and see each cycle as a chart. Ciclo draws it; it does not read it.",
+    section: "product",
+  },
+  {
     slug: "inner-seasons",
     title: "Inner seasons",
     summary: "The season badge on the cycle card, and the full-screen guide behind it.",

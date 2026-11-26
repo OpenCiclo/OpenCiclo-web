@@ -4,7 +4,7 @@ Ciclo is built so that **the people who run the server cannot read your diary**.
 
 ## The short version
 
-Period dates, symptoms, mucus, and day notes are encrypted **in the browser** (AES-256-GCM) before they are sent. Postgres stores that ciphertext. Forecasting runs in the browser too. There is no analytics SDK.
+Period dates, symptoms, mucus, temperature, and day notes are encrypted **in the browser** (AES-256-GCM) before they are sent. Postgres stores that ciphertext. Forecasting runs in the browser too. There is no analytics SDK.
 
 Ciclo cannot reset your password or your 12-word phrase. If both are gone, the hosted diary is gone. Export a backup while you still can.
 

@@ -45,8 +45,13 @@ const locale: LocaleModule = {
       "Tria com vols entrar. En els dos casos, les teues dates es xifren ací abans de guardar-se. Ciclo no pot recuperar la teua contrasenya ni la teua frase.",
     privacyBanner:
       "Les teues dates es xifren en este dispositiu. Ciclo no pot restablir la teua contrasenya ni la teua frase. Si les perds, només et salva una exportació prèvia. Així ningú — ni tan sols nosaltres — pot llegir el teu diari al servidor.",
+    temperatureHint: "Temperatura basal: es pren en despertar-te, abans d'alçar-te.",
+    temperatureCycleOpen: "Este cicle, des del {date}",
+    temperatureNote:
+      "Ciclo dibuixa el que apuntes i no interpreta la gràfica. La temperatura no confirma ni prediu l'ovulació i no servix com a anticonceptiu. Ciclo no és un dispositiu mèdic.",
+    temperatureLearnLink: "Llig sobre el coneixement de la fertilitat a Aprendre",
     signupConsentHosted:
-      "El teu diari pot contindre dades de salut i de la teua vida sexual: períodes, símptomes, salut mental, activitat sexual, proves d'embaràs i d'ovulació, dates d'embaràs, pastilles anticonceptives i altres medicaments, i notes. Ciclo el xifra en este dispositiu abans de guardar-lo. En el núvol de Ciclo, el nostre servidor només en guarda la còpia xifrada i no la pot llegir. Amb correu, també guarda una empremta codificada de la teua adreça, mai l'adreça.",
+      "El teu diari pot contindre dades de salut i de la teua vida sexual: períodes, símptomes, salut mental, activitat sexual, proves d'embaràs i d'ovulació, dates d'embaràs, temperatura, pastilles anticonceptives i altres medicaments, i notes. Ciclo el xifra en este dispositiu abans de guardar-lo. En el núvol de Ciclo, el nostre servidor només en guarda la còpia xifrada i no la pot llegir. Amb correu, també guarda una empremta codificada de la teua adreça, mai l'adreça.",
     signupConsentDevice: "Amb «Només en este dispositiu», el diari no ix mai d'este mòbil.",
     signupConsentAgree:
       "Accepte que Ciclo guarde i tracte les meues dades de salut tal com s'explica ací i en la política de privacitat.",
